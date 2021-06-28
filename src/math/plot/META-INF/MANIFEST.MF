@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Created-By: 0.98
+Main-Class: math.plot.DrawFrame
+

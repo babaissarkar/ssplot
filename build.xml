@@ -1,0 +1,11 @@
+<project name="SSPlot-Main" default="compile" basedir=".">
+	<target name="compile" description="Compile and create jars">
+        <!--<ant dir="src/math/prim" target="jar"/>-->
+		<ant dir="src/math/plot" target="jar"/>
+	</target>
+
+	<target name="clean" description="Cleaning up">
+        <!--<ant dir="src/math/prim" target="clean"/>-->
+		<ant dir="src/math/plot" target="clean"/>
+	</target>
+</project>
