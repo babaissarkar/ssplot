@@ -23,6 +23,7 @@ public class DBViewer extends JFrame {
 
     public JTable table;
     public JButton btnPlot;
+    private JTextField tfXData, tfYData;
     
 	public DBViewer(Vector<Vector<Double>> data) {
         setData(data);
@@ -34,8 +35,8 @@ public class DBViewer extends JFrame {
         JPanel pnlPrefs = new JPanel();
         JLabel lblXData = new JLabel("X data column :");
         JLabel lblYData = new JLabel("Y data column :");
-        JTextField tfXData = new JTextField("1", 4);
-        JTextField tfYData = new JTextField("2", 4);
+        tfXData = new JTextField("1", 4);
+        tfYData = new JTextField("2", 4);
         btnPlot = new JButton("Apply");
         pnlPrefs.add(lblXData);
         pnlPrefs.add(tfXData);
@@ -90,6 +91,14 @@ public class DBViewer extends JFrame {
     /** @return the number of rows in the dataset */
     public int getRowNo() {
         return rowNo;
+    }
+    
+    public int getCol1() {
+    	return Integer.parseInt(tfXData.getText());
+    }
+    
+    public int getCol2() {
+    	return Integer.parseInt(tfYData.getText());
     }
 
     /** @return the number of columns in the dataset */

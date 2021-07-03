@@ -193,7 +193,7 @@ public class PlotterFrame extends JFrame implements ActionListener {
 	}
 	 
     public void changePlotType() {
-        Object[] types = {"Lines", "Points", "Both Lines and Points", "Vector field"};
+        Object[] types = {"Lines", "Points", "Both Lines and Points", "3D Points", "3D Lines", "Vector field"};
 
         String type = (String) JOptionPane.showInputDialog(
             this,
@@ -206,7 +206,7 @@ public class PlotterFrame extends JFrame implements ActionListener {
         );
 
         if (type != null) {
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < 6; i++) {
                 if (type == types[i]) {
                     switch(i) {
                         case 1 :
@@ -216,6 +216,12 @@ public class PlotterFrame extends JFrame implements ActionListener {
                             pv.setCurPlotType(PlotData.PlotType.LP);
                             break;
                         case 3 :
+                            pv.setCurPlotType(PlotData.PlotType.THREED);
+                            break;
+                        case 4 :
+                            pv.setCurPlotType(PlotData.PlotType.TRLINE);
+                            break;
+                        case 5 :
                             pv.setCurPlotType(PlotData.PlotType.VECTORS);
                             break;
                         default :
@@ -271,6 +277,7 @@ public class PlotterFrame extends JFrame implements ActionListener {
         		pv.repaint();
         	}
 		} else if (ae.getSource() == dbv.btnPlot) {
+			pv.setCols(dbv.getCol1(), dbv.getCol2());
             JOptionPane.showMessageDialog(this, "Changes applied.");
         }
 	}

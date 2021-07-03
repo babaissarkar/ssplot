@@ -11,9 +11,6 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
-//import org.apache.commons.math3.geometry.euclidean.threed.Rotation;
-//import org.apache.commons.math3.geometry.euclidean.threed.RotationConvention;
-//import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 /*
  * PlotModel.java
@@ -45,7 +42,6 @@ public class Canvas {
     private BufferedImage img; /* The image */
     private Graphics2D g;
     public Color fgColor, bgColor;
-    public double theta, phi, psi;
     private boolean axesVisible = true;
     public int curNoTics = 10;
 
@@ -59,8 +55,6 @@ public class Canvas {
         moveX = 0; moveY = 0;
         fgColor = Color.BLACK;
         bgColor = Color.WHITE;
-        theta = 0;
-        phi = 0;
     }
     
     private Graphics2D initImage(int W, int H) {
@@ -120,19 +114,12 @@ public class Canvas {
 
     /* Draws a line from point q1 to point q2 */
 	public void drawLine(Point2D.Double q10, Point2D.Double q20) {
-        //Point2D.Double q1 = getTransformedPoint(q10);
-        //Point2D.Double q2 = getTransformedPoint(q20);
-		//Stroke s = g.getStroke();
         g.draw(new Line2D.Double(q10, q20));
-        //g.setStroke(s);
 	}
 
     /* Draws an vector, by drawing a line with a marker.*/
 	public void drawVector(Point2D.Double q1, Point2D.Double q2, Color tipCol) {
-        //Point2D.Double q1 = getTransformedPoint(q10);
-        //Point2D.Double q2 = getTransformedPoint(q20);
         Color curPlotColor = g.getColor();
-		//g.setStroke(new BasicStroke(1.0f));
         g.setColor(tipCol);
         g.draw(new Ellipse2D.Double(q1.x - 1, q1.y - 1, 2, 2));
         g.setColor(curPlotColor);
@@ -160,7 +147,6 @@ public class Canvas {
 	
 	/* Write text at a specific point */
 	public void drawText(String str, Point2D.Double p) {
-        //Point2D.Double p = getTransformedPoint(p0);
 		g.drawString(str, (int) p.x, (int) p.y);
 	}
 
@@ -250,10 +236,21 @@ public class Canvas {
         bgColor = c;
     }
     
-    public void setViewpor(double theta, double phi) {
-    	this.theta = theta;
-    	this.phi = phi;
-    }
+    public double getScaleFactor() {
+		return scaleFactor;
+	}
+
+	public void setScaleFactor(double scaleFactor) {
+		this.scaleFactor = scaleFactor;
+	}
+
+	public boolean isAxesVisible() {
+		return axesVisible;
+	}
+
+	public void setAxesVisible(boolean axesVisible) {
+		this.axesVisible = axesVisible;
+	}
 
 /*********************************** Transformation Methods **************************************************/
     /* Shifts the axes */
@@ -272,6 +269,11 @@ public class Canvas {
 		scaleFactor = zoom;
 	}
 
+	public void shift(int i, int j) {
+		moveX += i*scaleFactor;
+		moveY -= j*scaleFactor;
+	}
+
 /*********************************** Helper Methods **************************************************/
 
     /* Transforms from Cartesian space to Java Graphics space. */
@@ -281,8 +283,6 @@ public class Canvas {
         double y = p.y;
 		double x1 = scaleFactor*x + dx + moveX;
 		double y1 = H - (scaleFactor*y + dy + moveY);
-//	    System.out.println(x + ", " + y); 
-//	    System.out.println(x1 + ", " + y1 + ".");
 		return new Point2D.Double(x1, y1);
 	}
 
@@ -305,48 +305,7 @@ public class Canvas {
 		return p;
 	}
 	
-	/** 3D */
-	
-//	public Point2D.Double persectiveProject2D(double x, double y, double z) {
-//		Vector3D v = new Vector3D(x, y, z); /* Point to be projected */
-//		
-//		Rotation rot = new Rotation(new Vector3D(0,0,1), phi, RotationConvention.VECTOR_OPERATOR);
-//		Rotation rot2 = new Rotation(new Vector3D(0,1,0), psi, RotationConvention.VECTOR_OPERATOR);
-//		Rotation rot3 = new Rotation(new Vector3D(1,0,0), theta, RotationConvention.VECTOR_OPERATOR);
-//		
-//		Vector3D camPos = new Vector3D(0, 0, 0); /* Position of the Camera */
-//		Vector3D camFrmPos = rot.applyTo(
-//								rot2.applyTo(
-//									rot3.applyTo(
-//										v.subtract(camPos))));
-//		
-//		Vector3D dispSurfPos = new Vector3D(10,10,10);
-//		
-//		double bx = dispSurfPos.getZ()/camFrmPos.getZ() * camFrmPos.getX() + dispSurfPos.getX();
-//		double by = dispSurfPos.getZ()/camFrmPos.getZ() * camFrmPos.getY() + dispSurfPos.getY();
-//		return new Point2D.Double(bx, by);
-//	}
-
-	public double getScaleFactor() {
-		return scaleFactor;
-	}
-
-	public void setScaleFactor(double scaleFactor) {
-		this.scaleFactor = scaleFactor;
-	}
-
-	public boolean isAxesVisible() {
-		return axesVisible;
-	}
-
-	public void setAxesVisible(boolean axesVisible) {
-		this.axesVisible = axesVisible;
-	}
-
-	public void shift(int i, int j) {
-		moveX += i;
-		moveY -= j;
-	}
+/************************************ 3D *********************************************/
     
 }
 

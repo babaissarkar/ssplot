@@ -41,6 +41,7 @@ public class PlotView extends JLabel {
 	private PlotData curPlot;
 	private int col1, col2;
 	private Canvas canv;
+	private Project2D p;
 	
 	// Actions
 		private LeftAction move_left = new LeftAction();
@@ -49,6 +50,13 @@ public class PlotView extends JLabel {
 		private DownAction move_down = new DownAction();
 		private ZoomInAction zoom_in = new ZoomInAction();
 		private ZoomOutAction zoom_out = new ZoomOutAction();
+		
+		private RotAPlusAction rot_a_pos = new RotAPlusAction();
+		private RotAMinusAction rot_a_min = new RotAMinusAction();
+		private RotBPlusAction rot_b_pos = new RotBPlusAction();
+		private RotBMinusAction rot_b_min = new RotBMinusAction();
+		private RotCPlusAction rot_c_pos = new RotCPlusAction();
+		private RotCMinusAction rot_c_min = new RotCMinusAction();
 	
 	/**
 	 * 
@@ -58,6 +66,9 @@ public class PlotView extends JLabel {
 	public PlotView() {
 		clear();
 		
+		p = new Project2D();
+		p.setView(0, 0, 0);
+		
 		// Setting Keybinding for movement
 		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0, false), "left");
 		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0, false), "right");
@@ -65,6 +76,14 @@ public class PlotView extends JLabel {
 		getInputMap().put(KeyStroke.getKeyStroke("DOWN"), "down");
 		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_J, 0, false), "plus");
 		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_F, 0, false), "minus");
+		
+		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_Q, 0, false), "rotAp");
+		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_A, 0, false), "rotAm");
+		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_W, 0, false), "rotBp");
+		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_S, 0, false), "rotBm");
+		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_E, 0, false), "rotCp");
+		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0, false), "rotCm");
+
 
 		getActionMap().put("left", move_left);
 		getActionMap().put("right", move_right);
@@ -72,6 +91,13 @@ public class PlotView extends JLabel {
 		getActionMap().put("down", move_down);
 		getActionMap().put("plus", zoom_in);
 		getActionMap().put("minus", zoom_out);
+		
+		getActionMap().put("rotAp", rot_a_pos);
+		getActionMap().put("rotAm", rot_a_min);
+		getActionMap().put("rotBp", rot_b_pos);
+		getActionMap().put("rotBm", rot_b_min);
+		getActionMap().put("rotCp", rot_c_pos);
+		getActionMap().put("rotCm", rot_c_min);
     }
 	
 	
@@ -108,7 +134,30 @@ public class PlotView extends JLabel {
 				} else {
 					System.err.println("Bad vector field data!");
 				}
+			} else if ((pdata.pltype == PlotData.PlotType.THREED)) {
+				//System.out.println("3D");
+				if (row.size() >= 3) {
+					Point2D.Double pp = p.project(row.get(0), row.get(1), row.get(2));
+					p1 = canv.getTransformedPoint(pp);
+					canv.drawPoint(p1, PlotData.PointType.SQUARE, pdata.ptX, pdata.ptY);
+				} else {
+					System.err.println("Data is not three dimensional!");
+				}
+			} else if (pdata.pltype == PlotData.PlotType.TRLINE) {
+				//System.out.println("3D");
+				if (row.size() >= 3) {
+					Point2D.Double pp = p.project(row.get(0), row.get(1), row.get(2));
+					p2 = canv.getTransformedPoint(pp);
+					if (p1 != null) {
+						canv.setStroke(pdata.ptX);
+						canv.drawLine(p1, p2);
+					}
+					p1 = p2;
+				} else {
+					System.err.println("Data is not three dimensional!");
+				}
 			} else {
+				//System.out.println(col1 + " " + col2);
 				p2 = canv.getTransformedPoint(new Point2D.Double(row.get(col1-1), row.get(col2-1)));
 				if (p1 != null) {
 					switch(pdata.pltype) {
@@ -254,6 +303,66 @@ public class PlotView extends JLabel {
 		public void actionPerformed(ActionEvent arg0) {
 			//System.out.println("down");
 			canv.shift(5, 0);
+			repaint();
+		}
+	}
+	
+	@SuppressWarnings("serial")
+	public class RotAPlusAction extends AbstractAction {
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			p.setView(p.a + 5, p.b, p.c);
+			//System.out.format("%f, %f, %f\n", p.a, p.b, p.c);
+			repaint();
+		}
+	}
+	
+	@SuppressWarnings("serial")
+	public class RotAMinusAction extends AbstractAction {
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			p.setView(p.a - 0.5, p.b, p.c);
+			//System.out.format("%f, %f, %f\n", p.a, p.b, p.c);
+			repaint();
+		}
+	}
+	
+	@SuppressWarnings("serial")
+	public class RotBPlusAction extends AbstractAction {
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			p.setView(p.a, p.b + 0.5, p.c);
+			//System.out.format("%f, %f, %f\n", p.a, p.b, p.c);
+			repaint();
+		}
+	}
+	
+	@SuppressWarnings("serial")
+	public class RotBMinusAction extends AbstractAction {
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			p.setView(p.a, p.b - 0.5, p.c);
+			//System.out.format("%f, %f, %f\n", p.a, p.b, p.c);
+			repaint();
+		}
+	}
+	
+	@SuppressWarnings("serial")
+	public class RotCPlusAction extends AbstractAction {
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			p.setView(p.a, p.b, p.c + 0.5);
+			//System.out.format("%f, %f, %f\n", p.a, p.b, p.c);
+			repaint();
+		}
+	}
+	
+	@SuppressWarnings("serial")
+	public class RotCMinusAction extends AbstractAction {
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			p.setView(p.a, p.b, p.c - 0.5);
+			//System.out.format("%f, %f, %f\n", p.a, p.b, p.c);
 			repaint();
 		}
 	}

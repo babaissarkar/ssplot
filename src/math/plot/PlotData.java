@@ -5,7 +5,7 @@ import java.util.Vector;
 
 public class PlotData {
     /* This class is the Model.*/
-    public enum PlotType { LINES, POINTS, LP, VECTORS };
+    public enum PlotType { LINES, POINTS, LP, VECTORS, THREED, TRLINE };
     public enum PointType { SQUARE, CIRCLE };
     
     public Vector<Vector<Double>> data;
