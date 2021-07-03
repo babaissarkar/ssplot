@@ -27,14 +27,23 @@ public class SystemData {
         if (engineName == null) {
         	engine = m.getEngineByName("nashorn");
         } else {
-        	try {
-        		engine = m.getEngineByName(engineName);
-        	} catch (Exception e) {
+        	System.out.println("Trying to use engine " + engineName);
+        	engine = m.getEngineByName(engineName);
+        	if (engine == null) {
+        		System.out.println("Unable to load " + engineName + ".");
+        		System.out.println("Using default engine.");
         		engine = m.getEngineByName("nashorn");
+        		if (engine == null) {
+        			System.out.println("Default engine not found!");
+        			System.out.println("ODE/DE plotter won't work!");
+        			System.out.println("You need to install a JSR-223 compatible ScriptEngine.");
+        		}
         	}
         }
         
-        System.out.println("Using Parsing engine : " + engine.getFactory().getEngineName());
+        if (engine != null) {
+        	System.out.println("Using Parsing engine : " + engine.getFactory().getEngineName());
+        }
     }
     
     public void setSystemType(boolean isODE) {

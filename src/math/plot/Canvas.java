@@ -342,6 +342,11 @@ public class Canvas {
 	public void setAxesVisible(boolean axesVisible) {
 		this.axesVisible = axesVisible;
 	}
+
+	public void shift(int i, int j) {
+		moveX += i;
+		moveY -= j;
+	}
     
 }
 

@@ -43,10 +43,10 @@ public class PlotView extends JLabel {
 	private Canvas canv;
 	
 	// Actions
-	/*	private LeftAction move_left = new LeftAction();
+		private LeftAction move_left = new LeftAction();
 		private RightAction move_right = new RightAction();
 		private UpAction move_up = new UpAction();
-		private DownAction move_down = new DownAction();*/
+		private DownAction move_down = new DownAction();
 		private ZoomInAction zoom_in = new ZoomInAction();
 		private ZoomOutAction zoom_out = new ZoomOutAction();
 	
@@ -59,17 +59,17 @@ public class PlotView extends JLabel {
 		clear();
 		
 		// Setting Keybinding for movement
-		/*getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0, false), "left");
+		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0, false), "left");
 		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0, false), "right");
 		getInputMap().put(KeyStroke.getKeyStroke("UP"), "up");
-		getInputMap().put(KeyStroke.getKeyStroke("DOWN"), "down");*/
+		getInputMap().put(KeyStroke.getKeyStroke("DOWN"), "down");
 		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_J, 0, false), "plus");
 		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_F, 0, false), "minus");
 
-		/*getActionMap().put("left", move_left);
+		getActionMap().put("left", move_left);
 		getActionMap().put("right", move_right);
 		getActionMap().put("up", move_up);
-		getActionMap().put("down", move_down);*/
+		getActionMap().put("down", move_down);
 		getActionMap().put("plus", zoom_in);
 		getActionMap().put("minus", zoom_out);
     }
@@ -214,6 +214,46 @@ public class PlotView extends JLabel {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			canv.setScaleFactor(canv.getScaleFactor()/2);
+			repaint();
+		}
+	}
+	
+	@SuppressWarnings("serial")
+	public class UpAction extends AbstractAction {
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			//System.out.println("up");
+			canv.shift(0, 5);
+			repaint();
+		}
+	}
+	
+	@SuppressWarnings("serial")
+	public class DownAction extends AbstractAction {
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			//System.out.println("down");
+			canv.shift(0, -5);
+			repaint();
+		}
+	}
+	
+	@SuppressWarnings("serial")
+	public class LeftAction extends AbstractAction {
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			//System.out.println("up");
+			canv.shift(-5, 0);
+			repaint();
+		}
+	}
+	
+	@SuppressWarnings("serial")
+	public class RightAction extends AbstractAction {
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			//System.out.println("down");
+			canv.shift(5, 0);
 			repaint();
 		}
 	}
