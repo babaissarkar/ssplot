@@ -12,6 +12,7 @@ public class SystemData {
     double Xmax, Ymax, Xmin, Ymin, Xgap, Ygap; // The range
     int N = 1000; /* iteration count */
     ScriptEngine engine;
+    String engineName;
     boolean isODE;
 
     public SystemData() {
@@ -22,7 +23,14 @@ public class SystemData {
         
         /* Initialize script engine */
         ScriptEngineManager m = new ScriptEngineManager();
-        engine = m.getEngineByName("nashorn");
+        engineName = System.getenv("SSPLOT_ENGINE");
+        if (engineName == null) {
+        	engine = m.getEngineByName("nashorn");
+        } else {
+        	engine = m.getEngineByName(engineName);
+        }
+        
+        System.out.println("Using Parsing engine :" + engine.getFactory().getEngineName());
     }
     
     public void setSystemType(boolean isODE) {

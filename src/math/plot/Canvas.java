@@ -122,8 +122,9 @@ public class Canvas {
 	public void drawLine(Point2D.Double q10, Point2D.Double q20) {
         //Point2D.Double q1 = getTransformedPoint(q10);
         //Point2D.Double q2 = getTransformedPoint(q20);
-
+		//Stroke s = g.getStroke();
         g.draw(new Line2D.Double(q10, q20));
+        //g.setStroke(s);
 	}
 
     /* Draws an vector, by drawing a line with a marker.*/
@@ -236,6 +237,10 @@ public class Canvas {
 
 /*********************************** Property Setters ************************************************/
 
+	public void setStroke(int width) {
+		g.setStroke(new BasicStroke(width));
+	}
+	
     public void setFGColor(Color c) {
         fgColor = c;
         g.setColor(c);

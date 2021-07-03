@@ -113,6 +113,7 @@ public class PlotView extends JLabel {
 				if (p1 != null) {
 					switch(pdata.pltype) {
 					case LINES :
+						canv.setStroke(pdata.ptX);
 						canv.drawLine(p1, p2);
 						break;
 					case POINTS :
@@ -126,6 +127,8 @@ public class PlotView extends JLabel {
 				p1 = p2;
 			}
 		}
+		
+		canv.setStroke(1);
 	}
 
 	

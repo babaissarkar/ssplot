@@ -37,6 +37,7 @@ public class PlotterFrame extends JFrame implements ActionListener {
 	private JMenu mnuFile, mnuPlot;
 	private JMenuItem jmSave, jmPaint, jmOpen, jmHelp, jmShowData, jmQuit;
     private JMenuItem jmPlotType, jmPhase, jmCol, jmClear, jmSvData, jmAxes;
+    private JMenuItem jmLineWidth;
 	private DBViewer dbv = null;
     private static final int MENUBAR_WIDTH = 60; /* Valid only for defaul Metal look and feel. */
 	
@@ -55,6 +56,7 @@ public class PlotterFrame extends JFrame implements ActionListener {
 
         jmPhase = new JMenuItem("Setup System ...");
         jmAxes = new JMenuItem("Show/hide axes");
+        jmLineWidth = new JMenuItem("Set line width");
         jmCol = new JMenuItem("Set Plot Color");
         jmPlotType = new JMenuItem("Set Plot Type");
         jmClear = new JMenuItem("Clear plot");
@@ -69,6 +71,7 @@ public class PlotterFrame extends JFrame implements ActionListener {
         jmClear.addActionListener(this);
 
         jmCol.addActionListener(this);
+        jmLineWidth.addActionListener(this);
         jmAxes.addActionListener(this);
         jmPhase.addActionListener(this);
         jmPlotType.addActionListener(this);
@@ -88,6 +91,7 @@ public class PlotterFrame extends JFrame implements ActionListener {
 
         mnuPlot = new JMenu("Plot");
         mnuPlot.add(jmAxes);
+        mnuPlot.add(jmLineWidth);
         mnuPlot.add(jmPlotType);
         mnuPlot.add(jmCol);
 		
@@ -187,13 +191,6 @@ public class PlotterFrame extends JFrame implements ActionListener {
 		// Shows help message
         JOptionPane.showMessageDialog(this, "arrow keys : translate graph, j and f : zoom in and out");
 	}
-
-	
-	public void setColor() {
-		Color c = JColorChooser.showDialog(this,
-				"Plot Color 1", Color.RED);
-		pv.setColor(c);
-	}
 	 
     public void changePlotType() {
         Object[] types = {"Lines", "Points", "Both Lines and Points", "Vector field"};
@@ -256,11 +253,23 @@ public class PlotterFrame extends JFrame implements ActionListener {
         } else if (ae.getSource() == jmPlotType) {
             changePlotType();
         } else if (ae.getSource() == jmCol) {
-            setColor();
+        	Color c = JColorChooser.showDialog(this, "Plot Color 1", Color.RED);
+    		pv.setColor(c);
         } else if (ae.getSource() == jmSvData) {
         	saveData();
         } else if (ae.getSource() == jmAxes) {
         	pv.toggleAxes();
+        } else if (ae.getSource() == jmLineWidth) {
+        	String strWidth = JOptionPane.showInputDialog("Line Width :");
+        	if (strWidth != null) {
+        		int width = Integer.parseInt(strWidth);
+        		PlotData pd = pv.getData();
+        		if (pd != null) {
+        			pd.ptX = width;
+        			pd.ptY = width;
+        		}
+        		pv.repaint();
+        	}
 		} else if (ae.getSource() == dbv.btnPlot) {
             JOptionPane.showMessageDialog(this, "Changes applied.");
         }
