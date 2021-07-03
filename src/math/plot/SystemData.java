@@ -27,10 +27,14 @@ public class SystemData {
         if (engineName == null) {
         	engine = m.getEngineByName("nashorn");
         } else {
-        	engine = m.getEngineByName(engineName);
+        	try {
+        		engine = m.getEngineByName(engineName);
+        	} catch (Exception e) {
+        		engine = m.getEngineByName("nashorn");
+        	}
         }
         
-        System.out.println("Using Parsing engine :" + engine.getFactory().getEngineName());
+        System.out.println("Using Parsing engine : " + engine.getFactory().getEngineName());
     }
     
     public void setSystemType(boolean isODE) {

@@ -1,0 +1,4 @@
+**/*.bkp
+Makefile
+.*
+bin
