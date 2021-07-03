@@ -2,7 +2,7 @@
 A simple plotting utility for dynamical systems.
 
 # Requirements
-Any Java version less than 16.
+Any Java version less than 15.
 
 # Installation
 1. Install Java runtime (JRE).
