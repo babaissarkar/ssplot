@@ -1,0 +1,44 @@
+<h1>ssplot</h1>
+
+<p>A simple plotting utility for dynamical systems.</p>
+
+<h1>Requirements</h1>
+
+<p>Any Java version less than 15.</p>
+
+<h1>Installation</h1>
+
+<ol>
+<li>Install Java runtime (JRE).</li>
+<li>Download the <code>SSPlot.jar</code> file from the jar directory.</li>
+<li>Run using <code>java -jar SSPlot-2D.jar</code> from your terminal/command line.</li>
+</ol>
+
+<h1>Compilation</h1>
+
+<p>You will require Java JDK, Apache Ant and the Apache Commons Math library (version 3).</p>
+
+<ol>
+<li>Clone this repository.</li>
+<li><code>cd</code> into the cloned directory and run <code>ant</code>. It will build everything and put the generated jar file into the jar directory.</li>
+<li>You can run the generated <code>SSPlot.jar</code> file using the command <code>java -cp /usr/share/java/commons-math3.jar:jar/SSPlot.jar math.plot.PlotterFrame</code>, assuming the library is located in <code>/usr/share/java</code>.</li>
+</ol>
+
+<h1>Notes</h1>
+
+<p>The precompiled <code>SSPlot-2D.jar</code> does not require the Apache Commons Math library, because it does not have the Experiment 3D support which is added in the latest version.</p>
+
+<h1>Alternative Installation</h1>
+
+<p>If you decide to use the newer <code>SSPlot.jar</code> with experimental 3d support, the previous method will not work. You will also need to install the Apache Commons Math library in your java CLASSPATH. As given in the <strong>Compilation</strong> section, if your library is installed in <code>/usr/share/java</code>, you can either run it with,</p>
+
+<pre><code>java -cp /usr/share/java/commons-math3.jar:jar/SSPlot.jar math.plot.PlotterFrame
+</code></pre>
+
+<p>OR,</p>
+
+<p>if your library is in <code>/usr/share/java</code> and <code>SSPlot.jar</code> is in current directory, (for Linux only. Please search the internet on setting the java classpath if you are using any other OS.)</p>
+
+<pre><code>export CLASSPATH="/usr/share/java:."
+java math.plot.PlotterFrame
+</code></pre>

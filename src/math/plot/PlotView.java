@@ -311,8 +311,8 @@ public class PlotView extends JLabel {
 	public class RotAPlusAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			p.setView(p.a + 5, p.b, p.c);
-			//System.out.format("%f, %f, %f\n", p.a, p.b, p.c);
+			p.setView(p.a + 0.5, p.b, p.c);
+			System.out.format("%f, %f, %f\n", p.a, p.b, p.c);
 			repaint();
 		}
 	}
@@ -322,7 +322,7 @@ public class PlotView extends JLabel {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			p.setView(p.a - 0.5, p.b, p.c);
-			//System.out.format("%f, %f, %f\n", p.a, p.b, p.c);
+			System.out.format("%f, %f, %f\n", p.a, p.b, p.c);
 			repaint();
 		}
 	}
@@ -332,7 +332,7 @@ public class PlotView extends JLabel {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			p.setView(p.a, p.b + 0.5, p.c);
-			//System.out.format("%f, %f, %f\n", p.a, p.b, p.c);
+			System.out.format("%f, %f, %f\n", p.a, p.b, p.c);
 			repaint();
 		}
 	}
@@ -342,7 +342,7 @@ public class PlotView extends JLabel {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			p.setView(p.a, p.b - 0.5, p.c);
-			//System.out.format("%f, %f, %f\n", p.a, p.b, p.c);
+			System.out.format("%f, %f, %f\n", p.a, p.b, p.c);
 			repaint();
 		}
 	}
@@ -352,7 +352,7 @@ public class PlotView extends JLabel {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			p.setView(p.a, p.b, p.c + 0.5);
-			//System.out.format("%f, %f, %f\n", p.a, p.b, p.c);
+			System.out.format("%f, %f, %f\n", p.a, p.b, p.c);
 			repaint();
 		}
 	}
@@ -362,7 +362,7 @@ public class PlotView extends JLabel {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			p.setView(p.a, p.b, p.c - 0.5);
-			//System.out.format("%f, %f, %f\n", p.a, p.b, p.c);
+			System.out.format("%f, %f, %f\n", p.a, p.b, p.c);
 			repaint();
 		}
 	}

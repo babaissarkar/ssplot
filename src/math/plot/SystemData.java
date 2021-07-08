@@ -31,19 +31,25 @@ import javax.script.ScriptException;
 
 public class SystemData {
     //Matrix A; // The coefficient matrix
-	String eqn1, eqn2;
-    double Xmax, Ymax, Xmin, Ymin, Xgap, Ygap; // The range
+	String[] eqns;
+    double[] max, min, gap; // The range
+    int dim = 3;
     int N = 1000; /* iteration count */
     ScriptEngine engine;
     String engineName;
     boolean isODE;
 
     public SystemData() {
+    	eqns = new String[dim];
+    	max = new double[dim];
+    	min = new double[dim];
+    	gap = new double[dim];
         /* Default values */
-        Xmax = 10; Ymax = 10;
-        Xmin = -10; Ymin = -10;
-        Xgap = 1; Ygap = 1;
-        
+		for (int i = 0; i < 3; i++) {
+			max[i] = 10;
+			min[i] = -10;
+			gap[i] = 1;
+		}
         /* Initialize script engine */
         ScriptEngineManager m = new ScriptEngineManager();
         engineName = System.getenv("SSPLOT_ENGINE");
@@ -72,36 +78,50 @@ public class SystemData {
     public void setSystemType(boolean isODE) {
     	this.isODE = isODE;
     }
+    
     public void setEqns(String eqn1, String eqn2) {
     	/* Setup equations */
-        this.eqn1 = eqn1;
-        this.eqn2 = eqn2;
+        this.eqns[0] = eqn1;
+        this.eqns[1] = eqn2;
+    }
+    
+    public void setEqns(String eqn1, String eqn2, String eqn3) {
+    	/* Setup equations */
+        this.eqns[0] = eqn1;
+        this.eqns[1] = eqn2;
+        this.eqns[2] = eqn3;
+        
+        //System.out.println(eqn1 + " " + eqn2 + " " + eqn3);
     }
 
-    public double dx_dt (double x, double y) {
+    public double dx_dt (double x, double y, double z) {
     	double res = 0;
         engine.put("x", x);
         engine.put("y", y);
+        engine.put("z", z);
         try {
-			engine.eval("dx_dt = " + eqn1);
+			engine.eval("dx_dt = " + eqns[0]);
 			res = (double) engine.get("dx_dt");
+//			System.out.format("dx_dt = %f at (%f, %f, %f).", res, x, y, z);
+			
 		} catch (ScriptException e) {
 			e.printStackTrace();
 		}
-        
-//        System.out.format("dx_dt at (%4.2f, %4.2f) = %4.2f", x, y, res);
-        
+
         return res;
         
     }
 
-    public double dy_dt (double x, double y) {
+    public double dy_dt (double x, double y, double z) {
     	double res = 0;
         engine.put("x", x);
         engine.put("y", y);
+        engine.put("z", z);
         try {
-			engine.eval("dy_dt = " + eqn2);
+			engine.eval("dy_dt = " + eqns[1]);
 			res = (double) engine.get("dy_dt");
+			//System.out.format("dy_dt = %f at (%f, %f, %f).", res, x, y, z);
+			
 		} catch (ScriptException e) {
 			e.printStackTrace();
 		}
@@ -109,12 +129,37 @@ public class SystemData {
         return res;
     }
     
+    public double dz_dt (double x, double y, double z) {
+    	double res = 0;
+        engine.put("x", x);
+        engine.put("y", y);
+        engine.put("z", z);
+        try {
+			engine.eval("dz_dt = " + eqns[2]);
+			res = (double) engine.get("dz_dt");
+			//System.out.format("dz_dt = %f at (%f, %f, %f).", res, x, y, z);
+			
+		} catch (ScriptException e) {
+			e.printStackTrace();
+		}
+        
+        return res;
+    }
+    
+    public double dx_dt (double x, double y) {
+    	return dx_dt(x, y, 0);
+    }
+    
+    public double dy_dt (double x, double y) {
+    	return dy_dt(x, y, 0);
+    }
+    
     public double x2 (double x, double y) {
     	double res = 0;
         engine.put("x", x);
         engine.put("y", y);
         try {
-        	engine.eval("x2 = " + eqn1);
+        	engine.eval("x2 = " + eqns[0]);
         	res = (double) engine.get("x2");
         	//System.out.println("X2 = " + res);
         } catch (ScriptException e) {
@@ -129,7 +174,7 @@ public class SystemData {
         engine.put("x", x);
         engine.put("y", y);
         try {
-        	engine.eval("y2 = " + eqn2);
+        	engine.eval("y2 = " + eqns[1]);
         	res = (double) engine.get("y2");
         	//System.out.println("Y2 = " + res);
         } catch (ScriptException e) {
@@ -170,25 +215,78 @@ public class SystemData {
 
         return soln;
     }
+    
+    public Vector<Vector<Double>> RK4Iterate3D(double x0, double y0, double z0) {
+    	System.out.println("3D rk4 started.");
+        Vector<Vector<Double>> soln = new Vector<Vector<Double>>();
+        double x, y, z;
+        double h = 0.01;
+        double k1, k2, k3, k4;
+        double p1, p2, p3, p4;
+        double q1, q2, q3, q4;
+        
+        x = x0;
+        y = y0;
+        z = z0;
+        
+        for (int i = 0; i < N; i++) {
+            k1 = h * dx_dt(x, y, z);
+            p1 = h * dy_dt(x, y, z);
+            q1 = h * dz_dt(x, y, z);
+            
+//            System.out.println(k1 + "," + p1 + "," + q1);
+            
+            k2 = h * dx_dt(x + 0.5 * k1, y + 0.5 * p1, z + 0.5 * q1);
+            p2 = h * dy_dt(x + 0.5 * k1, y + 0.5 * p1, z + 0.5 * q1);
+            q2 = h * dz_dt(x + 0.5 * k1, y + 0.5 * p1, z + 0.5 * q1);
+            
+//            System.out.println(k2 + "," + p2 + "," + q2);
+            
+            k3 = h * dx_dt(x + 0.5 * k2, y + 0.5 * p2, z + 0.5 * q2);
+            p3 = h * dy_dt(x + 0.5 * k2, y + 0.5 * p2, z + 0.5 * q2);
+            q3 = h * dz_dt(x + 0.5 * k2, y + 0.5 * p2, z + 0.5 * q2);
+            
+//            System.out.println(k3 + "," + p3 + "," + q3);
+            
+            k4 = h * dx_dt(x + k3, y + p3, z + q3);
+            p4 = h * dy_dt(x + k3, y + p3, z + q3);
+            q4 = h * dz_dt(x + k3, y + p3, z + q3);
+            
+//            System.out.println(k4 + "," + p4 + "," + q4);
+            
+            x += (k1 + 2*k2 + 2*k3 + k4)/6.0;
+            y += (p1 + 2*p2 + 2*p3 + p4)/6.0;
+            z += (q1 + 2*q2 + 2*q3 + q4)/6.0;
+
+            Vector<Double> row = new Vector<Double>();
+            row.add(x);
+            row.add(y);
+            row.add(z);
+            soln.add(row);
+        }
+
+        return soln;
+    }
+
 
     /** Gets the data for the direction field. */
     public Vector<Vector<Double>> directionField() {
         Vector<Vector<Double>> data = new Vector<Vector<Double>>();
         double i, j;
         
-        //System.out.println(""+Xgap+","+Ygap);	
-        for (i = Xmin; i <= Xmax; i = i + Xgap) {
-			for (j = Ymin; j <= Ymax; j = j + Ygap) {
+        //System.out.println(""+gap[0]+","+gap[1]);	
+        for (i = min[0]; i <= max[0]; i = i + gap[0]) {
+			for (j = min[1]; j <= max[1]; j = j + gap[1]) {
 				double Xdot, Ydot;
 				double X1, Y1, X2, Y2;
 				Xdot = dx_dt(i, j);
 				Ydot = dy_dt(i, j);
 				X1 = i;
 				Y1 = j;
-				//X2 = X1 + Xdot/10.0;
-				//Y2 = Y1 + Ydot/10.0;
-				X2 = X1 + Xdot;
-				Y2 = Y1 + Ydot;
+				X2 = X1 + Xdot/5.0;
+				Y2 = Y1 + Ydot/5.0;
+				//X2 = X1 + Xdot;
+				//Y2 = Y1 + Ydot;
 				Vector<Double> entries = new Vector<Double>();
 				entries.add(X1);
 				entries.add(Y1);

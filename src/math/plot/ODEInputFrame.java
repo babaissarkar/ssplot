@@ -59,6 +59,7 @@ public class ODEInputFrame implements ActionListener {
     JTextField tfCounts;
     
     boolean modeODE;
+	JButton btnTR2;
 
     public ODEInputFrame(SystemData odedata, PlotView view) {
         this.odedata = odedata;
@@ -103,33 +104,20 @@ public class ODEInputFrame implements ActionListener {
         pnlCounts.add(tfCounts);
 
         JPanel pnlMatrix = new JPanel();
-        pnlMatrix.setLayout(new GridLayout(2, 2, 5, 5));
+        pnlMatrix.setLayout(new GridLayout(3, 2, 5, 5));
         
-        JLabel[] lbls = new JLabel[4];
-        
-        /*
-        lbls[0] = new JLabel("a11 :");
-        lbls[1] = new JLabel("a12 :");
-        lbls[2] = new JLabel("a21 :");
-        lbls[3] = new JLabel("a22 :");
-        */
-        
+        JLabel[] lbls = new JLabel[4];        
         
         lbls[0] = new JLabel("Eqn. 1: ");
         lbls[1] = new JLabel("Eqn. 2: ");
-        
+        lbls[2] = new JLabel("Eqn. 3: ");
         
         tfs = new JTextField[4];
         tfs[0] = new JTextField(20);
         tfs[1] = new JTextField(20);
-        
-//        tfs[0] = new JTextField(4);
-//        tfs[1] = new JTextField(4);
-//        tfs[2] = new JTextField(4);
-//        tfs[3] = new JTextField(4);
-        
+        tfs[2] = new JTextField(20);
 
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 3; i++) {
             pnlMatrix.add(lbls[i]);
             pnlMatrix.add(tfs[i]);
         }
@@ -142,23 +130,30 @@ public class ODEInputFrame implements ActionListener {
         );
 
         JPanel pnlRange = new JPanel();
-        JLabel[] lbls2 = new JLabel[6];
+        pnlRange.setLayout(new GridLayout(3, 3, 5, 5));
+        
+        JLabel[] lbls2 = new JLabel[9];
         lbls2[0] = new JLabel("Xmin :");
         lbls2[1] = new JLabel("Xmax :");
-        lbls2[2] = new JLabel("Ymin :");
-        lbls2[3] = new JLabel("Ymax :");
-        lbls2[4] = new JLabel("Xgap :");
+        lbls2[2] = new JLabel("Xgap :");
+        
+        lbls2[3] = new JLabel("Ymin :");
+        lbls2[4] = new JLabel("Ymax :");
         lbls2[5] = new JLabel("Ygap :");
         
-        tfs2 = new JTextField[6];
-
-        int[] defVals = {-10, 10, -10, 10, 1, 1};
+        lbls2[6] = new JLabel("Zmin :");
+        lbls2[7] = new JLabel("Zmax :");
+        lbls2[8] = new JLabel("Zgap :");
         
-        for (int j = 0; j < 6; j++) {
+        tfs2 = new JTextField[9];
+
+        int[] defVals = {-10, 10, 1, -10, 10, 1, -10, 10, 1};
+        
+        for (int j = 0; j < 9; j++) {
             tfs2[j] = new JTextField(""+defVals[j] , 4);
         }
 
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 9; i++) {
             pnlRange.add(lbls2[i]);
             pnlRange.add(tfs2[i]);
         }
@@ -174,31 +169,38 @@ public class ODEInputFrame implements ActionListener {
         btnOK = new JButton("Apply");
         btnCancel = new JButton("Close");
         btnDF = new JButton("Plot VField");
-        btnTR = new JButton("Plot Trajectory At :");
-        tfs3 = new JTextField[2];
+        btnTR = new JButton("Plot 2D");
+        btnTR2 = new JButton("Plot 3D");
+        tfs3 = new JTextField[3];
         tfs3[0] = new JTextField(3);
         tfs3[1] = new JTextField(3);
-        JLabel[] lbls3 = new JLabel[2];
+        tfs3[2] = new JTextField(3);
+        JLabel[] lbls3 = new JLabel[3];
         lbls3[0] = new JLabel("X :");
         lbls3[1] = new JLabel("Y :");
+        lbls3[2] = new JLabel("Z :");
         
         btnDF.setEnabled(false);
         btnTR.setEnabled(false);
+        btnTR2.setEnabled(false);
         tfs3[0].setEnabled(false);
         tfs3[1].setEnabled(false);
         
         FlowLayout f = new FlowLayout(FlowLayout.RIGHT, 5, 5);
         pnlButton.setLayout(f);
         pnlButton.add(btnTR);
-        pnlButton.add(lbls3[0]);
-        pnlButton.add(tfs3[0]);
-        pnlButton.add(lbls3[1]);
-        pnlButton.add(tfs3[1]);
+        pnlButton.add(btnTR2);
+        for (int i = 0; i < 3; i++) {
+        	pnlButton.add(lbls3[i]);
+        	pnlButton.add(tfs3[i]);
+        }
+
         pnlButton.add(btnDF);
         pnlButton.add(btnOK);
         pnlButton.add(btnCancel);
 
         btnTR.addActionListener(this);
+        btnTR2.addActionListener(this);
         btnDF.addActionListener(this);
         btnOK.addActionListener(this);
         btnCancel.addActionListener(this);
@@ -211,43 +213,23 @@ public class ODEInputFrame implements ActionListener {
         frmMain.pack();
     }
 
-    /*
-    public void setMatrix() {
-        for (int i = 0; i < 2; i++) {
-            for (int j = 0; j < 2; j++) {
-                try {
-                    String num = tfs[j+(2*i)].getText();
-                    Double elem = Double.parseDouble(num);
-                    A.set(elem, i, j);
-                } catch(Exception e) {
-                    e.printStackTrace();
-                }   
-            }
-        }
-        System.out.println(A.toString());
-    }
-    */
-
     public void setODERange() {
         try {
-            odedata.Xmin = Double.parseDouble(tfs2[0].getText());
-            odedata.Xmax = Double.parseDouble(tfs2[1].getText());
-            odedata.Ymin = Double.parseDouble(tfs2[2].getText());
-            odedata.Ymax = Double.parseDouble(tfs2[3].getText());
-            odedata.Xgap = Double.parseDouble(tfs2[4].getText());
-            odedata.Ygap = Double.parseDouble(tfs2[5].getText());
+            odedata.min[0] = Double.parseDouble(tfs2[0].getText());
+            odedata.max[0] = Double.parseDouble(tfs2[1].getText());
+            odedata.gap[0] = Double.parseDouble(tfs2[2].getText());
+            odedata.min[1] = Double.parseDouble(tfs2[3].getText());
+            odedata.max[1] = Double.parseDouble(tfs2[4].getText());
+            odedata.gap[1] = Double.parseDouble(tfs2[5].getText());
+            odedata.min[2] = Double.parseDouble(tfs2[6].getText());
+            odedata.max[2] = Double.parseDouble(tfs2[7].getText());
+            odedata.gap[2] = Double.parseDouble(tfs2[8].getText());
             
             odedata.N = Integer.parseInt(tfCounts.getText());
         } catch(Exception e) {
             
         }
     }
-
-    /*
-    public void setODEData(Matrix A) {
-        odedata.setMatrix(A);
-    }
-    */
 
     public void updateView(Vector<Vector<Double>> data) {
     	PlotData pdata = new PlotData(data);
@@ -262,7 +244,15 @@ public class ODEInputFrame implements ActionListener {
     	} else {
     		trjData = new PlotData(odedata.iterateMap(x, x));
     	}
-    	trjData.pltype = PlotData.PlotType.POINTS;
+    	trjData.pltype = PlotData.PlotType.LINES;
+    	trjData.fgColor = Color.BLACK;
+    	
+    	view.setData(trjData);
+    }
+    
+    public void plotTrajectory3D(double x, double y, double z) {
+    	PlotData trjData = new PlotData(odedata.RK4Iterate3D(x, y, z));
+    	trjData.pltype = PlotData.PlotType.THREED;
     	trjData.fgColor = Color.BLACK;
     	
     	view.setData(trjData);
@@ -280,6 +270,7 @@ public class ODEInputFrame implements ActionListener {
 			tfs3[0].setEnabled(true);
             tfs3[1].setEnabled(true);
             btnTR.setEnabled(true);
+            btnTR2.setEnabled(true);
             
         } else if (evt.getSource() == btnDF) {
         	
@@ -291,6 +282,15 @@ public class ODEInputFrame implements ActionListener {
         	double y = Double.parseDouble(tfs3[1].getText());
         	this.plotTrajectory(x, y);
         	
+        } else if (evt.getSource() == btnTR2) {
+        	
+        	double x = Double.parseDouble(tfs3[0].getText());
+        	double y = Double.parseDouble(tfs3[1].getText());
+        	double z = Double.parseDouble(tfs3[2].getText());
+        	
+        	
+        	this.plotTrajectory3D(x, y, z);
+        	
         } else if (evt.getSource() == btnCancel) {
         	
             hide();
@@ -299,7 +299,9 @@ public class ODEInputFrame implements ActionListener {
     }
 
 	private void setEqnSystem() {
-		odedata.setEqns(tfs[0].getText(), tfs[1].getText());
+		
+		odedata.setEqns(tfs[0].getText(), tfs[1].getText(), tfs[2].getText());
+		
 	}
 
 	public void show() {
@@ -314,32 +316,5 @@ public class ODEInputFrame implements ActionListener {
         }
     }
 
-    /** MouseListener **/
-/*
-    @Override
-    public void mouseClicked(MouseEvent evt) {
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent evt) {
-    }
-
-    @Override
-    public void mouseExited(MouseEvent evt) {
-    }
-
-    @Override
-    public void mousePressed(MouseEvent evt) {
-        if (evt.getSource() == view) {
-            System.out.println("Hello");
-            view.mpos = new Point2D.Double(evt.getX(), evt.getY());
-            view.repaint();
-        }
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent evt) {
-    }
-*/
 }
 
