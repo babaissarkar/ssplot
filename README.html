@@ -4,14 +4,17 @@
 
 <h1>Requirements</h1>
 
-<p>Any Java version less than 15.</p>
+<p>Any Java version less than 15. (and more than 6).</p>
 
 <h1>Installation</h1>
 
 <ol>
 <li>Install Java runtime (JRE).</li>
-<li>Download the <code>SSPlot.jar</code> file from the jar directory.</li>
-<li>Run using <code>java -jar SSPlot-2D.jar</code> from your terminal/command line.</li>
+<li>Optionally, install Apache Commons Math library (if you want the experimental 3d support).</li>
+<li>Download the latest release from the releases section. (You can also clone this repository, either using <code>git clone</code> or using the Code menu in this page (Code -> Dropdown -> Download ZIP))</li>
+<li>Extract the ZIP if you downloaded it.</li>
+<li>Enter the folder inside the ZIP (or the cloned folder) and open a terminal there.</li>
+<li>Run using <code>./ssplot</code> from your terminal/command line.</li>
 </ol>
 
 <h1>Compilation</h1>
@@ -21,24 +24,42 @@
 <ol>
 <li>Clone this repository.</li>
 <li><code>cd</code> into the cloned directory and run <code>ant</code>. It will build everything and put the generated jar file into the jar directory.</li>
-<li>You can run the generated <code>SSPlot.jar</code> file using the command <code>java -cp /usr/share/java/commons-math3.jar:jar/SSPlot.jar math.plot.PlotterFrame</code>, assuming the library is located in <code>/usr/share/java</code>.</li>
+<li>You can run the generated <code>SSPlot.jar</code> file using the command <code>java -cp /usr/share/java/commons-math3.jar:jar/SSPlot.jar math.plot.PlotterFrame</code>, assuming the library is located in <code>/usr/share/java</code>. (Or using <code>./ssplot</code>)</li>
 </ol>
 
-<h1>Notes</h1>
+<h1>Detailed Installation</h1>
 
-<p>The precompiled <code>SSPlot-2D.jar</code> does not require the Apache Commons Math library, because it does not have the Experiment 3D support which is added in the latest version.</p>
-
-<h1>Alternative Installation</h1>
-
-<p>If you decide to use the newer <code>SSPlot.jar</code> with experimental 3d support, the previous method will not work. You will also need to install the Apache Commons Math library in your java CLASSPATH. As given in the <strong>Compilation</strong> section, if your library is installed in <code>/usr/share/java</code>, you can either run it with,</p>
+<p>If you decide to use the newer <code>SSPlot.jar</code> with experimental 3d support, you will also need to install the Apache Commons Math library in your java CLASSPATH. As given in the <strong>Compilation</strong> section, if your Apache Commons Math library is installed in <code>/usr/share/java</code>, you can either run it with,</p>
 
 <pre><code>java -cp /usr/share/java/commons-math3.jar:jar/SSPlot.jar math.plot.PlotterFrame
 </code></pre>
 
 <p>OR,</p>
 
-<p>if your library is in <code>/usr/share/java</code> and <code>SSPlot.jar</code> is in current directory, (for Linux only. Please search the internet on setting the java classpath if you are using any other OS.)</p>
+<p>if your library is in <code>/usr/share/java</code> and <code>SSPlot.jar</code> is in your current directory, (for Linux only. Please search the internet on setting the java classpath if you are using any other OS.)</p>
 
 <pre><code>export CLASSPATH="/usr/share/java:."
 java math.plot.PlotterFrame
 </code></pre>
+
+<p>(Which is exactly what the <code>ssplot</code> script does.)</p>
+
+<p>The main idea is that the math library and SSPlot.jar must be in your CLASSPATH before you can use <code>java math.plot.PlotterFrame</code> to launch the program.</p>
+
+<h1>Notes</h1>
+
+<p>Please adjust the <code>ssplot</code> script if anything is renamed or the Apache Commons Math library is installed in a different location.</p>
+
+<h1>Installation with Java JRE >= 15</h1>
+
+<p>Since the Nashorn Java engine is not available in Java versions > 14, so you will need to install a different JSR-223 compatible script engine in your Java CLASSPATH, in order for the dynamical system solver to work.</p>
+
+<p>A list of all available JSR-223 script engines can be found <a href="https://web.archive.org/web/20070610234337/https://scripting.dev.java.net/">here</a>.</p>
+
+<p>Some of the scripting engines can be downloaded from <a href="https://mvnrepository.com/">here</a> by searching with the names from the previous page.</p>
+
+<p>How to install the Jython script engine :
+<a href="https://wiki.python.org/jython/UserGuide#using-jsr-223">1</a> Newer one.
+<a href="https://jython.readthedocs.io/en/latest/JythonAndJavaIntegration/">2</a> Contains some useful information.</p>
+
+<p>Once you have installed a JSR-223 compatible script engine, you just have to run <code>export SSPLOT_ENGINE="engine-name"</code> before you launch the program, and ssplot will try to use that engine. Whether loading the engine is sucessful or not can be seen in the command line message by the program.</p>

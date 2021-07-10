@@ -216,6 +216,10 @@ public class PlotView extends JLabel {
 	public void setCurElement(PlotData pdata) {
 		curPlot = pdata;
 	}
+	
+	public Vector<PlotData> getAllElements() {
+		return plots;
+	}
 
 	public PlotData getData() {
 		return getCurElement();

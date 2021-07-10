@@ -21,5 +21,8 @@
 #  
 #  
 
+# Modify the next line if you want to use a different jsr-223 parsing engine.
+# Don't forget to modify the classpath variable as well.
+# export SSPLOT_ENGINE= 
 export CLASSPATH="/usr/share/java/commons-math3.jar:jar/SSPlot.jar"
 java math.plot.PlotterFrame

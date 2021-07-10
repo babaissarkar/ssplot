@@ -109,8 +109,8 @@ public class PlotterFrame extends JFrame implements ActionListener {
 
         mnuPlot = new JMenu("Plot");
         mnuPlot.add(jmAxes);
-        mnuPlot.add(jmLineWidth);
         mnuPlot.add(jmPlotType);
+        mnuPlot.add(jmLineWidth);
         mnuPlot.add(jmCol);
 		
 		JMenuBar jmb = new JMenuBar();
