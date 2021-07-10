@@ -207,7 +207,9 @@ public class PlotterFrame extends JFrame implements ActionListener {
 	
 	public void showHelp() {
 		// Shows help message
-        JOptionPane.showMessageDialog(this, "arrow keys : translate graph, j and f : zoom in and out");
+		String msg = "<html><body>arrow keys : translate graph, j and f : zoom in and out"
+				   + "<br>q, a; w, s; e, d : 3d rotation keys</body></html>";
+        JOptionPane.showMessageDialog(this, msg);
 	}
 	 
     public void changePlotType() {
