@@ -259,6 +259,10 @@ public class PlotView extends JLabel {
 		canv.initPlot();
 		repaint();
 	}
+
+    public void refresh() {
+        this.repaint();
+    }
 	
 	public double getMoveAngle() {
 		return moveAngle;
@@ -311,7 +315,7 @@ public class PlotView extends JLabel {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			//System.out.println("up");
-			canv.shift(0, 5);
+			canv.shift(0, -5);
 			repaint();
 		}
 	}
@@ -321,7 +325,7 @@ public class PlotView extends JLabel {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			//System.out.println("down");
-			canv.shift(0, -5);
+			canv.shift(0, 5);
 			repaint();
 		}
 	}
@@ -400,7 +404,7 @@ public class PlotView extends JLabel {
 	public class RotCMinusAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			p.setView(p.a, p.b, p.c - 0.5);
+			p.setView(p.a, p.b, p.c - getMoveAngle());
 		
 			repaint();
 		}

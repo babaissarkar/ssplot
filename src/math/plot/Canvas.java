@@ -155,8 +155,8 @@ public class Canvas {
 		Color curColor = g.getColor();
 		g.setColor(Color.BLACK);
 
-        g.drawLine(dx, 0, dx, W);
-        g.drawLine(0, dy, H, dy);
+        g.drawLine(dx+moveX, 0, dx+moveX, W);
+        g.drawLine(0, dy-moveY, H, dy-moveY);
 		g.setColor(curColor);
 	}
 
@@ -184,18 +184,18 @@ public class Canvas {
             int strWidth = m.stringWidth(strLbl);
             int strHeight = m.getHeight();
             
-            g.drawLine(x + dx, W/2, x + dx, W/2 + 5);
+            g.drawLine(x + dx + moveX, W/2 - moveY, x + dx + moveX, W/2 + 5 - moveY);
             if (i != 0) {
-                g.drawString(strLbl, x+dx - strWidth/2 - 2, W/2 + strHeight + 3);
+                g.drawString(strLbl, x+dx+moveX - strWidth/2 - 2, W/2 + strHeight + 3 - moveY);
 
                 // Tic labels in scientific notation (ie. 1e13)
                 // Different scale factors for X and Y axes
             }
             // Y axis tics
             int y = i * H/noOfMajorTics;
-            g.drawLine(H/2 - 5, y + dy, H/2, y + dy);
+            g.drawLine(H/2 - 5 + moveX, y - dy+moveY, H/2 + moveX, y - dy+moveY);
             if (i != 0) {
-                g.drawString(strLbl, H/2 - strWidth - 8, y+dy + strHeight/2 - 2);
+                g.drawString(strLbl, H/2 - strWidth - 8 + moveX, y+dy-moveY + strHeight/2 - 2);
             }
         }
         
@@ -271,6 +271,7 @@ public class Canvas {
 	public void shift(int i, int j) {
 		moveX += i*scaleFactor;
 		moveY -= j*scaleFactor;
+        System.out.format("dx = %d, dy = %d\n", moveX, moveY);
 	}
 
 /*********************************** Helper Methods **************************************************/

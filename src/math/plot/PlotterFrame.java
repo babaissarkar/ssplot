@@ -302,6 +302,7 @@ public class PlotterFrame extends JFrame implements ActionListener {
 		} else if (ae.getSource() == dbv.btnPlot) {
 			pv.setCols(dbv.getCol1(), dbv.getCol2());
             JOptionPane.showMessageDialog(this, "Changes applied.");
+            pv.refresh();
         }
 	}
 
