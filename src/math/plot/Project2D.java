@@ -34,9 +34,10 @@ public class Project2D {
 	
 	public void setView(double a, double b, double c) {
         /* Set viewing angle */
-        /*this.a = Math.toRadians(a);
-        this.b = Math.toRadians(b);
-        this.c = Math.toRadians(c);*/
+        double a2 = Math.toDegrees(a) % 360;
+        double b2 = Math.toDegrees(b) % 360;
+        double c2 = Math.toDegrees(c) % 360;
+        System.out.format("%f, %f, %f\n", a2, b2, c2);
 		this.a = a;
 		this.b = b;
 		this.c = c;

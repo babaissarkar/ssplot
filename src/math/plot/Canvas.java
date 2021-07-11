@@ -240,6 +240,7 @@ public class Canvas {
 
 	public void setScaleFactor(double scaleFactor) {
 		this.scaleFactor = scaleFactor;
+		System.out.println("Zoom : " + getScaleFactor() + " x");
 	}
 
 	public boolean isAxesVisible() {

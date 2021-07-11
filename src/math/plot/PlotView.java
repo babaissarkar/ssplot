@@ -43,6 +43,8 @@ public class PlotView extends JLabel {
 	private Canvas canv;
 	private Project2D p;
 	
+	private double moveAngle = Math.toRadians(10);
+	
 	// Actions
 		private LeftAction move_left = new LeftAction();
 		private RightAction move_right = new RightAction();
@@ -50,6 +52,8 @@ public class PlotView extends JLabel {
 		private DownAction move_down = new DownAction();
 		private ZoomInAction zoom_in = new ZoomInAction();
 		private ZoomOutAction zoom_out = new ZoomOutAction();
+		private SmallZoomInAction szoom_in = new SmallZoomInAction();
+		private SmallZoomOutAction szoom_out = new SmallZoomOutAction();
 		
 		private RotAPlusAction rot_a_pos = new RotAPlusAction();
 		private RotAMinusAction rot_a_min = new RotAMinusAction();
@@ -83,6 +87,8 @@ public class PlotView extends JLabel {
 		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_S, 0, false), "rotBm");
 		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_E, 0, false), "rotCp");
 		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0, false), "rotCm");
+		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_H, 0, false), "splus");
+		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_G, 0, false), "sminus");
 
 
 		getActionMap().put("left", move_left);
@@ -91,6 +97,8 @@ public class PlotView extends JLabel {
 		getActionMap().put("down", move_down);
 		getActionMap().put("plus", zoom_in);
 		getActionMap().put("minus", zoom_out);
+		getActionMap().put("splus", szoom_in);
+		getActionMap().put("sminus", szoom_out);
 		
 		getActionMap().put("rotAp", rot_a_pos);
 		getActionMap().put("rotAm", rot_a_min);
@@ -252,6 +260,15 @@ public class PlotView extends JLabel {
 		repaint();
 	}
 	
+	public double getMoveAngle() {
+		return moveAngle;
+	}
+
+
+	public void setMoveAngle(double moveAngle) {
+		this.moveAngle = moveAngle;
+	}
+
 	/* Actions */
 	@SuppressWarnings("serial")
 	public class ZoomInAction extends AbstractAction {
@@ -267,6 +284,24 @@ public class PlotView extends JLabel {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			canv.setScaleFactor(canv.getScaleFactor()/2);
+			repaint();
+		}
+	}
+	
+	@SuppressWarnings("serial")
+	public class SmallZoomInAction extends AbstractAction {
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			canv.setScaleFactor(canv.getScaleFactor() + 1);
+			repaint();
+		}
+	}
+	
+	@SuppressWarnings("serial")
+	public class SmallZoomOutAction extends AbstractAction {
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			canv.setScaleFactor(canv.getScaleFactor() - 1);
 			repaint();
 		}
 	}
@@ -315,8 +350,8 @@ public class PlotView extends JLabel {
 	public class RotAPlusAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			p.setView(p.a + 0.5, p.b, p.c);
-			System.out.format("%f, %f, %f\n", p.a, p.b, p.c);
+			p.setView(p.a + getMoveAngle(), p.b, p.c);
+			
 			repaint();
 		}
 	}
@@ -325,8 +360,8 @@ public class PlotView extends JLabel {
 	public class RotAMinusAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			p.setView(p.a - 0.5, p.b, p.c);
-			System.out.format("%f, %f, %f\n", p.a, p.b, p.c);
+			p.setView(p.a - getMoveAngle(), p.b, p.c);
+			
 			repaint();
 		}
 	}
@@ -335,8 +370,8 @@ public class PlotView extends JLabel {
 	public class RotBPlusAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			p.setView(p.a, p.b + 0.5, p.c);
-			System.out.format("%f, %f, %f\n", p.a, p.b, p.c);
+			p.setView(p.a, p.b + getMoveAngle(), p.c);
+			
 			repaint();
 		}
 	}
@@ -345,8 +380,8 @@ public class PlotView extends JLabel {
 	public class RotBMinusAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			p.setView(p.a, p.b - 0.5, p.c);
-			System.out.format("%f, %f, %f\n", p.a, p.b, p.c);
+			p.setView(p.a, p.b - getMoveAngle(), p.c);
+			
 			repaint();
 		}
 	}
@@ -355,8 +390,8 @@ public class PlotView extends JLabel {
 	public class RotCPlusAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			p.setView(p.a, p.b, p.c + 0.5);
-			System.out.format("%f, %f, %f\n", p.a, p.b, p.c);
+			p.setView(p.a, p.b, p.c + getMoveAngle());
+			
 			repaint();
 		}
 	}
@@ -366,7 +401,7 @@ public class PlotView extends JLabel {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			p.setView(p.a, p.b, p.c - 0.5);
-			System.out.format("%f, %f, %f\n", p.a, p.b, p.c);
+		
 			repaint();
 		}
 	}
