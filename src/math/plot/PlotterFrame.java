@@ -28,6 +28,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Point2D;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
@@ -55,6 +56,7 @@ public class PlotterFrame extends JFrame implements ActionListener {
 	private JMenu mnuFile, mnuPlot;
 	private JMenuItem jmSave, jmPaint, jmOpen, jmHelp, jmShowData, jmQuit;
     private JMenuItem jmPlotType, jmPhase, jmCol, jmClear, jmSvData, jmAxes;
+    private JMenuItem jmAbout;
     private JMenuItem jmLineWidth;
 	private DBViewer dbv = null;
     private static final int MENUBAR_WIDTH = 60; /* Valid only for defaul Metal look and feel. */
@@ -79,6 +81,8 @@ public class PlotterFrame extends JFrame implements ActionListener {
         jmPlotType = new JMenuItem("Set Plot Type");
         jmClear = new JMenuItem("Clear plot");
         
+        jmAbout = new JMenuItem("About");
+        
 		jmSave.addActionListener(this);
 		jmSvData.addActionListener(this);
 		jmPaint.addActionListener(this);
@@ -87,6 +91,7 @@ public class PlotterFrame extends JFrame implements ActionListener {
 		jmShowData.addActionListener(this);
         jmQuit.addActionListener(this);
         jmClear.addActionListener(this);
+        jmAbout.addActionListener(this);
 
         jmCol.addActionListener(this);
         jmLineWidth.addActionListener(this);
@@ -105,6 +110,7 @@ public class PlotterFrame extends JFrame implements ActionListener {
         mnuFile.add(jmPhase);
         mnuFile.addSeparator();
 		mnuFile.add(jmHelp);
+		mnuFile.add(jmAbout);
         mnuFile.add(jmQuit);
 
         mnuPlot = new JMenu("Plot");
@@ -126,12 +132,17 @@ public class PlotterFrame extends JFrame implements ActionListener {
         pv.addMouseListener(
             new MouseAdapter() {
                 @Override
-                public void mousePressed(MouseEvent evt) {
-                     /*double mX, mY;
-                     mX = evt.getX();
-                     mY = evt.getY();*/
-                     //pp.plotTrajectory(mX, mY);
-                     repaint();
+                public void mousePressed(MouseEvent ev) {
+                	/* Will be added later. */
+                	int x = ev.getX();
+            		int y = ev.getY();
+            		
+            		Point2D.Double p = pv.getCanvas().getInvTransformedPoint(new Point2D.Double(x, y));
+            		//System.out.println(p.toString());
+            		/* The plotting area starts from (20,20) in java graphics space, so we are substracting it. */
+            		String label = String.format("(%d, %d)", (int) p.getX() - 20, (int) p.getY() + 20);
+            		//showMsg("Point : " + label);
+                    repaint();
                 }
             }
         );
@@ -212,7 +223,11 @@ public class PlotterFrame extends JFrame implements ActionListener {
 				   + "<br> g and h : fine zoom adjustment"
 				   + "<br>q, a; w, s; e, d : 3d rotation keys"
 				   + "</body></html>";
-        JOptionPane.showMessageDialog(this, msg);
+        showMsg(msg);
+	}
+	
+	public void showMsg(String str) {
+		JOptionPane.showMessageDialog(this, str);
 	}
 	 
     public void changePlotType() {
@@ -269,6 +284,10 @@ public class PlotterFrame extends JFrame implements ActionListener {
 //            canv.showMsg("Show datasets.");
 		} else if (ae.getSource() == jmHelp) {
 			showHelp();
+		} else if (ae.getSource() == jmAbout) {
+			 String str = "<html><body>Created by : Subhraman Sarkar, 2021<br>"
+					 +    "Available under the LGPL 2.1 license.</body></html>";
+			 JOptionPane.showMessageDialog(this, str, "About", JOptionPane.INFORMATION_MESSAGE);
         } else if (ae.getSource() == jmQuit) {
             System.exit(0);
         } else if (ae.getSource() == jmClear) {

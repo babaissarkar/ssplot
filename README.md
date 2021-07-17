@@ -5,12 +5,19 @@ A simple plotting utility for dynamical systems.
 Any Java version less than 15. (and more than 6).
 
 # Installation
-1. Install Java runtime (JRE).
-2. Optionally, install Apache Commons Math library (if you want the experimental 3d support).
-3. Download the latest release from the releases section. (You can also clone this repository, either using `git clone` or using the Code menu in this page (Code -> Dropdown -> Download ZIP))
+1. Install Java runtime (JRE). Version 14 preferred. Versions 15 and higher requires some more work,and is explained in the last section. I use OpenJDK 14, which can be downloaded from [here]().
+2. Download and install Apache Commons Math library (version 3) in your `CLASSPATH`. (Make sure it is installed in `/usr/share/java` for Linux, which is the case if it is installed by the package manager such as `apt`. You don't have to set the `CLASSPATH` for Linux. It is automatically done by the `ssplot` script.)
+3. Download the latest release of SSPlot from the releases section. (You can also clone this repository, either using `git clone` or using the Code menu in this page (Code -> Dropdown -> Download ZIP))
 4. Extract the ZIP if you downloaded it.
 5. Enter the folder inside the ZIP (or the cloned folder) and open a terminal there.
-6. Run using `./ssplot` from your terminal/command line.
+6. Run using `./ssplot` from your terminal/command line (For linux).
+7. Alternatively, for other OSes, see the next section.
+
+# Other OSes.
+Steps are same, except that,
+1. You have to set the `CLASSPATH` yourself. You can search the internet for how to do that for your OS. Make sure that the `CLASSPATH` contains the Apache Commons Math library (version 3) and `SSPlot.jar`.
+2. Make sure you can access the `java` command from the JRE. You probably have to set another variable called `PATH`. The `java` command may be called something different in your OS.
+3. Run the `java` command with argument `math.plot.PlotterFrame`. If everything is okay, the main window of SSPlot will open.
 
 # Compilation
 You will require Java JDK, Apache Ant and the Apache Commons Math library (version 3).
@@ -20,7 +27,7 @@ You will require Java JDK, Apache Ant and the Apache Commons Math library (versi
 3. You can run the generated `SSPlot.jar` file using the command `java -cp /usr/share/java/commons-math3.jar:jar/SSPlot.jar math.plot.PlotterFrame`, assuming the library is located in `/usr/share/java`. (Or using `./ssplot`)
 
 # Detailed Installation
-If you decide to use the newer `SSPlot.jar` with experimental 3d support, you will also need to install the Apache Commons Math library in your java CLASSPATH. As given in the **Compilation** section, if your Apache Commons Math library is installed in `/usr/share/java`, you can either run it with,
+If you decide to use the newer `SSPlot.jar` with experimental 3d support, you will need to install the Apache Commons Math library in your java CLASSPATH. As given in the **Compilation** section, if your Apache Commons Math library is installed in `/usr/share/java`, you can either run it with,
 
     java -cp /usr/share/java/commons-math3.jar:jar/SSPlot.jar math.plot.PlotterFrame
     
@@ -51,4 +58,4 @@ How to install the Jython script engine :
 
 Jython 2.7 from the first link is recommended, as it does not require a separate script engine.
 
-Once you have installed a JSR-223 compatible script engine, you just have to run `export SSPLOT_ENGINE="engine-name"` before you launch the program, and ssplot will try to use that engine. Whether loading the engine is sucessful or not can be seen in the command line message by the program.
+Once you have installed a JSR-223 compatible script engine, you just have to set the environment variable `SSPLOT_ENGINE` with the name of the engine as the value, (run `export SSPLOT_ENGINE="engine-name"` in Linux) before you launch the program, and SSPlot will try to use that engine. Whether loading the engine is sucessful or not can be seen in the command line message by the program.

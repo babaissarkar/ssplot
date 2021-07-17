@@ -39,7 +39,7 @@ public class Canvas {
     private int W, H; /* Size of image */
     private BufferedImage img; /* The image */
     private Graphics2D g;
-    public Color fgColor, bgColor;
+    private Color fgColor, bgColor;
     private boolean axesVisible = true;
     public int curNoTics = 10;
 
@@ -145,7 +145,15 @@ public class Canvas {
 	
 	/* Write text at a specific point */
 	public void drawText(String str, Point2D.Double p) {
-		g.drawString(str, (int) p.x, (int) p.y);
+		/*FontMetrics fm = g.getFontMetrics();
+		int strH = fm.getHeight();
+		int strW = fm.stringWidth(str);
+		int x = ((int) p.getX()) - strW/2;
+		int y = ((int) p.getY()) - strH/2;*/
+		int x = (int) p.x;
+		int y = (int) p.y;
+		
+		g.drawString(str, x, y);
 	}
 
 
@@ -184,18 +192,32 @@ public class Canvas {
             int strWidth = m.stringWidth(strLbl);
             int strHeight = m.getHeight();
             
-            g.drawLine(x + dx + moveX, W/2 - moveY, x + dx + moveX, W/2 + 5 - moveY);
+            //g.drawLine(x + dx + moveX, W/2 - moveY, x + dx + moveX, W/2 + 5 - moveY);
+            drawLine(
+            		getTransformedPoint2(new Point2D.Double(x, 0)),
+            		getTransformedPoint2(new Point2D.Double(x, -5))
+            		);
             if (i != 0) {
-                g.drawString(strLbl, x+dx+moveX - strWidth/2 - 2, W/2 + strHeight + 3 - moveY);
+                //g.drawString(strLbl, x+dx+moveX - strWidth/2 - 2, W/2 + strHeight + 3 - moveY);
+            	drawText(strLbl, getTransformedPoint2(new Point2D.Double(x- (strWidth/2 + 2), -(strHeight+2))));
 
                 // Tic labels in scientific notation (ie. 1e13)
                 // Different scale factors for X and Y axes
             }
+            
             // Y axis tics
             int y = i * H/noOfMajorTics;
-            g.drawLine(H/2 - 5 + moveX, y - dy+moveY, H/2 + moveX, y - dy+moveY);
+            
+            //g.drawLine(H/2 - 5 + moveX, H - (y - dy - moveY), H/2 + moveX, H - (y - dy - moveY));
+            //System.out.format("%d, %d, %d, %d\n", H/2 - 5 + moveX, H - (y - dy - moveY), H/2 + moveX, H - (y - dy - moveY));
+            drawLine(
+            		getTransformedPoint2(new Point2D.Double(0, y)),
+            		getTransformedPoint2(new Point2D.Double(-5, y))
+            		);
+            
             if (i != 0) {
-                g.drawString(strLbl, H/2 - strWidth - 8 + moveX, y+dy-moveY + strHeight/2 - 2);
+//                g.drawString(strLbl, H/2 - strWidth - 8 + moveX, H - (y+dy+moveY + strHeight/2 - 2));
+            	drawText(strLbl, getTransformedPoint2(new Point2D.Double(-(strWidth+8), y - (strHeight/2 - 2))));
             }
         }
         
@@ -228,6 +250,10 @@ public class Canvas {
     public void setFGColor(Color c) {
         fgColor = c;
         g.setColor(c);
+    }
+    
+    public Color getFGColor() {
+        return fgColor;
     }
 
     public void setBGColor(Color c) {
@@ -269,9 +295,11 @@ public class Canvas {
 	}
 
 	public void shift(int i, int j) {
-		moveX += i*scaleFactor;
-		moveY -= j*scaleFactor;
-        System.out.format("dx = %d, dy = %d\n", moveX, moveY);
+		//moveX += i*scaleFactor;
+		//moveY -= j*scaleFactor;
+        moveX += i;
+        moveY += j;
+        System.out.format("dx = %d, dy = %d\n", moveX, -moveY);
 	}
 
 /*********************************** Helper Methods **************************************************/
@@ -283,6 +311,14 @@ public class Canvas {
         double y = p.y;
 		double x1 = scaleFactor*x + dx + moveX;
 		double y1 = H - (scaleFactor*y + dy + moveY);
+		return new Point2D.Double(x1, y1);
+	}
+	
+	private Point2D.Double getTransformedPoint2(Point2D.Double p) {
+        double x = p.x;
+        double y = p.y;
+		double x1 = x + dx + moveX;
+		double y1 = H - (y + dy + moveY);
 		return new Point2D.Double(x1, y1);
 	}
 

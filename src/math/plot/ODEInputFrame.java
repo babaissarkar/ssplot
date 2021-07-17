@@ -54,7 +54,7 @@ public class ODEInputFrame implements ActionListener {
 
     JFrame frmMain = null;
     JTextField[] tfs, tfs2, tfs3;
-    JButton btnOK, btnCancel, btnDF, btnTR;
+    JButton btnOK, btnCancel, btnDF, btnTR, btnCW;
     JRadioButton rbODE, rbIM;
     JTextField tfCounts;
     
@@ -171,6 +171,7 @@ public class ODEInputFrame implements ActionListener {
         btnDF = new JButton("Plot VField");
         btnTR = new JButton("Plot 2D");
         btnTR2 = new JButton("Plot 3D");
+        btnCW = new JButton("Cobweb plot");
         tfs3 = new JTextField[3];
         tfs3[0] = new JTextField(3);
         tfs3[1] = new JTextField(3);
@@ -183,6 +184,7 @@ public class ODEInputFrame implements ActionListener {
         btnDF.setEnabled(false);
         btnTR.setEnabled(false);
         btnTR2.setEnabled(false);
+        btnCW.setEnabled(false);
         tfs3[0].setEnabled(false);
         tfs3[1].setEnabled(false);
         
@@ -196,12 +198,14 @@ public class ODEInputFrame implements ActionListener {
         }
 
         pnlButton.add(btnDF);
+        pnlButton.add(btnCW);
         pnlButton.add(btnOK);
         pnlButton.add(btnCancel);
 
         btnTR.addActionListener(this);
         btnTR2.addActionListener(this);
         btnDF.addActionListener(this);
+        btnCW.addActionListener(this);
         btnOK.addActionListener(this);
         btnCancel.addActionListener(this);
 
@@ -250,6 +254,14 @@ public class ODEInputFrame implements ActionListener {
     	view.setData(trjData);
     }
     
+    public void plotCobweb(double x) {
+    	PlotData pdata = new PlotData(odedata.cobweb(x));
+    	pdata.pltype = PlotData.PlotType.LINES;
+    	pdata.fgColor = Color.BLACK;
+    	
+    	view.setData(pdata);
+    }
+    
     public void plotTrajectory3D(double x, double y, double z) {
     	PlotData trjData = new PlotData(odedata.RK4Iterate3D(x, y, z));
     	trjData.pltype = PlotData.PlotType.THREED;
@@ -265,6 +277,10 @@ public class ODEInputFrame implements ActionListener {
         	setEqnSystem();
             if (modeODE) {
 				btnDF.setEnabled(true);
+				btnCW.setEnabled(false);
+			} else {
+				btnCW.setEnabled(true);
+				btnDF.setEnabled(false);
 			}
 			setODERange();
 			tfs3[0].setEnabled(true);
@@ -291,6 +307,11 @@ public class ODEInputFrame implements ActionListener {
         	
         	this.plotTrajectory3D(x, y, z);
         	
+        } else if (evt.getSource() == btnCW) {
+        	
+        	double x = Double.parseDouble(tfs3[0].getText());
+        	plotCobweb(x);
+        	
         } else if (evt.getSource() == btnCancel) {
         	
             hide();
@@ -299,9 +320,7 @@ public class ODEInputFrame implements ActionListener {
     }
 
 	private void setEqnSystem() {
-		
 		odedata.setEqns(tfs[0].getText(), tfs[1].getText(), tfs[2].getText());
-		
 	}
 
 	public void show() {

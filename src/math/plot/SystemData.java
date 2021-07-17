@@ -94,7 +94,7 @@ public class SystemData {
         //System.out.println(eqn1 + " " + eqn2 + " " + eqn3);
     }
 
-    public double dx_dt (double x, double y, double z) {
+    public double dx_dt(double x, double y, double z) {
     	double res = 0;
         engine.put("x", x);
         engine.put("y", y);
@@ -112,7 +112,7 @@ public class SystemData {
         
     }
 
-    public double dy_dt (double x, double y, double z) {
+    public double dy_dt(double x, double y, double z) {
     	double res = 0;
         engine.put("x", x);
         engine.put("y", y);
@@ -129,7 +129,7 @@ public class SystemData {
         return res;
     }
     
-    public double dz_dt (double x, double y, double z) {
+    public double dz_dt(double x, double y, double z) {
     	double res = 0;
         engine.put("x", x);
         engine.put("y", y);
@@ -146,15 +146,30 @@ public class SystemData {
         return res;
     }
     
-    public double dx_dt (double x, double y) {
+    public double dx_dt(double x, double y) {
     	return dx_dt(x, y, 0);
     }
     
-    public double dy_dt (double x, double y) {
+    public double dy_dt(double x, double y) {
     	return dy_dt(x, y, 0);
     }
     
-    public double x2 (double x, double y) {
+    public double x2(double x) {
+    	double res = 0;
+        engine.put("x", x);
+
+        try {
+        	engine.eval("x2 = " + eqns[0]);
+        	res = (double) engine.get("x2");
+        	//System.out.println("X2 = " + res);
+        } catch (ScriptException e) {
+        	e.printStackTrace();
+        }
+
+        return res;
+    }
+    
+    public double x2(double x, double y) {
     	double res = 0;
         engine.put("x", x);
         engine.put("y", y);
@@ -169,7 +184,7 @@ public class SystemData {
         return res;
     }
     
-    public double y2 (double x, double y) {
+    public double y2(double x, double y) {
     	double res = 0;
         engine.put("x", x);
         engine.put("y", y);
@@ -309,16 +324,49 @@ public class SystemData {
         for (int i = 0; i < N; i++) {
         	double tempX, tempY;
         	
+        	Vector<Double> row = new Vector<Double>();
+            row.add(x);
+            row.add(y);
+            soln.add(row);
+        	
         	tempX = x2(x, y);
         	tempY = y2(x, y);
         	x = tempX;
         	y = tempY;
 
+        }
+        
+    	return soln;
+    }
+    
+    public Vector<Vector<Double>> cobweb(double x0) {
+    	/* Works for 1D maps only */
+    	Vector<Vector<Double>> soln = new Vector<Vector<Double>>();
+    	double x, y;
+        
+        x = x0;
+        y = 0;
+        
+        for (int i = 0; i < N; i++) {
+
         	Vector<Double> row = new Vector<Double>();
             row.add(x);
             row.add(y);
             soln.add(row);
-
+            
+            y = x2(x);
+        	
+            Vector<Double> row2 = new Vector<Double>();
+            row2.add(x);
+            row2.add(y);
+            soln.add(row2);
+            
+            x = y;
+            
+            Vector<Double> row3 = new Vector<Double>();
+            row3.add(x);
+            row3.add(y);
+            soln.add(row3);
         }
         
     	return soln;

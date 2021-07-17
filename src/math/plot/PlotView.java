@@ -176,8 +176,18 @@ public class PlotView extends JLabel {
 					case POINTS :
 						canv.drawPoint(p1, PlotData.PointType.SQUARE, pdata.ptX, pdata.ptY);
 						break;
+					case LP :
+						Color c = canv.getFGColor();
+						Point2D.Double pback = new Point2D.Double( p1.getX() - (pdata.ptX+4)/2, p1.getY() - (pdata.ptY+4)/2 );
+						
+						canv.setStroke(pdata.ptX);
+						canv.drawLine(p1, p2);
+						
+						canv.setFGColor(Color.BLACK);
+						canv.drawPoint(pback, PlotData.PointType.CIRCLE, pdata.ptX+4, pdata.ptY+4);
+						canv.setFGColor(c);
 					default :
-						// TODO
+						// Nothing here.
 						break;
 					}
 				}
@@ -409,5 +419,10 @@ public class PlotView extends JLabel {
 			repaint();
 		}
 	}
+
+	public Canvas getCanvas() {
+		return canv;
+	}
+
 }
 

@@ -21,6 +21,7 @@
 #  
 #  
 
+cd "/home/subhraman/Documents/Projects/Java/Eclipse/SSPlot"
 # Modify the next line if you want to use a different jsr-223 parsing engine.
 # Don't forget to modify the classpath variable as well.
 # export SSPLOT_ENGINE= 
