@@ -9,13 +9,21 @@
 <h1>Installation</h1>
 
 <ol>
-<li>Install Java runtime (JRE).</li>
-<li>Optionally, install Apache Commons Math library (if you want the experimental 3d support).</li>
-<li>Download the latest release from the releases section. (You can also clone this repository, either using <code>git clone</code> or using the Code menu in this page (Code -> Dropdown -> Download ZIP))</li>
+<li>Install Java runtime (JRE). Version 14 preferred. Versions 15 and higher requires some more work,and is explained in the last section. I use OpenJDK 14, which can be downloaded from <a href="">here</a>.</li>
+<li>Download and install Apache Commons Math library (version 3) in your <code>CLASSPATH</code>. (Make sure it is installed in <code>/usr/share/java</code> for Linux, which is the case if it is installed by the package manager such as <code>apt</code>. You don't have to set the <code>CLASSPATH</code> for Linux. It is automatically done by the <code>ssplot</code> script.)</li>
+<li>Download the latest release of SSPlot from the releases section. (You can also clone this repository, either using <code>git clone</code> or using the Code menu in this page (Code -> Dropdown -> Download ZIP))</li>
 <li>Extract the ZIP if you downloaded it.</li>
 <li>Enter the folder inside the ZIP (or the cloned folder) and open a terminal there.</li>
-<li>Run using <code>./ssplot</code> from your terminal/command line.</li>
+<li>Run using <code>./ssplot</code> from your terminal/command line (For linux).</li>
+<li>Alternatively, for other OSes, see the next section.</li>
 </ol>
+
+<h1>Other OSes.</h1>
+
+<p>Steps are same, except that,
+1. You have to set the <code>CLASSPATH</code> yourself. You can search the internet for how to do that for your OS. Make sure that the <code>CLASSPATH</code> contains the Apache Commons Math library (version 3) and <code>SSPlot.jar</code>.
+2. Make sure you can access the <code>java</code> command from the JRE. You probably have to set another variable called <code>PATH</code>. The <code>java</code> command may be called something different in your OS.
+3. Run the <code>java</code> command with argument <code>math.plot.PlotterFrame</code>. If everything is okay, the main window of SSPlot will open.</p>
 
 <h1>Compilation</h1>
 
@@ -29,7 +37,7 @@
 
 <h1>Detailed Installation</h1>
 
-<p>If you decide to use the newer <code>SSPlot.jar</code> with experimental 3d support, you will also need to install the Apache Commons Math library in your java CLASSPATH. As given in the <strong>Compilation</strong> section, if your Apache Commons Math library is installed in <code>/usr/share/java</code>, you can either run it with,</p>
+<p>If you decide to use the newer <code>SSPlot.jar</code> with experimental 3d support, you will need to install the Apache Commons Math library in your java CLASSPATH. As given in the <strong>Compilation</strong> section, if your Apache Commons Math library is installed in <code>/usr/share/java</code>, you can either run it with,</p>
 
 <pre><code>java -cp /usr/share/java/commons-math3.jar:jar/SSPlot.jar math.plot.PlotterFrame
 </code></pre>
@@ -62,4 +70,10 @@ java math.plot.PlotterFrame
 <a href="https://wiki.python.org/jython/UserGuide#using-jsr-223">1</a> Newer one.
 <a href="https://jython.readthedocs.io/en/latest/JythonAndJavaIntegration/">2</a> Contains some useful information.</p>
 
-<p>Once you have installed a JSR-223 compatible script engine, you just have to run <code>export SSPLOT_ENGINE="engine-name"</code> before you launch the program, and ssplot will try to use that engine. Whether loading the engine is sucessful or not can be seen in the command line message by the program.</p>
+<p>Jython 2.7 from the first link is recommended, as it does not require a separate script engine.</p>
+
+<p>Once you have installed a JSR-223 compatible script engine, you just have to set the environment variable <code>SSPLOT_ENGINE</code> with the name of the engine as the value, (run <code>export SSPLOT_ENGINE="engine-name"</code> in Linux) before you launch the program, and SSPlot will try to use that engine. Whether loading the engine is sucessful or not can be seen in the command line message by the program.</p>
+
+<h1>License</h1>
+
+<p>This software is available under the LGPL 2.1 license. Please see the <code>COPYING</code> and <code>COPYING.LESSER</code> files.</p>
