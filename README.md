@@ -5,7 +5,7 @@ A simple plotting utility for dynamical systems.
 Any Java version less than 15. (and more than 6).
 
 # Installation
-1. Install Java runtime (JRE). Version 14 preferred. Versions 15 and higher requires some more work,and is explained in the last section. I use OpenJDK 14, which can be downloaded from [here](https://jdk.java.net/java-se-ri/14).
+1. Install Java runtime (JRE). Version 14 preferred. Versions 15 and higher require some more work, which is explained in the last section. I use OpenJDK 14, which can be downloaded from [here](https://jdk.java.net/java-se-ri/14).
 2. Download and install Apache Commons Math library (version 3) in your `CLASSPATH`. (Make sure it is installed in `/usr/share/java` for Linux, which is the case if it is installed by the package manager such as `apt`. You don't have to set the `CLASSPATH` for Linux. It is automatically done by the `ssplot` script.)
 3. Download the latest release of SSPlot from the releases section. (You can also clone this repository, either using `git clone` or using the Code menu in this page (Code -> Dropdown -> Download ZIP))
 4. Extract the ZIP if you downloaded it.
@@ -17,7 +17,7 @@ Any Java version less than 15. (and more than 6).
 Steps are same, except that,
 1. You have to set the `CLASSPATH` yourself. You can search the internet for how to do that for your OS. Make sure that the `CLASSPATH` contains the Apache Commons Math library (version 3) and `SSPlot.jar`.
 2. Make sure you can access the `java` command from the JRE. You probably have to set another variable called `PATH`. The `java` command may be called something different in your OS.
-3. Run the `java` command with argument `math.plot.PlotterFrame`. If everything is okay, the main window of SSPlot will open.
+3. Run the `java` command with argument `math.plot.PlotterFrame` (`java math.plot.PlotterFrame`). If everything is okay, the main window of SSPlot will open.
 
 # Compilation
 You will require Java JDK, Apache Ant and the Apache Commons Math library (version 3).
