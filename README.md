@@ -56,7 +56,7 @@ How to install the Jython script engine :
 [1](https://wiki.python.org/jython/UserGuide#using-jsr-223) Newer one.
 [2](https://jython.readthedocs.io/en/latest/JythonAndJavaIntegration/) Contains some useful information.
 
-Jython 2.7 from the first link is recommended, as it does not require a separate script engine.
+_Jython 2.7 from the first link is recommended, as it does not require a separate script engine._
 
 Once you have installed a JSR-223 compatible script engine, you just have to set the environment variable `SSPLOT_ENGINE` with the name of the engine as the value, (run `export SSPLOT_ENGINE="engine-name"` in Linux) before you launch the program, and SSPlot will try to use that engine. Whether loading the engine is sucessful or not can be seen in the command line message by the program.
 
