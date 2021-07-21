@@ -145,11 +145,6 @@ public class Canvas {
 	
 	/* Write text at a specific point */
 	public void drawText(String str, Point2D.Double p) {
-		/*FontMetrics fm = g.getFontMetrics();
-		int strH = fm.getHeight();
-		int strW = fm.stringWidth(str);
-		int x = ((int) p.getX()) - strW/2;
-		int y = ((int) p.getY()) - strH/2;*/
 		int x = (int) p.x;
 		int y = (int) p.y;
 		
@@ -174,57 +169,66 @@ public class Canvas {
 		g.setColor(Color.BLACK);
         
         FontMetrics m = g.getFontMetrics();
+        int strHeight = m.getHeight();
         
-        for (int i = -(noOfMajorTics/2 - 1); i < noOfMajorTics/2; i++) {
+        // When the screen is shifted, the axes need to be redrawn
+        int offsetTicsX = (int) ((moveX*noOfMajorTics)/(W*scaleFactor));
+        int offsetTicsY = (int) ((moveY*noOfMajorTics)/(H*scaleFactor));
+        //System.out.println(offsetTics);
+        
+        for (int i = (-(noOfMajorTics/2 - 1) - offsetTicsX - (int) scaleFactor); i < (noOfMajorTics/2 - offsetTicsX + (int) scaleFactor); i++) {
             // X axis tics
             int x =  i * W/noOfMajorTics;
             double lbl = x/scaleFactor;
-            String strLbl;
-            
-            if ((Math.abs(lbl) >= 0.1) && (Math.abs(lbl) < 10)) {
-                strLbl = String.format("%2.1f", lbl);
-            } else if ((Math.abs(lbl) >= 10) && (Math.abs(lbl) < 1000)) {
-                strLbl = String.format("%3.0f", lbl);
-            } else {
-                strLbl = String.format("%2.1e", lbl);
-            }
-            
+            String strLbl = getLabelFromDouble(lbl);
             int strWidth = m.stringWidth(strLbl);
-            int strHeight = m.getHeight();
             
-            //g.drawLine(x + dx + moveX, W/2 - moveY, x + dx + moveX, W/2 + 5 - moveY);
             drawLine(
             		getTransformedPoint2(new Point2D.Double(x, 0)),
             		getTransformedPoint2(new Point2D.Double(x, -5))
             		);
+            
             if (i != 0) {
-                //g.drawString(strLbl, x+dx+moveX - strWidth/2 - 2, W/2 + strHeight + 3 - moveY);
             	drawText(strLbl, getTransformedPoint2(new Point2D.Double(x- (strWidth/2 + 2), -(strHeight+2))));
-
-                // Tic labels in scientific notation (ie. 1e13)
-                // Different scale factors for X and Y axes
             }
             
-            // Y axis tics
-            int y = i * H/noOfMajorTics;
-            
-            //g.drawLine(H/2 - 5 + moveX, H - (y - dy - moveY), H/2 + moveX, H - (y - dy - moveY));
-            //System.out.format("%d, %d, %d, %d\n", H/2 - 5 + moveX, H - (y - dy - moveY), H/2 + moveX, H - (y - dy - moveY));
-            drawLine(
-            		getTransformedPoint2(new Point2D.Double(0, y)),
-            		getTransformedPoint2(new Point2D.Double(-5, y))
-            		);
-            
-            if (i != 0) {
-//                g.drawString(strLbl, H/2 - strWidth - 8 + moveX, H - (y+dy+moveY + strHeight/2 - 2));
-            	drawText(strLbl, getTransformedPoint2(new Point2D.Double(-(strWidth+8), y - (strHeight/2 - 2))));
-            }
         }
         
-        g.setColor(curColor);
+        for (int j = (-(noOfMajorTics/2 - 1) - offsetTicsY - (int) scaleFactor); j < (noOfMajorTics/2 - offsetTicsY + (int) scaleFactor); j++) {
+			// Y axis tics
+			int y = j * H/noOfMajorTics;
+			double lbl = y/scaleFactor;
+			String strLbl = getLabelFromDouble(lbl);
+			int strWidth = m.stringWidth(strLbl);
+			
+			drawLine(
+					getTransformedPoint2(new Point2D.Double(0, y)),
+					getTransformedPoint2(new Point2D.Double(-5, y))
+					);
+			
+			if (j != 0) {
+				drawText(strLbl, getTransformedPoint2(new Point2D.Double(-(strWidth + 8), y - (strHeight / 2 - 2))));
+			} 
+		}
+        
+		g.setColor(curColor);
 	}
 
-    /* Draws a box around the plot */
+    private String getLabelFromDouble(double lbl) {
+    	// Tic labels in scientific notation (ie. 1e13)
+        // Different scale factors for X and Y axes
+    	String strLbl;
+    	 if ((Math.abs(lbl) >= 0.1) && (Math.abs(lbl) < 10)) {
+             strLbl = String.format("%2.1f", lbl);
+         } else if ((Math.abs(lbl) >= 10) && (Math.abs(lbl) < 1000)) {
+             strLbl = String.format("%3.0f", lbl);
+         } else {
+             strLbl = String.format("%2.1e", lbl);
+         }
+		return strLbl;
+	}
+
+	/* Draws a box around the plot */
 	public void drawBoundingBox() {
         int strokeWidth = 1;
         
@@ -328,7 +332,7 @@ public class Canvas {
         double x1 = p1.x;
         double y1 = p1.y;
         double x = (x1 - dx - moveX)/scaleFactor;
-        double y = (H - y1 - dy - moveY)/scaleFactor;
+        double y = ((H - y1) - dy - moveY)/scaleFactor;
         return new Point2D.Double(x, y);
     }
 

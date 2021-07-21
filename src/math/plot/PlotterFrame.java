@@ -104,9 +104,6 @@ public class PlotterFrame extends JFrame implements ActionListener {
 		mnuFile.add(jmSave);
 		mnuFile.add(jmSvData);
         mnuFile.addSeparator();
-        mnuFile.add(jmClear);
-		mnuFile.add(jmShowData);
-        mnuFile.addSeparator();
         mnuFile.add(jmPhase);
         mnuFile.addSeparator();
 		mnuFile.add(jmHelp);
@@ -115,6 +112,10 @@ public class PlotterFrame extends JFrame implements ActionListener {
 
         mnuPlot = new JMenu("Plot");
         mnuPlot.add(jmAxes);
+        mnuPlot.addSeparator();
+        mnuPlot.add(jmShowData);
+        mnuPlot.addSeparator();
+        mnuPlot.add(jmClear);
         mnuPlot.add(jmPlotType);
         mnuPlot.add(jmLineWidth);
         mnuPlot.add(jmCol);
@@ -134,14 +135,15 @@ public class PlotterFrame extends JFrame implements ActionListener {
                 @Override
                 public void mousePressed(MouseEvent ev) {
                 	/* Will be added later. */
-                	int x = ev.getX();
-            		int y = ev.getY();
+                	int x = ev.getX()-20;
+            		int y = ev.getY()-20;
             		
             		Point2D.Double p = pv.getCanvas().getInvTransformedPoint(new Point2D.Double(x, y));
             		//System.out.println(p.toString());
             		/* The plotting area starts from (20,20) in java graphics space, so we are substracting it. */
-            		String label = String.format("(%d, %d)", (int) p.getX() - 20, (int) p.getY() + 20);
-            		//showMsg("Point : " + label);
+            		String label = String.format("(%3.1f, %3.1f)", p.getX(), p.getY());
+            		showMsg("Point : " + label);
+                    //pv.addNode(new Point2D.Double(x-20, y-20), label, Color.BLUE);
                     repaint();
                 }
             }

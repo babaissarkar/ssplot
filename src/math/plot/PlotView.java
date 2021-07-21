@@ -20,6 +20,9 @@
  * 
  * 
  */
+
+/* 20.07.2021 : Functions drawNode and addNode and class Node added. Function paint() changed to add node drawing.*/
+ 
 package math.plot;
 
 import java.awt.Color;
@@ -42,6 +45,8 @@ public class PlotView extends JLabel {
 	private int col1, col2;
 	private Canvas canv;
 	private Project2D p;
+
+    private Vector<Node> nodes = new Vector<Node>();
 	
 	private double moveAngle = Math.toRadians(10);
 	
@@ -118,6 +123,12 @@ public class PlotView extends JLabel {
 				plotData(canv, pdata);
 			}
 		}
+
+        //System.out.println(nodes.size());
+        
+        for (Node node : nodes) {
+            drawNode(canv, node);
+        }
 		
 		g.drawImage(canv.getImage(), 20, 20, null);
 	
@@ -198,7 +209,21 @@ public class PlotView extends JLabel {
 		canv.setStroke(1);
 	}
 
-	
+
+    public void drawNode(Canvas canv, Node n) {
+        Color fgc = canv.getFGColor();
+        canv.setFGColor(n.col);
+        canv.drawPoint(n.pNode, PlotData.PointType.CIRCLE, 3, 3);
+        Point2D.Double pText = new Point2D.Double(n.pNode.getX()+2, n.pNode.getY()+2);
+        canv.drawText(n.lbl, pText);
+        canv.setFGColor(fgc);
+    }
+
+    public void addNode(Point2D.Double p, String str, Color c) {
+        Node n = new Node(p, str, c);
+        nodes.add(n);
+    }
+
 	/* Getter and Setters */
 	public PlotData.PlotType getCurPlotType() {
 		return getCurElement().pltype;
@@ -262,6 +287,7 @@ public class PlotView extends JLabel {
 	/* Reset canvas */
 	public void clear() {
 		plots = new Vector<PlotData>();
+        nodes = new Vector<Node>();
 		col1 = 1;
 		col2 = 2;
 		
@@ -419,6 +445,19 @@ public class PlotView extends JLabel {
 			repaint();
 		}
 	}
+
+    public class Node {
+        /* A node is a point with a label */
+        Point2D.Double pNode;
+        String lbl;
+        Color col;
+        
+        public Node(Point2D.Double p, String str, Color c) {
+            this.lbl = str;
+            this.pNode = p;
+            this.col = c;
+        }
+    }
 
 	public Canvas getCanvas() {
 		return canv;

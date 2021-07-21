@@ -84,6 +84,7 @@ public class DBViewer extends JFrame {
 		for (int i = 0; i < colNo; i++) {
             columns.getColumn(i).setPreferredWidth(20);
 		}
+        //anttable.setEditable(false);
 		JScrollPane scroll = new JScrollPane(table,
 				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED
@@ -131,5 +132,11 @@ public class DBViewer extends JFrame {
 
     public void addListener(ActionListener l) {
         btnPlot.addActionListener(l);
+    }
+
+    public void toggleColumnChanger() {
+        tfXData.setEnabled(!tfXData.isEnabled());
+        tfYData.setEnabled(!tfYData.isEnabled());
+        btnPlot.setEnabled(!btnPlot.isEnabled());
     }
 }

@@ -15,9 +15,11 @@ Any Java version less than 15. (and more than 6).
 
 # Other OSes.
 Steps are same, except that,
+
 1. You have to set the `CLASSPATH` yourself. You can search the internet for how to do that for your OS. Make sure that the `CLASSPATH` contains the Apache Commons Math library (version 3) and `SSPlot.jar`.
 2. Make sure you can access the `java` command from the JRE. You probably have to set another variable called `PATH`. The `java` command may be called something different in your OS.
 3. Run the `java` command with argument `math.plot.PlotterFrame` (`java math.plot.PlotterFrame`). If everything is okay, the main window of SSPlot will open.
+4. Please see the last section on how to set up Jython or any other script engine if you are using a Java version > 14.
 
 # Compilation
 You will require Java JDK, Apache Ant and the Apache Commons Math library (version 3).
@@ -26,8 +28,8 @@ You will require Java JDK, Apache Ant and the Apache Commons Math library (versi
 2. `cd` into the cloned directory and run `ant`. It will build everything and put the generated jar file into the jar directory.
 3. You can run the generated `SSPlot.jar` file using the command `java -cp /usr/share/java/commons-math3.jar:jar/SSPlot.jar math.plot.PlotterFrame`, assuming the library is located in `/usr/share/java`. (Or using `./ssplot`)
 
-# Detailed Installation
-If you decide to use the newer `SSPlot.jar` with experimental 3d support, you will need to install the Apache Commons Math library in your java CLASSPATH. As given in the **Compilation** section, if your Apache Commons Math library is installed in `/usr/share/java`, you can either run it with,
+# Installation of Apache Math library
+If you decide to use the newer `SSPlot.jar` with experimental 3d support, you will need to install the Apache Commons Math library in your java CLASSPATH. As given in the **Compilation** section, if your Apache Commons Math library is installed in `/usr/share/java`, you can either run SSPlot with,
 
     java -cp /usr/share/java/commons-math3.jar:jar/SSPlot.jar math.plot.PlotterFrame
     
@@ -42,7 +44,6 @@ if your library is in `/usr/share/java` and `SSPlot.jar` is in your current dire
 
 The main idea is that the math library and SSPlot.jar must be in your CLASSPATH before you can use `java math.plot.PlotterFrame` to launch the program.
 
-# Notes
 Please adjust the `ssplot` script if anything is renamed or the Apache Commons Math library is installed in a different location.
 
 # Installation with Java JRE >= 15
