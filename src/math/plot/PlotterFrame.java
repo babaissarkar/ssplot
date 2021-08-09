@@ -26,10 +26,14 @@ package math.plot;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.awt.geom.Point2D;
 import java.awt.Color;
+import java.awt.Font;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -42,7 +46,9 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-
+import javax.swing.KeyStroke;
+import javax.swing.UIManager;
+import javax.swing.plaf.FontUIResource;
 import javax.swing.JColorChooser;
 
 @SuppressWarnings("serial")
@@ -82,6 +88,15 @@ public class PlotterFrame extends JFrame implements ActionListener {
         jmClear = new JMenuItem("Clear plot");
         
         jmAbout = new JMenuItem("About");
+        
+        jmOpen.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK));
+        jmSave.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK));
+        jmSvData.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,  ActionEvent.CTRL_MASK|ActionEvent.SHIFT_MASK));
+        jmShowData.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, ActionEvent.CTRL_MASK));
+        jmQuit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, ActionEvent.CTRL_MASK));
+        
+        jmPhase.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, ActionEvent.CTRL_MASK));
+        jmClear.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, ActionEvent.CTRL_MASK));
         
 		jmSave.addActionListener(this);
 		jmSvData.addActionListener(this);
@@ -134,29 +149,55 @@ public class PlotterFrame extends JFrame implements ActionListener {
             new MouseAdapter() {
                 @Override
                 public void mousePressed(MouseEvent ev) {
-                	/* Will be added later. */
-                	int x = ev.getX()-20;
-            		int y = ev.getY()-20;
-            		
-            		Point2D.Double p = pv.getCanvas().getInvTransformedPoint(new Point2D.Double(x, y));
-            		//System.out.println(p.toString());
-            		/* The plotting area starts from (20,20) in java graphics space, so we are substracting it. */
-            		String label = String.format("(%3.1f, %3.1f)", p.getX(), p.getY());
-            		showMsg("Point : " + label);
-                    //pv.addNode(new Point2D.Double(x-20, y-20), label, Color.BLUE);
-                    repaint();
+                    if (ev.getButton() == MouseEvent.BUTTON3) {
+                        /* Will be added later. */
+                        int x = ev.getX()-20;
+                        int y = ev.getY()-20;
+                        
+                        Point2D.Double p = pv.getCanvas().getInvTransformedPoint(new Point2D.Double(x, y));
+                        //System.out.println(p.toString());
+                        /* The plotting area starts from (20,20) in java graphics space, so we are substracting it. */
+                        String label = String.format("(%3.1f, %3.1f)", p.getX(), p.getY());
+                        showMsg("Point : " + label);
+                        //pv.addNode(new Point2D.Double(x-20, y-20), label, Color.BLUE);
+                        repaint();
+                    } else if (ev.getButton() == MouseEvent.BUTTON2) {
+                    	int x = ev.getX()-20;
+                        int y = ev.getY()-20;
+                        
+                        Point2D.Double p = pv.getCanvas().getInvTransformedPoint(new Point2D.Double(x, y));
+                        pv.setZoomCenter(p);
+                        
+                        String label = String.format("(%3.1f, %3.1f)", p.getX(), p.getY());
+                        showMsg("Zoom Center set at " + label);
+                        
+                        repaint();
+                    }
                 }
+                
             }
+        );
+        pv.addMouseWheelListener(
+        	new MouseWheelListener() {
+        		public void mouseWheelMoved(MouseWheelEvent ev) {
+        			int x = ev.getX()-20;
+                    int y = ev.getY()-20;
+                    
+                    Point2D.Double p = pv.getCanvas().getInvTransformedPoint(new Point2D.Double(x, y));
+                    
+                    if (ev.getWheelRotation() < 0) {
+                    	pv.zoomIn(p.getX(), p.getY());
+                    } else if (ev.getWheelRotation() > 0) {
+                    	pv.zoomOut(p.getX(), p.getY());
+                    }
+                }
+        	}
         );
         
 		this.getContentPane().setLayout(new BorderLayout());
 		this.getContentPane().add(pv, BorderLayout.CENTER);
 		this.setResizable(false);
 		this.setVisible(true);
-	}
-	
-	public static void main(String[] args) {
-		new PlotterFrame();
 	}
 
 	public void saveImage() {
@@ -304,7 +345,11 @@ public class PlotterFrame extends JFrame implements ActionListener {
             changePlotType();
         } else if (ae.getSource() == jmCol) {
         	Color c = JColorChooser.showDialog(this, "Plot Color 1", Color.RED);
-    		pv.setColor(c);
+        	if (c != null) {
+        		pv.setColor(c);
+        	} else {
+        		c = Color.BLACK;
+        	}
         } else if (ae.getSource() == jmSvData) {
         	saveData();
         } else if (ae.getSource() == jmAxes) {
@@ -325,6 +370,21 @@ public class PlotterFrame extends JFrame implements ActionListener {
             JOptionPane.showMessageDialog(this, "Changes applied.");
             pv.refresh();
         }
+	}
+	
+	public static void main(String[] args) {
+		UIManager.put("Label.font", new FontUIResource("Cantarell", Font.PLAIN, 15));
+		UIManager.put("RadioButton.font", new FontUIResource("Cantarell", Font.PLAIN, 16));
+		
+		UIManager.put("RadioButton.foreground", new Color(80,28,0));
+		
+		UIManager.put("Menu.selectionBackground", new Color(255,247,132));
+		UIManager.put("MenuItem.selectionBackground", new Color(255,247,132));
+		UIManager.put("MenuItem.acceleratorForeground", new Color(5,132,37));
+		UIManager.put("MenuItem.foreground", new Color(4,88,25));
+		UIManager.put("MenuItem.background", Color.WHITE);
+		
+		new PlotterFrame();
 	}
 
 }

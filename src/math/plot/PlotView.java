@@ -309,13 +309,29 @@ public class PlotView extends JLabel {
 		this.moveAngle = moveAngle;
 	}
 
+	public void setZoomCenter(Point2D.Double zc) {
+		canv.setZoomCenter(zc);
+		repaint();
+	}
+	
+	public void zoomIn(double zc_x, double zc_y) {
+		canv.setZoomCenter(new Point2D.Double(zc_x, zc_y));
+		canv.setScaleFactor(canv.getScaleFactor()*2);
+		repaint();
+	}
+	
+	public void zoomOut(double zc_x, double zc_y) {
+		canv.setZoomCenter(new Point2D.Double(zc_x, zc_y));
+		canv.setScaleFactor(canv.getScaleFactor()/2);
+		repaint();
+	}
+	
 	/* Actions */
 	@SuppressWarnings("serial")
 	public class ZoomInAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			canv.setScaleFactor(canv.getScaleFactor()*2);
-			repaint();
+			zoomIn(0,0);
 		}
 	}
 	
@@ -323,8 +339,7 @@ public class PlotView extends JLabel {
 	public class ZoomOutAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			canv.setScaleFactor(canv.getScaleFactor()/2);
-			repaint();
+			zoomOut(0,0);
 		}
 	}
 	

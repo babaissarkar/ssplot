@@ -294,14 +294,17 @@ public class SystemData {
 			for (j = min[1]; j <= max[1]; j = j + gap[1]) {
 				double Xdot, Ydot;
 				double X1, Y1, X2, Y2;
+                double r;
 				Xdot = dx_dt(i, j);
 				Ydot = dy_dt(i, j);
 				X1 = i;
 				Y1 = j;
-				X2 = X1 + Xdot/5.0;
-				Y2 = Y1 + Ydot/5.0;
-				//X2 = X1 + Xdot;
-				//Y2 = Y1 + Ydot;
+				X2 = X1 + Xdot;
+				Y2 = Y1 + Ydot;
+                /* Normalizing */
+                r = Math.sqrt((X2-X1)*(X2-X1) + (Y2-Y1)*(Y2-Y1));
+				X2 = X1 + Xdot/r;
+				Y2 = Y1 + Ydot/r;
 				Vector<Double> entries = new Vector<Double>();
 				entries.add(X1);
 				entries.add(Y1);
@@ -336,6 +339,22 @@ public class SystemData {
 
         }
         
+    	return soln;
+    }
+    
+    public Vector<Vector<Double>> functionData() {
+    	Vector<Vector<Double>> soln = new Vector<Vector<Double>>();
+    	double i, x;
+        
+        for (i = min[0]; i <= max[0]; i = i + gap[0]) {
+			//for (j = min[1]; j <= max[1]; j = j + gap[1]) {
+				Vector<Double> row = new Vector<Double>();
+				x = x2(i);
+	            row.add(i);
+	            row.add(x);
+	            soln.add(row);
+			//}
+        }
     	return soln;
     }
     

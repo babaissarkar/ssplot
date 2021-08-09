@@ -46,6 +46,7 @@ public class Canvas {
     /* Transformation Params */
     private double scaleFactor;
     private int dx, dy, moveX, moveY;
+    private Point2D.Double zc = new Point2D.Double(0, 0); /* Center of Zoom */
 
     private void initParams() {
         scaleFactor = 1.0;
@@ -88,6 +89,9 @@ public class Canvas {
     	g.setColor(bgColor);
     	g.fill(new Rectangle2D.Double(0, 0, W, H));
     	g.setColor(fgColor);
+    	//zc = new Point2D.Double(0, 0);
+    	//zc = getInvTransformedPoint(new Point2D.Double(W/2, H/2));
+    	//System.out.println(zc.toString());
 		resetAxes();
 		shiftAxes(W/2,H/2);
 		if (axesVisible) {
@@ -297,6 +301,10 @@ public class Canvas {
     public void setZoom(double zoom) {
 		scaleFactor = zoom;
 	}
+    
+    public void setZoomCenter(Point2D.Double zc) {
+    	this.zc = zc;
+    }
 
 	public void shift(int i, int j) {
 		//moveX += i*scaleFactor;
@@ -313,8 +321,10 @@ public class Canvas {
 	public Point2D.Double getTransformedPoint(Point2D.Double p) {
         double x = p.x;
         double y = p.y;
-		double x1 = scaleFactor*x + dx + moveX;
-		double y1 = H - (scaleFactor*y + dy + moveY);
+		double x1 = scaleFactor*(x-zc.getX()) + dx + moveX + zc.getX();
+		double y1 = H - (scaleFactor*(y-zc.getY()) + dy + moveY + zc.getY());
+//      double x1 = scaleFactor*x + dx + moveX;
+//      double y1 = H - (scaleFactor*y + dy + moveY);
 		return new Point2D.Double(x1, y1);
 	}
 	

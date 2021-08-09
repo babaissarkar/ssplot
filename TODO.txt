@@ -1,0 +1,5 @@
+1. Draw Z axis. Move the axes as the object is rotated.
+2. Draw polar plots
+3. Draw grids.
+4. Autoscale and zoom by mouse.
+5. Function plot

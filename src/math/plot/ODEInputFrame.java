@@ -32,6 +32,7 @@ import java.util.Vector;
 
 /* A class for drawing phase plot of two simultaneous 1nd order ode. */
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -55,15 +56,20 @@ public class ODEInputFrame implements ActionListener {
     JFrame frmMain = null;
     JTextField[] tfs, tfs2, tfs3;
     JButton btnOK, btnCancel, btnDF, btnTR, btnCW;
-    JRadioButton rbODE, rbIM;
+    JRadioButton rbODE, rbIM, rbFunc;
     JTextField tfCounts;
     
-    boolean modeODE;
+    //boolean modeODE, modeFunc;
+    enum SystemMode {ODE, DFE, FN1, FN2};
+    SystemMode curMode;
 	JButton btnTR2;
 
     public ODEInputFrame(SystemData odedata, PlotView view) {
         this.odedata = odedata;
         this.view = view;
+        //modeODE = true;
+        //modeFunc = false;
+        curMode = SystemMode.ODE;
         initInputDialog();
 	}
 
@@ -72,30 +78,45 @@ public class ODEInputFrame implements ActionListener {
 
         frmMain = new JFrame("System Parameters");
         frmMain.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-        frmMain.setBounds(50, 50, 400, 400);
+        frmMain.setBounds(500, 200, 800, 400);
         frmMain.setResizable(false);
-        frmMain.getContentPane().setLayout(
-            new GridLayout(5, 1, 2, 2)
+        JPanel pnlMain = new JPanel();
+        pnlMain.setLayout(
+            //new GridLayout(5, 1, 2, 2)
+        	new BoxLayout(pnlMain, BoxLayout.PAGE_AXIS)
         );
+        pnlMain.setBorder(
+        		BorderFactory.createEmptyBorder(10, 10, 10, 10)
+        );
+        
         
         JPanel pnlRB = new JPanel();
         rbODE = new JRadioButton("Differential Equation");
         rbODE.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent evt) {
-        		modeODE = true;
+        		curMode = SystemMode.ODE;
         	}
         });
         rbIM = new JRadioButton("Difference Equation");
         rbIM.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent evt) {
-        		modeODE = false;
+        		curMode = SystemMode.DFE;
         	}
         });
+        rbFunc = new JRadioButton("1D function");
+        rbFunc.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent evt) {
+        		curMode = SystemMode.FN1;
+        	}
+        });
+        
         ButtonGroup bg = new ButtonGroup();
         bg.add(rbODE);
         bg.add(rbIM);
+        bg.add(rbODE);
         pnlRB.add(rbODE);
         pnlRB.add(rbIM);
+        pnlRB.add(rbFunc);
         
         JPanel pnlCounts = new JPanel();
         JLabel lblCounts = new JLabel("Iteration count :");
@@ -124,8 +145,8 @@ public class ODEInputFrame implements ActionListener {
 
         pnlMatrix.setBorder(
             BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(Color.BLACK, 2),
-                "ODEs"
+                BorderFactory.createLineBorder(new Color(255,90,38), 3),
+                "Equations"
             )
         );
 
@@ -160,8 +181,8 @@ public class ODEInputFrame implements ActionListener {
 
         pnlRange.setBorder(
             BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(Color.BLACK, 2),
-                "Range"
+                BorderFactory.createLineBorder(new Color(24,110,1), 3),
+                "Ranges"
             )
         );
 
@@ -187,9 +208,11 @@ public class ODEInputFrame implements ActionListener {
         btnCW.setEnabled(false);
         tfs3[0].setEnabled(false);
         tfs3[1].setEnabled(false);
+        tfs3[2].setEnabled(false);
         
         FlowLayout f = new FlowLayout(FlowLayout.RIGHT, 5, 5);
         pnlButton.setLayout(f);
+        pnlButton.add(btnCW);
         pnlButton.add(btnTR);
         pnlButton.add(btnTR2);
         for (int i = 0; i < 3; i++) {
@@ -198,7 +221,6 @@ public class ODEInputFrame implements ActionListener {
         }
 
         pnlButton.add(btnDF);
-        pnlButton.add(btnCW);
         pnlButton.add(btnOK);
         pnlButton.add(btnCancel);
 
@@ -209,12 +231,14 @@ public class ODEInputFrame implements ActionListener {
         btnOK.addActionListener(this);
         btnCancel.addActionListener(this);
 
-        frmMain.getContentPane().add(pnlRB);
-        frmMain.getContentPane().add(pnlCounts);
-        frmMain.getContentPane().add(pnlMatrix);
-        frmMain.getContentPane().add(pnlRange);
-        frmMain.getContentPane().add(pnlButton);
-        frmMain.pack();
+        pnlMain.add(pnlRB);
+        pnlMain.add(pnlCounts);
+        pnlMain.add(pnlMatrix);
+        pnlMain.add(pnlRange);
+        pnlMain.add(pnlButton);
+        
+        frmMain.add(pnlMain);
+        //frmMain.pack();
     }
 
     public void setODERange() {
@@ -243,10 +267,13 @@ public class ODEInputFrame implements ActionListener {
 
     public void plotTrajectory(double x, double y) {
     	PlotData trjData;
-    	if (modeODE) {
+    	switch(curMode) {
+    	default :
     		trjData = new PlotData(odedata.RK4Iterate(x, y));
-    	} else {
+    		break;
+    	case DFE :
     		trjData = new PlotData(odedata.iterateMap(x, x));
+    		break;
     	}
     	trjData.pltype = PlotData.PlotType.LINES;
     	trjData.fgColor = Color.BLACK;
@@ -269,18 +296,30 @@ public class ODEInputFrame implements ActionListener {
     	
     	view.setData(trjData);
     }
+    
+    public void plotFunction() {
+    	PlotData trjData = new PlotData(odedata.functionData());
+    	trjData.pltype = PlotData.PlotType.LINES;
+    	trjData.fgColor = Color.BLACK;
+    	
+    	view.setData(trjData);
+    }
 
     @Override
     public void actionPerformed(ActionEvent evt) {
         if (evt.getSource() == btnOK) {
         	/* Just sets up the System of Equations, but doesn't plot anything */
         	setEqnSystem();
-            if (modeODE) {
+            switch (curMode) {
+            default :
 				btnDF.setEnabled(true);
 				btnCW.setEnabled(false);
-			} else {
+				break;
+			
+            case DFE :
 				btnCW.setEnabled(true);
 				btnDF.setEnabled(false);
+				break;
 			}
 			setODERange();
 			tfs3[0].setEnabled(true);
@@ -294,9 +333,16 @@ public class ODEInputFrame implements ActionListener {
             
         } else if (evt.getSource() == btnTR) {
         	
-        	double x = Double.parseDouble(tfs3[0].getText());
-        	double y = Double.parseDouble(tfs3[1].getText());
-        	this.plotTrajectory(x, y);
+        	switch (curMode) {
+        	case FN1:
+        		plotFunction();
+        		break;
+        	default:
+        		double x = Double.parseDouble(tfs3[0].getText());
+        		double y = Double.parseDouble(tfs3[1].getText());
+        		plotTrajectory(x, y);
+        		break;
+        	}
         	
         } else if (evt.getSource() == btnTR2) {
         	
@@ -304,8 +350,7 @@ public class ODEInputFrame implements ActionListener {
         	double y = Double.parseDouble(tfs3[1].getText());
         	double z = Double.parseDouble(tfs3[2].getText());
         	
-        	
-        	this.plotTrajectory3D(x, y, z);
+        	plotTrajectory3D(x, y, z);
         	
         } else if (evt.getSource() == btnCW) {
         	
