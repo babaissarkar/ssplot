@@ -56,8 +56,8 @@ public class ODEInputFrame implements ActionListener {
     JFrame frmMain = null;
     JTextField[] tfs, tfs2, tfs3;
     JButton btnOK, btnCancel, btnDF, btnTR, btnCW;
-    JRadioButton rbODE, rbIM, rbFunc;
-    JTextField tfCounts;
+    JRadioButton rbODE, rbIM, rbFunc, rbFunc2;
+    JTextField tfCounts, tfStep;
     
     //boolean modeODE, modeFunc;
     enum SystemMode {ODE, DFE, FN1, FN2};
@@ -109,20 +109,41 @@ public class ODEInputFrame implements ActionListener {
         		curMode = SystemMode.FN1;
         	}
         });
+        rbFunc2 = new JRadioButton("2D function");
+        rbFunc2.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent evt) {
+        		curMode = SystemMode.FN2;
+        	}
+        });
         
         ButtonGroup bg = new ButtonGroup();
         bg.add(rbODE);
         bg.add(rbIM);
-        bg.add(rbODE);
+        bg.add(rbFunc);
+        bg.add(rbFunc2);
+        
         pnlRB.add(rbODE);
         pnlRB.add(rbIM);
         pnlRB.add(rbFunc);
+        pnlRB.add(rbFunc2);
         
         JPanel pnlCounts = new JPanel();
+        pnlCounts.setLayout(new GridLayout(2, 2, 5, 5));
         JLabel lblCounts = new JLabel("Iteration count :");
         tfCounts = new JTextField(10);
+        JLabel lblStep = new JLabel("Iteration stepsize :");
+        tfStep = new JTextField(10);
         pnlCounts.add(lblCounts);
         pnlCounts.add(tfCounts);
+        pnlCounts.add(lblStep);
+        pnlCounts.add(tfStep);
+        pnlCounts.setBorder(
+        	BorderFactory.createTitledBorder(
+        		BorderFactory.createLineBorder(new Color(127,0,140), 3),
+                "Iteration Parameters"
+            )
+        );
+
 
         JPanel pnlMatrix = new JPanel();
         pnlMatrix.setLayout(new GridLayout(3, 2, 5, 5));
@@ -254,6 +275,7 @@ public class ODEInputFrame implements ActionListener {
             odedata.gap[2] = Double.parseDouble(tfs2[8].getText());
             
             odedata.N = Integer.parseInt(tfCounts.getText());
+            odedata.h = Double.parseDouble(tfStep.getText());
         } catch(Exception e) {
             
         }
@@ -304,28 +326,70 @@ public class ODEInputFrame implements ActionListener {
     	
     	view.setData(trjData);
     }
+    
+    public void plotFunction2D() {
+    	PlotData trjData = new PlotData(odedata.functionData2D());
+    	trjData.pltype = PlotData.PlotType.TRLINE;
+    	trjData.fgColor = Color.BLACK;
+    	
+    	view.setData(trjData);
+    }
+    
+    public void switchStates() {
+    	switch (curMode) {
+        default :
+			btnDF.setEnabled(true);
+			btnCW.setEnabled(false);
+			btnTR.setEnabled(true);
+        	btnTR2.setEnabled(true);
+        	
+        	tfs3[0].setEnabled(true);
+            tfs3[1].setEnabled(true);
+            tfs3[2].setEnabled(true);
+			break;
+			
+        case FN1 :
+        	btnDF.setEnabled(false);
+			btnCW.setEnabled(false);
+        	btnTR.setEnabled(true);
+        	btnTR2.setEnabled(false);
+        	
+        	tfs3[0].setEnabled(false);
+            tfs3[1].setEnabled(false);
+            tfs3[2].setEnabled(false);
+        	break;
+        	
+        case FN2 :
+        	btnDF.setEnabled(false);
+			btnCW.setEnabled(false);
+        	btnTR.setEnabled(false);
+        	btnTR2.setEnabled(true);
+        	
+        	tfs3[0].setEnabled(false);
+            tfs3[1].setEnabled(false);
+            tfs3[2].setEnabled(false);
+        	break;
+		
+        case DFE :
+        	btnDF.setEnabled(false);
+			btnCW.setEnabled(true);
+			btnTR.setEnabled(true);
+        	btnTR2.setEnabled(false);
+        	
+        	tfs3[0].setEnabled(true);
+            tfs3[1].setEnabled(true);
+            tfs3[2].setEnabled(false);
+			break;
+		}
+    }
 
     @Override
     public void actionPerformed(ActionEvent evt) {
         if (evt.getSource() == btnOK) {
         	/* Just sets up the System of Equations, but doesn't plot anything */
         	setEqnSystem();
-            switch (curMode) {
-            default :
-				btnDF.setEnabled(true);
-				btnCW.setEnabled(false);
-				break;
-			
-            case DFE :
-				btnCW.setEnabled(true);
-				btnDF.setEnabled(false);
-				break;
-			}
+            switchStates();
 			setODERange();
-			tfs3[0].setEnabled(true);
-            tfs3[1].setEnabled(true);
-            btnTR.setEnabled(true);
-            btnTR2.setEnabled(true);
             
         } else if (evt.getSource() == btnDF) {
         	
@@ -345,12 +409,17 @@ public class ODEInputFrame implements ActionListener {
         	}
         	
         } else if (evt.getSource() == btnTR2) {
-        	
-        	double x = Double.parseDouble(tfs3[0].getText());
-        	double y = Double.parseDouble(tfs3[1].getText());
-        	double z = Double.parseDouble(tfs3[2].getText());
-        	
-        	plotTrajectory3D(x, y, z);
+        	switch (curMode) {
+        	case FN2 :
+        		plotFunction2D();
+        		break;
+        	default :
+        		double x = Double.parseDouble(tfs3[0].getText());
+        		double y = Double.parseDouble(tfs3[1].getText());
+        		double z = Double.parseDouble(tfs3[2].getText());
+
+        		plotTrajectory3D(x, y, z);
+        	}
         	
         } else if (evt.getSource() == btnCW) {
         	

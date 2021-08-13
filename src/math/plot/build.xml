@@ -4,7 +4,7 @@
     </target>
     
     <target name="jar" description="Creating jar file" depends="compile">
-        <jar basedir="../../../bin/" destfile="../../../jar/SSPlot.jar">
+        <jar basedir="../../../bin/" destfile="../../../usr/share/java/SSPlot.jar">
             <manifest>
                 <attribute name="Built-By" value="Subhraman Sarkar"/>
                 <attribute name="Main-Class" value="math.plot.PlotterFrame"/>
@@ -14,6 +14,6 @@
     
     <target name="clean" description="Cleaning up">
         <delete dir="../../../bin/math/plot"/>
-        <delete file="../../../jar/SSPlot.jar"/>
+        <delete file="../../../usr/share/java/SSPlot.jar"/>
     </target>
 </project>

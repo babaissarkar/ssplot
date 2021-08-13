@@ -1,5 +1,6 @@
 1. Draw Z axis. Move the axes as the object is rotated.
 2. Draw polar plots
 3. Draw grids.
-4. Autoscale and zoom by mouse.
-5. Function plot
+4. Autoscale and zoom by mouse. (DONE)
+5. Function plot (DONE, 2D still needed)
+6. Fixed points and nullclines support

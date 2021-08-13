@@ -35,6 +35,7 @@ public class SystemData {
     double[] max, min, gap; // The range
     int dim = 3;
     int N = 1000; /* iteration count */
+    double h = 0.05; /* stepsize for RK4 */
     ScriptEngine engine;
     String engineName;
     boolean isODE;
@@ -203,7 +204,7 @@ public class SystemData {
     public Vector<Vector<Double>> RK4Iterate(double x0, double y0) {
         Vector<Vector<Double>> soln = new Vector<Vector<Double>>();
         double x, y;
-        double h = 0.05;
+        //double h = 0.05;
         double k1, k2, k3, k4;
         double p1, p2, p3, p4;
         
@@ -235,7 +236,7 @@ public class SystemData {
     	System.out.println("3D rk4 started.");
         Vector<Vector<Double>> soln = new Vector<Vector<Double>>();
         double x, y, z;
-        double h = 0.01;
+        //double h = 0.01;
         double k1, k2, k3, k4;
         double p1, p2, p3, p4;
         double q1, q2, q3, q4;
@@ -354,6 +355,23 @@ public class SystemData {
 	            row.add(x);
 	            soln.add(row);
 			//}
+        }
+    	return soln;
+    }
+    
+    public Vector<Vector<Double>> functionData2D() {
+    	Vector<Vector<Double>> soln = new Vector<Vector<Double>>();
+    	double i, j, z;
+        
+        for (i = min[0]; i <= max[0]; i = i + gap[0]) {
+			for (j = min[1]; j <= max[1]; j = j + gap[1]) {
+				Vector<Double> row = new Vector<Double>();
+				z = x2(i, j);
+	            row.add(i);
+	            row.add(j);
+	            row.add(z);
+	            soln.add(row);
+			}
         }
     	return soln;
     }
