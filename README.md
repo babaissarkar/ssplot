@@ -15,7 +15,7 @@ Any Java version less than 15. (and more than 6).
 
 # Short installation for Ubuntu
 1. Install the dependencies. `sudo apt install openjdk-14-jre libcommons-math3-java1`
-2. Download the deb file from the packages section and install it `sudo dpkg -i ssplot-1.4.1.deb`
+2. Download the deb file from the Releases section and install it `sudo dpkg -i ssplot-1.4.1.deb`
 
 # Other OSes.
 Steps are same, except that,
