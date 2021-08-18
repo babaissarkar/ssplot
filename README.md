@@ -13,6 +13,10 @@ Any Java version less than 15. (and more than 6).
 6. Run using `./ssplot` from your terminal/command line (For linux).
 7. Alternatively, for other OSes, see the next section.
 
+# Short installation for Ubuntu
+1. Install the dependencies. `sudo apt install openjdk-14-jre libcommons-math3-java1`
+2. Download the deb file from the packages section and install it `sudo dpkg -i ssplot-1.4.1.deb`
+
 # Other OSes.
 Steps are same, except that,
 
@@ -28,7 +32,7 @@ You will require Java JDK, Apache Ant and the Apache Commons Math library (versi
 2. `cd` into the cloned directory and run `ant`. It will build everything and put the generated jar file into the jar directory.
 3. You can run the generated `SSPlot.jar` file using the command `java -cp /usr/share/java/commons-math3.jar:jar/SSPlot.jar math.plot.PlotterFrame`, assuming the library is located in `/usr/share/java`. (Or using `./ssplot`)
 
-# Installation of Apache Math library
+# Manual Installation of Apache Math library
 If you decide to use the newer `SSPlot.jar` with experimental 3d support, you will need to install the Apache Commons Math library in your java CLASSPATH. As given in the **Compilation** section, if your Apache Commons Math library is installed in `/usr/share/java`, you can either run SSPlot with,
 
     java -cp /usr/share/java/commons-math3.jar:jar/SSPlot.jar math.plot.PlotterFrame
@@ -57,7 +61,7 @@ How to install the Jython script engine :
 [1](https://wiki.python.org/jython/UserGuide#using-jsr-223) Newer one.
 [2](https://jython.readthedocs.io/en/latest/JythonAndJavaIntegration/) Contains some useful information.
 
-_Jython 2.7 from the first link is recommended, as it does not require a separate script engine._
+_Jython 2.7 from the first link is recommended, as it does not require a separate script engine. For Ubuntu users, don't use jython from the repositories. It somehow is not working for me._
 
 Once you have installed a JSR-223 compatible script engine, you just have to set the environment variable `SSPLOT_ENGINE` with the name of the engine as the value, (run `export SSPLOT_ENGINE="engine-name"` in Linux) before you launch the program, and SSPlot will try to use that engine. Whether loading the engine is sucessful or not can be seen in the command line message by the program.
 

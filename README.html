@@ -18,6 +18,13 @@
 <li>Alternatively, for other OSes, see the next section.</li>
 </ol>
 
+<h1>Short installation for Ubuntu</h1>
+
+<ol>
+<li>Install the dependencies. <code>sudo apt install openjdk-14-jre libcommons-math3-java1</code></li>
+<li>Download the deb file from the packages section and install it <code>sudo dpkg -i ssplot-1.4.1.deb</code></li>
+</ol>
+
 <h1>Other OSes.</h1>
 
 <p>Steps are same, except that,</p>
@@ -39,7 +46,7 @@
 <li>You can run the generated <code>SSPlot.jar</code> file using the command <code>java -cp /usr/share/java/commons-math3.jar:jar/SSPlot.jar math.plot.PlotterFrame</code>, assuming the library is located in <code>/usr/share/java</code>. (Or using <code>./ssplot</code>)</li>
 </ol>
 
-<h1>Installation of Apache Math library</h1>
+<h1>Manual Installation of Apache Math library</h1>
 
 <p>If you decide to use the newer <code>SSPlot.jar</code> with experimental 3d support, you will need to install the Apache Commons Math library in your java CLASSPATH. As given in the <strong>Compilation</strong> section, if your Apache Commons Math library is installed in <code>/usr/share/java</code>, you can either run SSPlot with,</p>
 
@@ -72,7 +79,7 @@ java math.plot.PlotterFrame
 <a href="https://wiki.python.org/jython/UserGuide#using-jsr-223">1</a> Newer one.
 <a href="https://jython.readthedocs.io/en/latest/JythonAndJavaIntegration/">2</a> Contains some useful information.</p>
 
-<p><em>Jython 2.7 from the first link is recommended, as it does not require a separate script engine.</em></p>
+<p><em>Jython 2.7 from the first link is recommended, as it does not require a separate script engine. For Ubuntu users, don't use jython from the repositories. It somehow is not working for me.</em></p>
 
 <p>Once you have installed a JSR-223 compatible script engine, you just have to set the environment variable <code>SSPLOT_ENGINE</code> with the name of the engine as the value, (run <code>export SSPLOT_ENGINE="engine-name"</code> in Linux) before you launch the program, and SSPlot will try to use that engine. Whether loading the engine is sucessful or not can be seen in the command line message by the program.</p>
 

@@ -26,5 +26,6 @@
 #export SSPLOT_ENGINE="python"
 export LIB="/usr/share/java"
 export LIB2="${PWD}/usr/share/java"
-export CLASSPATH="${LIB}/commons-math3.jar:${LIB}/jython.jar:${LIB2}/SSPlot.jar"
+export CLASSPATH="${LIB}/commons-math3.jar:${LIB2}/SSPlot.jar:${CLASSPATH}"
+echo "CLASSPATH=${CLASSPATH}."
 java math.plot.PlotterFrame
