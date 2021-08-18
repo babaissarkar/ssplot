@@ -1,4 +1,4 @@
 **/*.bkp
 Makefile
 .*
-./bin
+bin/
