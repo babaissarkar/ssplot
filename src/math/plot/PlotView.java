@@ -322,7 +322,9 @@ public class PlotView extends JLabel {
 	
 	public void zoomOut(double zc_x, double zc_y) {
 		canv.setZoomCenter(new Point2D.Double(zc_x, zc_y));
-		canv.setScaleFactor(canv.getScaleFactor()/2);
+        if (canv.getScaleFactor() >= 2) {
+            canv.setScaleFactor(canv.getScaleFactor()/2);
+        }
 		repaint();
 	}
 	

@@ -25,6 +25,9 @@ Steps are same, except that,
 3. Run the `java` command with argument `math.plot.PlotterFrame` (`java math.plot.PlotterFrame`). If everything is okay, the main window of SSPlot will open.
 4. Please see the last section on how to set up Jython or any other script engine if you are using a Java version > 14.
 
+# Documentation
+A manual is available inside the usr/share/doc/ssplot/manual directory.
+
 # Compilation
 You will require Java JDK, Apache Ant and the Apache Commons Math library (version 3).
 
