@@ -29,6 +29,9 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
+import parse.TreeNode;
+import parse.TreeParser;
+
 public class SystemData {
     //Matrix A; // The coefficient matrix
 	String[] eqns;
@@ -38,10 +41,14 @@ public class SystemData {
     double h = 0.05; /* stepsize for RK4 */
     ScriptEngine engine;
     String engineName;
+    TreeParser parser;
+    TreeNode[] eqnNodes;
+    boolean usingInternalParser;
     boolean isODE;
 
     public SystemData() {
     	eqns = new String[dim];
+    	eqnNodes = new TreeNode[3];
     	max = new double[dim];
     	min = new double[dim];
     	gap = new double[dim];
@@ -55,8 +62,11 @@ public class SystemData {
         ScriptEngineManager m = new ScriptEngineManager();
         engineName = System.getenv("SSPLOT_ENGINE");
         if (engineName == null) {
-        	engine = m.getEngineByName("nashorn");
+        	//engine = m.getEngineByName("nashorn");
+        	usingInternalParser = true;
+        	parser = new TreeParser();
         } else {
+        	usingInternalParser = false;
         	System.out.println("Trying to use engine " + engineName);
         	engine = m.getEngineByName(engineName);
         	if (engine == null) {
@@ -80,71 +90,105 @@ public class SystemData {
     	this.isODE = isODE;
     }
     
+    /*
     public void setEqns(String eqn1, String eqn2) {
-    	/* Setup equations */
+    	// Setup equations
         this.eqns[0] = eqn1;
         this.eqns[1] = eqn2;
+        
+        if (usingInternalParser) {
+        	for (int i = 0; i < 2; i++) {
+        		eqnNodes[i] = parser.parse(eqns[i]);
+        	}
+        }
     }
     
     public void setEqns(String eqn1, String eqn2, String eqn3) {
-    	/* Setup equations */
+    	// Setup equations
         this.eqns[0] = eqn1;
         this.eqns[1] = eqn2;
         this.eqns[2] = eqn3;
         
-        //System.out.println(eqn1 + " " + eqn2 + " " + eqn3);
+        if (usingInternalParser) {
+        	for (int i = 0; i < 3; i++) {
+        		eqnNodes[i] = parser.parse(eqns[i]);
+        	}
+        }
     }
+    */
+    
+    public void setEqns(String... eqns) {
+    	for (int i = 0; i < 3; i++) { // Max variables : 3
+    		if (eqns[i] != null) {
+    			this.eqns[i] = eqns[i];
+    			this.eqnNodes[i] = parser.parse(eqns[i]);
+    		}
+		}
+    }
+    /* Should reduce the numbers of methods here. Lot of code duplication */
 
     public double dx_dt(double x, double y, double z) {
     	double res = 0;
-        engine.put("x", x);
-        engine.put("y", y);
-        engine.put("z", z);
-        try {
-			engine.eval("dx_dt = " + eqns[0]);
-			res = (double) engine.get("dx_dt");
-//			System.out.format("dx_dt = %f at (%f, %f, %f).", res, x, y, z);
-			
-		} catch (ScriptException e) {
-			e.printStackTrace();
-		}
+        if (!usingInternalParser) {
+			engine.put("x", x);
+			engine.put("y", y);
+			engine.put("z", z);
+			try {
+				engine.eval("dx_dt = " + eqns[0]);
+				res = (double) engine.get("dx_dt");
+				//			System.out.format("dx_dt = %f at (%f, %f, %f).", res, x, y, z);
 
-        return res;
+			} catch (ScriptException e) {
+				e.printStackTrace();
+			} 
+		} else {
+			res = eqnNodes[0].evalAt("x", x, "y", y, "z", z);
+		}
+        
+		return res;
         
     }
 
     public double dy_dt(double x, double y, double z) {
     	double res = 0;
-        engine.put("x", x);
-        engine.put("y", y);
-        engine.put("z", z);
-        try {
-			engine.eval("dy_dt = " + eqns[1]);
-			res = (double) engine.get("dy_dt");
-			//System.out.format("dy_dt = %f at (%f, %f, %f).", res, x, y, z);
-			
-		} catch (ScriptException e) {
-			e.printStackTrace();
+    	
+    	if (!usingInternalParser) {
+			engine.put("x", x);
+			engine.put("y", y);
+			engine.put("z", z);
+			try {
+				engine.eval("dy_dt = " + eqns[1]);
+				res = (double) engine.get("dy_dt");
+				//System.out.format("dy_dt = %f at (%f, %f, %f).", res, x, y, z);
+
+			} catch (ScriptException e) {
+				e.printStackTrace();
+			} 
+    	} else {
+			res = eqnNodes[1].evalAt("x", x, "y", y, "z", z);
 		}
-        
-        return res;
+    	
+		return res;
     }
     
     public double dz_dt(double x, double y, double z) {
     	double res = 0;
-        engine.put("x", x);
-        engine.put("y", y);
-        engine.put("z", z);
-        try {
-			engine.eval("dz_dt = " + eqns[2]);
-			res = (double) engine.get("dz_dt");
-			//System.out.format("dz_dt = %f at (%f, %f, %f).", res, x, y, z);
-			
-		} catch (ScriptException e) {
-			e.printStackTrace();
+        if (!usingInternalParser) {
+			engine.put("x", x);
+			engine.put("y", y);
+			engine.put("z", z);
+			try {
+				engine.eval("dz_dt = " + eqns[2]);
+				res = (double) engine.get("dz_dt");
+				//System.out.format("dz_dt = %f at (%f, %f, %f).", res, x, y, z);
+
+			} catch (ScriptException e) {
+				e.printStackTrace();
+			} 
+        } else {
+			res = eqnNodes[2].evalAt("x", x, "y", y, "z", z);
 		}
-        
-        return res;
+		return res;
     }
     
     public double dx_dt(double x, double y) {
@@ -157,49 +201,60 @@ public class SystemData {
     
     public double x2(double x) {
     	double res = 0;
-        engine.put("x", x);
-
-        try {
-        	engine.eval("x2 = " + eqns[0]);
-        	res = (double) engine.get("x2");
-        	//System.out.println("X2 = " + res);
-        } catch (ScriptException e) {
-        	e.printStackTrace();
-        }
-
-        return res;
+        if (!usingInternalParser) {
+			engine.put("x", x);
+			try {
+				engine.eval("x2 = " + eqns[0]);
+				res = (double) engine.get("x2");
+				//System.out.println("X2 = " + res);
+			} catch (ScriptException e) {
+				e.printStackTrace();
+			} 
+        } else {
+        	res = eqnNodes[0].evalAt("x", x);
+		}
+        
+		return res;
     }
     
     public double x2(double x, double y) {
     	double res = 0;
-        engine.put("x", x);
-        engine.put("y", y);
-        try {
-        	engine.eval("x2 = " + eqns[0]);
-        	res = (double) engine.get("x2");
-        	//System.out.println("X2 = " + res);
-        } catch (ScriptException e) {
-        	e.printStackTrace();
-        }
-
-        return res;
+        if (!usingInternalParser) {
+			engine.put("x", x);
+			engine.put("y", y);
+			try {
+				engine.eval("x2 = " + eqns[0]);
+				res = (double) engine.get("x2");
+				//System.out.println("X2 = " + res);
+			} catch (ScriptException e) {
+				e.printStackTrace();
+			} 
+        } else {
+        	res = eqnNodes[0].evalAt("x", x, "y", y);
+		}
+        
+		return res;
     }
     
     public double y2(double x, double y) {
     	double res = 0;
-        engine.put("x", x);
-        engine.put("y", y);
-        try {
-        	engine.eval("y2 = " + eqns[1]);
-        	res = (double) engine.get("y2");
-        	//System.out.println("Y2 = " + res);
-        } catch (ScriptException e) {
-        	e.printStackTrace();
-        }
-
-        return res;
+        if (!usingInternalParser) {
+			engine.put("x", x);
+			engine.put("y", y);
+			try {
+				engine.eval("y2 = " + eqns[1]);
+				res = (double) engine.get("y2");
+				//System.out.println("Y2 = " + res);
+			} catch (ScriptException e) {
+				e.printStackTrace();
+			} 
+        } else {
+        	res = eqnNodes[1].evalAt("x", x, "y", y);
+		}
+		return res;
     }
 
+    /******************************************************************/
     /** Solve the system of equations by RK 4th order method */
     public Vector<Vector<Double>> RK4Iterate(double x0, double y0) {
         Vector<Vector<Double>> soln = new Vector<Vector<Double>>();

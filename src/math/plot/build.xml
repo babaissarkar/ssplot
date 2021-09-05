@@ -1,6 +1,6 @@
 <project name="SSPlot" default="compile" basedir=".">
     <target name="compile" description="Compiling source files">
-	    <javac srcdir="." destdir="../../../bin" classpath="/usr/share/java/commons-math3.jar"/>
+	    <javac source="1.7" target="1.7" srcdir="." destdir="../../../bin"/>
     </target>
     
     <target name="jar" description="Creating jar file" depends="compile">

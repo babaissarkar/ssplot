@@ -25,9 +25,7 @@ package math.plot;
 
 import java.awt.geom.Point2D;
 
-import org.apache.commons.math3.geometry.euclidean.threed.Rotation;
-import org.apache.commons.math3.geometry.euclidean.threed.RotationConvention;
-import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
+import math.prim.Matrix;
 
 public class Project2D {
 	double a, b, c;
@@ -43,19 +41,57 @@ public class Project2D {
 		this.c = c;
     }
 	
+//	public Point2D.Double project(double x, double y, double z) {
+//		Vector3D v = new Vector3D(x, y, z); /* Point to be projected */
+//		
+//		Rotation rot = new Rotation(new Vector3D(0,0,1), c, RotationConvention.VECTOR_OPERATOR);
+//		Rotation rot2 = new Rotation(new Vector3D(0,1,0), b, RotationConvention.VECTOR_OPERATOR);
+//		Rotation rot3 = new Rotation(new Vector3D(1,0,0), a, RotationConvention.VECTOR_OPERATOR);
+//		
+//		Vector3D camPos = new Vector3D(0, 0, 0); /* Position of the Camera */
+//		Vector3D camFrmPos = rot.applyTo(
+//								rot2.applyTo(
+//									rot3.applyTo(
+//										v.subtract(camPos))));
+//		
+//        return new Point2D.Double(camFrmPos.getX(), camFrmPos.getY());
+//	}
+	
 	public Point2D.Double project(double x, double y, double z) {
-		Vector3D v = new Vector3D(x, y, z); /* Point to be projected */
+		Matrix rotX, rotY, rotZ, R, R2;
+		rotZ = new Matrix(3, 3);
+		rotY = new Matrix(3, 3);
+		rotX = new Matrix(3, 3);
 		
-		Rotation rot = new Rotation(new Vector3D(0,0,1), c, RotationConvention.VECTOR_OPERATOR);
-		Rotation rot2 = new Rotation(new Vector3D(0,1,0), b, RotationConvention.VECTOR_OPERATOR);
-		Rotation rot3 = new Rotation(new Vector3D(1,0,0), a, RotationConvention.VECTOR_OPERATOR);
+		R = new Matrix(3, 1);
 		
-		Vector3D camPos = new Vector3D(0, 0, 0); /* Position of the Camera */
-		Vector3D camFrmPos = rot.applyTo(
-								rot2.applyTo(
-									rot3.applyTo(
-										v.subtract(camPos))));
+		R.set(x, 0, 0);
+		R.set(y, 1, 0);
+		R.set(z, 2, 0);
 		
-        return new Point2D.Double(camFrmPos.getX(), camFrmPos.getY());
+		/* Rotation about Z */
+		rotZ.set(Math.cos(c), 0, 0);
+		rotZ.set(-Math.sin(c), 0, 1);
+		rotZ.set(Math.cos(c), 1, 1);
+		rotZ.set(Math.sin(c), 1, 0);
+		rotZ.set(1, 2, 2);
+		
+		/* Rotation about Y */
+		rotY.set(Math.cos(b), 0, 0);
+		rotY.set(-Math.sin(b), 2, 0);
+		rotY.set(Math.cos(b), 2, 2);
+		rotY.set(Math.sin(b), 0, 2);
+		rotY.set(1, 1, 1);
+		
+		/* Rotation about X */
+		rotX.set(Math.cos(a), 1, 1);
+		rotX.set(-Math.sin(a), 1, 2);
+		rotX.set(Math.cos(a), 2, 2);
+		rotX.set(Math.sin(a), 2, 1);
+		rotX.set(1, 0, 0);
+		
+		R2 = rotZ.times(rotY.times(rotX.times(R)));
+		
+		return new Point2D.Double(R2.get(0, 0), R2.get(1, 0));
 	}
 }

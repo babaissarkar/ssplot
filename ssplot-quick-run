@@ -24,8 +24,10 @@
 # Modify the next line if you want to use a different jsr-223 parsing engine.
 # Don't forget to modify the classpath variable as well.
 #export SSPLOT_ENGINE="python"
-export LIB="/usr/share/java"
-export LIB2="${PWD}/usr/share/java"
-export CLASSPATH="${LIB}/commons-math3.jar:${LIB2}/SSPlot.jar:${CLASSPATH}"
-echo "CLASSPATH=${CLASSPATH}."
-java math.plot.PlotterFrame
+#export LIB="/usr/share/java"
+#export LIB2="${PWD}/usr/share/java"
+#export CLASSPATH="${LIB}/commons-math3.jar:${LIB2}/SSPlot.jar:${CLASSPATH}"
+#echo "CLASSPATH=${CLASSPATH}."
+#java math.plot.PlotterFrame
+
+java -jar jar/SSPlot.jar

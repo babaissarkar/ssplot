@@ -1,0 +1,9 @@
+<project name="SSPlot" default="compile" basedir=".">
+    <target name="compile" description="Compiling source files">
+	    <javac source="1.7" target="1.7" srcdir="." destdir="../../../bin"/>
+    </target>
+    
+    <target name="clean" description="Cleaning up">
+        <delete dir="../../../bin/math/prim"/>
+    </target>
+</project>

@@ -24,22 +24,21 @@
 package math.plot;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
 import java.awt.geom.Point2D;
-import java.awt.Color;
-import java.awt.Font;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Vector;
 
 import javax.imageio.ImageIO;
+import javax.swing.JColorChooser;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -49,7 +48,6 @@ import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.plaf.FontUIResource;
-import javax.swing.JColorChooser;
 
 @SuppressWarnings("serial")
 public class PlotterFrame extends JFrame implements ActionListener {
@@ -177,22 +175,22 @@ public class PlotterFrame extends JFrame implements ActionListener {
                 
             }
         );
-        pv.addMouseWheelListener(
-        	new MouseWheelListener() {
-        		public void mouseWheelMoved(MouseWheelEvent ev) {
-        			int x = ev.getX()-20;
-                    int y = ev.getY()-20;
-                    
-                    Point2D.Double p = pv.getCanvas().getInvTransformedPoint(new Point2D.Double(x, y));
-                    
-                    if (ev.getWheelRotation() < 0) {
-                    	pv.zoomIn(p.getX(), p.getY());
-                    } else if (ev.getWheelRotation() > 0) {
-                    	pv.zoomOut(p.getX(), p.getY());
-                    }
-                }
-        	}
-        );
+//        pv.addMouseWheelListener(
+//        	new MouseWheelListener() {
+//        		public void mouseWheelMoved(MouseWheelEvent ev) {
+//        			int x = ev.getX()-20;
+//                    int y = ev.getY()-20;
+//                    
+//                    Point2D.Double p = pv.getCanvas().getInvTransformedPoint(new Point2D.Double(x, y));
+//                    
+//                    if (ev.getWheelRotation() < 0) {
+//                    	pv.zoomIn(p.getX(), p.getY());
+//                    } else if (ev.getWheelRotation() > 0) {
+//                    	pv.zoomOut(p.getX(), p.getY());
+//                    }
+//                }
+//        	}
+//        );
         
 		this.getContentPane().setLayout(new BorderLayout());
 		this.getContentPane().add(pv, BorderLayout.CENTER);
