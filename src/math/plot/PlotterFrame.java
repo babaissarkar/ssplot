@@ -327,17 +327,17 @@ public class PlotterFrame extends JFrame implements ActionListener {
 			showHelp();
 		} else if (ae.getSource() == jmAbout) {
 			 String str = "<html><body>Created by : Subhraman Sarkar, 2021<br>"
-					 +    "Available under the LGPL 2.1 license.</body></html>";
+					 +    "Available under the LGPL 2.1 license or, (at your choice)"
+					 +    " any later version.<br>"
+					 +    "Homepage : <a href='https://github.com/babaissarkar/ssplot'>"
+					 +    "https://github.com/babaissarkar/ssplot</a>"
+					 +    "</body></html>";
 			 JOptionPane.showMessageDialog(this, str, "About", JOptionPane.INFORMATION_MESSAGE);
         } else if (ae.getSource() == jmQuit) {
             System.exit(0);
         } else if (ae.getSource() == jmClear) {
             pv.clear();
         } else if (ae.getSource() == jmPhase) {
-           //if (pp == null) {
-             //   pp = new ODEInputFrame(odedata, canv);
-                //canv.addMouseListener(pp);
-           //}
             pp.show();
         } else if (ae.getSource() == jmPlotType) {
             changePlotType();

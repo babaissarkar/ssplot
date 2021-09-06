@@ -1,5 +1,5 @@
 /*
- * PlotterFrame.java
+ * Matrix.java
  * 
  * Copyright 2021 Subhraman Sarkar <subhraman@subhraman-Inspiron>
  * 

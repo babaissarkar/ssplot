@@ -25,6 +25,5 @@
 # Don't forget to modify the classpath variable as well.
 #export SSPLOT_ENGINE="python"
 export LIB="/usr/share/java"
-#export LIB2=$(realpath "${PWD}/../share/java")
-export CLASSPATH="${LIB}/commons-math3.jar:${LIB}/SSPlot.jar:${CLASSPATH}"
+export CLASSPATH="${LIB}/SSPlot.jar:${CLASSPATH}"
 java math.plot.PlotterFrame

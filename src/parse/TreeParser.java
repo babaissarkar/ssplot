@@ -1,5 +1,3 @@
-package parse;
-
 /*
  * TreeParser.java
  * 
@@ -20,8 +18,9 @@ package parse;
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
  * 
- * 
  */
+
+package parse;
 
 import java.util.Vector;
 import java.util.regex.Matcher;
