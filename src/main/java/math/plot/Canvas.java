@@ -47,6 +47,7 @@ public class Canvas {
     private double scaleFactor;
     private int dx, dy, moveX, moveY;
     private Point2D.Double zc = new Point2D.Double(0, 0); /* Center of Zoom */
+	private StatLogger logger;
 
     private void initParams() {
         scaleFactor = 1.0;
@@ -274,7 +275,8 @@ public class Canvas {
 
 	public void setScaleFactor(double scaleFactor) {
 		this.scaleFactor = scaleFactor;
-		System.out.println("Zoom : " + getScaleFactor() + " x");
+		//System.out.println("Zoom : " + getScaleFactor() + " x");
+		log("Zoom : " + getScaleFactor() + " x");
 	}
 
 	public boolean isAxesVisible() {
@@ -311,7 +313,8 @@ public class Canvas {
 		//moveY -= j*scaleFactor;
         moveX += i;
         moveY += j;
-        System.out.format("dx = %d, dy = %d\n", moveX, -moveY);
+        String out = String.format("dx = %d, dy = %d\n", moveX, -moveY);
+        log(out);
 	}
 
 /*********************************** Helper Methods **************************************************/
@@ -353,6 +356,15 @@ public class Canvas {
 		double y = r * Math.sin(theta) - dy;
 		Point2D.Double p = getTransformedPoint(new Point2D.Double(x, y));
 		return p;
+	}
+	
+	public void setLogger(StatLogger text) {
+		this.logger = text;
+	}
+	
+	private void log(String string) {
+		this.logger.log(string + "\n");
+		//System.out.println("log : " + string);
 	}
 	
 /************************************ 3D *********************************************/

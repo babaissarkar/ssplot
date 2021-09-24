@@ -72,10 +72,13 @@ public class PlotView extends JLabel {
 	 */
 	private static final long serialVersionUID = -1906949716987184760L;
 
-	public PlotView() {
+	public PlotView(StatLogger logger) {
 		clear();
 		
 		p = new Project2D();
+		
+		setLogger(logger);
+		
 		p.setView(0, 0, 0);
 		
 		// Setting Keybinding for movement
@@ -295,10 +298,6 @@ public class PlotView extends JLabel {
 		canv.initPlot();
 		repaint();
 	}
-
-    public void refresh() {
-        this.repaint();
-    }
 	
 	public double getMoveAngle() {
 		return moveAngle;
@@ -358,7 +357,9 @@ public class PlotView extends JLabel {
 	public class SmallZoomOutAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			canv.setScaleFactor(canv.getScaleFactor() - 1);
+			if (canv.getScaleFactor() > 1) {
+				canv.setScaleFactor(canv.getScaleFactor() - 1);
+			}
 			repaint();
 		}
 	}
@@ -478,6 +479,12 @@ public class PlotView extends JLabel {
 
 	public Canvas getCanvas() {
 		return canv;
+	}
+
+
+	public void setLogger(StatLogger logger) {
+		canv.setLogger(logger);
+		p.setLogger(logger);
 	}
 
 }

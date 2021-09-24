@@ -1,3 +1,5 @@
+package math.plot;
+
 /*
  * PlotterFrame.java
  * 
@@ -21,8 +23,6 @@
  * 
  */
 
-package math.plot;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
@@ -34,8 +34,6 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.util.Vector;
 
 import javax.imageio.ImageIO;
 import javax.swing.JColorChooser;
@@ -55,14 +53,15 @@ public class PlotterFrame extends JFrame implements ActionListener {
 	private PlotView pv;
     private SystemData odedata;
     private ODEInputFrame pp;
-    //private PlotData pd;
+    private StatLogger logger;
     
 	private JMenu mnuFile, mnuPlot;
 	private JMenuItem jmSave, jmPaint, jmOpen, jmHelp, jmShowData, jmQuit;
     private JMenuItem jmPlotType, jmPhase, jmCol, jmClear, jmSvData, jmAxes;
-    private JMenuItem jmAbout;
+    private JMenuItem jmAbout, jmLogs;
     private JMenuItem jmLineWidth;
-	private DBViewer dbv = null;
+    
+    private DBViewer dbv = new DBViewer();
     private static final int MENUBAR_WIDTH = 60; /* Valid only for defaul Metal look and feel. */
 	
 	public PlotterFrame() {
@@ -73,12 +72,12 @@ public class PlotterFrame extends JFrame implements ActionListener {
 		jmOpen = new JMenuItem("Open Datafile");
 		jmSvData = new JMenuItem("Save current data");
 		jmSave = new JMenuItem("Save Image");
-		jmShowData = new JMenuItem("Show Plot Data");
+		jmShowData = new JMenuItem("View/Edit Plot Data");
 		jmPaint = new JMenuItem("Refresh");
 		jmHelp = new JMenuItem("Keymaps Help");
         jmQuit = new JMenuItem("Quit");
 
-        jmPhase = new JMenuItem("Setup System ...");
+        jmPhase = new JMenuItem("Setup System...");
         jmAxes = new JMenuItem("Show/hide axes");
         jmLineWidth = new JMenuItem("Set line width");
         jmCol = new JMenuItem("Set Plot Color");
@@ -86,6 +85,7 @@ public class PlotterFrame extends JFrame implements ActionListener {
         jmClear = new JMenuItem("Clear plot");
         
         jmAbout = new JMenuItem("About");
+        jmLogs = new JMenuItem("Logs");
         
         jmOpen.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK));
         jmSave.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK));
@@ -104,6 +104,7 @@ public class PlotterFrame extends JFrame implements ActionListener {
 		jmShowData.addActionListener(this);
         jmQuit.addActionListener(this);
         jmClear.addActionListener(this);
+        jmLogs.addActionListener(this);
         jmAbout.addActionListener(this);
 
         jmCol.addActionListener(this);
@@ -119,6 +120,7 @@ public class PlotterFrame extends JFrame implements ActionListener {
         mnuFile.addSeparator();
         mnuFile.add(jmPhase);
         mnuFile.addSeparator();
+        mnuFile.add(jmLogs);
 		mnuFile.add(jmHelp);
 		mnuFile.add(jmAbout);
         mnuFile.add(jmQuit);
@@ -138,10 +140,14 @@ public class PlotterFrame extends JFrame implements ActionListener {
         jmb.add(mnuPlot);
 		this.setJMenuBar(jmb);
 		
-		pv = new PlotView();
+        
+        logger = new StatLogger();
+		
+		pv = new PlotView(logger);
         odedata = new SystemData();
         pp = new ODEInputFrame(odedata, pv);
-        pp.hide();
+        pp.show();
+        //pp.hide();
 
         pv.addMouseListener(
             new MouseAdapter() {
@@ -194,6 +200,7 @@ public class PlotterFrame extends JFrame implements ActionListener {
         
 		this.getContentPane().setLayout(new BorderLayout());
 		this.getContentPane().add(pv, BorderLayout.CENTER);
+		//this.pack();
 		this.setResizable(false);
 		this.setVisible(true);
 	}
@@ -210,51 +217,23 @@ public class PlotterFrame extends JFrame implements ActionListener {
 			}
 		}
 	}
-
-	public void openFile() {
-		JFileChooser files = new JFileChooser();
-		int stat = files.showOpenDialog(this);
-		File f = null;
-		if (stat == JFileChooser.APPROVE_OPTION) {
-			f = files.getSelectedFile();
-            Path dpath = f.toPath();
-            if (dpath != null) {
-                try {
-					Vector<Vector<Double>> data = NumParse.parse(dpath);
-					PlotData pd = new PlotData(data);
-					pv.setData(pd);
-					pv.repaint();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-            }
-//            canv.repaint();
-		}
-		
-	}
 	
-	public void showData() {
-        Vector<Vector<Double>> data = pv.getData().data;
-        if (data != null) {
-            dbv = new DBViewer(data);
-            dbv.addListener(this);
-            dbv.setVisible(true);
-        }
+	public void openFile() {
+		dbv.openFile();
+		pv.setData(new PlotData(dbv.getData()));
+		pv.repaint();
 	}
 	
 	public void saveData() {
-		Vector<Vector<Double>> data = pv.getData().data;
-		JFileChooser files = new JFileChooser();
-		int stat = files.showSaveDialog(this);
-		File f = null;
-		if (stat == JFileChooser.APPROVE_OPTION) {
-			f = files.getSelectedFile();
-            Path dpath = f.toPath();
-            if (dpath != null) {
-                NumParse.write(data, dpath);
-            }
-//            canv.repaint();
+		dbv.saveFile();
+	}
+	
+	public void showData() {
+		if (pv.getData() != null) {
+			dbv.setData(pv.getData().data);
 		}
+        dbv.addListener(this);
+        dbv.setVisible(true);
 	}
 	
 	public void showHelp() {
@@ -326,7 +305,9 @@ public class PlotterFrame extends JFrame implements ActionListener {
 		} else if (ae.getSource() == jmHelp) {
 			showHelp();
 		} else if (ae.getSource() == jmAbout) {
-			 String str = "<html><body>Created by : Subhraman Sarkar, 2021<br>"
+			 String str = "<html><body>"
+					 +    "<h1>SSPlot</h1>"
+			 		 +    "Created by : Subhraman Sarkar, 2021<br>"
 					 +    "Available under the LGPL 2.1 license or, (at your choice)"
 					 +    " any later version.<br>"
 					 +    "Homepage : <a href='https://github.com/babaissarkar/ssplot'>"
@@ -363,10 +344,14 @@ public class PlotterFrame extends JFrame implements ActionListener {
         		}
         		pv.repaint();
         	}
+        } else if (ae.getSource() == jmLogs) {
+        	logger.showLogs();
 		} else if (ae.getSource() == dbv.btnPlot) {
+			pv.setData(new PlotData(dbv.getData()));
+			
 			pv.setCols(dbv.getCol1(), dbv.getCol2());
-            JOptionPane.showMessageDialog(this, "Changes applied.");
-            pv.refresh();
+            //JOptionPane.showMessageDialog(this, "Changes applied.");
+            pv.repaint();
         }
 	}
 	

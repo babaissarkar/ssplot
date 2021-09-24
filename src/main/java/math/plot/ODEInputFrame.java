@@ -78,7 +78,7 @@ public class ODEInputFrame implements ActionListener {
 
         frmMain = new JFrame("System Parameters");
         frmMain.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-        frmMain.setBounds(500, 200, 800, 400);
+        frmMain.setBounds(500, 50, 800, 400);
         frmMain.setResizable(false);
         JPanel pnlMain = new JPanel();
         pnlMain.setLayout(

@@ -29,33 +29,28 @@ import math.prim.Matrix;
 
 public class Project2D {
 	double a, b, c;
+	private StatLogger logger;
 	
 	public void setView(double a, double b, double c) {
         /* Set viewing angle */
         double a2 = Math.toDegrees(a) % 360;
         double b2 = Math.toDegrees(b) % 360;
         double c2 = Math.toDegrees(c) % 360;
-        System.out.format("%f, %f, %f\n", a2, b2, c2);
+        String threedpos = String.format("%f, %f, %f\n", a2, b2, c2);
+        log(threedpos);
 		this.a = a;
 		this.b = b;
 		this.c = c;
     }
 	
-//	public Point2D.Double project(double x, double y, double z) {
-//		Vector3D v = new Vector3D(x, y, z); /* Point to be projected */
-//		
-//		Rotation rot = new Rotation(new Vector3D(0,0,1), c, RotationConvention.VECTOR_OPERATOR);
-//		Rotation rot2 = new Rotation(new Vector3D(0,1,0), b, RotationConvention.VECTOR_OPERATOR);
-//		Rotation rot3 = new Rotation(new Vector3D(1,0,0), a, RotationConvention.VECTOR_OPERATOR);
-//		
-//		Vector3D camPos = new Vector3D(0, 0, 0); /* Position of the Camera */
-//		Vector3D camFrmPos = rot.applyTo(
-//								rot2.applyTo(
-//									rot3.applyTo(
-//										v.subtract(camPos))));
-//		
-//        return new Point2D.Double(camFrmPos.getX(), camFrmPos.getY());
-//	}
+	public void setLogger(StatLogger logger) {
+		this.logger = logger;
+	}
+	
+	private void log(String string) {
+		this.logger.log(string + "\n");
+		//System.out.println("log : " + string);
+	}
 	
 	public Point2D.Double project(double x, double y, double z) {
 		Matrix rotX, rotY, rotZ, R, R2;
