@@ -14,7 +14,6 @@
 <li>Extract the ZIP.</li>
 <li>Enter the folder inside the ZIP (or the cloned folder) and open a terminal there.</li>
 <li>Run using <code>./ssplot</code> from your terminal/command line (For linux), or go to the directory where the file <code>SSPlot.jar</code> is, open a terminal there and run <code>java -jar SSPlot.jar</code></li>
-<li>Alternatively, for other OSes, see the section <strong>Other OSes</strong>.</li>
 <li>You may need to set the <code>CLASSPATH</code> environment variable if you want to use an alternate engine for math equation parsing, as explained in a later section.</li>
 </ol>
 
@@ -31,7 +30,7 @@
 <p>Steps are same, except that,</p>
 
 <ol>
-<li>You may have to set the <code>CLASSPATH</code> yourself if you are using an external script engine. You can search the internet for how to do that for your OS. Make sure that the <code>CLASSPATH</code> contains the Apache Commons Math library (version 3) and <code>SSPlot.jar</code>. Not really needed as of version 1.5.</li>
+<li>You may have to set the <code>CLASSPATH</code> yourself. You can search the internet for how to do that for your OS.</li>
 <li>Make sure you can access the <code>java</code> command from the JRE. You probably have to set another variable called <code>PATH</code>. The <code>java</code> command may be called something different in your OS.</li>
 </ol>
 
@@ -41,12 +40,14 @@
 
 <h1>Compilation</h1>
 
-<p>You will require Java JDK and Apache Ant. You will also require Markdown if you want to generate a html version of this Readme.</p>
+<p>You will require Java JDK and Apache Maven. You will also require Markdown if you want to generate a html version of this Readme.</p>
 
 <ol>
 <li>Clone this repository.</li>
-<li><code>cd</code> into the cloned directory and run <code>ant</code>. It will build everything and put the generated jar file into the jar directory.</li>
-<li>You can run the generated <code>SSPlot.jar</code> file using the command <code>java -jar jar/SSPlot.jar</code> or just <code>./ssplot</code></li>
+<li><code>cd</code> into the cloned directory and run <code>mvn package</code>. It will build everything and put the generated jar file into the jar directory.</li>
+<li>Link the final jar file into the jar directory.</li>
+<li>You can run the generated <code>SSPlot.jar</code> file using the command <code>java -jar jar/SSPlot.jar</code> or simple <code>./ssplot</code>, if the link is correctly created.</li>
+<li>Generate the README.html using markdown : <code>markdown README.md &gt; README.html</code>.</li>
 </ol>
 
 <h1>Using a external script engine for parsing math expressions</h1>
