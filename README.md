@@ -24,7 +24,7 @@ Steps are same, except that,
 2. Make sure you can access the `java` command from the JRE. You probably have to set another variable called `PATH`. The `java` command may be called something different in your OS.
 
 # Documentation
-A manual is available inside the `usr/share/doc/ssplot/manual` directory (or its link, the `doc` directory at the root) in pdf and odt formats. You can generate the pdf from the odt using LibreOffice Writer or any other tool you prefer.
+A manual is available inside the `docs/manual` directory (or its link, the `doc` directory at the root) in pdf and odt formats. You can generate the pdf from the odt using LibreOffice Writer or any other tool you prefer.
 
 # Compilation
 You will require Java JDK and Apache Maven. You will also require Markdown if you want to generate a html version of this Readme.
