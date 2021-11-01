@@ -19,7 +19,7 @@ public class StatLogger {
 	public StatLogger() {
 		frmLog = new JFrame("Logs");
 		//frmLog.setSize(new Dimension(500, 100));
-		frmLog.setBounds(750, 550, 500, 100);
+		frmLog.setBounds(750, 550, 500, 200);
 		txStatus = new JTextPane();
 		txStatus.setContentType("text/html");
 		txStatus.setPreferredSize(new Dimension(frmLog.getWidth(), 100));

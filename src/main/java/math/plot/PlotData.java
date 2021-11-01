@@ -24,6 +24,7 @@
 package math.plot;
 
 import java.awt.Color;
+import java.awt.geom.Point2D;
 import java.util.Vector;
 
 public class PlotData {
@@ -32,20 +33,87 @@ public class PlotData {
     public enum PointType { SQUARE, CIRCLE };
     
     public Vector<Vector<Double>> data;
-    public PlotType pltype;
-    public Color fgColor, fgColor2;
+    public Vector<Node> nodes;
+    private int dataCol1, dataCol2;
+    private PlotType pltype;
+    private Color fgColor, fgColor2;
+    
     public PointType pttype;
     public int ptX, ptY;
+    
+    private String title;
 
     public PlotData() {
         this(new Vector<Vector<Double>>());
     }
 
     public PlotData(Vector<Vector<Double>> extData) {
+    	nodes = new Vector<Node>();
         data = extData;
         pltype = PlotType.LINES;
         pttype = PointType.SQUARE;
         ptX = 2; ptY = 2;
         fgColor = Color.RED;
+        fgColor2 = Color.BLUE;
+        setDataCols(1, 2);
     }
+    
+    public void setTitle(String title) {
+    	this.title = title;
+    }
+    
+    public String getTitle() {
+    	return this.title;
+    }
+    
+    public void setFgColor(Color c) {
+    	this.fgColor = (c != null) ? c : Color.RED;
+    }
+    
+    public Color getFgColor() {
+		return fgColor;
+	}
+
+	public void setFgColor2(Color fgColor2) {
+		this.fgColor2 = (fgColor2 != null) ? fgColor2 : Color.BLUE;
+	}
+	
+	public Color getFgColor2() {
+		return fgColor2;
+	}
+
+	public void setPltype(PlotType pltype) {
+		this.pltype = pltype;
+	}
+	
+	public PlotType getPltype() {
+		return pltype;
+	}
+
+	public void addNode(Point2D.Double p, String str, Color c) {
+        Node n = new Node(p, str, c);
+        nodes.add(n);
+    }
+
+	/**
+	 * @return the dataCol1
+	 */
+	public int getDataCol1() {
+		return dataCol1;
+	}
+	
+	/**
+	 * @return the dataCol2
+	 */
+	public int getDataCol2() {
+		return dataCol2;
+	}
+
+	/**
+	 * @param dataCol1, dataCol2 : the dataCols to set
+	 */
+	public void setDataCols(int dataCol1, int dataCol2) {
+		this.dataCol1 = dataCol1;
+		this.dataCol2 = dataCol2;
+	}
 }

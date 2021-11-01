@@ -9,13 +9,13 @@ Any Java version >= 7.
 3. Download the latest release of SSPlot from the releases section. (You can also clone this repository, either using `git clone` or using the Code menu in this page (Code -> Dropdown -> Download ZIP))
 4. Extract the ZIP.
 5. Enter the folder inside the ZIP (or the cloned folder) and open a terminal there.
-6. Run using `./ssplot-quick-run` from your terminal/command line (For linux), or go to the directory where the file `SSPlot.jar` is, open a terminal there and run `java -jar SSPlot.jar`
+6. Run using `./ssplot` from your terminal/command line (For linux), or go to the directory where the file `SSPlot.jar` is, open a terminal there and run `java -jar SSPlot.jar`
 7. Alternatively, for other OSes, see the section __Other OSes__.
 8. You may need to set the `CLASSPATH` environment variable if you want to use an alternate engine for math equation parsing, as explained in a later section.
 
 # Short installation for Ubuntu
 1. Install Java `sudo apt install default-jre`.
-2. Get the zip file from the Releases section and install the deb file from it `sudo dpkg -i ssplot-1.5.deb`
+2. Get the zip file from the Releases section and install the deb file from it `sudo dpkg -i ssplot-1.*.deb`
 3. You can now run SSPlot from the terminal by using the command `ssplot`.
 
 # Other OSes.
@@ -23,7 +23,6 @@ Steps are same, except that,
 
 1. You may have to set the `CLASSPATH` yourself if you are using an external script engine. You can search the internet for how to do that for your OS. Make sure that the `CLASSPATH` contains the Apache Commons Math library (version 3) and `SSPlot.jar`. Not really needed as of version 1.5.
 2. Make sure you can access the `java` command from the JRE. You probably have to set another variable called `PATH`. The `java` command may be called something different in your OS.
-3. Please see the last section on how to set up Jython or any other script engine if you are using a Java version > 14.
 
 # Documentation
 A manual is available inside the `usr/share/doc/ssplot/manual` directory (or its link, the `doc` directory at the root) in pdf and odt formats. You can generate the pdf from the odt using LibreOffice Writer or any other tool you prefer.
@@ -33,7 +32,7 @@ You will require Java JDK and Apache Ant. You will also require Markdown if you 
 
 1. Clone this repository.
 2. `cd` into the cloned directory and run `ant`. It will build everything and put the generated jar file into the jar directory.
-3. You can run the generated `SSPlot.jar` file using the command `java -jar jar/SSPlot.jar` or just `./ssplot-quick-run`
+3. You can run the generated `SSPlot.jar` file using the command `java -jar jar/SSPlot.jar` or just `./ssplot`
 
 # Using a external script engine for parsing math expressions
 

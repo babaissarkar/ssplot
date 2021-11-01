@@ -25,6 +25,7 @@ package math.plot;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -39,7 +40,7 @@ public class Canvas {
     private int W, H; /* Size of image */
     private BufferedImage img; /* The image */
     private Graphics2D g;
-    private Color fgColor, bgColor;
+    private Color fgColor, bgColor, axesColor, titleColor;
     private boolean axesVisible = true;
     public int curNoTics = 10;
 
@@ -55,6 +56,8 @@ public class Canvas {
         moveX = 0; moveY = 0;
         fgColor = Color.BLACK;
         bgColor = Color.WHITE;
+        axesColor = Color.BLACK;
+        titleColor = Color.BLACK;
     }
     
     private Graphics2D initImage(int W, int H) {
@@ -69,9 +72,29 @@ public class Canvas {
         return g2;
     }
 
-    public Canvas(int W, int H) {
+    public Canvas(int W, int H, StatLogger logger) {
+    	this.logger = logger;
         initParams();
         g = initImage(W, H);
+    }
+    
+    /** Initializes the plot by creating an empty plotting area.
+     * You need to initialize the Canvas first by calling its constructor. */
+    public void initPlot() {
+    	g.setColor(bgColor);
+    	g.fill(new Rectangle2D.Double(0, 0, W, H));
+    	g.setColor(fgColor);
+    	//zc = new Point2D.Double(0, 0);
+    	//zc = getInvTransformedPoint(new Point2D.Double(W/2, H/2));
+    	//System.out.println(zc.toString());
+    	resetAxes();
+    	shiftAxes(W/2,H/2);
+    	if (axesVisible) {
+    		drawAxes();
+    		drawTics(curNoTics);
+    	}
+
+    	drawBoundingBox();
     }
 
     public Graphics2D getGraphics() {
@@ -86,22 +109,7 @@ public class Canvas {
         g.dispose();
     }
     
-    public void initPlot() {
-    	g.setColor(bgColor);
-    	g.fill(new Rectangle2D.Double(0, 0, W, H));
-    	g.setColor(fgColor);
-    	//zc = new Point2D.Double(0, 0);
-    	//zc = getInvTransformedPoint(new Point2D.Double(W/2, H/2));
-    	//System.out.println(zc.toString());
-		resetAxes();
-		shiftAxes(W/2,H/2);
-		if (axesVisible) {
-			drawAxes();
-			drawTics(curNoTics);
-		}
-		
-		drawBoundingBox();
-    }
+    
 
 /*********************************** Drawing Methods ************************************************/
 
@@ -155,13 +163,29 @@ public class Canvas {
 		
 		g.drawString(str, x, y);
 	}
+	
+/********************** Complex drawing methods ***************************************/
+	/* Draws a box around the plot */
+	public void drawBoundingBox() {
+        int strokeWidth = 1;
+        
+        Color curColor = g.getColor();
+        g.setColor(Color.BLUE);
+        
+        g.drawLine(0, 0, 0, H);
+        /* Correction for finite thickness of the line */
+        g.drawLine(0, H-strokeWidth, W, H-strokeWidth);
+        g.drawLine(W-strokeWidth, H, W-strokeWidth, 0);
+        g.drawLine(W, 0, 0, 0);
 
+        g.setColor(curColor);
+	}
 
-/*********************************** Auxiliary Drawing Methods ************************************************/
+/*********************************** Plot Specific Drawing Methods ************************************************/
     /* Draw the X and Y axes */
 	public void drawAxes() {
 		Color curColor = g.getColor();
-		g.setColor(Color.BLACK);
+		g.setColor(axesColor);
 
         g.drawLine(dx+moveX, 0, dx+moveX, W);
         g.drawLine(0, dy-moveY, H, dy-moveY);
@@ -232,25 +256,38 @@ public class Canvas {
          }
 		return strLbl;
 	}
-
-	/* Draws a box around the plot */
-	public void drawBoundingBox() {
-        int strokeWidth = 1;
-        
-        Color curColor = g.getColor();
-        g.setColor(Color.BLUE);
-        
-        g.drawLine(0, 0, 0, H);
-        /* Correction for finite thickness of the line */
-        g.drawLine(0, H-strokeWidth, W, H-strokeWidth);
-        g.drawLine(W-strokeWidth, H, W-strokeWidth, 0);
-        g.drawLine(W, 0, 0, 0);
-
-        g.setColor(curColor);
+    
+    /** Plot Specific! */
+	/* Add a title to the plot */
+	public void drawTitle(String title) {
+		/* Draw the title in top center */
+		Font f = new Font("Serif", Font.BOLD, 22);
+		Font prevFont = g.getFont();
+		Color prevColor = g.getColor();
+		
+		g.setFont(f);
+		FontMetrics fm = g.getFontMetrics();
+		double textH = fm.getHeight();
+		double textW = fm.stringWidth(title);
+		
+		Point2D.Double p = new Point2D.Double(20, 30); /* Need to be changed. (20,30) is Magic no. */
+        logger.log("" + H/2);
+		
+		g.setColor(Color.WHITE);
+		g.fill(new Rectangle2D.Double(p.x, p.y - textH, textW + 2, textH + 2));
+		//g.setColor(prevColor);
+		g.setColor(titleColor);
+		drawText(title, p);
+		
+		Point2D.Double p2 = getInvTransformedPoint(p);
+		logger.log(String.format("Added title \"%s\" at (%6.2f, %6.2f)", title, p2.x, p2.y));
+		
+		g.setColor(prevColor);
+		g.setFont(prevFont);
 	}
 
 
-/*********************************** Property Setters ************************************************/
+/*********************************** Property Getters/Setters ************************************************/
 
 	public void setStroke(int width) {
 		g.setStroke(new BasicStroke(width));
@@ -269,6 +306,10 @@ public class Canvas {
         bgColor = c;
     }
     
+    public Color getBGColor() {
+    	return bgColor;
+    }
+    
     public double getScaleFactor() {
 		return scaleFactor;
 	}
@@ -285,6 +326,15 @@ public class Canvas {
 
 	public void setAxesVisible(boolean axesVisible) {
 		this.axesVisible = axesVisible;
+	}
+	
+	public void toggleAxes() {
+		setAxesVisible(!isAxesVisible());
+		if (isAxesVisible()) {
+			log("Axes visible.");
+		} else {
+			log("Axes hidden.");
+		}
 	}
 
 /*********************************** Transformation Methods **************************************************/
@@ -358,16 +408,22 @@ public class Canvas {
 		return p;
 	}
 	
-	public void setLogger(StatLogger text) {
-		this.logger = text;
-	}
-	
 	private void log(String string) {
 		this.logger.log(string + "\n");
 		//System.out.println("log : " + string);
 	}
 	
 /************************************ 3D *********************************************/
-    
+
+/********************* Nodes *******************************/
+	public void drawNode(Node n) {
+        Color fgc = getFGColor();
+        setFGColor(n.col);
+        drawPoint(n.pNode, PlotData.PointType.CIRCLE, 3, 3);
+        Point2D.Double pText = new Point2D.Double(n.pNode.getX()+2, n.pNode.getY()+2);
+        drawText(n.lbl, pText);
+        setFGColor(fgc);
+    }
+	
 }
 

@@ -283,8 +283,8 @@ public class ODEInputFrame implements ActionListener {
 
     public void updateView(Vector<Vector<Double>> data) {
     	PlotData pdata = new PlotData(data);
-    	pdata.pltype = PlotData.PlotType.VECTORS;
-        view.setData(pdata);
+    	pdata.setPltype(PlotData.PlotType.VECTORS);
+        view.setCurPlot(pdata);
     }
 
     public void plotTrajectory(double x, double y) {
@@ -297,42 +297,42 @@ public class ODEInputFrame implements ActionListener {
     		trjData = new PlotData(odedata.iterateMap(x, x));
     		break;
     	}
-    	trjData.pltype = PlotData.PlotType.LINES;
-    	trjData.fgColor = Color.BLACK;
+    	trjData.setPltype(PlotData.PlotType.LINES);
+    	trjData.setFgColor(Color.BLACK);
     	
-    	view.setData(trjData);
+    	view.setCurPlot(trjData);
     }
     
     public void plotCobweb(double x) {
     	PlotData pdata = new PlotData(odedata.cobweb(x));
-    	pdata.pltype = PlotData.PlotType.LINES;
-    	pdata.fgColor = Color.BLACK;
+    	pdata.setPltype(PlotData.PlotType.LINES);
+    	pdata.setFgColor(Color.BLACK);
     	
-    	view.setData(pdata);
+    	view.setCurPlot(pdata);
     }
     
     public void plotTrajectory3D(double x, double y, double z) {
     	PlotData trjData = new PlotData(odedata.RK4Iterate3D(x, y, z));
-    	trjData.pltype = PlotData.PlotType.THREED;
-    	trjData.fgColor = Color.BLACK;
+    	trjData.setPltype(PlotData.PlotType.THREED);
+    	trjData.setFgColor(Color.BLACK);
     	
-    	view.setData(trjData);
+    	view.setCurPlot(trjData);
     }
     
     public void plotFunction() {
     	PlotData trjData = new PlotData(odedata.functionData());
-    	trjData.pltype = PlotData.PlotType.LINES;
-    	trjData.fgColor = Color.BLACK;
+    	trjData.setPltype(PlotData.PlotType.LINES);
+    	trjData.setFgColor(Color.BLACK);
     	
-    	view.setData(trjData);
+    	view.setCurPlot(trjData);
     }
     
     public void plotFunction2D() {
     	PlotData trjData = new PlotData(odedata.functionData2D());
-    	trjData.pltype = PlotData.PlotType.TRLINE;
-    	trjData.fgColor = Color.BLACK;
+    	trjData.setPltype(PlotData.PlotType.TRLINE);
+    	trjData.setFgColor(Color.BLACK);
     	
-    	view.setData(trjData);
+    	view.setCurPlot(trjData);
     }
     
     public void switchStates() {

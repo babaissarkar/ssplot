@@ -29,57 +29,53 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.awt.geom.Point2D;
-import java.awt.image.BufferedImage;
 import java.util.Vector;
 
 import javax.swing.AbstractAction;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 public class PlotView extends JLabel {
 	
 	private Vector<PlotData> plots;
-	private PlotData curPlot;
-	private int col1, col2;
-	private Canvas canv;
-	private Project2D p;
-
-    private Vector<Node> nodes = new Vector<Node>();
-	
-	private double moveAngle = Math.toRadians(10);
+	//private PlotData curPlot;
+//	private int col1, col2;
+	//private Canvas canv;
+	private Plotter plt;
+	private StatLogger logger;
 	
 	// Actions
-		private LeftAction move_left = new LeftAction();
-		private RightAction move_right = new RightAction();
-		private UpAction move_up = new UpAction();
-		private DownAction move_down = new DownAction();
-		private ZoomInAction zoom_in = new ZoomInAction();
-		private ZoomOutAction zoom_out = new ZoomOutAction();
-		private SmallZoomInAction szoom_in = new SmallZoomInAction();
-		private SmallZoomOutAction szoom_out = new SmallZoomOutAction();
-		
-		private RotAPlusAction rot_a_pos = new RotAPlusAction();
-		private RotAMinusAction rot_a_min = new RotAMinusAction();
-		private RotBPlusAction rot_b_pos = new RotBPlusAction();
-		private RotBMinusAction rot_b_min = new RotBMinusAction();
-		private RotCPlusAction rot_c_pos = new RotCPlusAction();
-		private RotCMinusAction rot_c_min = new RotCMinusAction();
+	private LeftAction move_left = new LeftAction();
+	private RightAction move_right = new RightAction();
+	private UpAction move_up = new UpAction();
+	private DownAction move_down = new DownAction();
+	private ZoomInAction zoom_in = new ZoomInAction();
+	private ZoomOutAction zoom_out = new ZoomOutAction();
+	private SmallZoomInAction szoom_in = new SmallZoomInAction();
+	private SmallZoomOutAction szoom_out = new SmallZoomOutAction();
+
+	private RotAPlusAction rot_a_pos = new RotAPlusAction();
+	private RotAMinusAction rot_a_min = new RotAMinusAction();
+	private RotBPlusAction rot_b_pos = new RotBPlusAction();
+	private RotBMinusAction rot_b_min = new RotBMinusAction();
+	private RotCPlusAction rot_c_pos = new RotCPlusAction();
+	private RotCMinusAction rot_c_min = new RotCMinusAction();
 	
+	
+	private boolean overlayMode;
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -1906949716987184760L;
 
-	public PlotView(StatLogger logger) {
+	public PlotView(StatLogger logger, Plotter plt) {
+		
+		this.plt = plt;
+		this.setLogger(logger);
+		//curPlot = null;
+		overlayMode = false;
+		
 		clear();
-		
-		p = new Project2D();
-		
-		setLogger(logger);
-		
-		p.setView(0, 0, 0);
 		
 		// Setting Keybinding for movement
 		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0, false), "left");
@@ -116,215 +112,81 @@ public class PlotView extends JLabel {
 		getActionMap().put("rotCm", rot_c_min);
     }
 	
-	
 	@Override
 	public void paint(Graphics g) {
-		canv.initPlot();
+		plt.clear();
 		
-		for (PlotData pdata : plots) {
-			if ( plots.size() > 0 ) {
-				plotData(canv, pdata);
+		if (overlayMode) {
+			for (PlotData pdata : plots) {
+				if (plots.size() > 0) {
+					plt.plotData(pdata);
+					plt.plotOthers(pdata);
+				}
+			} 
+		} else {
+			if (plots.size() > 0) {
+				plt.plotData(getCurPlot());
+				plt.plotOthers(getCurPlot());
 			}
 		}
-
-        //System.out.println(nodes.size());
-        
-        for (Node node : nodes) {
-            drawNode(canv, node);
-        }
 		
-		g.drawImage(canv.getImage(), 20, 20, null);
+		
+		
+//		if (curPlot != null) {
+//			plt.plotData(curPlot);
+//			plt.plotOthers(curPlot);
+//		}
+		
+		g.drawImage(plt.getImage(), 20, 20, null);
+	}
 	
+	/*** Getting plots ***/
+	public PlotData getCurPlot() {
+		//return curPlot;
+		return plots.lastElement();
 	}
-
-	private void plotData(Canvas canv, PlotData pdata) {
-        
-		Point2D.Double p1 = null, p2 = null;
-
-		Vector<Vector<Double>> dataset = pdata.data;
-		canv.setFGColor(pdata.fgColor);
-		Color curPlotColor2 = pdata.fgColor2;
-
-		for (Vector<Double> row : dataset) {
-			if (pdata.pltype == PlotData.PlotType.VECTORS) {
-				/* For now, it works for vector data in first four columns only */
-				if (row.size() >= 4) {
-					p1 = canv.getTransformedPoint(new Point2D.Double(row.get(0), row.get(1)));
-					p2 = canv.getTransformedPoint(new Point2D.Double(row.get(2), row.get(3)));
-
-					canv.drawVector(p1, p2, curPlotColor2);
-				} else {
-					System.err.println("Bad vector field data!");
-				}
-			} else if ((pdata.pltype == PlotData.PlotType.THREED)) {
-				//System.out.println("3D");
-				if (row.size() >= 3) {
-					Point2D.Double pp = p.project(row.get(0), row.get(1), row.get(2));
-					p1 = canv.getTransformedPoint(pp);
-					canv.drawPoint(p1, PlotData.PointType.SQUARE, pdata.ptX, pdata.ptY);
-				} else {
-					System.err.println("Data is not three dimensional!");
-				}
-			} else if (pdata.pltype == PlotData.PlotType.TRLINE) {
-				//System.out.println("3D");
-				if (row.size() >= 3) {
-					Point2D.Double pp = p.project(row.get(0), row.get(1), row.get(2));
-					p2 = canv.getTransformedPoint(pp);
-					if (p1 != null) {
-						canv.setStroke(pdata.ptX);
-						canv.drawLine(p1, p2);
-					}
-					p1 = p2;
-				} else {
-					System.err.println("Data is not three dimensional!");
-				}
-			} else {
-				//System.out.println(col1 + " " + col2);
-				p2 = canv.getTransformedPoint(new Point2D.Double(row.get(col1-1), row.get(col2-1)));
-				if (p1 != null) {
-					switch(pdata.pltype) {
-					case LINES :
-						canv.setStroke(pdata.ptX);
-						canv.drawLine(p1, p2);
-						break;
-					case POINTS :
-						canv.drawPoint(p1, PlotData.PointType.SQUARE, pdata.ptX, pdata.ptY);
-						break;
-					case LP :
-						Color c = canv.getFGColor();
-						Point2D.Double pback = new Point2D.Double( p1.getX() - (pdata.ptX+4)/2, p1.getY() - (pdata.ptY+4)/2 );
-						
-						canv.setStroke(pdata.ptX);
-						canv.drawLine(p1, p2);
-						
-						canv.setFGColor(Color.BLACK);
-						canv.drawPoint(pback, PlotData.PointType.CIRCLE, pdata.ptX+4, pdata.ptY+4);
-						canv.setFGColor(c);
-					default :
-						// Nothing here.
-						break;
-					}
-				}
-				p1 = p2;
-			}
-		}
-		
-		canv.setStroke(1);
+	
+	public void setCurPlot(PlotData data) {
+		//curPlot = data;
+		plots.add(data);
+		repaint();
 	}
-
-
-    public void drawNode(Canvas canv, Node n) {
-        Color fgc = canv.getFGColor();
-        canv.setFGColor(n.col);
-        canv.drawPoint(n.pNode, PlotData.PointType.CIRCLE, 3, 3);
-        Point2D.Double pText = new Point2D.Double(n.pNode.getX()+2, n.pNode.getY()+2);
-        canv.drawText(n.lbl, pText);
-        canv.setFGColor(fgc);
-    }
-
-    public void addNode(Point2D.Double p, String str, Color c) {
-        Node n = new Node(p, str, c);
-        nodes.add(n);
-    }
-
+	
 	/* Getter and Setters */
 	public PlotData.PlotType getCurPlotType() {
-		return getCurElement().pltype;
+		return getCurPlot().getPltype();
 	}
 	
 	public void setCurPlotType(PlotData.PlotType pltype) {
-		getCurElement().pltype = pltype;
+		getCurPlot().setPltype(pltype);
 		repaint();
 		
-		JOptionPane.showMessageDialog(this, "Plot Type : " + pltype);
+		log("<b>Plot Type : </b>" + pltype);
 	}
 	
-	public void setColor(Color c) {
-		//System.out.println(plots.toString());
-		if ((plots.size() > 0) && (getCurElement() != null)) {
-			getCurElement().fgColor = c;
-		}
-		//System.out.println(getCurElement().fgColor.toString());
+	public void setColor(Color col) {
+		getCurPlot().setFgColor(col);
 		repaint();
 		
-		JOptionPane.showMessageDialog(this, String.format("Color : (%d, %d, %d)", c.getRed(), c.getGreen(), c.getBlue()));
-	}
-
-	public BufferedImage getImage() {
-		BufferedImage img = canv.getImage();
-		return img;
-	}
-
-	private PlotData getCurElement() {
-		return curPlot;
-	}
-	
-	public void setCurElement(PlotData pdata) {
-		curPlot = pdata;
-	}
-	
-	public Vector<PlotData> getAllElements() {
-		return plots;
-	}
-
-	public PlotData getData() {
-		return getCurElement();
-	}
-
-	public void setData(PlotData data) {
-		plots.add(data);
-		setCurElement(data);
-		this.repaint();
-	}
-
-	public void setCols(int col1, int col2) {
-		this.col1 = col1;
-		this.col2 = col2;
-	}
-	
-	public void toggleAxes() {
-		canv.setAxesVisible(!canv.isAxesVisible());
-		repaint();
+		Color c = getCurPlot().getFgColor();
+		log(String.format("Color : (%d, %d, %d)", c.getRed(), c.getGreen(), c.getBlue()));
 	}
 
 	/* Reset canvas */
 	public void clear() {
 		plots = new Vector<PlotData>();
-        nodes = new Vector<Node>();
-		col1 = 1;
-		col2 = 2;
-		
-		canv = new Canvas(600, 600);
-		canv.initPlot();
+		//curPlot = null;
+		plt.initPlot();
 		repaint();
-	}
-	
-	public double getMoveAngle() {
-		return moveAngle;
 	}
 
-
-	public void setMoveAngle(double moveAngle) {
-		this.moveAngle = moveAngle;
-	}
-
-	public void setZoomCenter(Point2D.Double zc) {
-		canv.setZoomCenter(zc);
-		repaint();
+	public void log(String s) {
+		logger.log(s);
 	}
 	
-	public void zoomIn(double zc_x, double zc_y) {
-		canv.setZoomCenter(new Point2D.Double(zc_x, zc_y));
-		canv.setScaleFactor(canv.getScaleFactor()*2);
-		repaint();
-	}
-	
-	public void zoomOut(double zc_x, double zc_y) {
-		canv.setZoomCenter(new Point2D.Double(zc_x, zc_y));
-        if (canv.getScaleFactor() >= 2) {
-            canv.setScaleFactor(canv.getScaleFactor()/2);
-        }
-		repaint();
+	public void setLogger(StatLogger logger) {
+		this.logger = logger;
+		//plt.setLogger(logger);
 	}
 	
 	/* Actions */
@@ -332,7 +194,8 @@ public class PlotView extends JLabel {
 	public class ZoomInAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			zoomIn(0,0);
+			plt.zoomIn(0,0);
+			repaint();
 		}
 	}
 	
@@ -340,7 +203,8 @@ public class PlotView extends JLabel {
 	public class ZoomOutAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			zoomOut(0,0);
+			plt.zoomOut(0,0);
+			repaint();
 		}
 	}
 	
@@ -348,7 +212,7 @@ public class PlotView extends JLabel {
 	public class SmallZoomInAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			canv.setScaleFactor(canv.getScaleFactor() + 1);
+			plt.rescale(plt.getScale() + 1);
 			repaint();
 		}
 	}
@@ -357,8 +221,8 @@ public class PlotView extends JLabel {
 	public class SmallZoomOutAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			if (canv.getScaleFactor() > 1) {
-				canv.setScaleFactor(canv.getScaleFactor() - 1);
+			if (plt.getScale() > 1) {
+				plt.rescale(plt.getScale() - 1);
 			}
 			repaint();
 		}
@@ -369,7 +233,7 @@ public class PlotView extends JLabel {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			//System.out.println("up");
-			canv.shift(0, -5);
+			plt.getCanvas().shift(0, -5);
 			repaint();
 		}
 	}
@@ -379,7 +243,7 @@ public class PlotView extends JLabel {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			//System.out.println("down");
-			canv.shift(0, 5);
+			plt.getCanvas().shift(0, 5);
 			repaint();
 		}
 	}
@@ -389,7 +253,7 @@ public class PlotView extends JLabel {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			//System.out.println("up");
-			canv.shift(-5, 0);
+			plt.getCanvas().shift(-5, 0);
 			repaint();
 		}
 	}
@@ -399,7 +263,7 @@ public class PlotView extends JLabel {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			//System.out.println("down");
-			canv.shift(5, 0);
+			plt.getCanvas().shift(5, 0);
 			repaint();
 		}
 	}
@@ -408,7 +272,8 @@ public class PlotView extends JLabel {
 	public class RotAPlusAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			p.setView(p.a + getMoveAngle(), p.b, p.c);
+			//p.setView(p.a + getMoveAngle(), p.b, p.c);
+			plt.moveView(Project2D.Axis.X);
 			
 			repaint();
 		}
@@ -418,7 +283,7 @@ public class PlotView extends JLabel {
 	public class RotAMinusAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			p.setView(p.a - getMoveAngle(), p.b, p.c);
+			plt.moveView(Project2D.Axis.NX);
 			
 			repaint();
 		}
@@ -428,7 +293,7 @@ public class PlotView extends JLabel {
 	public class RotBPlusAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			p.setView(p.a, p.b + getMoveAngle(), p.c);
+			plt.moveView(Project2D.Axis.Y);
 			
 			repaint();
 		}
@@ -438,8 +303,7 @@ public class PlotView extends JLabel {
 	public class RotBMinusAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			p.setView(p.a, p.b - getMoveAngle(), p.c);
-			
+			plt.moveView(Project2D.Axis.NY);
 			repaint();
 		}
 	}
@@ -448,7 +312,7 @@ public class PlotView extends JLabel {
 	public class RotCPlusAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			p.setView(p.a, p.b, p.c + getMoveAngle());
+			plt.moveView(Project2D.Axis.Z);
 			
 			repaint();
 		}
@@ -458,33 +322,16 @@ public class PlotView extends JLabel {
 	public class RotCMinusAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			p.setView(p.a, p.b, p.c - getMoveAngle());
+			plt.moveView(Project2D.Axis.NZ);
 		
 			repaint();
 		}
 	}
 
-    public class Node {
-        /* A node is a point with a label */
-        Point2D.Double pNode;
-        String lbl;
-        Color col;
-        
-        public Node(Point2D.Double p, String str, Color c) {
-            this.lbl = str;
-            this.pNode = p;
-            this.col = c;
-        }
-    }
-
-	public Canvas getCanvas() {
-		return canv;
-	}
-
-
-	public void setLogger(StatLogger logger) {
-		canv.setLogger(logger);
-		p.setLogger(logger);
+	public void toogleOverlayMode() {
+		overlayMode = !overlayMode;
+		
+		log("<b>Overlay mode :</b> " + overlayMode);
 	}
 
 }

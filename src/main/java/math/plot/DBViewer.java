@@ -54,7 +54,9 @@ public class DBViewer extends JFrame implements ActionListener {
     private int rowNo = 0;
 
     private JTable table;
-    public JButton btnPlot;
+    private JButton btnPlot;
+    
+    private PlotView pv;
     
     private JButton btnNew, btnLoad, btnSave, btnRow, btnColumn, btnPrint;
     private JTextField tfXData, tfYData;
@@ -64,6 +66,7 @@ public class DBViewer extends JFrame implements ActionListener {
     }
     
 	public DBViewer(Vector<Vector<Double>> data) {
+        
         /* GUI */
 		setTitle("Dataset Viewer");
 		getContentPane().setLayout(new BorderLayout());
@@ -74,6 +77,7 @@ public class DBViewer extends JFrame implements ActionListener {
         tfXData = new JTextField("1", 4);
         tfYData = new JTextField("2", 4);
         btnPlot = new JButton("Apply");
+        btnPlot.addActionListener(this);
         pnlPrefs.add(lblXData);
         pnlPrefs.add(tfXData);
         pnlPrefs.add(lblYData);
@@ -101,18 +105,21 @@ public class DBViewer extends JFrame implements ActionListener {
         );
         
         JPanel pnlEdit = new JPanel();
+        
         btnNew = new JButton("New Data");
         btnLoad = new JButton("Load Data");
         btnSave = new JButton("Save Data");
         btnRow = new JButton("Add Row");
         btnColumn = new JButton("Add Column");
         btnPrint = new JButton("Print");
+        
         btnNew.addActionListener(this);
         btnLoad.addActionListener(this);
         btnSave.addActionListener(this);
         btnRow.addActionListener(this);
         btnColumn.addActionListener(this);
         btnPrint.addActionListener(this);
+        
         pnlEdit.add(btnNew);
         pnlEdit.add(btnLoad);
         pnlEdit.add(btnSave);
@@ -131,7 +138,7 @@ public class DBViewer extends JFrame implements ActionListener {
     public void setData(Vector<Vector<Double>> data) {
     	DefaultTableModel model;
         dataset = data;
-        colNo = data.get(0).size();
+        colNo = data.firstElement().size();
         rowNo = data.size();
 
         /* Update the table */
@@ -149,15 +156,17 @@ public class DBViewer extends JFrame implements ActionListener {
 		}
 		
 		if (80*colNo > 500) {
-            setBounds(500, 100, 80*colNo, 600);
+            setBounds(500, 100, 80*colNo+200, 600);
         } else {
-        	setBounds(500, 100, 500, 600);
+        	setBounds(500, 100, 500+200, 600);
         }
     }
 
     /** @return the dataset */
-    public Vector<Vector<Double>> getData() {
-        return dataset;
+    public PlotData getData() {
+    	PlotData pdata = new PlotData(dataset);
+    	pdata.setDataCols(getCol1(), getCol2());
+        return pdata;
     }
 
     /** @return the number of rows in the dataset */
@@ -277,14 +286,25 @@ public class DBViewer extends JFrame implements ActionListener {
 			}
 			
 		} else if (evt.getSource() == btnPrint) {
+			
 			try {
 				table.print();
 			} catch (PrinterException e) {
 				System.err.println("Can't print!");
 				e.printStackTrace();
 			}
+			
+		} else if (evt.getSource() == btnPlot) {
+			pv.log(String.format("Plotting col %d (y axis) vs col %d (x axis).", this.getCol2(), this.getCol1()));
+			pv.clear();
+			pv.setCurPlot(getData());
 		}
 	}
-	
-	
+
+	/**
+	 * @param pv the pv to set
+	 */
+	public void setView(PlotView pv) {
+		this.pv = pv;
+	}
 }

@@ -13,7 +13,7 @@
 <li>Download the latest release of SSPlot from the releases section. (You can also clone this repository, either using <code>git clone</code> or using the Code menu in this page (Code -> Dropdown -> Download ZIP))</li>
 <li>Extract the ZIP.</li>
 <li>Enter the folder inside the ZIP (or the cloned folder) and open a terminal there.</li>
-<li>Run using <code>./ssplot-quick-run</code> from your terminal/command line (For linux), or go to the directory where the file <code>SSPlot.jar</code> is, open a terminal there and run <code>java -jar SSPlot.jar</code></li>
+<li>Run using <code>./ssplot</code> from your terminal/command line (For linux), or go to the directory where the file <code>SSPlot.jar</code> is, open a terminal there and run <code>java -jar SSPlot.jar</code></li>
 <li>Alternatively, for other OSes, see the section <strong>Other OSes</strong>.</li>
 <li>You may need to set the <code>CLASSPATH</code> environment variable if you want to use an alternate engine for math equation parsing, as explained in a later section.</li>
 </ol>
@@ -22,7 +22,7 @@
 
 <ol>
 <li>Install Java <code>sudo apt install default-jre</code>.</li>
-<li>Get the zip file from the Releases section and install the deb file from it <code>sudo dpkg -i ssplot-1.5.deb</code></li>
+<li>Get the zip file from the Releases section and install the deb file from it <code>sudo dpkg -i ssplot-1.*.deb</code></li>
 <li>You can now run SSPlot from the terminal by using the command <code>ssplot</code>.</li>
 </ol>
 
@@ -33,7 +33,6 @@
 <ol>
 <li>You may have to set the <code>CLASSPATH</code> yourself if you are using an external script engine. You can search the internet for how to do that for your OS. Make sure that the <code>CLASSPATH</code> contains the Apache Commons Math library (version 3) and <code>SSPlot.jar</code>. Not really needed as of version 1.5.</li>
 <li>Make sure you can access the <code>java</code> command from the JRE. You probably have to set another variable called <code>PATH</code>. The <code>java</code> command may be called something different in your OS.</li>
-<li>Please see the last section on how to set up Jython or any other script engine if you are using a Java version > 14.</li>
 </ol>
 
 <h1>Documentation</h1>
@@ -47,7 +46,7 @@
 <ol>
 <li>Clone this repository.</li>
 <li><code>cd</code> into the cloned directory and run <code>ant</code>. It will build everything and put the generated jar file into the jar directory.</li>
-<li>You can run the generated <code>SSPlot.jar</code> file using the command <code>java -jar jar/SSPlot.jar</code> or just <code>./ssplot-quick-run</code></li>
+<li>You can run the generated <code>SSPlot.jar</code> file using the command <code>java -jar jar/SSPlot.jar</code> or just <code>./ssplot</code></li>
 </ol>
 
 <h1>Using a external script engine for parsing math expressions</h1>

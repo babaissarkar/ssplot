@@ -29,27 +29,35 @@ import math.prim.Matrix;
 
 public class Project2D {
 	double a, b, c;
+	private double moveAngle = Math.toRadians(10);
 	private StatLogger logger;
+	
+	public enum Axis {X, Y, Z, NX, NY, NZ};
+	
+	public Project2D(StatLogger logger) {
+		this.logger = logger;
+	}
 	
 	public void setView(double a, double b, double c) {
         /* Set viewing angle */
         double a2 = Math.toDegrees(a) % 360;
         double b2 = Math.toDegrees(b) % 360;
         double c2 = Math.toDegrees(c) % 360;
-        String threedpos = String.format("%f, %f, %f\n", a2, b2, c2);
-        log(threedpos);
+        if (logger != null) {
+        	String threedpos = String.format("3D Rotation angles : %f, %f, %f\n", a2, b2, c2);
+        	logger.log(threedpos);
+        }
 		this.a = a;
 		this.b = b;
 		this.c = c;
     }
 	
-	public void setLogger(StatLogger logger) {
-		this.logger = logger;
+	public double getMoveAngle() {
+		return moveAngle;
 	}
-	
-	private void log(String string) {
-		this.logger.log(string + "\n");
-		//System.out.println("log : " + string);
+
+	public void setMoveAngle(double moveAngle) {
+		this.moveAngle = moveAngle;
 	}
 	
 	public Point2D.Double project(double x, double y, double z) {
@@ -88,5 +96,36 @@ public class Project2D {
 		R2 = rotZ.times(rotY.times(rotX.times(R)));
 		
 		return new Point2D.Double(R2.get(0, 0), R2.get(1, 0));
+	}
+	
+	public void moveView(Axis axis) {
+		switch (axis) {
+		case X:
+			setView(a + getMoveAngle(), b, c);
+			break;
+
+		case Y:
+			setView(a, b + getMoveAngle(), c);
+			break;
+			
+		case Z:
+			setView(a, b, c + getMoveAngle());
+			break;
+			
+		case NX:
+			setView(a - getMoveAngle(), b, c);
+			break;
+
+		case NY:
+			setView(a, b - getMoveAngle(), c);
+			break;
+			
+		case NZ:
+			setView(a, b, c - getMoveAngle());
+			break;
+			
+		default:
+			break;
+		}
 	}
 }
