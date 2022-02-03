@@ -54,6 +54,7 @@ public class ODEInputFrame implements ActionListener {
     /* This class is the controller. */
 
     JFrame frmMain = null;
+    JLabel[] lbls;
     JTextField[] tfs, tfs2, tfs3;
     JButton btnOK, btnCancel, btnDF, btnTR, btnCW;
     JRadioButton rbODE, rbIM, rbFunc, rbFunc2;
@@ -86,7 +87,7 @@ public class ODEInputFrame implements ActionListener {
         	new BoxLayout(pnlMain, BoxLayout.PAGE_AXIS)
         );
         pnlMain.setBorder(
-        		BorderFactory.createEmptyBorder(10, 10, 10, 10)
+        	BorderFactory.createEmptyBorder(10, 10, 10, 10)
         );
         
         
@@ -95,24 +96,28 @@ public class ODEInputFrame implements ActionListener {
         rbODE.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent evt) {
         		curMode = SystemMode.ODE;
+        		updateInterface();
         	}
         });
         rbIM = new JRadioButton("Difference Equation");
         rbIM.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent evt) {
         		curMode = SystemMode.DFE;
+        		updateInterface();
         	}
         });
         rbFunc = new JRadioButton("1D function");
         rbFunc.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent evt) {
         		curMode = SystemMode.FN1;
+        		updateInterface();
         	}
         });
         rbFunc2 = new JRadioButton("2D function");
         rbFunc2.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent evt) {
         		curMode = SystemMode.FN2;
+        		updateInterface();
         	}
         });
         
@@ -148,7 +153,7 @@ public class ODEInputFrame implements ActionListener {
         JPanel pnlMatrix = new JPanel();
         pnlMatrix.setLayout(new GridLayout(3, 2, 5, 5));
         
-        JLabel[] lbls = new JLabel[4];        
+        lbls = new JLabel[3];        
         
         lbls[0] = new JLabel("Eqn. 1: ");
         lbls[1] = new JLabel("Eqn. 2: ");
@@ -286,6 +291,36 @@ public class ODEInputFrame implements ActionListener {
     	pdata.setPltype(PlotData.PlotType.VECTORS);
         view.setCurPlot(pdata);
     }
+    
+
+	private void updateInterface() {
+		if (curMode == SystemMode.ODE) {
+			lbls[0].setText("dx/dt =");
+	        lbls[1].setText("dy/dt =");
+	        lbls[2].setText("dz/dt =");
+	        tfs[1].setEditable(true);
+	        tfs[2].setEditable(true);
+		} else if (curMode == SystemMode.DFE) {
+			lbls[0].setText("x_(n+1) =");
+	        lbls[1].setText("y_(n+1) =");
+	        lbls[2].setText("z_(n+1) =");
+	        tfs[1].setEditable(true);
+	        tfs[2].setEditable(true);
+		} else if (curMode == SystemMode.FN1) {
+			lbls[0].setText("y(x) =");
+			lbls[1].setText("");
+	        lbls[2].setText("");
+	        tfs[1].setEditable(false);
+	        tfs[2].setEditable(false);
+		} else if (curMode == SystemMode.FN2) {
+			lbls[0].setText("z(x, y) =");
+			lbls[1].setText("");
+	        lbls[2].setText("");
+	        tfs[1].setEditable(false);
+	        tfs[2].setEditable(false);
+		}
+		
+	}
 
     public void plotTrajectory(double x, double y) {
     	PlotData trjData;

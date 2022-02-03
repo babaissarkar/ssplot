@@ -29,10 +29,7 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.Line2D;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
+import java.awt.geom.*;
 import java.awt.image.BufferedImage;
 
 public class Canvas {
@@ -49,6 +46,15 @@ public class Canvas {
     private int dx, dy, moveX, moveY;
     private Point2D.Double zc = new Point2D.Double(0, 0); /* Center of Zoom */
 	private StatLogger logger;
+    private String xlbl, ylbl;
+
+    public void setXLabel(String xlbl) {
+        this.xlbl = xlbl;
+    }
+
+    public void setYLabel(String ylbl) {
+        this.ylbl = ylbl;
+    }
 
     private void initParams() {
         scaleFactor = 1.0;
@@ -222,7 +228,12 @@ public class Canvas {
             }
             
         }
-        
+
+        // draw X Label
+        if (xlbl != null) {
+            drawText(xlbl, getTransformedPoint2(new Point2D.Double(50, 5)));
+        }
+
         for (int j = (-(noOfMajorTics/2 - 1) - offsetTicsY - (int) scaleFactor); j < (noOfMajorTics/2 - offsetTicsY + (int) scaleFactor); j++) {
 			// Y axis tics
 			int y = j * H/noOfMajorTics;
@@ -239,6 +250,19 @@ public class Canvas {
 				drawText(strLbl, getTransformedPoint2(new Point2D.Double(-(strWidth + 8), y - (strHeight / 2 - 2))));
 			} 
 		}
+
+        // draw Y Label
+        if (ylbl != null) {
+            Font f = g.getFont();
+            AffineTransform trans = new AffineTransform();
+            trans.setToIdentity();
+            trans.rotate(Math.toRadians(-90));
+            Font f2 = f.deriveFont(trans);
+            g.setFont(f2);
+            drawText(ylbl, getTransformedPoint2(new Point2D.Double(15, 50)));
+            g.setFont(f);
+        }
+        //g.rotate(-90);
         
 		g.setColor(curColor);
 	}

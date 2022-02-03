@@ -28,12 +28,14 @@ package math.plot;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.util.Vector;
 
 import javax.swing.AbstractAction;
 import javax.swing.JLabel;
 import javax.swing.KeyStroke;
+import javax.swing.Timer;
 
 public class PlotView extends JLabel {
 	
@@ -63,17 +65,30 @@ public class PlotView extends JLabel {
 	
 	
 	private boolean overlayMode;
+	private boolean animate;
+	int i;
+	private Timer refresher;
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -1906949716987184760L;
 
-	public PlotView(StatLogger logger, Plotter plt) {
+	public PlotView(StatLogger logger, Plotter plt2) {
 		
-		this.plt = plt;
+		this.plt = plt2;
 		this.setLogger(logger);
 		//curPlot = null;
 		overlayMode = false;
+		animate = false;
+		i = 0;
+		
+		ActionListener trigger = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				updateCanvas();
+			}
+		};
+		refresher = new Timer(1000, trigger);
 		
 		clear();
 		
@@ -114,16 +129,36 @@ public class PlotView extends JLabel {
 	
 	@Override
 	public void paint(Graphics g) {
-		plt.clear();
 		
 		if (overlayMode) {
+			plt.clear();
 			for (PlotData pdata : plots) {
 				if (plots.size() > 0) {
 					plt.plotData(pdata);
 					plt.plotOthers(pdata);
 				}
 			} 
+		} else if (animate) {
+			plt.clear();
+			
+			if ((plots.size() > 0) && (i > 0)) {
+				
+				PlotData pdata = new PlotData(
+						new Vector<Vector<Double>>(
+								getCurPlot().data.subList(0, i)));
+				
+				if (i < getCurPlot().data.size()) {
+					//log("t = " + i + " sec.");
+					plt.plotData(pdata);
+					plt.plotOthers(pdata);
+				} else {
+					animate = false;
+					i = 0;
+					refresher.stop();
+				}
+			}
 		} else {
+			plt.clear();
 			if (plots.size() > 0) {
 				plt.plotData(getCurPlot());
 				plt.plotOthers(getCurPlot());
@@ -136,14 +171,21 @@ public class PlotView extends JLabel {
 //			plt.plotData(curPlot);
 //			plt.plotOthers(curPlot);
 //		}
-		
 		g.drawImage(plt.getImage(), 20, 20, null);
+	}
+	
+	private void updateCanvas() {
+		i++;
+		repaint();
 	}
 	
 	/*** Getting plots ***/
 	public PlotData getCurPlot() {
-		//return curPlot;
-		return plots.lastElement();
+		if (plots.size() > 0) {
+			return plots.lastElement();
+		} else {
+			return null;
+		}
 	}
 	
 	public void setCurPlot(PlotData data) {
@@ -176,6 +218,7 @@ public class PlotView extends JLabel {
 	public void clear() {
 		plots = new Vector<PlotData>();
 		//curPlot = null;
+		//int i = 0;
 		plt.initPlot();
 		repaint();
 	}
@@ -328,10 +371,38 @@ public class PlotView extends JLabel {
 		}
 	}
 
-	public void toogleOverlayMode() {
+	public void toggleOverlayMode() {
+		stopAnimation();
 		overlayMode = !overlayMode;
 		
 		log("<b>Overlay mode :</b> " + overlayMode);
+	}
+	
+	public void toggleAnimate() {		
+		if (animate) {
+			stopAnimation();
+		} else {
+			startAnimation();
+		}
+	}
+	
+	public void startAnimation() {
+		animate = true;
+		refresher.start();
+		log("<b>Animate :</b> " + "ON");
+	}
+	
+	public void stopAnimation() {
+		animate = false;
+		refresher.stop();
+		log("<b>Animate :</b> " + "OFF");
+	}
+	
+	public void setNormal() {
+		if (overlayMode) {
+			toggleOverlayMode();
+		}
+		stopAnimation();
 	}
 
 }

@@ -42,6 +42,23 @@ public class PlotData {
     public int ptX, ptY;
     
     private String title;
+	private String xlabel, ylabel;
+
+	public String getXLabel() {
+		return xlabel;
+	}
+
+	public void setXLabel(String xlabel) {
+		this.xlabel = xlabel;
+	}
+
+	public String getYLabel() {
+		return ylabel;
+	}
+
+	public void setYLabel(String ylabel) {
+		this.ylabel = ylabel;
+	}
 
     public PlotData() {
         this(new Vector<Vector<Double>>());

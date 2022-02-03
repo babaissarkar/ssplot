@@ -26,17 +26,11 @@ package math.plot;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.awt.geom.Point2D;
 import java.io.File;
-import java.io.IOException;
 
-//~ import javax.imageio.ImageIO;
-import javax.swing.JCheckBoxMenuItem;
+import javax.swing.ButtonGroup;
 import javax.swing.JColorChooser;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -44,6 +38,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.plaf.FontUIResource;
@@ -51,30 +46,41 @@ import javax.swing.plaf.FontUIResource;
 @SuppressWarnings("serial")
 public class MainFrame extends JFrame implements ActionListener {
 
-	private Plotter plt;
-	private PlotView pv;
-    private DBViewer dbv;
-    private SystemData odedata;
-    private ODEInputFrame odeinput;
+	private final Plotter plt;
+	private final PlotView pv;
+    private final DBViewer dbv;
+    private final ODEInputFrame odeinput;
     private StatLogger logger;
-    
-	private JMenu mnuFile, mnuPlot;
-	private JMenuItem jmSave, jmPaint, jmOpen, jmHelp, jmShowData, jmQuit;
-    private JMenuItem jmPlotType, jmPhase, jmCol, jmClear, jmSvData, jmAxes;
-    private JMenuItem jmAbout, jmLogs, jmTitle;
-    private JMenuItem jmLineWidth;
-    private JCheckBoxMenuItem jcmOverlay;
-    
+
+    private final JMenuItem jmSave;
+    private final JMenuItem jmPaint;
+    private final JMenuItem jmOpen;
+    private final JMenuItem jmHelp;
+    private final JMenuItem jmShowData;
+    private final JMenuItem jmQuit;
+    private final JMenuItem jmPlotType;
+    private final JMenuItem jmPhase;
+    private final JMenuItem jmCol;
+    private final JMenuItem jmClear;
+    private final JMenuItem jmSvData;
+    private final JMenuItem jmAxes;
+    private final JMenuItem jmAbout;
+    private final JMenuItem jmLogs;
+    private final JMenuItem jmTitle;
+    private final JMenuItem jmLineWidth;
+    private final JMenuItem jmXLabel, jmYLabel;
+
     private static final int MENUBAR_WIDTH = 60; /* Valid only for defaul Metal look and feel. */
-	
-	public MainFrame() {
+
+
+    public MainFrame() {
         
         this.setLogger(new StatLogger());
         this.getLogger().log("<h1>Welcome to SSPlot!</h1>");
 
         plt = new Plotter(logger);
         plt.initPlot();
-        odedata = new SystemData();
+        SystemData odedata = new SystemData();
 		pv = new PlotView(this.getLogger(), plt);
 		dbv = new DBViewer();
 		dbv.setView(pv);
@@ -112,14 +118,41 @@ public class MainFrame extends JFrame implements ActionListener {
         jmQuit = new JMenuItem("Quit");
 
         jmPhase = new JMenuItem("Setup System...");
-        
-        jcmOverlay = new JCheckBoxMenuItem("Overlay mode");
-        jcmOverlay.addActionListener(
+
+        JRadioButtonMenuItem jcmNormal = new JRadioButtonMenuItem("Normal mode");
+        jcmNormal.addActionListener(
         	evt -> {
-        		pv.toogleOverlayMode();
+        		pv.setNormal();
+        		pv.repaint();
         	}
         );
+
+        JRadioButtonMenuItem jcmOverlay = new JRadioButtonMenuItem("Overlay mode");
+        jcmOverlay.addActionListener(
+        	evt -> {
+        		pv.toggleOverlayMode();
+        		pv.repaint();
+        	}
+        );
+
+        JRadioButtonMenuItem jcmAnimate = new JRadioButtonMenuItem("Animate");
+        jcmAnimate.addActionListener(
+        	evt -> {
+        		pv.toggleAnimate();
+        		pv.repaint();
+        	}
+        );
+        
+        jcmNormal.setSelected(true);
+        
+        ButtonGroup bg = new ButtonGroup();
+        bg.add(jcmNormal);
+        bg.add(jcmAnimate);
+        bg.add(jcmOverlay);
+
         jmTitle = new JMenuItem("Add title to plot");
+        jmXLabel = new JMenuItem("Add X axis label");
+        jmYLabel = new JMenuItem("Add Y axis label");
         jmAxes = new JMenuItem("Show/hide axes");
         jmLineWidth = new JMenuItem("Set line width");
         jmCol = new JMenuItem("Set Plot Color");
@@ -129,14 +162,21 @@ public class MainFrame extends JFrame implements ActionListener {
         jmAbout = new JMenuItem("About");
         jmLogs = new JMenuItem("Logs");
         
-        jmOpen.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK));
-        jmSave.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK));
-        jmSvData.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,  ActionEvent.CTRL_MASK|ActionEvent.SHIFT_MASK));
-        jmShowData.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, ActionEvent.CTRL_MASK));
-        jmQuit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, ActionEvent.CTRL_MASK));
+        jmOpen.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O,
+                ActionEvent.CTRL_MASK));
+        jmSave.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
+                ActionEvent.CTRL_MASK));
+        jmSvData.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
+                ActionEvent.CTRL_MASK|ActionEvent.SHIFT_MASK));
+        jmShowData.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D,
+                ActionEvent.CTRL_MASK));
+        jmQuit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q,
+                ActionEvent.CTRL_MASK));
         
-        jmPhase.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, ActionEvent.CTRL_MASK));
-        jmClear.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, ActionEvent.CTRL_MASK));
+        jmPhase.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M,
+                ActionEvent.CTRL_MASK));
+        jmClear.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X,
+                ActionEvent.CTRL_MASK));
         
 		jmSave.addActionListener(this);
 		jmSvData.addActionListener(this);
@@ -150,13 +190,15 @@ public class MainFrame extends JFrame implements ActionListener {
         jmAbout.addActionListener(this);
 
         jmTitle.addActionListener(this);
+        jmXLabel.addActionListener(this);
+        jmYLabel.addActionListener(this);
         jmCol.addActionListener(this);
         jmLineWidth.addActionListener(this);
         jmAxes.addActionListener(this);
         jmPhase.addActionListener(this);
         jmPlotType.addActionListener(this);
-        
-		mnuFile = new JMenu("File");
+
+        JMenu mnuFile = new JMenu("File");
 		mnuFile.add(jmOpen);
 		mnuFile.add(jmSave);
 		mnuFile.add(jmSvData);
@@ -168,14 +210,19 @@ public class MainFrame extends JFrame implements ActionListener {
 		mnuFile.add(jmAbout);
         mnuFile.add(jmQuit);
 
-        mnuPlot = new JMenu("Plot");
+        JMenu mnuPlot = new JMenu("Plot");
         mnuPlot.add(jmAxes);
         mnuPlot.addSeparator();
+        mnuPlot.add(jcmNormal);
         mnuPlot.add(jcmOverlay);
+        mnuPlot.add(jcmAnimate);
         mnuPlot.addSeparator();
         mnuPlot.add(jmShowData);
         mnuPlot.addSeparator();
         mnuPlot.add(jmTitle);
+        mnuPlot.add(jmXLabel);
+        mnuPlot.add(jmYLabel);
+        mnuPlot.addSeparator();
         mnuPlot.add(jmClear);
         mnuPlot.add(jmPlotType);
         mnuPlot.add(jmLineWidth);
@@ -330,7 +377,7 @@ public class MainFrame extends JFrame implements ActionListener {
 		/* Triggers the actions associated with the menus */
 		if (ae.getSource() == jmSave) {
 			saveImage();
-		} else if (ae.getSource() == jmPaint) {
+//		} else if (ae.getSource() == jmPaint) {
 //			canv.refresh();
 		} else if (ae.getSource() == jmOpen) {
 			openFile();
@@ -351,6 +398,12 @@ public class MainFrame extends JFrame implements ActionListener {
         } else if (ae.getSource() == jmTitle) {
         	pv.getCurPlot().setTitle(JOptionPane.showInputDialog("Title :"));
         	pv.repaint();
+        } else if (ae.getSource() == jmXLabel) {
+            plt.getCanvas().setXLabel(JOptionPane.showInputDialog("X Label :"));
+            pv.repaint();
+        } else if (ae.getSource() == jmYLabel) {
+            plt.getCanvas().setYLabel(JOptionPane.showInputDialog("Y Label :"));
+            pv.repaint();
         } else if (ae.getSource() == jmClear) {
             pv.clear();
         } else if (ae.getSource() == jmPhase) {

@@ -8,7 +8,7 @@
 
   <groupId>com.babai.ssplot</groupId>
   <artifactId>SSPlot</artifactId>
-  <version>1.5.1</version>
+  <version>1.5.2</version>
 
   <name>SSPlot</name>
   <url>http://www.github.com/babaissarkar/ssplot</url>
@@ -71,7 +71,8 @@
           <artifactId>maven-jar-plugin</artifactId>
           <version>3.0.2</version>
           
-          <configuration>
+	  <configuration>
+	      <finalName>SSPlot</finalName>
               <archive>
                   <manifest>
                       <mainClass>math.plot.MainFrame</mainClass>

@@ -23,7 +23,7 @@ public class StatLogger {
 		txStatus = new JTextPane();
 		txStatus.setContentType("text/html");
 		txStatus.setPreferredSize(new Dimension(frmLog.getWidth(), 100));
-        txStatus.setEditable(false);
+        txStatus.setEditable(false);        
        
         JPanel pnlStatus = new JPanel();
 
@@ -41,6 +41,7 @@ public class StatLogger {
 		txStatus.setText("<html><body>" + logs.toString() + "</body></html>");
 		
 		SwingUtilities.updateComponentTreeUI(frmLog);
+		//jscroll.getVerticalScrollBar().setValue(jscroll.getVerticalScrollBar().getMaximum());
 		
 		if (!frmLog.isVisible()) {
 			frmLog.setVisible(true);

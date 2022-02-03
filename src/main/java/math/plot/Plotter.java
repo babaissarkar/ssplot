@@ -10,9 +10,9 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 public class Plotter {
-	private Project2D p;
 	private Canvas canv;
-	private StatLogger logger;
+	private final Project2D p;
+	private final StatLogger logger;
 	private static final int DEFAULT_W = 600, DEFAULT_H = 600;
 	private int c1, c2;
 	
@@ -129,11 +129,18 @@ public class Plotter {
 		canv.setStroke(1);
 	}
 
+	public void plotPoint(Point2D.Double p0, int ptX, int ptY) {
+		if (canv == null) {
+			initPlot();
+		}
+		canv.drawPoint(canv.getTransformedPoint(p0), PlotData.PointType.SQUARE, ptX, ptY);
+	}
+
 	public void plotOthers(PlotData pdata) {
 		if (pdata.getTitle() != null) {
 			canv.drawTitle(pdata.getTitle());
 		}
-		
+
 		for (Node node : pdata.nodes) {
             canv.drawNode(node);
         }

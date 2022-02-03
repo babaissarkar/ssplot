@@ -164,7 +164,29 @@ public class DBViewer extends JFrame implements ActionListener {
 
     /** @return the dataset */
     public PlotData getData() {
-    	PlotData pdata = new PlotData(dataset);
+    	//PlotData pdata = new PlotData(dataset); /* Needs improvement */
+    	Vector<Vector<Double>> newdataset = new Vector<Vector<Double>>();
+    	DefaultTableModel model = (DefaultTableModel) table.getModel();
+    	
+    	for (int i = 0; i < model.getRowCount(); i++) {
+    		Vector<Double> row = new Vector<Double>();
+    		for (int j = 0; j < model.getColumnCount(); j++) {
+    			Object o = model.getValueAt(i, j);
+    			if (o instanceof Double) {
+    				row.add( (Double) model.getValueAt(i, j) );
+    			} else if (o instanceof String) {
+    				row.add(Double.parseDouble((String) model.getValueAt(i, j)));
+    			} else {
+    				row.add(-1.0);
+    			}
+    			
+    			//System.out.format("%d %d\n", i, j);
+    		}
+    		//System.out.println("Row done");
+    		newdataset.add(row);
+    	}
+    	
+    	PlotData pdata = new PlotData(newdataset);
     	pdata.setDataCols(getCol1(), getCol2());
         return pdata;
     }
