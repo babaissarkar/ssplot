@@ -2,7 +2,7 @@
 A simple plotting utility for dynamical systems.
 
 # Requirements
-Any Java version >= 7.
+Any Java version >= 8.
 
 # Installation
 1. Install Java runtime (JRE).
@@ -12,16 +12,9 @@ Any Java version >= 7.
 6. Run using `./ssplot` from your terminal/command line (For linux), or go to the directory where the file `SSPlot.jar` is, open a terminal there and run `java -jar SSPlot.jar`
 7. You may need to set the `CLASSPATH` environment variable if you want to use an alternate engine for math equation parsing, as explained in a later section.
 
-# Short installation for Ubuntu
-1. Install Java `sudo apt install default-jre`.
-2. Get the zip file from the Releases section and install the deb file from it `sudo dpkg -i ssplot-1.*.deb`
-3. You can now run SSPlot from the terminal by using the command `ssplot`.
-
-# Other OSes.
-Steps are same, except that,
-
+# Important notes
 1. You may have to set the `CLASSPATH` yourself. You can search the internet for how to do that for your OS.
-2. Make sure you can access the `java` command from the JRE. You probably have to set another variable called `PATH`. The `java` command may be called something different in your OS.
+2. Make sure you can access the `java` command from the JRE on the terminal/command prompt. You probably have to set another variable called `PATH`. The `java` command may be called something different in your OS.
 
 # Documentation
 A manual is available inside the `docs/manual` directory (or its link, the `doc` directory at the root) in pdf and odt formats. You can generate the pdf from the odt using LibreOffice Writer or any other tool you prefer.
