@@ -22,10 +22,11 @@ package math.plot;
  * 
  * 
  */
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Toolkit;
+
 import java.awt.event.*;
 import java.awt.geom.Point2D;
 import java.io.File;
@@ -74,7 +75,11 @@ public class MainFrame extends JFrame implements ActionListener {
 
 
     public MainFrame() {
-        
+        //setup icon
+    	this.setIconImage(Toolkit.getDefaultToolkit().getImage(
+    			getClass().getResource("/ssplot_icon.png")));
+    	
+    	//setup logger
         this.setLogger(new StatLogger());
         this.getLogger().log("<h1>Welcome to SSPlot!</h1>");
 

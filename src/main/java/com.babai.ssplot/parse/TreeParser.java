@@ -26,6 +26,9 @@ import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+
 public class TreeParser {
 
     public TreeNode parse(String tokenWtSp) {
@@ -282,35 +285,35 @@ public class TreeParser {
         return count;
     }
     
-    /*public static void main (String[] args) {
+    private static void println(String s) {
+        System.out.println(s);
+    }
+    
+    public static void main (String[] args) {
 		TreeParser p = new TreeParser();
         try {
             BufferedReader r = new BufferedReader(new InputStreamReader(System.in));
             //TreeNode node = p.parseLine("25.201 + cos(5.0) + 4 - 6 + 2");
             //TreeNode node = p.parseLine("2.25 + 3 * 4.2 + 3 - 2"); // Can't parse 2nd level decimals. see PROB line
             //TreeNode node = p.parseLine("sin(3.14159)^3 + 2^2");
+            String s;
             while (true) {
-                TreeNode node = p.parse(r.readLine());
-                println(node.toString());
-                //println("Value (complete): " + node.getValue());
-                for (int i = 0; i < 7; i++) {
-                    double val = (double) i;
-                    println("Value at x = " + val + " : " + node.evalAt("x", val));
+                s = r.readLine();
+                if (s.startsWith("exit")) {
+                    break;
                 }
+                TreeNode node = p.parse(s);
+                println(node.toString());
+                println("=> " + node.getValue());
+//                for (int i = 0; i < 7; i++) {
+//                    double val = (double) i;
+//                    println("Value at x = " + val + " : " + node.evalAt("x", val));
+//                }
             }
             
         } catch (Exception e) {
             e.printStackTrace();
         }
-        //~ String[] list = p.bracketSplit("2+(3*5)-5+(5*6)", '+');
-        //~ //String[] list = p.bracketSplit("(2*3)/2", '*'); // Cannot split this as * is inside the brackets. This is the problem.
-        //~ for (String tok : list) {
-            //~ println(tok);
-        //~ }
-        //println(p.containsOutsideBrackets("2+(3*5)-5+(5/6)", "/")); // Doesn't work for multiple brackets.
-
-        //TreeNode tree = p.split3("(3*5)+(2+4)+(3)-(6*8)");
-        //println(tree.toString());
-	}*/
+	}
 }
 
