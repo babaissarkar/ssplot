@@ -43,6 +43,8 @@ public class PlotData {
     
     private String title;
 	private String xlabel, ylabel;
+	
+	public SystemData sysData;
 
 	public String getXLabel() {
 		return xlabel;
@@ -73,6 +75,7 @@ public class PlotData {
         fgColor = Color.RED;
         fgColor2 = Color.BLUE;
         setDataCols(1, 2);
+        title = "New Data " + System.nanoTime(); 
     }
     
     public void setTitle(String title) {

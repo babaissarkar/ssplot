@@ -13,8 +13,9 @@ public class Plotter {
 	private Canvas canv;
 	private final Project2D p;
 	private final StatLogger logger;
-	private static final int DEFAULT_W = 600, DEFAULT_H = 600;
 	private int c1, c2;
+	
+	public static final int DEFAULT_W = 500, DEFAULT_H = 500;
 	
 	public Plotter(StatLogger logger) {
 		this.logger = logger;
@@ -28,6 +29,7 @@ public class Plotter {
 	}
 	
 	public void initPlot(int W, int H) {
+		p.setView(0, 0, 0);
 		canv = new Canvas(W, H, logger);
 		canv.initPlot();
 	}
@@ -176,6 +178,10 @@ public class Plotter {
 	
 	public double getScale() {
 		return canv.getScaleFactor();
+	}
+	
+	public void setViewMoveAngle(double th) {
+		p.setMoveAngle(Math.toRadians(th));
 	}
 	
 	public void moveView(Project2D.Axis axis) {

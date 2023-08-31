@@ -5,3 +5,4 @@
 5. Function plot (DONE, 2D still needed)
 6. Fixed points and nullclines support
 7. Bad ticks when zoom is reduced below 1.0.
+

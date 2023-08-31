@@ -45,6 +45,8 @@ public class SystemData {
     TreeNode[] eqnNodes;
     boolean usingInternalParser;
     boolean isODE;
+    
+    public SystemMode curMode;
 
     public SystemData() {
     	eqns = new String[dim];
@@ -117,11 +119,17 @@ public class SystemData {
     }
     */
     
+    public String[] getEqns() {
+    	return this.eqns;
+    }
+    
     public void setEqns(String... eqns) {
     	for (int i = 0; i < 3; i++) { // Max variables : 3
     		if (eqns[i] != null) {
     			this.eqns[i] = eqns[i];
-    			this.eqnNodes[i] = parser.parse(eqns[i]);
+    			if (usingInternalParser) {
+    				this.eqnNodes[i] = parser.parse(eqns[i]);
+    			}
     		}
 		}
     }
@@ -257,6 +265,9 @@ public class SystemData {
     /******************************************************************/
     /** Solve the system of equations by RK 4th order method */
     public Vector<Vector<Double>> RK4Iterate(double x0, double y0) {
+    	// Set Mode
+    	this.curMode = SystemMode.ODE;
+    	
         Vector<Vector<Double>> soln = new Vector<Vector<Double>>();
         double x, y;
         //double h = 0.05;
@@ -288,6 +299,9 @@ public class SystemData {
     }
     
     public Vector<Vector<Double>> RK4Iterate3D(double x0, double y0, double z0) {
+    	// Set Mode
+    	this.curMode = SystemMode.ODE;
+    	
     	System.out.println("3D rk4 started.");
         Vector<Vector<Double>> soln = new Vector<Vector<Double>>();
         double x, y, z;
@@ -342,6 +356,9 @@ public class SystemData {
 
     /** Gets the data for the direction field. */
     public Vector<Vector<Double>> directionField() {
+    	// Set Mode
+    	this.curMode = SystemMode.ODE;
+    	
         Vector<Vector<Double>> data = new Vector<Vector<Double>>();
         double i, j;
         
@@ -374,6 +391,9 @@ public class SystemData {
     }
     
     public Vector<Vector<Double>> iterateMap(double x0, double y0) {
+    	//Set Mode
+    	curMode = SystemMode.DFE;
+    	
     	Vector<Vector<Double>> soln = new Vector<Vector<Double>>();
     	double x, y;
         
@@ -399,6 +419,9 @@ public class SystemData {
     }
     
     public Vector<Vector<Double>> functionData() {
+    	// Set Mode
+    	this.curMode = SystemMode.FN1;
+    	
     	Vector<Vector<Double>> soln = new Vector<Vector<Double>>();
     	double i, x;
         
@@ -415,6 +438,9 @@ public class SystemData {
     }
     
     public Vector<Vector<Double>> functionData2D() {
+    	// Set Mode
+    	this.curMode = SystemMode.FN2;
+    	
     	Vector<Vector<Double>> soln = new Vector<Vector<Double>>();
     	double i, j, z;
         
@@ -432,6 +458,9 @@ public class SystemData {
     }
     
     public Vector<Vector<Double>> cobweb(double x0) {
+    	// Set Mode
+    	curMode = SystemMode.DFE;
+    	
     	/* Works for 1D maps only */
     	Vector<Vector<Double>> soln = new Vector<Vector<Double>>();
     	double x, y;

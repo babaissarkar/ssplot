@@ -28,8 +28,9 @@ import java.awt.geom.Point2D;
 import math.prim.Matrix;
 
 public class Project2D {
-	double a, b, c;
-	private double moveAngle = Math.toRadians(10);
+	private double a, b, c;
+	private static final double defaultMoveAngle = 10.0;
+	private double moveAngle = Math.toRadians(defaultMoveAngle);
 	private StatLogger logger;
 	
 	public enum Axis {X, Y, Z, NX, NY, NZ};

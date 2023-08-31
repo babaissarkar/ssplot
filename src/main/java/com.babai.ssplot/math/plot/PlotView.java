@@ -30,6 +30,10 @@ import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.util.Arrays;
 import java.util.Vector;
 
 import javax.swing.AbstractAction;
@@ -37,7 +41,7 @@ import javax.swing.JLabel;
 import javax.swing.KeyStroke;
 import javax.swing.Timer;
 
-public class PlotView extends JLabel {
+public class PlotView extends JLabel implements MouseListener, MouseMotionListener {
 	
 	private Vector<PlotData> plots;
 	//private PlotData curPlot;
@@ -68,6 +72,8 @@ public class PlotView extends JLabel {
 	private boolean animate;
 	int i;
 	private Timer refresher;
+	private int[] mouseDragStart;
+	private boolean dragOn;
 	/**
 	 * 
 	 */
@@ -81,6 +87,9 @@ public class PlotView extends JLabel {
 		overlayMode = false;
 		animate = false;
 		i = 0;
+		mouseDragStart = new int[2];
+		Arrays.fill(mouseDragStart, 0);
+		dragOn = false;
 		
 		ActionListener trigger = new ActionListener() {
 			@Override
@@ -91,6 +100,10 @@ public class PlotView extends JLabel {
 		refresher = new Timer(1000, trigger);
 		
 		clear();
+		
+		// Mouse Listener
+		addMouseListener(this);
+		addMouseMotionListener(this);
 		
 		// Setting Keybinding for movement
 		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0, false), "left");
@@ -296,7 +309,7 @@ public class PlotView extends JLabel {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			//System.out.println("up");
-			plt.getCanvas().shift(-5, 0);
+			plt.getCanvas().shift(5, 0);
 			repaint();
 		}
 	}
@@ -306,7 +319,7 @@ public class PlotView extends JLabel {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			//System.out.println("down");
-			plt.getCanvas().shift(5, 0);
+			plt.getCanvas().shift(-5, 0);
 			repaint();
 		}
 	}
@@ -403,6 +416,81 @@ public class PlotView extends JLabel {
 			toggleOverlayMode();
 		}
 		stopAnimation();
+	}
+
+	@Override
+	public void mouseDragged(MouseEvent mout) {
+//		logger.log("Mouse Dragged to : " + mout.getX() + ", " + mout.getY());
+		dragOn = true;
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseExited(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mousePressed(MouseEvent min) {
+		this.mouseDragStart[0] = min.getX();
+		this.mouseDragStart[1] = min.getY();
+//		logger.log("Mouse Pressed : " + this.mouseDragStart[0] + ", " + this.mouseDragStart[1]);
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent mout) {
+		if (dragOn) {
+//			logger.log("Mouse Released to : " + mout.getX() + ", " + mout.getY());
+			//Rudimentary view rotation using a mouse
+			int x2 = mout.getX();
+			int y2 = mout.getY();
+			int x1 = this.mouseDragStart[0];
+			int y1 = this.mouseDragStart[1];
+			
+			int dx = x2-x1;
+			int dy = y2-y1;
+			
+			plt.setViewMoveAngle(30.0);
+			
+			if (dx > dy) {
+				if (dx > 0) {
+					plt.moveView(Project2D.Axis.Y);
+				} else {
+					plt.moveView(Project2D.Axis.NY);
+				}
+			} else {
+				if (dy > 0) {
+					plt.moveView(Project2D.Axis.X);
+				} else {
+					plt.moveView(Project2D.Axis.NX);
+				}
+			}
+			
+			plt.setViewMoveAngle(10.0);
+			
+			repaint();
+			
+		}
+		
+		dragOn = false;
 	}
 
 }

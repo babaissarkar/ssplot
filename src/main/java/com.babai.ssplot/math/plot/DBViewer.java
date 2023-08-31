@@ -23,8 +23,9 @@
 
 package math.plot;
 
-import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.FlowLayout;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.print.PrinterException;
@@ -33,21 +34,26 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Vector;
+
 import javax.swing.BorderFactory;
-import javax.swing.JFrame;
-import javax.swing.JScrollPane;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
-import javax.swing.JTable;
-import javax.swing.JPanel;
+import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 
-@SuppressWarnings("serial")
-public class DBViewer extends JFrame implements ActionListener {
+public class DBViewer extends JInternalFrame implements ActionListener {
+	private Vector<PlotData> plotlist;
+	private JComboBox<String> jcbPlotlist;
     public Vector<Vector<Double>> dataset;
     
     private int colNo = 0;
@@ -59,30 +65,98 @@ public class DBViewer extends JFrame implements ActionListener {
     private PlotView pv;
     
     private JButton btnNew, btnLoad, btnSave, btnRow, btnColumn, btnPrint;
-    private JTextField tfXData, tfYData;
+    private JButton btnEditProp;
+    private JTextField tfXData, tfYData, tfZData;
     
-    public DBViewer() {
-    	this(null);
+    private ODEInputFrame input = null;
+    
+    private static PlotData zeroData;
+    static {
+    	Vector<Double> zeros = new Vector<Double>();
+    	zeros.add(0.0);
+    	zeros.add(0.0);
+    	
+    	Vector<Vector<Double>> zeros2d = new Vector<Vector<Double>>();
+    	for (int i = 0; i < 5; i++) {
+    		zeros2d.add(zeros);
+    	}
+    	zeroData = new PlotData(zeros2d);
     }
     
-	public DBViewer(Vector<Vector<Double>> data) {
-        
+    public DBViewer() {
+    	this(zeroData);
+    }
+    
+	public DBViewer(PlotData data) {
+		plotlist = new Vector<PlotData>();
+		
         /* GUI */
 		setTitle("Dataset Viewer");
-		getContentPane().setLayout(new BorderLayout());
+//		getContentPane().setLayout(new BorderLayout());
+		JPanel mainPanel = new JPanel();
+		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 
+		JPanel pnlPlots = new JPanel();
+		pnlPlots.setLayout(new FlowLayout());
+		jcbPlotlist = new JComboBox<String>();
+		jcbPlotlist.setEditable(false);
+		jcbPlotlist.addActionListener(
+				evt -> {
+					int id = jcbPlotlist.getSelectedIndex();
+					if (id != -1) {
+						PlotData curData = plotlist.get(id);
+						setDataOnly(curData);
+						if ((input != null) && (curData.sysData != null)) {
+							input.setSystemData(curData.sysData);
+						}
+					}
+					jcbPlotlist.setSelectedIndex(id);
+				}
+			);
+		
+		JLabel lblPlots = new JLabel("Plots");
+		btnEditProp = new JButton("Edit Properties...");
+		btnEditProp.addActionListener(
+			evt -> {
+				int id = jcbPlotlist.getSelectedIndex();
+				String title = JOptionPane.showInputDialog("Title :");
+				if (id != -1) {
+					PlotData curData = plotlist.get(id);
+					curData.setTitle(title);
+					updateList();
+					setDataOnly(curData);
+				}
+				jcbPlotlist.setSelectedIndex(id);
+				applyChanges();
+			}
+		);
+		
+		pnlPlots.add(lblPlots);
+		pnlPlots.add(jcbPlotlist);
+		pnlPlots.add(btnEditProp);
+		
         JPanel pnlPrefs = new JPanel();
-        JLabel lblXData = new JLabel("X data column :");
-        JLabel lblYData = new JLabel("Y data column :");
-        tfXData = new JTextField("1", 4);
-        tfYData = new JTextField("2", 4);
+        JLabel lblXData = new JLabel("X");
+        JLabel lblYData = new JLabel("Y");
+        JLabel lblZData = new JLabel("Z");
+        tfXData = new JTextField("1", 2);
+        tfYData = new JTextField("2", 2);
+        tfZData = new JTextField("3", 2);
+        tfXData.setHorizontalAlignment(JTextField.CENTER);
+        tfYData.setHorizontalAlignment(JTextField.CENTER);
+        tfZData.setHorizontalAlignment(JTextField.CENTER);
         btnPlot = new JButton("Apply");
         btnPlot.addActionListener(this);
         pnlPrefs.add(lblXData);
         pnlPrefs.add(tfXData);
         pnlPrefs.add(lblYData);
         pnlPrefs.add(tfYData);
+        pnlPrefs.add(lblZData);
+        pnlPrefs.add(tfZData);
         pnlPrefs.add(btnPlot);
+        
+        pnlPrefs.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new Color(255, 90, 38), 3),
+				"Data Columns"));
         
         table = new JTable();
         table.setAutoCreateRowSorter(true);
@@ -106,12 +180,28 @@ public class DBViewer extends JFrame implements ActionListener {
         
         JPanel pnlEdit = new JPanel();
         
-        btnNew = new JButton("New Data");
-        btnLoad = new JButton("Load Data");
-        btnSave = new JButton("Save Data");
-        btnRow = new JButton("Add Row");
-        btnColumn = new JButton("Add Column");
-        btnPrint = new JButton("Print");
+        btnNew = new JButton();
+        btnLoad = new JButton();
+        btnSave = new JButton();
+        btnRow = new JButton();
+        btnColumn = new JButton();
+        btnPrint = new JButton();
+        
+        //TODO Add Tooltip text to the buttons
+        
+        btnNew.setIcon(new ImageIcon(Toolkit.getDefaultToolkit().getImage(
+    			getClass().getResource("/new_data.png"))));
+        btnRow.setIcon(new ImageIcon(Toolkit.getDefaultToolkit().getImage(
+    			getClass().getResource("/insert_row.png"))));
+        btnColumn.setIcon(new ImageIcon(Toolkit.getDefaultToolkit().getImage(
+    			getClass().getResource("/insert_col.png"))));
+        btnPrint.setIcon(new ImageIcon(Toolkit.getDefaultToolkit().getImage(
+    			getClass().getResource("/printer.png"))));
+        btnLoad.setIcon(new ImageIcon(Toolkit.getDefaultToolkit().getImage(
+    			getClass().getResource("/open.jpg"))));
+        btnSave.setIcon(new ImageIcon(Toolkit.getDefaultToolkit().getImage(
+    			getClass().getResource("/save.jpg"))));
+        
         
         btnNew.addActionListener(this);
         btnLoad.addActionListener(this);
@@ -127,19 +217,27 @@ public class DBViewer extends JFrame implements ActionListener {
         pnlEdit.add(btnRow);
         pnlEdit.add(btnPrint);
         
-        getContentPane().add(pnlPrefs, BorderLayout.NORTH);
-		getContentPane().add(pnlTable, BorderLayout.CENTER);
-		getContentPane().add(pnlEdit, BorderLayout.SOUTH);
+        mainPanel.add(pnlPlots);
+        mainPanel.add(pnlPrefs);
+		mainPanel.add(pnlTable);
+		mainPanel.add(pnlEdit);
 		
+		this.setContentPane(mainPanel);
 		this.pack();
 		this.setResizable(false);
 	}
 
-    public void setData(Vector<Vector<Double>> data) {
+	public void setData(PlotData pdata) {
+		plotlist.add(pdata);
+		updateList();
+		setDataOnly(pdata);
+	}
+		
+	private void setDataOnly(PlotData pdata) {
     	DefaultTableModel model;
-        dataset = data;
-        colNo = data.firstElement().size();
-        rowNo = data.size();
+        dataset = pdata.data;
+        colNo = dataset.firstElement().size();
+        rowNo = dataset.size();
 
         /* Update the table */
         Vector<String> headers = new Vector<String>();
@@ -147,7 +245,7 @@ public class DBViewer extends JFrame implements ActionListener {
             headers.add("Column " + i);
 		}
         
-        model = new DefaultTableModel(data, headers);
+        model = new DefaultTableModel(dataset, headers);
         table.setModel(model);
         
 		TableColumnModel columns = table.getColumnModel();
@@ -186,9 +284,15 @@ public class DBViewer extends JFrame implements ActionListener {
     		newdataset.add(row);
     	}
     	
-    	PlotData pdata = new PlotData(newdataset);
-    	pdata.setDataCols(getCol1(), getCol2());
-        return pdata;
+//    	PlotData pdata = new PlotData(newdataset);
+    	int id = jcbPlotlist.getSelectedIndex();
+    	PlotData curData = plotlist.get(id);
+    	curData.data = newdataset;
+    	curData.setDataCols(getCol1(), getCol2());
+    	updateList();
+    	jcbPlotlist.setSelectedIndex(id);
+    	
+        return curData;
     }
 
     /** @return the number of rows in the dataset */
@@ -229,7 +333,7 @@ public class DBViewer extends JFrame implements ActionListener {
             if (dpath != null) {
                 try {
 					Vector<Vector<Double>> data = NumParse.parse(dpath);
-					setData(data);
+					setData(new PlotData(data));
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -298,12 +402,17 @@ public class DBViewer extends JFrame implements ActionListener {
 			
 		} else if (evt.getSource() == btnColumn) {
 			
+			String colName = JOptionPane.showInputDialog("Column Name?");
 			DefaultTableModel model = (DefaultTableModel) table.getModel();
 			if (model != null) {
 				int rows = model.getRowCount();
 				String[] col = new String[rows];
 				Arrays.fill(col, "");
-				model.addColumn(col);
+				if (colName == "") {
+					model.addColumn(colName, col);
+				} else {
+					model.addColumn("Column " + (model.getColumnCount()+1), col);
+				}
 				table.setModel(model);
 			}
 			
@@ -317,10 +426,15 @@ public class DBViewer extends JFrame implements ActionListener {
 			}
 			
 		} else if (evt.getSource() == btnPlot) {
-			pv.log(String.format("Plotting col %d (y axis) vs col %d (x axis).", this.getCol2(), this.getCol1()));
-			pv.clear();
-			pv.setCurPlot(getData());
+			applyChanges();
 		}
+	}
+	
+	private void applyChanges() {
+		pv.log(String.format("Plotting col %d (y axis) vs col %d (x axis).", this.getCol2(), this.getCol1()));
+		pv.clear();
+		pv.setCurPlot(getData());
+		input.setSystemData(getData().sysData);
 	}
 
 	/**
@@ -328,5 +442,21 @@ public class DBViewer extends JFrame implements ActionListener {
 	 */
 	public void setView(PlotView pv) {
 		this.pv = pv;
+	}
+	
+	private void updateList() {
+		jcbPlotlist.removeAllItems();
+		for (PlotData pdata : plotlist) {
+			jcbPlotlist.addItem(pdata.getTitle());
+		}
+	}
+
+	public void clear() {
+		plotlist.clear();
+		updateList();
+	}
+
+	public void setODEInputFrame(ODEInputFrame odeinput) {
+		this.input = odeinput;
 	}
 }

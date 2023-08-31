@@ -3,9 +3,10 @@ package math.plot;
 import java.util.ArrayList;
 import java.util.List;
 
+/* Data Class, NO GUI */
+
 public class PlotManager {
 	private List<PlotData> plots;
-	//private PlotData curPlot;
 	
 	public PlotManager() {
 		plots = new ArrayList<PlotData>();

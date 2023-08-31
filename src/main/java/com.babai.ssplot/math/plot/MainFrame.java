@@ -26,25 +26,39 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Toolkit;
-
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.io.File;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JColorChooser;
+import javax.swing.JDesktopPane;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JInternalFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JRadioButtonMenuItem;
+import javax.swing.JSplitPane;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.plaf.FontUIResource;
 
-@SuppressWarnings("serial")
+import com.formdev.flatlaf.intellijthemes.FlatArcDarkOrangeIJTheme;
+import com.formdev.flatlaf.intellijthemes.FlatArcOrangeIJTheme;
+import com.formdev.flatlaf.util.SystemInfo;
+
+//@SuppressWarnings("serial")
 public class MainFrame extends JFrame implements ActionListener {
 
 	private final Plotter plt;
@@ -66,12 +80,13 @@ public class MainFrame extends JFrame implements ActionListener {
     private final JMenuItem jmSvData;
     private final JMenuItem jmAxes;
     private final JMenuItem jmAbout;
-    private final JMenuItem jmLogs;
+//    private final JMenuItem jmLogs;
+    private final JMenuItem jmClearLogs;
     private final JMenuItem jmTitle;
     private final JMenuItem jmLineWidth;
     private final JMenuItem jmXLabel, jmYLabel;
 
-    private static final int MENUBAR_WIDTH = 60; /* Valid only for defaul Metal look and feel. */
+    private static final int MENUBAR_WIDTH = 60; /* Valid only for default Metal look and feel. */
 
 
     public MainFrame() {
@@ -82,14 +97,60 @@ public class MainFrame extends JFrame implements ActionListener {
     	//setup logger
         this.setLogger(new StatLogger());
         this.getLogger().log("<h1>Welcome to SSPlot!</h1>");
-
+        
+        
         plt = new Plotter(logger);
         plt.initPlot();
-        SystemData odedata = new SystemData();
-		pv = new PlotView(this.getLogger(), plt);
+        
+        pv = new PlotView(this.getLogger(), plt);
+        
+//        SystemData odedata = new SystemData();
+		odeinput = new ODEInputFrame(this);
+		odeinput.setResizable(true);
+		odeinput.setClosable(true);
+		odeinput.setIconifiable(true);
+		
 		dbv = new DBViewer();
 		dbv.setView(pv);
-        odeinput = new ODEInputFrame(odedata, pv);
+		dbv.addListener(this);
+		dbv.setClosable(true);
+		dbv.setResizable(true);
+		dbv.setIconifiable(true);
+		dbv.setMaximizable(true);
+		dbv.setODEInputFrame(odeinput);
+        
+        pv.addMouseListener(
+        		new MouseAdapter() {
+        			@Override
+        			public void mousePressed(MouseEvent ev) {
+        				if (ev.getButton() == MouseEvent.BUTTON3) {
+        					/* Will be added later. */
+        					int x = ev.getX()-20;
+        					int y = ev.getY()-20;
+
+        					Point2D.Double p = plt.getCanvas().getInvTransformedPoint(new Point2D.Double(x, y));
+        					//System.out.println(p.toString());
+        					/* The plotting area starts from (20,20) in java graphics space, so we are substracting it. */
+        					String label = String.format("(%3.1f, %3.1f)", p.getX(), p.getY());
+        					showMsg("Point : " + label);
+        					//pv.addNode(new Point2D.Double(x-20, y-20), label, Color.BLUE);
+        					repaint();
+        				} else if (ev.getButton() == MouseEvent.BUTTON2) {
+        					int x = ev.getX()-20;
+        					int y = ev.getY()-20;
+
+        					Point2D.Double p = plt.getCanvas().getInvTransformedPoint(new Point2D.Double(x, y));
+        					plt.setZoomCenter(p);
+
+        					String label = String.format("(%3.1f, %3.1f)", p.getX(), p.getY());
+        					showMsg("Zoom Center set at " + label);
+
+        					repaint();
+        				}
+        			}
+
+        		}
+        		);
 
         
 //        pv.addMouseWheelListener(
@@ -110,19 +171,23 @@ public class MainFrame extends JFrame implements ActionListener {
 //        );
 
         /* Creating GUI */
-		setTitle("SSPlotter");
-		setBounds(40, 40, 640, 640 + MainFrame.MENUBAR_WIDTH);
+		setTitle("SSPlot");
+		setBounds(100, 20, 1300, 700 + MainFrame.MENUBAR_WIDTH);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		JInternalFrame ifrmPlot = new JInternalFrame("Plot", true, false, true, true);
+		JInternalFrame ifrmLogs = new JInternalFrame("Logs", true, true, true, true);
 
-		jmOpen = new JMenuItem("Open Datafile");
+		/* Menu */
+		jmOpen = new JMenuItem("From File...");
+		jmPhase = new JMenuItem("From Equation...");
+		
 		jmSvData = new JMenuItem("Save current data");
 		jmSave = new JMenuItem("Save Image");
 		jmShowData = new JMenuItem("View/Edit Plot Data");
 		jmPaint = new JMenuItem("Refresh");
 		jmHelp = new JMenuItem("Keymaps Help");
         jmQuit = new JMenuItem("Quit");
-
-        jmPhase = new JMenuItem("Setup System...");
 
         JRadioButtonMenuItem jcmNormal = new JRadioButtonMenuItem("Normal mode");
         jcmNormal.addActionListener(
@@ -154,18 +219,18 @@ public class MainFrame extends JFrame implements ActionListener {
         bg.add(jcmNormal);
         bg.add(jcmAnimate);
         bg.add(jcmOverlay);
-
-        jmTitle = new JMenuItem("Add title to plot");
+        
+		jmClearLogs = new JMenuItem("Clear Logs");
+        jmTitle = new JMenuItem("Add title");
         jmXLabel = new JMenuItem("Add X axis label");
         jmYLabel = new JMenuItem("Add Y axis label");
         jmAxes = new JMenuItem("Show/hide axes");
-        jmLineWidth = new JMenuItem("Set line width");
+        jmLineWidth = new JMenuItem("Set Line Width");
         jmCol = new JMenuItem("Set Plot Color");
         jmPlotType = new JMenuItem("Set Plot Type");
         jmClear = new JMenuItem("Clear plot");
         
         jmAbout = new JMenuItem("About");
-        jmLogs = new JMenuItem("Logs");
         
         jmOpen.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O,
                 ActionEvent.CTRL_MASK));
@@ -191,7 +256,7 @@ public class MainFrame extends JFrame implements ActionListener {
 		jmShowData.addActionListener(this);
         jmQuit.addActionListener(this);
         jmClear.addActionListener(this);
-        jmLogs.addActionListener(this);
+        jmClearLogs.addActionListener(this);
         jmAbout.addActionListener(this);
 
         jmTitle.addActionListener(this);
@@ -204,13 +269,15 @@ public class MainFrame extends JFrame implements ActionListener {
         jmPlotType.addActionListener(this);
 
         JMenu mnuFile = new JMenu("File");
-		mnuFile.add(jmOpen);
+        JMenu sbmnNew = new JMenu("New Plot...");
+        sbmnNew.add(jmOpen);
+        sbmnNew.add(jmPhase);
+        
+		mnuFile.add(sbmnNew);
 		mnuFile.add(jmSave);
 		mnuFile.add(jmSvData);
         mnuFile.addSeparator();
-        mnuFile.add(jmPhase);
-        mnuFile.addSeparator();
-        mnuFile.add(jmLogs);
+        mnuFile.add(jmClearLogs);
 		mnuFile.add(jmHelp);
 		mnuFile.add(jmAbout);
         mnuFile.add(jmQuit);
@@ -221,10 +288,10 @@ public class MainFrame extends JFrame implements ActionListener {
         mnuPlot.add(jcmNormal);
         mnuPlot.add(jcmOverlay);
         mnuPlot.add(jcmAnimate);
+//        mnuPlot.addSeparator();
+//        mnuPlot.add(jmShowData);
         mnuPlot.addSeparator();
-        mnuPlot.add(jmShowData);
-        mnuPlot.addSeparator();
-        mnuPlot.add(jmTitle);
+//        mnuPlot.add(jmTitle);
         mnuPlot.add(jmXLabel);
         mnuPlot.add(jmYLabel);
         mnuPlot.addSeparator();
@@ -232,52 +299,98 @@ public class MainFrame extends JFrame implements ActionListener {
         mnuPlot.add(jmPlotType);
         mnuPlot.add(jmLineWidth);
         mnuPlot.add(jmCol);
+        
+        JMenu mnuWindow = new JMenu("Window");
+        JMenuItem jmiShowLogs = new JMenuItem("Logs...");
+        JMenuItem jmiShowDBV = new JMenuItem("Data Editor...");
+        JMenuItem jmiShowEqn = new JMenuItem("Equation Editor...");
+        
+        mnuWindow.add(jmiShowDBV);
+        mnuWindow.add(jmiShowEqn);
+        mnuWindow.add(jmiShowLogs);
 		
+		JSplitPane mainPane2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+//		mainPane.setLeftComponent(pv);
+//		mainPane.setRightComponent(this.getLogger().getComponent());
+		mainPane2.setDividerLocation(600);
+		
+		JDesktopPane mainPane = new JDesktopPane();
+		mainPane.setDragMode(JDesktopPane.OUTLINE_DRAG_MODE);
+		
+		ifrmPlot.setSize(Plotter.DEFAULT_W+50, Plotter.DEFAULT_H + 80);
+		
+		ifrmLogs.setSize(560, 150);
+		ifrmLogs.setLocation(Plotter.DEFAULT_W + 100, 10);
+		ifrmLogs.setDefaultCloseOperation(JInternalFrame.HIDE_ON_CLOSE);
+		
+		dbv.setSize(500, 500);
+		dbv.setLocation(Plotter.DEFAULT_W + 100, 180);
+		dbv.setDefaultCloseOperation(JInternalFrame.HIDE_ON_CLOSE);
+		
+		odeinput.setSize(600, Plotter.DEFAULT_H + 80);
+		odeinput.setLocation(Plotter.DEFAULT_W + 100, 10);
+		
+		//put PV inside a panel
+//		JPanel pnlPV = new JPanel();
+//		pnlPV.add(pv);
+//		JScrollPane sp2 = new JScrollPane(pnlPV, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		ifrmPlot.add(pv);
+		ifrmLogs.add(this.getLogger().getComponent());
+		
+		mainPane.add(ifrmPlot);
+//		mainPane.add(ifrmLogs);
+		mainPane.add(odeinput);
+		mainPane.add(dbv);
+		
+		jmiShowLogs.addActionListener(
+			evt -> {
+				if (!ifrmLogs.isVisible()) {
+					ifrmLogs.setVisible(true);
+				}
+			}
+		);
+		
+		jmiShowDBV.addActionListener(
+			evt -> {
+				if (!dbv.isVisible()) {
+					dbv.setVisible(true);
+				}
+			}
+		);
+		
+		jmiShowEqn.addActionListener(
+				evt -> {
+					if (!odeinput.isVisible()) {
+						odeinput.setVisible(true);
+					}
+				}
+			);
+		
+
 		JMenuBar jmb = new JMenuBar();
 		jmb.add(mnuFile);
         jmb.add(mnuPlot);
+        jmb.add(mnuWindow);
+        
+        odeinput.pack();
+        
+		ifrmPlot.setVisible(true);
+//		dbv.setVisible(true);
+//		ifrmLogs.setVisible(true);
+		odeinput.setVisible(true);
+		
+		mainPane2.setTopComponent(mainPane);
+		mainPane2.setBottomComponent(ifrmLogs.getContentPane());
+		
 		this.setJMenuBar(jmb);
-
-        this.getContentPane().setLayout(new BorderLayout());
-		this.getContentPane().add(pv, BorderLayout.CENTER);
-		//this.pack();
-		this.setResizable(false);
-
-        pv.addMouseListener(
-            new MouseAdapter() {
-                @Override
-                public void mousePressed(MouseEvent ev) {
-                    if (ev.getButton() == MouseEvent.BUTTON3) {
-                        /* Will be added later. */
-                        int x = ev.getX()-20;
-                        int y = ev.getY()-20;
-                        
-                        Point2D.Double p = plt.getCanvas().getInvTransformedPoint(new Point2D.Double(x, y));
-                        //System.out.println(p.toString());
-                        /* The plotting area starts from (20,20) in java graphics space, so we are substracting it. */
-                        String label = String.format("(%3.1f, %3.1f)", p.getX(), p.getY());
-                        showMsg("Point : " + label);
-                        //pv.addNode(new Point2D.Double(x-20, y-20), label, Color.BLUE);
-                        repaint();
-                    } else if (ev.getButton() == MouseEvent.BUTTON2) {
-                    	int x = ev.getX()-20;
-                        int y = ev.getY()-20;
-                        
-                        Point2D.Double p = plt.getCanvas().getInvTransformedPoint(new Point2D.Double(x, y));
-                        plt.setZoomCenter(p);
-                        
-                        String label = String.format("(%3.1f, %3.1f)", p.getX(), p.getY());
-                        showMsg("Zoom Center set at " + label);
-                        
-                        repaint();
-                    }
-                }
-                
-            }
-        );
+        this.getContentPane().setLayout(new BorderLayout());        
+		this.getContentPane().add(mainPane2, BorderLayout.CENTER);
+		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
 	}
 
     public void startApp() {
+//    	setNimbusLF();
+    	
         if (!this.isVisible()) {
             this.setVisible(true);
         }
@@ -305,7 +418,7 @@ public class MainFrame extends JFrame implements ActionListener {
 	public void openFile() {
 		dbv.openFile();
 		pv.setCurPlot(dbv.getData());
-		pv.repaint();
+//		pv.repaint();
 	}
 	
 	public void saveData() {
@@ -313,10 +426,10 @@ public class MainFrame extends JFrame implements ActionListener {
 	}
 	
 	public void showData() {
-		if (pv.getCurPlot() != null) {
-			dbv.setData(pv.getCurPlot().data);
-		}
-        dbv.addListener(this);
+//		if (pv.getCurPlot() != null) {
+//			dbv.setData(pv.getCurPlot());
+//		}
+//        dbv.addListener(this);
         dbv.setVisible(true);
 	}
 	
@@ -391,18 +504,20 @@ public class MainFrame extends JFrame implements ActionListener {
 		} else if (ae.getSource() == jmHelp) {
 			showHelp();
 		} else if (ae.getSource() == jmAbout) {
-			String str =  "<h1>SSPlot</h1>"
-			 		 +    "Created by : Subhraman Sarkar, 2021<br>"
-					 +    "Available under the LGPL 2.1 license or, (at your choice)"
-					 +    " any later version.<br>"
-					 +    "Homepage : <a href='https://github.com/babaissarkar/ssplot'>"
-					 +    "https://github.com/babaissarkar/ssplot</a>";
+			String str ="""
+					 <h1>SSPlot</h1>
+					 Created by : Subhraman Sarkar, 2021<br>
+					 Available under the LGPL 2.1 license or, (at your choice)
+					 any later version.<br>
+					 Homepage : <a href='https://github.com/babaissarkar/ssplot'>
+					 https://github.com/babaissarkar/ssplot</a>
+					""";
             logger.log(str);
         } else if (ae.getSource() == jmQuit) {
             System.exit(0);
-        } else if (ae.getSource() == jmTitle) {
-        	pv.getCurPlot().setTitle(JOptionPane.showInputDialog("Title :"));
-        	pv.repaint();
+//        } else if (ae.getSource() == jmTitle) {
+//        	pv.getCurPlot().setTitle(JOptionPane.showInputDialog("Title :"));
+//        	pv.repaint();
         } else if (ae.getSource() == jmXLabel) {
             plt.getCanvas().setXLabel(JOptionPane.showInputDialog("X Label :"));
             pv.repaint();
@@ -411,8 +526,9 @@ public class MainFrame extends JFrame implements ActionListener {
             pv.repaint();
         } else if (ae.getSource() == jmClear) {
             pv.clear();
+            dbv.clear();
         } else if (ae.getSource() == jmPhase) {
-            odeinput.show();
+            odeinput.setVisible(true);
         } else if (ae.getSource() == jmPlotType) {
             changePlotType();
         } else if (ae.getSource() == jmCol) {
@@ -434,34 +550,80 @@ public class MainFrame extends JFrame implements ActionListener {
         		}
         		pv.repaint();
         	}
-        } else if (ae.getSource() == jmLogs) {
-        	logger.showLogs();
+        } else if (ae.getSource() == jmClearLogs) {
+        	logger.clear();
         }
-//        } else if (ae.getSource() == dbv.btnPlot) {
-//            pv.repaint();
-//        }
+	}
+	
+	public void setPlotData(PlotData pdata) {
+		pv.setCurPlot(pdata);
+		dbv.setData(pdata);
+	}
+	
+	public void setNimbusLF() {
+		for (LookAndFeelInfo lafinf : UIManager.getInstalledLookAndFeels()) {
+			if ("Nimbus".equals(lafinf.getName())) {
+				try {
+					UIManager.setLookAndFeel(lafinf.getClassName());
+				} catch (ClassNotFoundException | InstantiationException
+						| IllegalAccessException
+						| UnsupportedLookAndFeelException e) {
+					e.printStackTrace();
+					setMetalLF();
+				}
+				SwingUtilities.updateComponentTreeUI(this);
+			}
+		}
+	}
+	
+	public void setMetalLF() {
+		try {
+			UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+//			UIManager.setLookAndFeel("com.sun.java.swing.plaf.motif.MotifLookAndFeel");
+		} catch (ClassNotFoundException | InstantiationException
+				| IllegalAccessException | UnsupportedLookAndFeelException e) {
+			e.printStackTrace();
+		}
+		SwingUtilities.updateComponentTreeUI(this);
 	}
 	
 	public static void main(String[] args) {
         /* Global UI Configuration */
         UIManager.put("Label.font", new FontUIResource("Cantarell", Font.PLAIN, 15));
-		UIManager.put("RadioButton.font", new FontUIResource("Cantarell", Font.PLAIN, 16));
-		
-		UIManager.put("RadioButton.foreground", new Color(80,28,0));
-		
+//		UIManager.put("RadioButton.font", new FontUIResource("Cantarell", Font.PLAIN, 16));
+//		
+//		UIManager.put("RadioButton.foreground", new Color(80,28,0));
+//		
 		UIManager.put("Menu.selectionBackground", new Color(255,247,132));
+		UIManager.put("Menu.selectionForeground", new Color(0,0,0));
 		UIManager.put("MenuItem.selectionBackground", new Color(255,247,132));
-		UIManager.put("MenuItem.acceleratorForeground", new Color(5,132,37));
-		UIManager.put("MenuItem.foreground", new Color(4,88,25));
-		UIManager.put("MenuItem.background", Color.WHITE);
-
-        //StatLogger logger = new StatLogger();
+		UIManager.put("MenuItem.selectionForeground", new Color(0,0,0));
+//		UIManager.put("MenuItem.acceleratorForeground", new Color(5,132,37));
+//		UIManager.put("MenuItem.foreground", new Color(4,88,25));
+//		UIManager.put("MenuItem.background", Color.WHITE);
+		
+		if ((args.length > 0) && (args[0].equalsIgnoreCase("-dark"))) {
+			FlatArcDarkOrangeIJTheme.setup();
+		} else if ((args.length > 0) && (args[0].equalsIgnoreCase("-metal"))) {
+			// do nothing
+		} else {
+			FlatArcOrangeIJTheme.setup();
+		}
+		
+		if (SystemInfo.isLinux) {
+			JFrame.setDefaultLookAndFeelDecorated(true);
+			JDialog.setDefaultLookAndFeelDecorated(true);
+		}
         
+		UIManager.put("Button.arc", 20);
+		UIManager.put("TextComponent.arc", 50);
+		
 		MainFrame pframe = new MainFrame();
+		if ((args.length > 0) && (args[0].equalsIgnoreCase("-nimbus"))) {
+			pframe.setNimbusLF();
+			pframe.pack();
+		} 
         pframe.startApp();
-
-        //pframe.show();
-        //new PlotterFrame();
 	}
 
 }
