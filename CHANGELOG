@@ -1,0 +1,6 @@
+Version 2.0 (31.08.2023)
+    1. Using FlatLAF ArcOrangeTheme (light & dark variants) for look and feel.
+    2. Icons
+    3. UI improvements
+    4. Can change plot names from DataViewer
+    5. Menu reorganization
