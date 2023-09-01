@@ -30,4 +30,4 @@
 #echo "CLASSPATH=${CLASSPATH}."
 #java math.plot.PlotterFrame
 
-java -jar jar/SSPlot.jar
+java -jar jar/SSPlot.jar $@

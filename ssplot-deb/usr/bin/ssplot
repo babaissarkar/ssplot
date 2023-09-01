@@ -26,4 +26,4 @@
 #export SSPLOT_ENGINE="python"
 export LIB="/usr/share/java"
 export CLASSPATH="${LIB}/SSPlot.jar:${CLASSPATH}"
-java math.plot.MainFrame
+java math.plot.MainFrame $@

@@ -6,11 +6,22 @@ Any Java version >= 8.
 
 # Installation
 1. Install Java runtime (JRE).
-3. Download the latest release of SSPlot from the releases section. (You can also clone this repository, either using `git clone` or using the Code menu in this page (Code -> Dropdown -> Download ZIP))
-4. Extract the ZIP.
-5. Enter the folder inside the ZIP (or the cloned folder) and open a terminal there.
-6. Run using `./ssplot` from your terminal/command line (For linux), or go to the directory where the file `SSPlot.jar` is, open a terminal there and run `java -jar SSPlot.jar`
+2. Download the latest release of SSPlot from the releases section. (You can also clone this repository, either using `git clone` or using the Code menu in this page (Code -> Dropdown -> Download ZIP))
+3. Extract the ZIP.
+4. Enter the folder inside the ZIP (or the cloned folder) and open a terminal there.
+5. Run using `./ssplot` from your terminal/command line (For linux), or go to the directory where the file `SSPlot.jar` is, open a terminal there and run `java -jar SSPlot.jar`
 7. You may need to set the `CLASSPATH` environment variable if you want to use an alternate engine for math equation parsing, as explained in a later section.
+
+A `DEB` package is available.
+
+# Themes
+Four themes are available, current accessible only through command line options.
+1. *Light Theme* -- The default (FlatLAF Arc Orange). No options needed.
+2. *Dark Theme* -- Use `-dark` option (FlatLAF Arc Orange Dark)
+3. *Nimbus Theme* -- Use `-nimbus`. Java's inbuilt Nimbus theme.
+4. *Metal Theme* -- Use `-metal`. Java's inbuilt Metal theme.
+
+Options only available when you run using the command line (i.e. `ssplot -dark` or `java -jar SSPlot.jar -dark`).
 
 # Important notes
 1. You may have to set the `CLASSPATH` yourself. You can search the internet for how to do that for your OS.
