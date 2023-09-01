@@ -19,6 +19,11 @@ Any Java version >= 8.
 # Documentation
 A manual is available inside the `docs/manual` directory (or its link, the `doc` directory at the root) in pdf and odt formats. You can generate the pdf from the odt using LibreOffice Writer or any other tool you prefer.
 
+# Dependency libraries
+    1. FlatLAF
+    2. FlatLAF Intellij Themes
+    3. JLatexMath
+
 # Compilation
 You will require Java JDK and Apache Maven. You will also require Markdown if you want to generate a html version of this Readme.
 
@@ -36,13 +41,19 @@ A list of all available JSR-223 script engines can be found [here](https://web.a
 
 Some of the scripting engines can be downloaded from [here](https://mvnrepository.com/) by searching with the names from the previous page.
 
+## Jython
 How to install the Jython script engine :
 [1](https://wiki.python.org/jython/UserGuide#using-jsr-223) Newer one.
 [2](https://jython.readthedocs.io/en/latest/JythonAndJavaIntegration/) Contains some useful information.
 
 _Jython 2.7 from the first link is recommended, as it does not require a separate script engine. For Ubuntu users, don't use jython from the repositories. It somehow is not working for me._
 
+## Rhino
+This also works.
+[Mozilla Rhino JavaScript Library](https://github.com/mozilla/rhino)
+
 Once you have installed a JSR-223 compatible script engine, you just have to set the environment variable `SSPLOT_ENGINE` with the name of the engine as the value, (run `export SSPLOT_ENGINE="engine-name"` in Linux) before you launch the program, and SSPlot will try to use that engine. Whether loading the engine is sucessful or not can be seen in the command line message by the program.
 
 # License
 This software is available under the LGPL 2.1 license. Please see the `COPYING` and `COPYING.LESSER` files.
+
