@@ -4,7 +4,7 @@
 
 <h1>Requirements</h1>
 
-<p>Any Java version >= 7.</p>
+<p>Any Java version >= 8.</p>
 
 <h1>Installation</h1>
 
@@ -17,26 +17,23 @@
 <li>You may need to set the <code>CLASSPATH</code> environment variable if you want to use an alternate engine for math equation parsing, as explained in a later section.</li>
 </ol>
 
-<h1>Short installation for Ubuntu</h1>
-
-<ol>
-<li>Install Java <code>sudo apt install default-jre</code>.</li>
-<li>Get the zip file from the Releases section and install the deb file from it <code>sudo dpkg -i ssplot-1.*.deb</code></li>
-<li>You can now run SSPlot from the terminal by using the command <code>ssplot</code>.</li>
-</ol>
-
-<h1>Other OSes.</h1>
-
-<p>Steps are same, except that,</p>
+<h1>Important notes</h1>
 
 <ol>
 <li>You may have to set the <code>CLASSPATH</code> yourself. You can search the internet for how to do that for your OS.</li>
-<li>Make sure you can access the <code>java</code> command from the JRE. You probably have to set another variable called <code>PATH</code>. The <code>java</code> command may be called something different in your OS.</li>
+<li>Make sure you can access the <code>java</code> command from the JRE on the terminal/command prompt. You probably have to set another variable called <code>PATH</code>. The <code>java</code> command may be called something different in your OS.</li>
 </ol>
 
 <h1>Documentation</h1>
 
 <p>A manual is available inside the <code>docs/manual</code> directory (or its link, the <code>doc</code> directory at the root) in pdf and odt formats. You can generate the pdf from the odt using LibreOffice Writer or any other tool you prefer.</p>
+
+<h1>Dependency libraries</h1>
+
+<pre><code>1. FlatLAF
+2. FlatLAF Intellij Themes
+3. JLatexMath
+</code></pre>
 
 <h1>Compilation</h1>
 
@@ -58,11 +55,18 @@
 
 <p>Some of the scripting engines can be downloaded from <a href="https://mvnrepository.com/">here</a> by searching with the names from the previous page.</p>
 
+<h2>Jython</h2>
+
 <p>How to install the Jython script engine :
 <a href="https://wiki.python.org/jython/UserGuide#using-jsr-223">1</a> Newer one.
 <a href="https://jython.readthedocs.io/en/latest/JythonAndJavaIntegration/">2</a> Contains some useful information.</p>
 
 <p><em>Jython 2.7 from the first link is recommended, as it does not require a separate script engine. For Ubuntu users, don't use jython from the repositories. It somehow is not working for me.</em></p>
+
+<h2>Rhino</h2>
+
+<p>This also works.
+<a href="https://github.com/mozilla/rhino">Mozilla Rhino JavaScript Library</a></p>
 
 <p>Once you have installed a JSR-223 compatible script engine, you just have to set the environment variable <code>SSPLOT_ENGINE</code> with the name of the engine as the value, (run <code>export SSPLOT_ENGINE="engine-name"</code> in Linux) before you launch the program, and SSPlot will try to use that engine. Whether loading the engine is sucessful or not can be seen in the command line message by the program.</p>
 
