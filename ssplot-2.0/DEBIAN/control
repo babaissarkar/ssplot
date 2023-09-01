@@ -1,0 +1,15 @@
+Package: ssplot
+Version: 2.0
+Architecture: all
+Section: universe/mathematics
+Priority: optional
+Maintainer: Subhraman Sarkar <suvrax@gmail.com>
+Depends: default-jre|openjdk-16-jre
+Description: A simple plotting utility and numerical simulator.
+ A simple plotting utility and numerical simulator.
+ It can :
+ 1. Plot datafiles (2D and 3D).
+ 2. Can change appearance of plot.
+ 3. Has an integrated ODE and Difference Equation solver.
+ 4. Can plot functions of one and two variables.
+ 5. Comes with its own simple math expression parser.

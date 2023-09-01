@@ -1,0 +1,11 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=SSPlot
+Comment=Perform calculations
+Exec=ssplot
+Icon=ssplot
+Terminal=false
+Type=Application
+StartupNotify=true
+Categories=Science
+Name[en_IN]=SSPlot
