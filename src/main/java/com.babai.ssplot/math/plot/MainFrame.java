@@ -47,6 +47,8 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -110,14 +112,14 @@ public class MainFrame extends JFrame implements ActionListener {
 		odeinput.setClosable(true);
 		odeinput.setIconifiable(true);
 		
-		dbv = new DBViewer();
-		dbv.setView(pv);
+		dbv = new DBViewer(odeinput, pv);
+//		dbv.setView(pv);
 		dbv.addListener(this);
 		dbv.setClosable(true);
 		dbv.setResizable(true);
 		dbv.setIconifiable(true);
 		dbv.setMaximizable(true);
-		dbv.setODEInputFrame(odeinput);
+//		dbv.setODEInputFrame(odeinput);
         
         pv.addMouseListener(
         		new MouseAdapter() {
@@ -307,33 +309,24 @@ public class MainFrame extends JFrame implements ActionListener {
         
         mnuWindow.add(jmiShowDBV);
         mnuWindow.add(jmiShowEqn);
-        mnuWindow.add(jmiShowLogs);
-		
-		JSplitPane mainPane2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-//		mainPane.setLeftComponent(pv);
-//		mainPane.setRightComponent(this.getLogger().getComponent());
-		mainPane2.setDividerLocation(600);
+//        mnuWindow.add(jmiShowLogs);
 		
 		JDesktopPane mainPane = new JDesktopPane();
 		mainPane.setDragMode(JDesktopPane.OUTLINE_DRAG_MODE);
 		
 		ifrmPlot.setSize(Plotter.DEFAULT_W+50, Plotter.DEFAULT_H + 80);
 		
-		ifrmLogs.setSize(560, 150);
-		ifrmLogs.setLocation(Plotter.DEFAULT_W + 100, 10);
-		ifrmLogs.setDefaultCloseOperation(JInternalFrame.HIDE_ON_CLOSE);
+//		ifrmLogs.setSize(560, 150);
+//		ifrmLogs.setLocation(Plotter.DEFAULT_W + 100, 10);
+//		ifrmLogs.setDefaultCloseOperation(JInternalFrame.HIDE_ON_CLOSE);
 		
 		dbv.setSize(500, 500);
 		dbv.setLocation(Plotter.DEFAULT_W + 100, 180);
 		dbv.setDefaultCloseOperation(JInternalFrame.HIDE_ON_CLOSE);
 		
 		odeinput.setSize(600, Plotter.DEFAULT_H + 80);
-		odeinput.setLocation(Plotter.DEFAULT_W + 100, 10);
+		odeinput.setLocation(Plotter.DEFAULT_W + 100, 0);
 		
-		//put PV inside a panel
-//		JPanel pnlPV = new JPanel();
-//		pnlPV.add(pv);
-//		JScrollPane sp2 = new JScrollPane(pnlPV, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		ifrmPlot.add(pv);
 		ifrmLogs.add(this.getLogger().getComponent());
 		
@@ -375,12 +368,18 @@ public class MainFrame extends JFrame implements ActionListener {
         odeinput.pack();
         
 		ifrmPlot.setVisible(true);
-//		dbv.setVisible(true);
-//		ifrmLogs.setVisible(true);
 		odeinput.setVisible(true);
 		
+		JTabbedPane statusPane = new JTabbedPane();
+		statusPane.addTab("Logs", ifrmLogs.getContentPane());
+		JTextArea txtNotes = new JTextArea();
+		txtNotes.setText("You can write anything here.");
+		statusPane.addTab("Notes", txtNotes);
+		
+		JSplitPane mainPane2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+		mainPane2.setDividerLocation(550);
 		mainPane2.setTopComponent(mainPane);
-		mainPane2.setBottomComponent(ifrmLogs.getContentPane());
+		mainPane2.setBottomComponent(statusPane);
 		
 		this.setJMenuBar(jmb);
         this.getContentPane().setLayout(new BorderLayout());        
@@ -506,13 +505,15 @@ public class MainFrame extends JFrame implements ActionListener {
 		} else if (ae.getSource() == jmAbout) {
 			String str ="""
 					 <h1>SSPlot</h1>
-					 Created by : Subhraman Sarkar, 2021<br>
+					 Version : 2.1.0<br>
+					 Created by : Subhraman Sarkar, 2021-2023<br>
 					 Available under the LGPL 2.1 license or, (at your choice)
 					 any later version.<br>
 					 Homepage : <a href='https://github.com/babaissarkar/ssplot'>
 					 https://github.com/babaissarkar/ssplot</a>
 					""";
             logger.log(str);
+			JOptionPane.showMessageDialog(this, "See Logs.");
         } else if (ae.getSource() == jmQuit) {
             System.exit(0);
 //        } else if (ae.getSource() == jmTitle) {
@@ -557,6 +558,7 @@ public class MainFrame extends JFrame implements ActionListener {
 	
 	public void setPlotData(PlotData pdata) {
 		pv.setCurPlot(pdata);
+		pv.setCurPlotType(pdata.getPltype());
 		dbv.setData(pdata);
 	}
 	

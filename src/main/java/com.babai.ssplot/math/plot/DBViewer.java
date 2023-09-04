@@ -71,23 +71,27 @@ public class DBViewer extends JInternalFrame implements ActionListener {
     private ODEInputFrame input = null;
     
     private static PlotData zeroData;
-    static {
-    	Vector<Double> zeros = new Vector<Double>();
-    	zeros.add(0.0);
-    	zeros.add(0.0);
-    	
-    	Vector<Vector<Double>> zeros2d = new Vector<Vector<Double>>();
-    	for (int i = 0; i < 5; i++) {
-    		zeros2d.add(zeros);
-    	}
-    	zeroData = new PlotData(zeros2d);
+//    static {
+//    	Vector<Double> zeros = new Vector<Double>();
+//    	zeros.add(0.0);
+//    	zeros.add(0.0);
+//    	
+//    	Vector<Vector<Double>> zeros2d = new Vector<Vector<Double>>();
+//    	for (int i = 0; i < 5; i++) {
+//    		zeros2d.add(zeros);
+//    	}
+//    	zeroData = new PlotData(zeros2d);
+//    }
+    
+    public DBViewer(ODEInputFrame input, PlotView pv) {
+//    	this(zeroData, input, pv);
+    	this(null, input, pv);
     }
     
-    public DBViewer() {
-    	this(zeroData);
-    }
-    
-	public DBViewer(PlotData data) {
+	public DBViewer(PlotData data, ODEInputFrame input, PlotView pv) {
+		setODEInputFrame(input);
+		setView(pv);
+		
 		plotlist = new Vector<PlotData>();
 		
         /* GUI */
@@ -106,9 +110,9 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 					if (id != -1) {
 						PlotData curData = plotlist.get(id);
 						setDataOnly(curData);
-						if ((input != null) && (curData.sysData != null)) {
-							input.setSystemData(curData.sysData);
-						}
+//						if ((input != null) && (curData.sysData != null)) {
+//							input.setSystemData(curData.sysData);
+//						}
 					}
 					jcbPlotlist.setSelectedIndex(id);
 				}
@@ -164,7 +168,7 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 		if (data != null) {
 			setData(data);
 		} else {
-			setBounds(500, 100, 700, 600);
+			setBounds(500, 100, 600, 600);
 		}
         
 		JScrollPane scroll = new JScrollPane(table,
@@ -253,12 +257,14 @@ public class DBViewer extends JInternalFrame implements ActionListener {
             columns.getColumn(i).setPreferredWidth(20);
 		}
 		
+		// I should remove this part
 		if (80*colNo > 500) {
-            setBounds(500, 100, 80*colNo+200, 600);
+            setBounds(500, 100, 50*colNo+200, 600);
         } else {
         	setBounds(500, 100, 500+200, 600);
         }
-    }
+		
+	}
 
     /** @return the dataset */
     public PlotData getData() {
@@ -286,13 +292,17 @@ public class DBViewer extends JInternalFrame implements ActionListener {
     	
 //    	PlotData pdata = new PlotData(newdataset);
     	int id = jcbPlotlist.getSelectedIndex();
-    	PlotData curData = plotlist.get(id);
-    	curData.data = newdataset;
-    	curData.setDataCols(getCol1(), getCol2());
-    	updateList();
-    	jcbPlotlist.setSelectedIndex(id);
-    	
-        return curData;
+    	if (id != -1) {
+    		PlotData curData = plotlist.get(id);
+    		curData.data = newdataset;
+    		curData.setDataCols(getCol1(), getCol2());
+    		updateList();
+    		jcbPlotlist.setSelectedIndex(id);
+    		return curData;
+    	} else {
+    		System.err.println("No data found!");
+    		return zeroData;
+    	}
     }
 
     /** @return the number of rows in the dataset */
@@ -449,11 +459,13 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 		for (PlotData pdata : plotlist) {
 			jcbPlotlist.addItem(pdata.getTitle());
 		}
+		jcbPlotlist.setSelectedIndex(jcbPlotlist.getItemCount()-1);
 	}
 
 	public void clear() {
 		plotlist.clear();
-		updateList();
+//		updateList();
+		this.setData(zeroData);
 	}
 
 	public void setODEInputFrame(ODEInputFrame odeinput) {

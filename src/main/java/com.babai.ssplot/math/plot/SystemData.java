@@ -63,6 +63,10 @@ public class SystemData {
         /* Initialize script engine */
         ScriptEngineManager m = new ScriptEngineManager();
         engineName = System.getenv("SSPLOT_ENGINE");
+        
+        //Fallback to Rhino for now, until the internal parser is done.
+        engineName = "rhino";
+        
         if (engineName == null) {
         	//engine = m.getEngineByName("nashorn");
         	usingInternalParser = true;

@@ -68,6 +68,7 @@ public class PlotData {
 
     public PlotData(Vector<Vector<Double>> extData) {
     	nodes = new Vector<Node>();
+    	sysData = new SystemData();
         data = extData;
         pltype = PlotType.LINES;
         pttype = PointType.SQUARE;

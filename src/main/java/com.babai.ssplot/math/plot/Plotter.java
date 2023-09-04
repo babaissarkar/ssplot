@@ -15,7 +15,7 @@ public class Plotter {
 	private final StatLogger logger;
 	private int c1, c2;
 	
-	public static final int DEFAULT_W = 500, DEFAULT_H = 500;
+	public static final int DEFAULT_W = 450, DEFAULT_H = 450;
 	
 	public Plotter(StatLogger logger) {
 		this.logger = logger;
