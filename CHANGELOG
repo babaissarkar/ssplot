@@ -6,4 +6,6 @@ Version 2.0 (31.08.2023)
     5. Menu reorganization
 Version 2.1 (04.09.2023)
     1. Switched Default Parsing Engine to Mozilla Rhino
-    2. Added scribble pad/notes area to the logs pane
+    2. Added scribble pad/notes area to the bottom pane
+Version 2.1.1 (05.09.2023)
+    1. A simple JS Console added to bottom pane (beta)

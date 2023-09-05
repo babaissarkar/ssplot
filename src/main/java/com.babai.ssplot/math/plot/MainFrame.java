@@ -372,6 +372,8 @@ public class MainFrame extends JFrame implements ActionListener {
 		
 		JTabbedPane statusPane = new JTabbedPane();
 		statusPane.addTab("Logs", ifrmLogs.getContentPane());
+		ScriptConsole con = new ScriptConsole();
+		statusPane.addTab("Console", con);
 		JTextArea txtNotes = new JTextArea();
 		txtNotes.setText("You can write anything here.");
 		statusPane.addTab("Notes", txtNotes);
