@@ -39,6 +39,7 @@ public class Canvas {
     private Graphics2D g;
     private Color fgColor, bgColor, axesColor, titleColor;
     private boolean axesVisible = true;
+    private boolean axes3d = false;
     public int curNoTics = 10;
 
     /* Transformation Params */
@@ -47,6 +48,7 @@ public class Canvas {
     private Point2D.Double zc = new Point2D.Double(0, 0); /* Center of Zoom */
 	private StatLogger logger;
     private String xlbl, ylbl;
+	private Project2D project;
 
     public void setXLabel(String xlbl) {
         this.xlbl = xlbl;
@@ -80,6 +82,7 @@ public class Canvas {
 
     public Canvas(int W, int H, StatLogger logger) {
     	this.logger = logger;
+    	this.project = new Project2D(this.logger);
         initParams();
         g = initImage(W, H);
     }
@@ -94,9 +97,19 @@ public class Canvas {
     	//zc = getInvTransformedPoint(new Point2D.Double(W/2, H/2));
     	//System.out.println(zc.toString());
     	resetAxes();
-    	shiftAxes(W/2,H/2);
-    	if (axesVisible) {
-    		drawAxes();
+    	
+    	if (isAxesVisible()) {
+    		if (isAxes3d()) {
+//    			Point2D.Double shTrP = project.project(W/2, H/2, 0);
+//    			Point2D.Double shTrP2 = getInvTransformedPoint(project.projectInv(W/2, H/2, 0));
+//    			System.out.format("%d, %d, %d -> %f, %f\n", W/2, H/2, 0, shTrP.x, shTrP.y);
+//    			shiftAxes((int) shTrP.x, (int) shTrP.y);
+    			shiftAxes(W/2,H/2);
+//    			drawAxes3D();
+    		} else {
+    			shiftAxes(W/2,H/2);
+    			drawAxes();
+    		}
     		drawTics(curNoTics);
     	}
 
@@ -120,8 +133,7 @@ public class Canvas {
 /*********************************** Drawing Methods ************************************************/
 
     /* Draws a point, at the specified point and of the specified type.*/
-	public void drawPoint(Point2D.Double p, PlotData.PointType ptype, double sizeX, double sizeY) {
-        
+	public void drawPoint(Point2D.Double p, PlotData.PointType ptype, double sizeX, double sizeY) {    
         if (ptype == PlotData.PointType.SQUARE) {
             g.fill(new Rectangle2D.Double(p.x, p.y, sizeX, sizeY));
         } else if (ptype == PlotData.PointType.CIRCLE) {
@@ -131,7 +143,9 @@ public class Canvas {
 
     /* Draws a line from point q1 to point q2 */
 	public void drawLine(Point2D.Double q10, Point2D.Double q20) {
+//		Color curPlotColor = g.getColor();
         g.draw(new Line2D.Double(q10, q20));
+        
 	}
 
     /* Draws an vector, by drawing a line with a marker.*/
@@ -352,6 +366,14 @@ public class Canvas {
 		this.axesVisible = axesVisible;
 	}
 	
+	public boolean isAxes3d() {
+		return axes3d;
+	}
+	
+	public void setAxes3d(boolean axes3d) {
+		this.axes3d = axes3d;
+	}
+	
 	public void toggleAxes() {
 		setAxesVisible(!isAxesVisible());
 		if (isAxesVisible()) {
@@ -438,6 +460,10 @@ public class Canvas {
 	}
 	
 /************************************ 3D *********************************************/
+	/**Set the projector from 3d to 2d. */
+	public void setProjection(Project2D p) {
+		this.project = p;
+	}
 
 /********************* Nodes *******************************/
 	public void drawNode(Node n) {
@@ -448,6 +474,34 @@ public class Canvas {
         drawText(n.lbl, pText);
         setFGColor(fgc);
     }
+	
+	public void drawAxes3D() {
+		Color curColor = g.getColor();
+		g.setColor(axesColor);
+		
+		// Origin Shift
+		Point2D.Double shTrP = project.project(W/2, H/2, 0);
+		double shX = -(shTrP.x - W/2);
+		double shY = -(shTrP.y - H/2);
+		
+//		Point2D.Double px1 = project.projectInv(dx+moveX, 0, 0);
+//		Point2D.Double px2 = project.projectInv(dx+moveX, W, 0);
+//		Point2D.Double py1 = project.projectInv(0, dy-moveY, 0);
+//		Point2D.Double py2 = project.projectInv(H, dy-moveY, 0);
+		Point2D.Double px1 = project.projectInv(0, 0, 0);
+		Point2D.Double px2 = project.projectInv(0, W, 0);
+		Point2D.Double py1 = project.projectInv(0, 0, 0);
+		Point2D.Double py2 = project.projectInv(H, 0, 0);
+		px1 = new Point2D.Double(px1.x+dx+moveX+shX, px1.y+shY);
+		px2 = new Point2D.Double(px2.x+dx+moveX+shX, px2.y+shY);
+		py1 = new Point2D.Double(py1.x+shX, py1.y+dy-moveY+shY);
+		py2 = new Point2D.Double(py2.x+shX, py2.y+dy-moveY+shY);
+		
+		drawLine(px1, px2);
+		drawLine(py1, py2);
+		
+		g.setColor(curColor);
+	}
 	
 }
 

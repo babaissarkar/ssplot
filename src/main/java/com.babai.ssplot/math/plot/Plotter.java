@@ -61,9 +61,36 @@ public class Plotter {
 		Vector<Vector<Double>> dataset = pdata.data;
 		canv.setFGColor(pdata.getFgColor());
 		Color curPlotColor2 = pdata.getFgColor2();
+		if (pdata.getPltype() == PlotData.PlotType.THREED || pdata.getPltype() == PlotData.PlotType.TRLINE) {
+			// draw rotated axis
+			canv.setFGColor(Color.RED);
+			Point2D.Double pp1 = p.project(-225, 0, 0);
+			p1 = canv.getTransformedPoint(pp1);
+			Point2D.Double pp2 = p.project(225, 0, 0);
+			p2 = canv.getTransformedPoint(pp2);
+			canv.drawLine(p1, p2);
+			
+			canv.setFGColor(Color.BLUE);
+			pp1 = p.project(0, 225, 0);
+			p1 = canv.getTransformedPoint(pp1);
+			pp2 = p.project(0, -225, 0);
+			p2 = canv.getTransformedPoint(pp2);
+			canv.drawLine(p1, p2);
+			
+			canv.setFGColor(Color.GREEN);
+			pp1 = p.project(0, 0, 225);
+			p1 = canv.getTransformedPoint(pp1);
+			pp2 = p.project(0, 0, -225);
+			p2 = canv.getTransformedPoint(pp2);
+//			System.out.format("%f, %f\n", p1.x, p1.y);
+//			System.out.format("%f, %f\n", p2.x, p2.y);
+			canv.drawLine(p1, p2);
+			canv.setFGColor(Color.BLACK);
+		}
 
 		for (Vector<Double> row : dataset) {
 			if (pdata.getPltype() == PlotData.PlotType.VECTORS) {
+				canv.setAxes3d(false);
 				/* For now, it works for vector data in first four columns only */
 				if (row.size() >= 4) {
 					p1 = canv.getTransformedPoint(new Point2D.Double(row.get(0), row.get(1)));
@@ -78,6 +105,8 @@ public class Plotter {
 				if (row.size() >= 3) {
 					Point2D.Double pp = p.project(row.get(0), row.get(1), row.get(2));
 					p1 = canv.getTransformedPoint(pp);
+					canv.setProjection(p);
+					canv.setAxes3d(true);
 					canv.drawPoint(p1, PlotData.PointType.SQUARE, pdata.ptX, pdata.ptY);
 				} else {
 					System.err.println("Data is not three dimensional!");
@@ -88,6 +117,8 @@ public class Plotter {
 					Point2D.Double pp = p.project(row.get(0), row.get(1), row.get(2));
 					p2 = canv.getTransformedPoint(pp);
 					if (p1 != null) {
+						canv.setProjection(p);
+						canv.setAxes3d(true);
 						canv.setStroke(pdata.ptX);
 						canv.drawLine(p1, p2);
 					}
@@ -96,7 +127,7 @@ public class Plotter {
 					System.err.println("Data is not three dimensional!");
 				}
 			} else {
-				
+				canv.setAxes3d(false);
 				p2 = canv.getTransformedPoint(new Point2D.Double(row.get(col1-1), row.get(col2-1)));
 				//System.out.println("c1 " + c1 + " c2 " + c2);
 				//logger.log("From plotData : " + " Col1 : " + col1 + " Col2 : " + col2 + "\n");

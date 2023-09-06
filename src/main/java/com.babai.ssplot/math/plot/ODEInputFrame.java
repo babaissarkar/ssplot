@@ -170,6 +170,8 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 		tfs[1] = new JTextField(20);
 		tfs[2] = new JTextField(20);
 		
+		tfs[0].setText("Math.sin(x)");
+		
 		JPanel[] pnlLayout = new JPanel[3];
 
 		for (int i = 0; i < 3; i++) {
@@ -206,7 +208,7 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 
 		tfs2 = new JTextField[9];
 
-		int[] defVals = { -10, 10, 1, -10, 10, 1, -10, 10, 1 };
+		double[] defVals = { -10, 10, 0.1, -10, 10, 1, -10, 10, 1 };
 
 		for (int j = 0; j < 9; j++) {
 			tfs2[j] = new JTextField(4);

@@ -129,4 +129,15 @@ public class Project2D {
 			break;
 		}
 	}
+
+	public Point2D.Double projectInv(double a, double b, double c) {
+		this.a = -this.a;
+		this.b = -this.b;
+		this.c = -this.c;
+		Point2D.Double tP = project(a, b, c);
+		this.a = -this.a;
+		this.b = -this.b;
+		this.c = -this.c;
+		return tP;
+	}
 }
