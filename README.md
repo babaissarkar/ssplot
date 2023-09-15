@@ -30,10 +30,11 @@ Options only available when you run using the command line (i.e. `ssplot -dark` 
 # Documentation
 A manual is available inside the `docs/manual` directory (or its link, the `doc` directory at the root) in pdf and odt formats. You can generate the pdf from the odt using LibreOffice Writer or any other tool you prefer.
 
-# Dependency libraries
-    1. FlatLAF
-    2. FlatLAF Intellij Themes
-    3. JLatexMath
+# Dependency libraries (included)
+1. FlatLAF
+2. FlatLAF Intellij Themes
+3. JLatexMath
+4. Mozilla Rhino
 
 # Compilation
 You will require Java JDK and Apache Maven. You will also require Markdown if you want to generate a html version of this Readme.
