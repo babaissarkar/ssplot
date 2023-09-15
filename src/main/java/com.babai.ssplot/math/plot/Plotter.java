@@ -61,8 +61,12 @@ public class Plotter {
 		Vector<Vector<Double>> dataset = pdata.data;
 		canv.setFGColor(pdata.getFgColor());
 		Color curPlotColor2 = pdata.getFgColor2();
+		
+		// TODO : Move 3d axis drawing to Canvas class
 		if (pdata.getPltype() == PlotData.PlotType.THREED || pdata.getPltype() == PlotData.PlotType.TRLINE) {
 			// draw rotated axis
+			canv.setStroke(2);
+			
 			canv.setFGColor(Color.RED);
 			Point2D.Double pp1 = p.project(-225, 0, 0);
 			p1 = canv.getTransformedPoint(pp1);
@@ -77,7 +81,8 @@ public class Plotter {
 			p2 = canv.getTransformedPoint(pp2);
 			canv.drawLine(p1, p2);
 			
-			canv.setFGColor(Color.GREEN);
+//			canv.setFGColor(Color.GREEN);
+			canv.setFGColor(new Color(4, 121, 0));
 			pp1 = p.project(0, 0, 225);
 			p1 = canv.getTransformedPoint(pp1);
 			pp2 = p.project(0, 0, -225);

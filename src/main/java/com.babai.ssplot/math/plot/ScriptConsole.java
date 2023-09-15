@@ -3,23 +3,21 @@ package math.plot;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 
+import javax.script.Bindings;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
-import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 
 public class ScriptConsole extends JPanel {
 	private JTextArea txtIn;
@@ -28,6 +26,7 @@ public class ScriptConsole extends JPanel {
 	private JButton btnRun;
 	private ScriptEngine engine;
 	private final String defaultEngine = "rhino";
+	private String initScript;
 	
 	
 	public ScriptConsole() {
@@ -38,8 +37,8 @@ public class ScriptConsole extends JPanel {
 		lblOut = new JLabel() {
 			private String input = "";
 			private String output = "";
-//			private String textOut;
-			
+			private String current = ""; // Value of last JS expression
+
 			@Override
 			public void paint(Graphics g) {
 //				super.paint(g);
@@ -56,17 +55,32 @@ public class ScriptConsole extends JPanel {
 				if (!input.equals("")) {
 					g2.setColor(Color.WHITE);
 					g2.drawString(">> " + input, 20, 20);
+					g2.setColor(Color.YELLOW);
+					String temp = "[" + this.current + "]";
+					int size = fm.stringWidth(temp);
+					g2.drawString(temp, 20, 25+textH);
 					g2.setColor(Color.GREEN);
-					g2.drawString(output, 20, 25 + textH);
+					g2.drawString(output, 25+size, 25+textH);
 					g2.setColor(Color.WHITE);
 				}
 			}
 			
+			private void clearVariables() {
+				this.output = "";
+				this.current = "";
+				engine.put("txt", "");
+			}
 			@Override
 			public void setText(String input) {
+				clearVariables();
+				
 				this.input = input;
 				try {
-					this.output = engine.eval(input).toString();
+					this.current = engine.eval(initScript + input).toString();
+					Object out = engine.get("txt");
+					if (out!= null) {
+						this.output = out.toString();
+					}
 				} catch (ScriptException e) {
 					this.output = "Error!";
 				}
@@ -104,6 +118,23 @@ public class ScriptConsole extends JPanel {
 	
 	public void initEngine(String engineName) {
 		ScriptEngineManager m = new ScriptEngineManager();
+//		SimpleScriptContext con = new SimpleScriptContext();
+		
+		// Add print method	
+		initScript = """
+	        function print2(value) {
+				    java.lang.System.out.print(value);
+	        }
+	        
+	        function print(value) {
+				    txt = value;
+	        }
+	        
+	        function printLn2(value) {
+				    java.lang.System.out.println(value);
+	        }
+	    """;
+		
 		engine = m.getEngineByName(engineName);
 	}
 }

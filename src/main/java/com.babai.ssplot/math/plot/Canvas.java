@@ -100,17 +100,13 @@ public class Canvas {
     	
     	if (isAxesVisible()) {
     		if (isAxes3d()) {
-//    			Point2D.Double shTrP = project.project(W/2, H/2, 0);
-//    			Point2D.Double shTrP2 = getInvTransformedPoint(project.projectInv(W/2, H/2, 0));
-//    			System.out.format("%d, %d, %d -> %f, %f\n", W/2, H/2, 0, shTrP.x, shTrP.y);
-//    			shiftAxes((int) shTrP.x, (int) shTrP.y);
     			shiftAxes(W/2,H/2);
 //    			drawAxes3D();
     		} else {
     			shiftAxes(W/2,H/2);
     			drawAxes();
+    			drawTics(curNoTics);
     		}
-    		drawTics(curNoTics);
     	}
 
     	drawBoundingBox();
