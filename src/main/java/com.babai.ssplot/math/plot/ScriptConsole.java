@@ -7,8 +7,8 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.Toolkit;
 
-import javax.script.Bindings;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
@@ -19,6 +19,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
+/** TODO : needs to be a real terminal, with input and output both handled by it */
 public class ScriptConsole extends JPanel {
 	private JTextArea txtIn;
 //	private JTextArea txtOut;
@@ -32,8 +33,7 @@ public class ScriptConsole extends JPanel {
 	public ScriptConsole() {
 		initEngine(defaultEngine);
 		
-		txtIn = new JTextArea(4, 40);
-//		txtOut = new JTextArea(4, 40);
+		txtIn = new JTextArea(2, 60);
 		lblOut = new JLabel() {
 			private String input = "";
 			private String output = "";
@@ -90,19 +90,17 @@ public class ScriptConsole extends JPanel {
 		btnRun = new JButton("Run");
 		btnRun.addActionListener(
 			e -> {
-//					lblOut.setText("<html><span style='color:green'> >> " + input + "</span><br>" + obj.toString() + "</html>");
-					lblOut.setText(txtIn.getText());
+				lblOut.setText(txtIn.getText());
 			}
 		);
 		
-//		txtIn.setHorizontalAlignment(JTextField.CENTER);
-		lblOut.setPreferredSize(new Dimension(1000, 60));
-//		lblOut.setFont(lblOut.getFont().deriveFont(18.0f));
-//		lblOut.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
+		Toolkit kit = Toolkit.getDefaultToolkit();
+		Dimension size = kit.getScreenSize();
+		lblOut.setPreferredSize(new Dimension(size.width - 100, 60));
 		
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 		JPanel pnlInput = new JPanel();
-		pnlInput.setLayout(new FlowLayout(FlowLayout.CENTER));
+		pnlInput.setLayout(new FlowLayout(FlowLayout.LEFT));
 		JScrollPane sIn = new JScrollPane(
 				txtIn,
 				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
@@ -110,7 +108,7 @@ public class ScriptConsole extends JPanel {
 		pnlInput.add(sIn);
 		pnlInput.add(btnRun);
 		JPanel pnlOutput = new JPanel();
-		pnlOutput.setLayout(new FlowLayout(FlowLayout.CENTER));
+		pnlOutput.setLayout(new FlowLayout(FlowLayout.LEFT));
 		pnlOutput.add(lblOut);
 		this.add(pnlInput);
 		this.add(pnlOutput);

@@ -1,5 +1,5 @@
 /*
- * AddOperator.java
+ * Constant.java
  * 
  * Copyright 2021 Subhraman Sarkar <subhraman@subhraman-Inspiron>
  * 
@@ -21,25 +21,25 @@
  * 
  */
 
-package parse;
+package parse.tree;
 
-public class AddOperator extends TreeOperator {
-	/** Abstract representation of Addition operation */
+public class Constant extends TreeOperator {
+	/** Abstract representation of Constant */
+	
+	public double val;
+	
+	public Constant(double val) {
+		this.val = val;
+	}
 
 	@Override
 	public double applyTo(TreeNode... nodes) {
-		double result = 0.0;
-        
-        for (TreeNode node : nodes) {
-            result += node.getValue();
-		}
-        
-		return result;
+		return val;
 	}
 	
 	@Override
 	public String toString() {
-		return "+";
+		return ""+val;
 	}
 
 }

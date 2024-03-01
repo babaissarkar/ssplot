@@ -21,7 +21,7 @@
  * 
  */
 
-package parse;
+package parse.tree;
 
 public class FnOperator extends TreeOperator {
 	/** Abstract representation of a function, like sine, cosine functions etc. */
@@ -30,6 +30,16 @@ public class FnOperator extends TreeOperator {
 
     public FnOperator(FnType type) {
         this.type = type;
+    }
+    
+    public static FnOperator forName(String name) {
+    	for (var type : FnType.values()) {
+    		if (type.name().equalsIgnoreCase(name)) {
+    			return new FnOperator(type);
+    		}
+    	}
+    	
+    	return null;
     }
 
 	@Override

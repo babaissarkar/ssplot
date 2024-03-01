@@ -21,7 +21,7 @@
  * 
  */
 
-package parse;
+package parse.tree;
 
 public abstract class TreeOperator {
 	

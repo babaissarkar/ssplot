@@ -157,7 +157,6 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 				"Iteration Parameters"));
 
 		JPanel pnlMatrix = new JPanel();
-//		pnlMatrix.setLayout(new GridLayout(3, 1, 5, 5));
 		pnlMatrix.setLayout(new BoxLayout(pnlMatrix, BoxLayout.Y_AXIS));
 
 		lbls = new JLabel[3];
@@ -170,12 +169,9 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 		tfs[1] = new JTextField(20);
 		tfs[2] = new JTextField(20);
 		
-		tfs[0].setText("Math.sin(x)");
-		
 		JPanel[] pnlLayout = new JPanel[3];
 
 		for (int i = 0; i < 3; i++) {
-//			lbls[i].setFont(new Font("TeXGyreSchola", Font.PLAIN, 14));
 			pnlLayout[i] = new JPanel();
 			pnlLayout[i].setLayout(new FlowLayout(FlowLayout.LEFT));
 			lbls[i].setAlignmentX(LEFT_ALIGNMENT);
@@ -208,12 +204,12 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 
 		tfs2 = new JTextField[9];
 
-		double[] defVals = { -10, 10, 0.1, -10, 10, 1, -10, 10, 1 };
+		double[] defVals = { -10, 10, 0.1, -10, 10, 0.1, -10, 10, 0.1 };
 
 		for (int j = 0; j < 9; j++) {
 			tfs2[j] = new JTextField(4);
 			tfs2[j].setHorizontalAlignment(JTextField.CENTER);
-			tfs2[j].setFont(new Font("LMRomanUnsl10-Regular", Font.PLAIN, 16));
+			tfs2[j].setFont(new Font("monospace", Font.PLAIN, 16));
 			tfs2[j].setText("" + defVals[j]);
 		}
 
@@ -246,9 +242,6 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 		tfs3[1] = new JTextField(3);
 		tfs3[2] = new JTextField(3);
 		
-//		JLabel lblAt = new JLabel("<html><body><font size='5'><u><i>Evaluate At :</i></u></font></html>");
-//		JLabel lblAt = new JLabel("Evaluate At :");
-		
 		JLabel[] lbls3 = new JLabel[3];
 		lbls3[0] = new JLabel("X");
 		lbls3[1] = new JLabel("Y");
@@ -272,21 +265,19 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 		
 		for (int i = 0; i < 3; i++) {
 			tfs[i].setHorizontalAlignment(JTextField.CENTER);
-			tfs[i].setFont(new Font("LMRomanUnsl10-Regular", Font.PLAIN, 16));
+			tfs[i].setFont(new Font("monospace", Font.PLAIN, 16));
 			tfs3[i].setHorizontalAlignment(JTextField.CENTER);
-			tfs3[i].setFont(new Font("LMRomanUnsl10-Regular", Font.PLAIN, 16));
+			tfs3[i].setFont(new Font("monospace", Font.PLAIN, 16));
 		}
 		tfCounts.setHorizontalAlignment(JTextField.CENTER);
-		tfCounts.setFont(new Font("LMRomanUnsl10-Regular", Font.PLAIN, 16));
+		tfCounts.setFont(new Font("monospace", Font.PLAIN, 16));
 		tfStep.setHorizontalAlignment(JTextField.CENTER);
-		tfStep.setFont(new Font("LMRomanUnsl10-Regular", Font.PLAIN, 16));
+		tfStep.setFont(new Font("monospace", Font.PLAIN, 16));
 
 		FlowLayout f = new FlowLayout(FlowLayout.LEFT, 5, 5);
 		pnlButton.setLayout(f);
 		pnlButton.add(btnTR);
 		pnlButton.add(btnTR2);
-//		pnlButton.add(lblAt);
-//		pnlButton.add(Box.createRigidArea(new Dimension(10, 10)));
 		for (int i = 0; i < 3; i++) {
 			pnlButton.add(lbls3[i]);
 			pnlButton.add(tfs3[i]);
@@ -317,19 +308,9 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 		pnlMain.add(pnlCounts);
 		pnlMain.add(pnlMatrix);
 		pnlMain.add(pnlRange);
-//		pnlMain.add(pnlButton);
-//		pnlMain.add(pnlButton3);
-//		pnlMain.add(pnlButton2);
-		
-//		JMenuBar tools = new JMenuBar();
-//		tools.add(pnlButton);
-//		tools.add(pnlButton3);
-//		tools.add(pnlButton2);
-//		this.setJMenuBar(tools);
 		
 		JScrollPane sp = new JScrollPane(pnlMain, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		this.add(sp);
-		// frmMain.pack();
 	}
 
 	public void setODERange() {
@@ -444,6 +425,11 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 
 		setData(trjData);
 	}
+	
+	/* TODO remove setFgColor, it is forcing plot color to black always,
+	 * should use existing fgcolor, and use black as fallback instead. */
+	 
+	/* FIXME setPltype is not having any effect. */
 
 	public void plotCobweb(double x) {
 		PlotData pdata = new PlotData(getSysData().cobweb(x));
@@ -465,6 +451,7 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 		PlotData trjData = new PlotData(getSysData().functionData());
 		trjData.setPltype(PlotData.PlotType.LINES);
 		trjData.setFgColor(Color.BLACK);
+		trjData.setTitle(String.format("y = %s", tfs[0].getText()));
 		
 		setData(trjData);
 	}
@@ -473,6 +460,7 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 		PlotData trjData = new PlotData(getSysData().functionData2D());
 		trjData.setPltype(PlotData.PlotType.THREED);
 		trjData.setFgColor(Color.BLACK);
+		trjData.setTitle(String.format("z = %s", tfs[0].getText()));
 
 		setData(trjData);
 	}

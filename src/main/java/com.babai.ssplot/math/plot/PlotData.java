@@ -1,7 +1,7 @@
 /*
  * PlotData.java
  * 
- * Copyright 2021 Subhraman Sarkar <subhraman@subhraman-Inspiron>
+ * Copyright 2021-2024 Subhraman Sarkar <suvrax@gmail.com>
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -76,7 +76,7 @@ public class PlotData {
         fgColor = Color.RED;
         fgColor2 = Color.BLUE;
         setDataCols(1, 2);
-        title = "New Data " + System.nanoTime(); 
+        title = "New Data " + System.nanoTime();
     }
     
     public void setTitle(String title) {

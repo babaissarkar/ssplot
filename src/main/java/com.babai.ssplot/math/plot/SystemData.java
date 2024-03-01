@@ -29,8 +29,8 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
-import parse.TreeNode;
-import parse.TreeParser;
+import parse.tree.TreeNode;
+import parse.tree.TreeParser;
 
 public class SystemData {
     //Matrix A; // The coefficient matrix
@@ -64,11 +64,11 @@ public class SystemData {
         ScriptEngineManager m = new ScriptEngineManager();
         engineName = System.getenv("SSPLOT_ENGINE");
         
+        // TODO : add options to change backends on the fly
         //Fallback to Rhino for now, until the internal parser is done.
-        engineName = "rhino";
+//        engineName = "rhino";
         
         if (engineName == null) {
-        	//engine = m.getEngineByName("nashorn");
         	usingInternalParser = true;
         	parser = new TreeParser();
         } else {
@@ -78,7 +78,7 @@ public class SystemData {
         	if (engine == null) {
         		System.out.println("Unable to load " + engineName + ".");
         		System.out.println("Using default engine.");
-        		engine = m.getEngineByName("nashorn");
+        		engine = m.getEngineByName("rhino");
         		if (engine == null) {
         			System.out.println("Default engine not found!");
         			System.out.println("ODE/DE plotter won't work!");
@@ -211,14 +211,25 @@ public class SystemData {
     	return dy_dt(x, y, 0);
     }
     
+    
+    /** FIXME Bugfixed version, change all other eval functions to use this */
     public double x2(double x) {
     	double res = 0;
-        if (!usingInternalParser) {
+    	if (!usingInternalParser) {
 			engine.put("x", x);
 			try {
-				engine.eval("x2 = " + eqns[0]);
-				res = (double) engine.get("x2");
-				//System.out.println("X2 = " + res);
+				engine.eval("_x = " + eqns[0]);
+				Object rhs = engine.get("_x");
+				if (rhs instanceof Double)
+				{
+					res = (double) rhs;
+				} else if(rhs instanceof Long) {
+					// Convert long to double
+					res = ((long) rhs) + 0.0;
+				} else {
+					// TODO : let the user know?
+				}
+				//System.out.println("_X = " + res);
 			} catch (ScriptException e) {
 				e.printStackTrace();
 			} 

@@ -33,8 +33,10 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.io.File;
+import java.util.Optional;
 
 import javax.swing.ButtonGroup;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JColorChooser;
 import javax.swing.JDesktopPane;
 import javax.swing.JDialog;
@@ -60,6 +62,8 @@ import com.formdev.flatlaf.intellijthemes.FlatArcDarkOrangeIJTheme;
 import com.formdev.flatlaf.intellijthemes.FlatArcOrangeIJTheme;
 import com.formdev.flatlaf.util.SystemInfo;
 
+import cli.SSPlotCLI;
+
 //@SuppressWarnings("serial")
 public class MainFrame extends JFrame implements ActionListener {
 
@@ -80,7 +84,7 @@ public class MainFrame extends JFrame implements ActionListener {
     private final JMenuItem jmCol;
     private final JMenuItem jmClear;
     private final JMenuItem jmSvData;
-    private final JMenuItem jmAxes;
+    private final JCheckBoxMenuItem jmAxes;
     private final JMenuItem jmAbout;
 //    private final JMenuItem jmLogs;
     private final JMenuItem jmClearLogs;
@@ -222,11 +226,12 @@ public class MainFrame extends JFrame implements ActionListener {
         bg.add(jcmAnimate);
         bg.add(jcmOverlay);
         
-		jmClearLogs = new JMenuItem("Clear Logs");
+        jmClearLogs = new JMenuItem("Clear Logs");
         jmTitle = new JMenuItem("Add title");
         jmXLabel = new JMenuItem("Add X axis label");
         jmYLabel = new JMenuItem("Add Y axis label");
-        jmAxes = new JMenuItem("Show/hide axes");
+        jmAxes = new JCheckBoxMenuItem("Toggle axes");
+        jmAxes.setSelected(true);
         jmLineWidth = new JMenuItem("Set Line Width");
         jmCol = new JMenuItem("Set Plot Color");
         jmPlotType = new JMenuItem("Set Plot Type");
@@ -285,22 +290,22 @@ public class MainFrame extends JFrame implements ActionListener {
         mnuFile.add(jmQuit);
 
         JMenu mnuPlot = new JMenu("Plot");
+        JMenu mnuMode = new JMenu("Plot Mode");
         mnuPlot.add(jmAxes);
-        mnuPlot.addSeparator();
-        mnuPlot.add(jcmNormal);
-        mnuPlot.add(jcmOverlay);
-        mnuPlot.add(jcmAnimate);
-//        mnuPlot.addSeparator();
-//        mnuPlot.add(jmShowData);
-        mnuPlot.addSeparator();
-//        mnuPlot.add(jmTitle);
-        mnuPlot.add(jmXLabel);
-        mnuPlot.add(jmYLabel);
-        mnuPlot.addSeparator();
+        mnuMode.add(jcmNormal);
+        mnuMode.add(jcmOverlay);
+        mnuMode.add(jcmAnimate);
+        mnuPlot.add(mnuMode);
         mnuPlot.add(jmClear);
-        mnuPlot.add(jmPlotType);
-        mnuPlot.add(jmLineWidth);
-        mnuPlot.add(jmCol);
+        
+        JMenu mnuProp = new JMenu("Plot Properties");
+//        mnuPlot.add(jmTitle);
+        mnuProp.add(jmXLabel);
+        mnuProp.add(jmYLabel);
+        mnuProp.add(jmPlotType);
+        mnuProp.add(jmLineWidth);
+        mnuProp.add(jmCol);
+        mnuPlot.add(mnuProp);
         
         JMenu mnuWindow = new JMenu("Window");
         JMenuItem jmiShowLogs = new JMenuItem("Logs...");
@@ -390,8 +395,6 @@ public class MainFrame extends JFrame implements ActionListener {
 	}
 
     public void startApp() {
-//    	setNimbusLF();
-    	
         if (!this.isVisible()) {
             this.setVisible(true);
         }
@@ -514,7 +517,7 @@ public class MainFrame extends JFrame implements ActionListener {
 					 Homepage : <a href='https://github.com/babaissarkar/ssplot'>
 					 https://github.com/babaissarkar/ssplot</a>
 					""";
-            logger.log(str);
+					logger.log(str);
 			JOptionPane.showMessageDialog(this, "See Logs.");
         } else if (ae.getSource() == jmQuit) {
             System.exit(0);
@@ -546,10 +549,10 @@ public class MainFrame extends JFrame implements ActionListener {
         	String strWidth = JOptionPane.showInputDialog("Line Width :");
         	if (strWidth != null) {
         		int width = Integer.parseInt(strWidth);
-        		PlotData pd = pv.getCurPlot();
-        		if (pd != null) {
-        			pd.ptX = width;
-        			pd.ptY = width;
+        		Optional<PlotData> pd = pv.getCurPlot();
+        		if (pd.isPresent()) {
+        			pd.get().ptX = width;
+        			pd.get().ptY = width;
         		}
         		pv.repaint();
         	}
@@ -606,9 +609,9 @@ public class MainFrame extends JFrame implements ActionListener {
 //		UIManager.put("MenuItem.foreground", new Color(4,88,25));
 //		UIManager.put("MenuItem.background", Color.WHITE);
 		
-		if ((args.length > 0) && (args[0].equalsIgnoreCase("-dark"))) {
+		if (hasArg("dark", args)) {
 			FlatArcDarkOrangeIJTheme.setup();
-		} else if ((args.length > 0) && (args[0].equalsIgnoreCase("-metal"))) {
+		} else if (hasArg("metal", args)) {
 			// do nothing
 		} else {
 			FlatArcOrangeIJTheme.setup();
@@ -623,11 +626,45 @@ public class MainFrame extends JFrame implements ActionListener {
 		UIManager.put("TextComponent.arc", 50);
 		
 		MainFrame pframe = new MainFrame();
-		if ((args.length > 0) && (args[0].equalsIgnoreCase("-nimbus"))) {
+//		if ((args.length > 0) && (args[0].equalsIgnoreCase("-nimbus"))) {
+		if(hasArg("nimbus", args)) {
 			pframe.setNimbusLF();
 			pframe.pack();
-		} 
-        pframe.startApp();
+		}
+		
+		if (hasArg("cli", args)) {
+			SSPlotCLI.main(args);
+		} else {
+	        pframe.startApp();
+        }
+	}
+	
+	/** Basic command line option parsing */
+	public static boolean hasArg(String arg, String[] args)
+	{
+		// Usage : arg has no hyphen/slash
+		
+		boolean result = false;
+		// TODO : for-else loop?
+		if (args.length == 0) {
+			return result;
+		}
+		
+		for (String a : args) {
+			String option = a;
+			if (a.startsWith("-")||a.startsWith("/")) {
+				option = a.substring(1, a.length());
+			} else if (a.startsWith("--")) {
+				option = a.substring(2, a.length());
+			}
+			
+			if (option.equalsIgnoreCase(arg)) {
+				result = true;
+				break;
+			}
+		}
+		
+		return result;
 	}
 
 }

@@ -34,6 +34,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.Arrays;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Vector;
 
 import javax.swing.AbstractAction;
@@ -154,13 +156,15 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 		} else if (animate) {
 			plt.clear();
 			
-			if ((plots.size() > 0) && (i > 0)) {
+			Optional<PlotData> optCurPlot = getCurPlot();
+			
+			if ((plots.size() > 0) && (i > 0) && optCurPlot.isPresent()) {
 				
 				PlotData pdata = new PlotData(
-						new Vector<Vector<Double>>(
-								getCurPlot().data.subList(0, i)));
+					new Vector<Vector<Double>>(
+						optCurPlot.get().data.subList(0, i)));
 				
-				if (i < getCurPlot().data.size()) {
+				if (i < optCurPlot.get().data.size()) {
 					//log("t = " + i + " sec.");
 					plt.plotData(pdata);
 					plt.plotOthers(pdata);
@@ -172,18 +176,13 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 			}
 		} else {
 			plt.clear();
-			if (plots.size() > 0) {
-				plt.plotData(getCurPlot());
-				plt.plotOthers(getCurPlot());
+			Optional<PlotData> optCurPlot = getCurPlot();
+			if (plots.size() > 0 && optCurPlot.isPresent()) {
+				plt.plotData(optCurPlot.get());
+				plt.plotOthers(optCurPlot.get());
 			}
 		}
 		
-		
-		
-//		if (curPlot != null) {
-//			plt.plotData(curPlot);
-//			plt.plotOthers(curPlot);
-//		}
 		g.drawImage(plt.getImage(), 20, 20, null);
 	}
 	
@@ -192,39 +191,45 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 		repaint();
 	}
 	
-	/*** Getting plots ***/
-	public PlotData getCurPlot() {
-		if (plots.size() > 0) {
-			return plots.lastElement();
-		} else {
-			return null;
-		}
+	/*** Get current plots ***/
+	public Optional<PlotData> getCurPlot() {
+		return (plots.size() > 0) ? Optional.of(plots.lastElement()) : Optional.empty();
 	}
 	
 	public void setCurPlot(PlotData data) {
-		//curPlot = data;
+		Objects.requireNonNull(data, "(setCurPlot) : null PlotData");
 		plots.add(data);
 		repaint();
 	}
 	
 	/* Getter and Setters */
-	public PlotData.PlotType getCurPlotType() {
-		return getCurPlot().getPltype();
+	/** Gets current plot type */
+	public Optional<PlotData.PlotType> getCurPlotType() {
+		Optional<PlotData> optCurPlot = getCurPlot();
+		return (optCurPlot.isPresent())
+				? Optional.of(optCurPlot.get().getPltype())
+				: Optional.empty();
 	}
 	
 	public void setCurPlotType(PlotData.PlotType pltype) {
-		getCurPlot().setPltype(pltype);
-		repaint();
+		Optional<PlotData> optCurPlot = getCurPlot();
 		
-		log("<b>Plot Type : </b>" + pltype);
+		if (optCurPlot.isPresent()) {
+			optCurPlot.get().setPltype(pltype);
+			repaint();
+			log("<b>Plot Type : </b>" + pltype);
+		}
 	}
 	
 	public void setColor(Color col) {
-		getCurPlot().setFgColor(col);
-		repaint();
+		Optional<PlotData> optCurPlot = getCurPlot();
 		
-		Color c = getCurPlot().getFgColor();
-		log(String.format("Color : (%d, %d, %d)", c.getRed(), c.getGreen(), c.getBlue()));
+		if (optCurPlot.isPresent()) {
+			optCurPlot.get().setFgColor(col);
+			repaint();
+			Color c = optCurPlot.get().getFgColor();
+			log(String.format("Color : (%d, %d, %d)", c.getRed(), c.getGreen(), c.getBlue()));
+		}
 	}
 
 	/* Reset canvas */
@@ -246,7 +251,6 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 	}
 	
 	/* Actions */
-	@SuppressWarnings("serial")
 	public class ZoomInAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
@@ -255,7 +259,6 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 		}
 	}
 	
-	@SuppressWarnings("serial")
 	public class ZoomOutAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
@@ -264,7 +267,6 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 		}
 	}
 	
-	@SuppressWarnings("serial")
 	public class SmallZoomInAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
@@ -273,7 +275,6 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 		}
 	}
 	
-	@SuppressWarnings("serial")
 	public class SmallZoomOutAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
@@ -284,7 +285,6 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 		}
 	}
 	
-	@SuppressWarnings("serial")
 	public class UpAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
@@ -294,7 +294,6 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 		}
 	}
 	
-	@SuppressWarnings("serial")
 	public class DownAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
@@ -304,7 +303,6 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 		}
 	}
 	
-	@SuppressWarnings("serial")
 	public class LeftAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
@@ -314,7 +312,6 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 		}
 	}
 	
-	@SuppressWarnings("serial")
 	public class RightAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
@@ -324,7 +321,6 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 		}
 	}
 	
-	@SuppressWarnings("serial")
 	public class RotAPlusAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
@@ -335,7 +331,6 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 		}
 	}
 	
-	@SuppressWarnings("serial")
 	public class RotAMinusAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
@@ -345,7 +340,6 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 		}
 	}
 	
-	@SuppressWarnings("serial")
 	public class RotBPlusAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
@@ -355,7 +349,6 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 		}
 	}
 	
-	@SuppressWarnings("serial")
 	public class RotBMinusAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
@@ -364,7 +357,6 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 		}
 	}
 	
-	@SuppressWarnings("serial")
 	public class RotCPlusAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
@@ -374,7 +366,6 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 		}
 	}
 	
-	@SuppressWarnings("serial")
 	public class RotCMinusAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
@@ -425,28 +416,16 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 	}
 
 	@Override
-	public void mouseMoved(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void mouseMoved(MouseEvent arg0) {}
 
 	@Override
-	public void mouseClicked(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void mouseClicked(MouseEvent arg0) {}
 
 	@Override
-	public void mouseEntered(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void mouseEntered(MouseEvent arg0) {}
 
 	@Override
-	public void mouseExited(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void mouseExited(MouseEvent arg0) {}
 
 	@Override
 	public void mousePressed(MouseEvent min) {

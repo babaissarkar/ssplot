@@ -6,3 +6,6 @@
 6. Fixed points and nullclines support
 7. Bad ticks when zoom is reduced below 1.0.
 
+8. plotting in 1d, y(x) = x doesn't work because of Long != Double, but y(x) = parseFloat(x) works.
+9. Assign properties correctly to plots after selection from data viewer window. Properties overhaul.
+

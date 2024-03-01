@@ -9,3 +9,6 @@ Version 2.1 (04.09.2023)
     2. Added scribble pad/notes area to the bottom pane
 Version 2.1.1 (05.09.2023)
     1. A simple JS Console added to bottom pane (beta)
+Version 2.2 (15.09.2023)
+    1. 3d axes (beta)
+    2. JS console improved

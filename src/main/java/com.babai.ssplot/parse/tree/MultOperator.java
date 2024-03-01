@@ -1,5 +1,5 @@
 /*
- * Constant.java
+ * MultOperator.java
  * 
  * Copyright 2021 Subhraman Sarkar <subhraman@subhraman-Inspiron>
  * 
@@ -21,25 +21,25 @@
  * 
  */
 
-package parse;
+package parse.tree;
 
-public class Constant extends TreeOperator {
-	/** Abstract representation of Constant */
-	
-	public double val;
-	
-	public Constant(double val) {
-		this.val = val;
-	}
+public class MultOperator extends TreeOperator {
+	/** Abstract representation of Multiplication operation */
 
 	@Override
 	public double applyTo(TreeNode... nodes) {
-		return val;
+		double result = 1.0;
+        
+        for (TreeNode node : nodes) {
+            result *= node.getValue();
+		}
+        
+		return result;
 	}
 	
 	@Override
 	public String toString() {
-		return ""+val;
+		return "*";
 	}
 
 }

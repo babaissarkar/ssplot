@@ -71,20 +71,8 @@ public class DBViewer extends JInternalFrame implements ActionListener {
     private ODEInputFrame input = null;
     
     private static PlotData zeroData;
-//    static {
-//    	Vector<Double> zeros = new Vector<Double>();
-//    	zeros.add(0.0);
-//    	zeros.add(0.0);
-//    	
-//    	Vector<Vector<Double>> zeros2d = new Vector<Vector<Double>>();
-//    	for (int i = 0; i < 5; i++) {
-//    		zeros2d.add(zeros);
-//    	}
-//    	zeroData = new PlotData(zeros2d);
-//    }
     
     public DBViewer(ODEInputFrame input, PlotView pv) {
-//    	this(zeroData, input, pv);
     	this(null, input, pv);
     }
     
@@ -96,7 +84,6 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 		
         /* GUI */
 		setTitle("Dataset Viewer");
-//		getContentPane().setLayout(new BorderLayout());
 		JPanel mainPanel = new JPanel();
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 
@@ -237,6 +224,7 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 		setDataOnly(pdata);
 	}
 		
+	/** Show the given plot data in the table */
 	private void setDataOnly(PlotData pdata) {
     	DefaultTableModel model;
         dataset = pdata.data;
@@ -457,7 +445,9 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 	private void updateList() {
 		jcbPlotlist.removeAllItems();
 		for (PlotData pdata : plotlist) {
-			jcbPlotlist.addItem(pdata.getTitle());
+			if (pdata != null) {
+				jcbPlotlist.addItem(pdata.getTitle());
+			}
 		}
 		jcbPlotlist.setSelectedIndex(jcbPlotlist.getItemCount()-1);
 	}

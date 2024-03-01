@@ -108,8 +108,10 @@ public class Canvas {
     			drawTics(curNoTics);
     		}
     	}
-
-    	drawBoundingBox();
+		
+		if (isBoundingBoxVisible()) {
+			drawBoundingBox();
+		}
     }
 
     public Graphics2D getGraphics() {
@@ -305,7 +307,7 @@ public class Canvas {
 		double textW = fm.stringWidth(title);
 		
 		Point2D.Double p = new Point2D.Double(20, 30); /* Need to be changed. (20,30) is Magic no. */
-        logger.log("" + H/2);
+		log("" + H/2);
 		
 		g.setColor(Color.WHITE);
 		g.fill(new Rectangle2D.Double(p.x, p.y - textH, textW + 2, textH + 2));
@@ -314,7 +316,7 @@ public class Canvas {
 		drawText(title, p);
 		
 		Point2D.Double p2 = getInvTransformedPoint(p);
-		logger.log(String.format("Added title \"%s\" at (%6.2f, %6.2f)", title, p2.x, p2.y));
+		log(String.format("Added title \"%s\" at (%6.2f, %6.2f)", title, p2.x, p2.y));
 		
 		g.setColor(prevColor);
 		g.setFont(prevFont);
@@ -361,6 +363,13 @@ public class Canvas {
 	public void setAxesVisible(boolean axesVisible) {
 		this.axesVisible = axesVisible;
 	}
+	
+	// TODO : getter, setter, property
+	public boolean isBoundingBoxVisible() {
+		return true;
+	}
+	
+	public void setBoundingBoxVisible() {};
 	
 	public boolean isAxes3d() {
 		return axes3d;
@@ -451,7 +460,9 @@ public class Canvas {
 	}
 	
 	private void log(String string) {
-		this.logger.log(string + "\n");
+		if (logger != null) {
+			logger.log(string + "\n");
+		}
 		//System.out.println("log : " + string);
 	}
 	

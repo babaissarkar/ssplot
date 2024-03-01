@@ -20,7 +20,7 @@
  * 
  */
 
-package parse;
+package parse.tree;
 
 import java.util.Vector;
 import java.util.regex.Matcher;
@@ -29,9 +29,19 @@ import java.util.regex.Pattern;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
+import parse.SSMathParser;
+
 public class TreeParser {
 
-    public TreeNode parse(String tokenWtSp) {
+	public TreeNode parse(String token) {
+		try {
+			return SSMathParser.parseString(token);
+		} catch(Exception e) {
+			return new TreeNode(new Constant(0.0));
+		}
+	}
+
+    public TreeNode parse2(String tokenWtSp) {
         String token;
         if (tokenWtSp.contains(" ")||tokenWtSp.contains("\t")) {
             token = tokenWtSp.replaceAll("(\\s)+", "");

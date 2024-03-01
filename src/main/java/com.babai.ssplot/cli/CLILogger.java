@@ -1,5 +1,7 @@
+package cli;
+
 /*
- * Variable.java
+ * CLILogger.java
  * 
  * Copyright 2021 Subhraman Sarkar <subhraman@subhraman-Inspiron>
  * 
@@ -18,35 +20,15 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
  * 
+ * 
  */
 
-package parse;
+import math.plot.StatLogger;
 
-public class Variable extends TreeOperator {
-	private String sym;
+public class CLILogger extends StatLogger {
 	
-	public Variable(String sym) {
-		this.sym = sym;
+	public void log(String s) {
+		System.err.println(s);
 	}
-	
-	@Override
-	public double applyTo(TreeNode... nodes) {
-		double val = 0.0;
-		
-		if (nodes.length > 0) {
-			for (TreeNode node : nodes) {
-				val += node.getValue();
-			}
-		}
-		
-		return val;
-	}
-
-	@Override
-	public String toString() {
-		return sym;
-	}
-	
-	
 }
 

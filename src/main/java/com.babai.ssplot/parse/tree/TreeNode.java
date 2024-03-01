@@ -21,7 +21,7 @@
  * 
  */
 
-package parse;
+package parse.tree;
 
 import java.util.Vector;
 

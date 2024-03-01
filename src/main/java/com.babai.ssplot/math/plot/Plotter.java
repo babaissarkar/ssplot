@@ -22,6 +22,7 @@ public class Plotter {
 		p = new Project2D(logger);
 		c1 = 1;
 		c2 = 2;
+		initPlot();
 	}
 	
 	public void initPlot() {
@@ -39,7 +40,7 @@ public class Plotter {
 	}
 	
 	/** If you don't set the size of the plot, it uses the default size.
-	 * It will also initialize the plot if you forget. */
+	 *  It will also initialize the plot if you forget. */
 	public void plotData(PlotData pdata) {
 		if (canv == null) {
 			initPlot();

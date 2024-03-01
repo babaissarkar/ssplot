@@ -1,5 +1,5 @@
 /*
- * DivOperator.java
+ * AddOperator.java
  * 
  * Copyright 2021 Subhraman Sarkar <subhraman@subhraman-Inspiron>
  * 
@@ -21,32 +21,25 @@
  * 
  */
 
-package parse;
+package parse.tree;
 
-public class DivOperator extends TreeOperator {
-	/** Abstract representation of Division operation */
+public class AddOperator extends TreeOperator {
+	/** Abstract representation of Addition operation */
 
 	@Override
 	public double applyTo(TreeNode... nodes) {
-		double result = 1.0;
-		if (nodes.length == 1) {
-            double d1 = nodes[0].getValue();
-            result = 1.0/d1;
-        } else if (nodes.length >= 2) {
-            double d1 = nodes[0].getValue(); 
-
-            for (int i = 1; i < nodes.length; i++) {
-                result *= nodes[i].getValue();
-            }
-
-            result = d1/result;
-        }
+		double result = 0.0;
+        
+        for (TreeNode node : nodes) {
+            result += node.getValue();
+		}
+        
 		return result;
 	}
 	
 	@Override
 	public String toString() {
-		return "/";
+		return "+";
 	}
 
 }
