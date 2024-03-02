@@ -12,3 +12,6 @@ Version 2.1.1 (05.09.2023)
 Version 2.2 (15.09.2023)
     1. 3d axes (beta)
     2. JS console improved
+Version 2.3 (01.03.2024)
+    1. Internal parser replaced with JavaCC based parser
+    2. Cleanup

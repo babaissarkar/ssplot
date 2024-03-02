@@ -299,7 +299,7 @@ public class MainFrame extends JFrame implements ActionListener {
         mnuPlot.add(jmClear);
         
         JMenu mnuProp = new JMenu("Plot Properties");
-//        mnuPlot.add(jmTitle);
+        mnuProp.add(jmTitle);
         mnuProp.add(jmXLabel);
         mnuProp.add(jmYLabel);
         mnuProp.add(jmPlotType);
@@ -518,17 +518,20 @@ public class MainFrame extends JFrame implements ActionListener {
 					 https://github.com/babaissarkar/ssplot</a>
 					""";
 					logger.log(str);
-			JOptionPane.showMessageDialog(this, "See Logs.");
+			JOptionPane.showMessageDialog(this, "Info printed to Logs.");
         } else if (ae.getSource() == jmQuit) {
             System.exit(0);
-//        } else if (ae.getSource() == jmTitle) {
-//        	pv.getCurPlot().setTitle(JOptionPane.showInputDialog("Title :"));
-//        	pv.repaint();
+        } else if (ae.getSource() == jmTitle) {
+        	Optional<PlotData> pdata = pv.getCurPlot();
+        	if (pdata.isPresent()) {
+        		pdata.get().setTitle(JOptionPane.showInputDialog("Title:"));
+        		pv.repaint();
+        	}
         } else if (ae.getSource() == jmXLabel) {
-            plt.getCanvas().setXLabel(JOptionPane.showInputDialog("X Label :"));
+            plt.getCanvas().setXLabel(JOptionPane.showInputDialog("X Label:"));
             pv.repaint();
         } else if (ae.getSource() == jmYLabel) {
-            plt.getCanvas().setYLabel(JOptionPane.showInputDialog("Y Label :"));
+            plt.getCanvas().setYLabel(JOptionPane.showInputDialog("Y Label:"));
             pv.repaint();
         } else if (ae.getSource() == jmClear) {
             pv.clear();
@@ -596,7 +599,7 @@ public class MainFrame extends JFrame implements ActionListener {
 	
 	public static void main(String[] args) {
         /* Global UI Configuration */
-        UIManager.put("Label.font", new FontUIResource("Cantarell", Font.PLAIN, 15));
+//        UIManager.put("Label.font", new FontUIResource("Cantarell", Font.PLAIN, 15));
 //		UIManager.put("RadioButton.font", new FontUIResource("Cantarell", Font.PLAIN, 16));
 //		
 //		UIManager.put("RadioButton.foreground", new Color(80,28,0));
@@ -605,6 +608,7 @@ public class MainFrame extends JFrame implements ActionListener {
 		UIManager.put("Menu.selectionForeground", new Color(0,0,0));
 		UIManager.put("MenuItem.selectionBackground", new Color(255,247,132));
 		UIManager.put("MenuItem.selectionForeground", new Color(0,0,0));
+		UIManager.put("MenuItem.checkBackground", new Color(153, 204, 255));
 //		UIManager.put("MenuItem.acceleratorForeground", new Color(5,132,37));
 //		UIManager.put("MenuItem.foreground", new Color(4,88,25));
 //		UIManager.put("MenuItem.background", Color.WHITE);
@@ -612,7 +616,7 @@ public class MainFrame extends JFrame implements ActionListener {
 		if (hasArg("dark", args)) {
 			FlatArcDarkOrangeIJTheme.setup();
 		} else if (hasArg("metal", args)) {
-			// do nothing
+			// do nothing, default theme
 		} else {
 			FlatArcOrangeIJTheme.setup();
 		}
@@ -621,12 +625,12 @@ public class MainFrame extends JFrame implements ActionListener {
 			JFrame.setDefaultLookAndFeelDecorated(true);
 			JDialog.setDefaultLookAndFeelDecorated(true);
 		}
-        
+		
 		UIManager.put("Button.arc", 20);
 		UIManager.put("TextComponent.arc", 50);
 		
 		MainFrame pframe = new MainFrame();
-//		if ((args.length > 0) && (args[0].equalsIgnoreCase("-nimbus"))) {
+
 		if(hasArg("nimbus", args)) {
 			pframe.setNimbusLF();
 			pframe.pack();
