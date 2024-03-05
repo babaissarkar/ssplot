@@ -137,4 +137,22 @@ public class PlotData {
 		this.dataCol1 = dataCol1;
 		this.dataCol2 = dataCol2;
 	}
+	
+	/** @return max value among all data in a column */
+	public double getMax(int dataCol) {
+		double max = this.data.get(0).get(dataCol);
+		for (var row : this.data) {
+			max = row.get(dataCol) > max ? row.get(dataCol) : max; 
+		}
+		return max;
+	}
+	
+	/** @return min value among all data in a column */
+	public double getMin(int dataCol) {
+		double min = this.data.get(0).get(dataCol);
+		for (var row : this.data) {
+			min = row.get(dataCol) < min ? row.get(dataCol) : min; 
+		}
+		return min;
+	}
 }

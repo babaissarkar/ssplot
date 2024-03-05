@@ -199,7 +199,7 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 	public void setCurPlot(PlotData data) {
 		Objects.requireNonNull(data, "(setCurPlot) : null PlotData");
 		plots.add(data);
-		repaint();
+		fit();
 	}
 	
 	/* Getter and Setters */
@@ -232,6 +232,14 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 		}
 	}
 
+	/* Fit to plot size */
+	public void fit() {
+		if (getCurPlot().isPresent()) {
+			plt.fit(getCurPlot().get());
+			repaint();
+		}
+	}
+	
 	/* Reset canvas */
 	public void clear() {
 		plots = new Vector<PlotData>();

@@ -252,6 +252,7 @@ public class DBViewer extends JInternalFrame implements ActionListener {
         	setBounds(500, 100, 500+200, 600);
         }
 		
+		pv.log(String.format("Max : %f, Min : %f", pdata.getMax(0), pdata.getMin(0)));
 	}
 
     /** @return the dataset */

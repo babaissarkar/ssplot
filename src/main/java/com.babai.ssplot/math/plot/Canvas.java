@@ -231,9 +231,9 @@ public class Canvas {
             int strWidth = m.stringWidth(strLbl);
             
             drawLine(
-            		getTransformedPoint2(new Point2D.Double(x, 0)),
-            		getTransformedPoint2(new Point2D.Double(x, -5))
-            		);
+            	getTransformedPoint2(new Point2D.Double(x, 0)),
+            	getTransformedPoint2(new Point2D.Double(x, -5))
+            );
             
             if (i != 0) {
             	drawText(strLbl, getTransformedPoint2(new Point2D.Double(x- (strWidth/2 + 2), -(strHeight+2))));
@@ -386,6 +386,14 @@ public class Canvas {
 		} else {
 			log("Axes hidden.");
 		}
+	}
+	
+	public int getPlotWidth() {
+		return this.W;
+	}
+	
+	public int getPlotHeight() {
+		return this.H;
 	}
 
 /*********************************** Transformation Methods **************************************************/

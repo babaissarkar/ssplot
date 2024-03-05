@@ -24,7 +24,6 @@ package math.plot;
  */
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -56,8 +55,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.plaf.FontUIResource;
-
 import com.formdev.flatlaf.intellijthemes.FlatArcDarkOrangeIJTheme;
 import com.formdev.flatlaf.intellijthemes.FlatArcOrangeIJTheme;
 import com.formdev.flatlaf.util.SystemInfo;
@@ -236,6 +233,7 @@ public class MainFrame extends JFrame implements ActionListener {
         jmCol = new JMenuItem("Set Plot Color");
         jmPlotType = new JMenuItem("Set Plot Type");
         jmClear = new JMenuItem("Clear plot");
+        JMenuItem jmFit = new JMenuItem("Autoscale");
         
         jmAbout = new JMenuItem("About");
         
@@ -251,6 +249,8 @@ public class MainFrame extends JFrame implements ActionListener {
                 ActionEvent.CTRL_MASK));
         
         jmPhase.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M,
+                ActionEvent.CTRL_MASK));
+        jmFit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F,
                 ActionEvent.CTRL_MASK));
         jmClear.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X,
                 ActionEvent.CTRL_MASK));
@@ -274,6 +274,12 @@ public class MainFrame extends JFrame implements ActionListener {
         jmAxes.addActionListener(this);
         jmPhase.addActionListener(this);
         jmPlotType.addActionListener(this);
+        
+        jmFit.addActionListener(
+        	e -> {
+        		pv.fit();
+        	}
+        );
 
         JMenu mnuFile = new JMenu("File");
         JMenu sbmnNew = new JMenu("New Plot...");
@@ -296,6 +302,7 @@ public class MainFrame extends JFrame implements ActionListener {
         mnuMode.add(jcmOverlay);
         mnuMode.add(jcmAnimate);
         mnuPlot.add(mnuMode);
+        mnuPlot.add(jmFit);
         mnuPlot.add(jmClear);
         
         JMenu mnuProp = new JMenu("Plot Properties");
@@ -422,7 +429,6 @@ public class MainFrame extends JFrame implements ActionListener {
 	public void openFile() {
 		dbv.openFile();
 		pv.setCurPlot(dbv.getData());
-//		pv.repaint();
 	}
 	
 	public void saveData() {
@@ -493,7 +499,7 @@ public class MainFrame extends JFrame implements ActionListener {
         logger.log(str);
 	}
 
-    /* Event Handler */
+	/* Event Handler */
 	@Override
 	public void actionPerformed(ActionEvent ae) {
 		/* Triggers the actions associated with the menus */
@@ -503,8 +509,8 @@ public class MainFrame extends JFrame implements ActionListener {
 //			canv.refresh();
 		} else if (ae.getSource() == jmOpen) {
 			openFile();
-        } else if (ae.getSource() == jmShowData) {
-            showData();
+		} else if (ae.getSource() == jmShowData) {
+			showData();
 		} else if (ae.getSource() == jmHelp) {
 			showHelp();
 		} else if (ae.getSource() == jmAbout) {
@@ -549,7 +555,7 @@ public class MainFrame extends JFrame implements ActionListener {
         	plt.toggleAxes();
         	pv.repaint();
         } else if (ae.getSource() == jmLineWidth) {
-        	String strWidth = JOptionPane.showInputDialog("Line Width :");
+        	String strWidth = JOptionPane.showInputDialog("Line Width:");
         	if (strWidth != null) {
         		int width = Integer.parseInt(strWidth);
         		Optional<PlotData> pd = pv.getCurPlot();

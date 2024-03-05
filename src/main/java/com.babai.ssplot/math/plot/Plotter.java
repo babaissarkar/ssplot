@@ -56,7 +56,7 @@ public class Plotter {
 	}
 	
 	private void plotData(Canvas canv, PlotData pdata, int col1, int col2) {
-        
+		
 		Point2D.Double p1 = null, p2 = null;
 
 		Vector<Vector<Double>> dataset = pdata.data;
@@ -135,8 +135,6 @@ public class Plotter {
 			} else {
 				canv.setAxes3d(false);
 				p2 = canv.getTransformedPoint(new Point2D.Double(row.get(col1-1), row.get(col2-1)));
-				//System.out.println("c1 " + c1 + " c2 " + c2);
-				//logger.log("From plotData : " + " Col1 : " + col1 + " Col2 : " + col2 + "\n");
 				if (p1 != null) {
 					switch(pdata.getPltype()) {
 					case LINES :
@@ -211,6 +209,13 @@ public class Plotter {
 	
 	public void rescale(double factor) {
 		canv.setScaleFactor(factor);
+	}
+	
+	public void fit(PlotData pdata) {
+		// Fit plot to canvas if small
+		double Xmax = pdata.getMax(0);
+		double Xmin = pdata.getMin(0);
+		canv.setScaleFactor(canv.getPlotWidth()/(Xmax - Xmin));
 	}
 	
 	public double getScale() {
