@@ -207,15 +207,23 @@ public class Plotter {
         }
 	}
 	
+	/* Scale the plot by the give factor */
 	public void rescale(double factor) {
 		canv.setScaleFactor(factor);
 	}
 	
+	/**  Scale plot to minimize empty area */
+	// TODO update method so that it works for 3d case
 	public void fit(PlotData pdata) {
-		// Fit plot to canvas if small
 		double Xmax = pdata.getMax(0);
 		double Xmin = pdata.getMin(0);
-		canv.setScaleFactor(canv.getPlotWidth()/(Xmax - Xmin));
+		double Ymax = pdata.getMax(1);
+		double Ymin = pdata.getMin(1);
+		if ((Ymax-Ymin) > (Xmax-Xmin)) {
+			canv.setScaleFactor(canv.getPlotWidth()/(Ymax - Ymin));
+		} else {
+			canv.setScaleFactor(canv.getPlotWidth()/(Xmax - Xmin));
+		}
 	}
 	
 	public double getScale() {
