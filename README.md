@@ -12,7 +12,7 @@ Any Java version >= 8.
 5. Run using `./ssplot` from your terminal/command line (For linux), or go to the directory where the file `SSPlot.jar` is, open a terminal there and run `java -jar SSPlot.jar`
 7. You may need to set the `CLASSPATH` environment variable if you want to use an alternate engine for math equation parsing, as explained in a later section.
 
-A `DEB` package is available.
+A `DEB` package and an `AppImage` with bundled AdoptOpenJDK java runtime is available.
 
 # Themes
 Four themes are available, current accessible only through command line options.
@@ -33,8 +33,7 @@ A manual is available inside the `docs/manual` directory (or its link, the `doc`
 # Dependency libraries (included)
 1. FlatLAF
 2. FlatLAF Intellij Themes
-3. JLatexMath
-4. Mozilla Rhino
+3. Mozilla Rhino
 
 # Compilation
 You will require Java JDK and Apache Maven. You will also require Markdown if you want to generate a html version of this Readme.
@@ -44,6 +43,9 @@ You will require Java JDK and Apache Maven. You will also require Markdown if yo
 3. Link the final jar file into the jar directory.
 3. You can run the generated `SSPlot.jar` file using the command `java -jar jar/SSPlot.jar` or simple `./ssplot`, if the link is correctly created.
 4. Generate the README.html using markdown : `markdown README.md > README.html`.
+
+# Quick Build
+Run the `generate-all.sh` script.
 
 # Using a external script engine for parsing math expressions
 

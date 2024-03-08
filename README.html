@@ -17,7 +17,7 @@
 <li>You may need to set the <code>CLASSPATH</code> environment variable if you want to use an alternate engine for math equation parsing, as explained in a later section.</li>
 </ol>
 
-<p>A <code>DEB</code> package is available.</p>
+<p>A <code>DEB</code> package and an <code>AppImage</code> with bundled AdoptOpenJDK java runtime is available.</p>
 
 <h1>Themes</h1>
 
@@ -40,12 +40,13 @@
 
 <p>A manual is available inside the <code>docs/manual</code> directory (or its link, the <code>doc</code> directory at the root) in pdf and odt formats. You can generate the pdf from the odt using LibreOffice Writer or any other tool you prefer.</p>
 
-<h1>Dependency libraries</h1>
+<h1>Dependency libraries (included)</h1>
 
-<pre><code>1. FlatLAF
-2. FlatLAF Intellij Themes
-3. JLatexMath
-</code></pre>
+<ol>
+<li>FlatLAF</li>
+<li>FlatLAF Intellij Themes</li>
+<li>Mozilla Rhino</li>
+</ol>
 
 <h1>Compilation</h1>
 
@@ -58,6 +59,10 @@
 <li>You can run the generated <code>SSPlot.jar</code> file using the command <code>java -jar jar/SSPlot.jar</code> or simple <code>./ssplot</code>, if the link is correctly created.</li>
 <li>Generate the README.html using markdown : <code>markdown README.md &gt; README.html</code>.</li>
 </ol>
+
+<h1>Quick Build</h1>
+
+<p>Run the <code>generate-all.sh</code> script.</p>
 
 <h1>Using a external script engine for parsing math expressions</h1>
 

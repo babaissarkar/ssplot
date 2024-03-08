@@ -514,16 +514,16 @@ public class MainFrame extends JFrame implements ActionListener {
 		} else if (ae.getSource() == jmHelp) {
 			showHelp();
 		} else if (ae.getSource() == jmAbout) {
-			String str ="""
+			String aboutStr ="""
 					 <h1>SSPlot</h1>
-					 Version : 2.2<br>
-					 Created by : Subhraman Sarkar, 2021-2023<br>
+					 Version : 2.2.1<br>
+					 Created by : Subhraman Sarkar, 2021-2024<br>
 					 Available under the LGPL 2.1 license or, (at your choice)
 					 any later version.<br>
 					 Homepage : <a href='https://github.com/babaissarkar/ssplot'>
 					 https://github.com/babaissarkar/ssplot</a>
 					""";
-					logger.log(str);
+					logger.log(aboutStr);
 			JOptionPane.showMessageDialog(this, "Info printed to Logs.");
         } else if (ae.getSource() == jmQuit) {
             System.exit(0);
