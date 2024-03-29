@@ -516,7 +516,7 @@ public class MainFrame extends JFrame implements ActionListener {
 		} else if (ae.getSource() == jmAbout) {
 			String aboutStr ="""
 					 <h1>SSPlot</h1>
-					 Version : 2.2.1<br>
+					 Version : 2.2.2<br>
 					 Created by : Subhraman Sarkar, 2021-2024<br>
 					 Available under the LGPL 2.1 license or, (at your choice)
 					 any later version.<br>
