@@ -8,7 +8,7 @@
 
   <groupId>com.babai.ssplot</groupId>
   <artifactId>SSPlot</artifactId>
-  <version>2.2.1</version>
+  <version>2.2.2</version>
 
   <name>SSPlot</name>
   <url>http://www.github.com/babaissarkar/ssplot</url>
@@ -17,9 +17,9 @@
      It can :
      1. Plot datafiles (2D and 3D).
      2. Can change appearance of plot.
-     3. Has an integrated ODE and Difference Equation solver.
-     4. Can plot functions of one and two variables.
-     5. Comes with its own simple math expression parser.
+     3. Solve and plot ODE and Difference Equations.
+     4. Plot functions of one and two variables.
+     5. Comes with its own JavaScript based Console for simple calculation tasks.
   </description>
   
   <developers>
@@ -45,12 +45,14 @@
     <maven.compiler.target>17</maven.compiler.target>
   </properties>
   
+  <repositories>
+    <repository>
+      <id>local-repo</id>
+      <url>file:///usr/share/maven-repo</url>
+    </repository>
+  </repositories>
+  
   <dependencies>
-<!--  	<dependency>-->
-<!--  		<groupId>org.scilab.forge</groupId>-->
-<!--  		<artifactId>jlatexmath</artifactId>-->
-<!--  		<version>1.0.7</version>-->
-<!--  	</dependency>-->
   	<dependency>
   		<groupId>com.formdev</groupId>
   		<artifactId>flatlaf</artifactId>
@@ -80,12 +82,12 @@
         <artifactId>maven-shade-plugin</artifactId>
         <version>3.5.0</version>
         <configuration>
+            <finalName>ssplot</finalName>
             <shadedArtifactAttached>true</shadedArtifactAttached>
                 <artifactSet>
                     <includes>
                         <include>com.formdev:flatlaf</include>
                         <include>com.formdev:flatlaf-intellij-themes</include>
-<!--                        <include>org.scilab.forge:jlatexmath</include>-->
                         <include>org.mozilla:rhino</include>
                         <include>org.mozilla:rhino-engine</include>
                     </includes>
@@ -104,30 +106,7 @@
             </goals>
           </execution>
         </executions>
-        </plugin>    
-<!--        <plugin>-->
-<!--            <groupId>org.apache.maven.plugins</groupId>-->
-<!--            <artifactId>maven-site-plugin</artifactId>-->
-<!--            <version>4.0.0-M13</version>-->
-<!--        </plugin>-->
-<!--        <plugin>-->
-<!--          <groupId>org.apache.maven.plugins</groupId>-->
-<!--          <artifactId>maven-project-info-reports-plugin</artifactId>-->
-<!--          <version>3.5.0</version>-->
-<!--        </plugin>-->
-    </plugins>   
+        </plugin>
+    </plugins>
   </build>
-  
-<!--  <reporting>-->
-<!--    <plugins>-->
-<!--        <plugin>-->
-<!--            <groupId>org.apache.maven.plugins</groupId>-->
-<!--            <artifactId>maven-checkstyle-plugin</artifactId>-->
-<!--            <version>3.0.0</version>-->
-<!--            <configuration>-->
-<!--                <configLocation>sun_checks.xml</configLocation>-->
-<!--            </configuration>-->
-<!--        </plugin>-->
-<!--    </plugins>-->
-<!--  </reporting>-->
 </project>

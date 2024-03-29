@@ -3,7 +3,7 @@
 # 2023
 # beta version, can't do everything yet.
 # I should move this to a makefile.
-VERSION=2.2.1
+VERSION=2.2.2
 echo "Running Maven"
 mvn package
 echo "Copying target jar"
