@@ -10,6 +10,7 @@
   <developer id="io.github.babaissarkar">
     <name>Subhraman Sarkar</name>
   </developer>
+  <icon type="stock">io.github.babaissarkar.ssplot</icon>
   
   <url type="homepage">https://babaissarkar.github.io/</url>
   <url type="vcs-browser">https://github.com/babaissarkar/ssplot</url>
@@ -25,7 +26,7 @@
         <li>Comes with its own JavaScript based Console for simple calculation tasks.</li>
      </ol>
   </description>
-  <content_rating type="oars-1.0" />
+  <content_rating type="oars-1.1" />
   <releases>
     <release version="2.2.2" date="2024-03-29" type="stable">
       <url>https://github.com/babaissarkar/ssplot/releases/tag/v2.2.2</url>
