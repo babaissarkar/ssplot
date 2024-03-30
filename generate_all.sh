@@ -1,8 +1,9 @@
 #!/bin/bash
-# Author : Subhraman Sarkar
-# 2023
+# Copyright 2023-2024 Subhraman Sarkar
 # beta version, can't do everything yet.
-# I should move this to a makefile.
+# AppImageTool and any other required build programs
+# should exist on PATH
+# build-deps : maven, dpkg-deb, appimagetool, markdown
 VERSION=2.2.2
 echo "Running Maven"
 mvn package
@@ -18,4 +19,4 @@ dpkg-deb -b ssplot-deb
 mv -v "ssplot-deb.deb" "ssplot-${VERSION}.deb"
 echo "Creating AppImage"
 cp -v "jar/SSPlot.jar" "SSPlot.AppDir/usr/share/ssplot/ssplot.jar"
-ARCH=x86_64 "/home/ssarkar/Downloads/Software/AppImages/appimagetool-x86_64.AppImage" "SSPlot.AppDir"
+ARCH=x86_64 appimagetool "SSPlot.AppDir"

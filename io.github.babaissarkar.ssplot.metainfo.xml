@@ -3,16 +3,65 @@
   <id>io.github.babaissarkar.ssplot</id>
   
   <name>SSPlot</name>
-  <summary>A simple plotting utility and numerical simulator.</summary>
+  <summary>A simple plotting utility and numerical simulator</summary>
   
   <metadata_license>CC-BY-4.0</metadata_license>
   <project_license>LGPL-2.1-or-later</project_license>
+  <developer id="io.github.babaissarkar">
+    <name>Subhraman Sarkar</name>
+  </developer>
+  
+  <url type="homepage">https://babaissarkar.github.io/</url>
+  <url type="vcs-browser">https://github.com/babaissarkar/ssplot</url>
   
   <description>
-    <p>
-      A simple plotting utility and numerical simulator. It can : <em> Plot datafiles (2D and 3D). </em> Can change appearance of plot. <em> Solve and plot ODE and Difference Equations. </em> Plot functions of one and two variables. * Comes with its own JavaScript based Console for simple calculation tasks.
-    </p>
+     <p>A simple plotting utility and numerical simulator, which can plot simple csv style plain text files containing numerical data separated by whitespace, as well can numerically solve equations to generate such data and plot them, suitable for studying dynamical systems.</p>
+     <p>Features :</p>
+     <ol>
+        <li>Plot datafiles (2D and 3D).</li>
+        <li>Can change appearance of plot.</li>
+        <li>Solve and plot ODE and Difference Equations.</li>
+        <li>Plot functions of one and two variables.</li>
+        <li>Comes with its own JavaScript based Console for simple calculation tasks.</li>
+     </ol>
   </description>
+  <content_rating type="oars-1.0" />
+  <releases>
+    <release version="2.2.2" date="2024-03-29" type="stable">
+      <url>https://github.com/babaissarkar/ssplot/releases/tag/v2.2.2</url>
+    </release>
+    <release version="2.2.1" date="2024-02-08" type="stable">
+      <url>https://github.com/babaissarkar/ssplot/releases/tag/v2.2.1</url>
+    </release>
+    <release version="2.1.1" date="2023-09-05" type="stable">
+      <url>https://github.com/babaissarkar/ssplot/releases/tag/v2.1.1</url>
+    </release>
+    <release version="2.0" date="2023-09-01" type="stable">
+      <url>https://github.com/babaissarkar/ssplot/releases/tag/v2.0</url>
+    </release>
+    <release version="1.6" date="2022-02-03" type="stable">
+      <url>https://github.com/babaissarkar/ssplot/releases/tag/v1.6</url>
+    </release>
+    <release version="1.5" date="2021-09-05" type="stable">
+      <url>https://github.com/babaissarkar/ssplot/releases/tag/v1.5</url>
+    </release>
+    <release version="1.4.1" date="2021-08-18" type="stable">
+      <url>https://github.com/babaissarkar/ssplot/releases/tag/v1.4.1</url>
+    </release>
+    <release version="1.2" date="2021-07-17" type="stable">
+      <url>https://github.com/babaissarkar/ssplot/releases/tag/v1.2</url>
+    </release>
+    <release version="1.1.2" date="2021-07-10" type="stable">
+      <url>https://github.com/babaissarkar/ssplot/releases/tag/v1.1.2</url>
+    </release>
+    <release version="1.1" date="2021-07-08" type="stable">
+      <url>https://github.com/babaissarkar/ssplot/releases/tag/v1.1</url>
+    </release>
+    <release version="1.0" date="2021-07-03" type="stable">
+      <url>https://github.com/babaissarkar/ssplot/releases/tag/v1.0</url>
+    </release>
+  </releases>
+   
   
   <screenshots>
     <screenshot type="default">
