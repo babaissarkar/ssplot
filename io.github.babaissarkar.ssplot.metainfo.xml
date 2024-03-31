@@ -27,9 +27,19 @@
      </ol>
   </description>
   <content_rating type="oars-1.1" />
+  <categories>
+    <category>Science</category>
+    <category>Education</category>
+  </categories>
+  <keywords>
+    <keyword>Java</keyword>
+    <keyword>Mathematics</keyword>
+    <keyword>Physics</keyword>
+    <keyword>Dynamical Systems</keyword>
+  </keywords>
   <releases>
-    <release version="2.2.3" date="2024-03-30" type="stable">
-      <url>https://github.com/babaissarkar/ssplot/releases/tag/v2.2.3</url>
+    <release version="2.2.4" date="2024-03-31" type="stable">
+      <url>https://github.com/babaissarkar/ssplot/releases/tag/v2.2.4</url>
     </release>
     <release version="2.2.1" date="2024-02-08" type="stable">
       <url>https://github.com/babaissarkar/ssplot/releases/tag/v2.2.1</url>
@@ -67,6 +77,7 @@
   <screenshots>
     <screenshot type="default">
       <image type="source">https://babaissarkar.github.io/images/ssplot_screenshot.png</image>
+      <caption>Main screen of SSPlot</caption>
     </screenshot>
   </screenshots>
   
