@@ -3,7 +3,7 @@
   <id>io.github.babaissarkar.ssplot</id>
   
   <name>SSPlot</name>
-  <summary>A simple plotting utility and numerical simulator</summary>
+  <summary>Simple plotting utility and numerical simulator</summary>
   
   <metadata_license>CC-BY-4.0</metadata_license>
   <project_license>LGPL-2.1-or-later</project_license>
@@ -16,7 +16,7 @@
   <url type="vcs-browser">https://github.com/babaissarkar/ssplot</url>
   
   <description>
-     <p>A simple plotting utility and numerical simulator, which can plot simple csv style plain text files containing numerical data separated by whitespace, as well can numerically solve equations to generate such data and plot them, suitable for studying dynamical systems.</p>
+     <p>A simple plotter and numerical solver, which can plot csv style plain text files with numerical data separated by whitespace, as well can numerically solve equations and ODEs to generate data and plot them for studying dynamical systems.</p>
      <p>Features :</p>
      <ol>
         <li>Plot datafiles (2D and 3D).</li>
