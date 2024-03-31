@@ -14,6 +14,9 @@ Any Java version >= 8.
 
 A `DEB` package and an `AppImage` with bundled AdoptOpenJDK java runtime is available.
 
+# Screenshot
+![Main Screen of SSPlot, version 2.2.4](https://babaissarkar.github.io/images/ssplot_screenshot.png)
+
 # Themes
 Four themes are available, current accessible only through command line options.
 1. *Light Theme* -- The default (FlatLAF Arc Orange). No options needed.
