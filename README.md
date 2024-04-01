@@ -12,7 +12,9 @@ Any Java version >= 8.
 5. Run using `./ssplot` from your terminal/command line (For linux), or go to the directory where the file `SSPlot.jar` is, open a terminal there and run `java -jar SSPlot.jar`
 7. You may need to set the `CLASSPATH` environment variable if you want to use an alternate engine for math equation parsing, as explained in a later section.
 
-A `DEB` package and an `AppImage` with bundled AdoptOpenJDK java runtime is available.
+A `DEB` package, a flatpak from flathub and an `AppImage` with bundled AdoptOpenJDK java runtime is available.
+
+[![Download on Flathub](https://flathub.org/api/badge?locale=en)](https://flathub.org/apps/io.github.babaissarkar.ssplot)
 
 # Screenshot
 ![Main Screen of SSPlot, version 2.2.4](https://babaissarkar.github.io/images/ssplot_screenshot.png)
