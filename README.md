@@ -14,7 +14,8 @@ Any Java version >= 8.
 
 A `DEB` package, a flatpak from flathub and an `AppImage` with bundled AdoptOpenJDK java runtime is available.
 
-[![Download on Flathub](https://flathub.org/api/badge?locale=en)](https://flathub.org/apps/io.github.babaissarkar.ssplot)
+<a href='https://flathub.org/apps/io.github.babaissarkar.ssplot'><img width='240' alt='Download on Flathub' src='https://flathub.org/api/badge?locale=en'/></a>
+<a href='https://github.com/babaissarkar/ssplot/releases/download/v2.2.1/SSPlot-x86_64.AppImage'><img width='240' alt='DDownload as AppImage' src='https://docs.appimage.org/_images/download-appimage-banner.svg'/></a>
 
 # Screenshot
 ![Main Screen of SSPlot, version 2.2.4](https://babaissarkar.github.io/images/ssplot_screenshot.png)
