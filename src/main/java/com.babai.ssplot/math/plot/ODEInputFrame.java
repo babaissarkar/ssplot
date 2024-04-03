@@ -137,6 +137,8 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 		pnlCounts.setLayout(new BoxLayout(pnlCounts, BoxLayout.Y_AXIS));
 		JLabel lblCounts = new JLabel("Iteration count");
 		tfCounts = new JTextField(10);
+		JPanel pnlIter = new JPanel();
+		pnlIter.setLayout(new GridLayout(2, 2));
 		JPanel pnlLoCounts = new JPanel();
 		pnlLoCounts.setLayout(new FlowLayout(FlowLayout.LEFT));
 		pnlLoCounts.add(lblCounts);
@@ -145,6 +147,7 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 		
 		JLabel lblStep = new JLabel("Iteration stepsize");
 		tfStep = new JTextField(10);
+		
 		JPanel pnlLoStep = new JPanel();
 		pnlLoStep.setLayout(new FlowLayout(FlowLayout.LEFT));
 		pnlLoStep.add(lblStep);
@@ -225,6 +228,8 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 		JPanel pnlButton2 = new JPanel();
 		btnOK = new JButton();
 		btnCancel = new JButton();
+		btnOK.setToolTipText("Apply changes");
+		btnCancel.setToolTipText("Cancel changes");
 		btnOK.setIcon(new ImageIcon(Toolkit.getDefaultToolkit().getImage(
     			getClass().getResource("/check.png"))));
 		btnCancel.setIcon(new ImageIcon(Toolkit.getDefaultToolkit().getImage(
@@ -233,6 +238,8 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 		JPanel pnlButton = new JPanel();
 		btnTR = new JButton();
 		btnTR2 = new JButton();
+		btnTR.setToolTipText("Draw 2d plot");
+		btnTR2.setToolTipText("Draw 3d plot");
 		btnTR.setIcon(new ImageIcon(Toolkit.getDefaultToolkit().getImage(
     			getClass().getResource("/2d.png"))));
 		btnTR2.setIcon(new ImageIcon(Toolkit.getDefaultToolkit().getImage(
@@ -250,6 +257,8 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 		JPanel pnlButton3 = new JPanel();
 		btnDF = new JButton();
 		btnCW = new JButton();
+		btnDF.setToolTipText("Draw Vector Field");
+		btnCW.setToolTipText("Draw Cobweb Plot");
 		btnDF.setIcon(new ImageIcon(Toolkit.getDefaultToolkit().getImage(
     			getClass().getResource("/vfield.png"))));
 		btnCW.setIcon(new ImageIcon(Toolkit.getDefaultToolkit().getImage(

@@ -2,7 +2,7 @@
 A simple plotting utility for dynamical systems.
 
 # Requirements
-Any Java version >= 8.
+Any Java version >= 17.
 
 # Installation
 1. Install Java runtime (JRE).
@@ -25,6 +25,9 @@ Four themes are available, current accessible only through command line options.
 4. *Metal Theme* -- Use `-metal`. Java's inbuilt Metal theme.
 
 Options only available when you run using the command line (i.e. `ssplot -dark` or `java -jar SSPlot.jar -dark`).
+
+# Documentation
+Please see the `docs` directory in this repository.
 
 # Important notes
 1. You may have to set the `CLASSPATH` yourself. You can search the internet for how to do that for your OS.

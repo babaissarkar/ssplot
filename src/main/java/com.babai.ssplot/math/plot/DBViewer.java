@@ -107,6 +107,7 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 		
 		JLabel lblPlots = new JLabel("Plots");
 		btnEditProp = new JButton("Edit Properties...");
+		btnEditProp.setToolTipText("Edit the properties of the current plot");
 		btnEditProp.addActionListener(
 			evt -> {
 				int id = jcbPlotlist.getSelectedIndex();
@@ -138,6 +139,8 @@ public class DBViewer extends JInternalFrame implements ActionListener {
         tfZData.setHorizontalAlignment(JTextField.CENTER);
         btnPlot = new JButton("Apply");
         btnPlot.addActionListener(this);
+        JLabel lblPlotUsing = new JLabel("Plot using :");
+        pnlPrefs.add(lblPlotUsing);
         pnlPrefs.add(lblXData);
         pnlPrefs.add(tfXData);
         pnlPrefs.add(lblYData);
@@ -178,7 +181,12 @@ public class DBViewer extends JInternalFrame implements ActionListener {
         btnColumn = new JButton();
         btnPrint = new JButton();
         
-        //TODO Add Tooltip text to the buttons
+        btnNew.setToolTipText("New Data");
+        btnLoad.setToolTipText("Load Data from File");
+        btnSave.setToolTipText("Save Data");
+        btnRow.setToolTipText("Add Row");
+        btnColumn.setToolTipText("Add Column");
+        btnPrint.setToolTipText("Print Data");
         
         btnNew.setIcon(new ImageIcon(Toolkit.getDefaultToolkit().getImage(
     			getClass().getResource("/new_data.png"))));
@@ -192,7 +200,6 @@ public class DBViewer extends JInternalFrame implements ActionListener {
     			getClass().getResource("/open.jpg"))));
         btnSave.setIcon(new ImageIcon(Toolkit.getDefaultToolkit().getImage(
     			getClass().getResource("/save.jpg"))));
-        
         
         btnNew.addActionListener(this);
         btnLoad.addActionListener(this);

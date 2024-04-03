@@ -185,8 +185,8 @@ public class MainFrame extends JFrame implements ActionListener {
 		jmOpen = new JMenuItem("From File...");
 		jmPhase = new JMenuItem("From Equation...");
 		
-		jmSvData = new JMenuItem("Save current data");
-		jmSave = new JMenuItem("Save Image");
+		jmSvData = new JMenuItem("Save Data...");
+		jmSave = new JMenuItem("Save Image...");
 		jmShowData = new JMenuItem("View/Edit Plot Data");
 		jmPaint = new JMenuItem("Refresh");
 		jmHelp = new JMenuItem("Keymaps Help");
@@ -282,7 +282,7 @@ public class MainFrame extends JFrame implements ActionListener {
         );
 
         JMenu mnuFile = new JMenu("File");
-        JMenu sbmnNew = new JMenu("New Plot...");
+        JMenu sbmnNew = new JMenu("New Plot");
         sbmnNew.add(jmOpen);
         sbmnNew.add(jmPhase);
         
@@ -315,22 +315,16 @@ public class MainFrame extends JFrame implements ActionListener {
         mnuPlot.add(mnuProp);
         
         JMenu mnuWindow = new JMenu("Window");
-        JMenuItem jmiShowLogs = new JMenuItem("Logs...");
         JMenuItem jmiShowDBV = new JMenuItem("Data Editor...");
         JMenuItem jmiShowEqn = new JMenuItem("Equation Editor...");
         
         mnuWindow.add(jmiShowDBV);
         mnuWindow.add(jmiShowEqn);
-//        mnuWindow.add(jmiShowLogs);
 		
 		JDesktopPane mainPane = new JDesktopPane();
 		mainPane.setDragMode(JDesktopPane.OUTLINE_DRAG_MODE);
 		
 		ifrmPlot.setSize(Plotter.DEFAULT_W+50, Plotter.DEFAULT_H + 80);
-		
-//		ifrmLogs.setSize(560, 150);
-//		ifrmLogs.setLocation(Plotter.DEFAULT_W + 100, 10);
-//		ifrmLogs.setDefaultCloseOperation(JInternalFrame.HIDE_ON_CLOSE);
 		
 		dbv.setSize(500, 500);
 		dbv.setLocation(Plotter.DEFAULT_W + 100, 180);
@@ -343,17 +337,8 @@ public class MainFrame extends JFrame implements ActionListener {
 		ifrmLogs.add(this.getLogger().getComponent());
 		
 		mainPane.add(ifrmPlot);
-//		mainPane.add(ifrmLogs);
 		mainPane.add(odeinput);
 		mainPane.add(dbv);
-		
-		jmiShowLogs.addActionListener(
-			evt -> {
-				if (!ifrmLogs.isVisible()) {
-					ifrmLogs.setVisible(true);
-				}
-			}
-		);
 		
 		jmiShowDBV.addActionListener(
 			evt -> {
