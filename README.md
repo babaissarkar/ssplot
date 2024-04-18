@@ -1,8 +1,8 @@
-# ssplot
+# SSPlot
 A simple plotting utility for dynamical systems.
 
 # Requirements
-Any Java version >= 17.
+Any Java version >= 17. (Use latest version if possible)
 
 # Installation
 1. Install Java runtime (JRE).
@@ -12,7 +12,10 @@ Any Java version >= 17.
 5. Run using `./ssplot` from your terminal/command line (For linux), or go to the directory where the file `SSPlot.jar` is, open a terminal there and run `java -jar SSPlot.jar`
 7. You may need to set the `CLASSPATH` environment variable if you want to use an alternate engine for math equation parsing, as explained in a later section.
 
-A `DEB` package and an `AppImage` with bundled AdoptOpenJDK java runtime is available.
+A `DEB` package, a flatpak from flathub and an `AppImage` with bundled AdoptOpenJDK java runtime is available.
+
+<a href='https://flathub.org/apps/io.github.babaissarkar.ssplot'><img width='240' alt='Download on Flathub' src='https://flathub.org/api/badge?locale=en'/></a>
+<a href='https://github.com/babaissarkar/ssplot/releases/download/v2.2.1/SSPlot-x86_64.AppImage'><img width='240' alt='DDownload as AppImage' src='https://docs.appimage.org/_images/download-appimage-banner.svg'/></a>
 
 # Screenshot
 ![Main Screen of SSPlot, version 2.2.4](https://babaissarkar.github.io/images/ssplot_screenshot.png)
