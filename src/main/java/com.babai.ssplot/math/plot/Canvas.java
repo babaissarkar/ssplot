@@ -93,15 +93,12 @@ public class Canvas {
     	g.setColor(bgColor);
     	g.fill(new Rectangle2D.Double(0, 0, W, H));
     	g.setColor(fgColor);
-    	//zc = new Point2D.Double(0, 0);
-    	//zc = getInvTransformedPoint(new Point2D.Double(W/2, H/2));
-    	//System.out.println(zc.toString());
+
     	resetAxes();
     	
     	if (isAxesVisible()) {
     		if (isAxes3d()) {
     			shiftAxes(W/2,H/2);
-//    			drawAxes3D();
     		} else {
     			shiftAxes(W/2,H/2);
     			drawAxes();
@@ -139,14 +136,13 @@ public class Canvas {
         }
 	}
 
-    /* Draws a line from point q1 to point q2 */
+    /** Draws a line from point q1 to point q2 */
 	public void drawLine(Point2D.Double q10, Point2D.Double q20) {
-//		Color curPlotColor = g.getColor();
         g.draw(new Line2D.Double(q10, q20));
         
 	}
 
-    /* Draws an vector, by drawing a line with a marker.*/
+    /** Draws an vector, by drawing a line with a marker.*/
 	public void drawVector(Point2D.Double q1, Point2D.Double q2, Color tipCol) {
         Color curPlotColor = g.getColor();
         g.setColor(tipCol);
@@ -174,7 +170,7 @@ public class Canvas {
         g.draw(new Line2D.Double(q2, tipEnd2));
     }
 	
-	/* Write text at a specific point */
+	/** Write text at a specific point */
 	public void drawText(String str, Point2D.Double p) {
 		int x = (int) p.x;
 		int y = (int) p.y;
@@ -185,29 +181,38 @@ public class Canvas {
 /********************** Complex drawing methods ***************************************/
 	/* Draws a box around the plot */
 	public void drawBoundingBox() {
-        int strokeWidth = 1;
-        
-        Color curColor = g.getColor();
-        g.setColor(Color.BLUE);
-        
-        g.drawLine(0, 0, 0, H);
-        /* Correction for finite thickness of the line */
-        g.drawLine(0, H-strokeWidth, W, H-strokeWidth);
-        g.drawLine(W-strokeWidth, H, W-strokeWidth, 0);
-        g.drawLine(W, 0, 0, 0);
+		int strokeWidth = 1;
 
-        g.setColor(curColor);
+		Color curColor = g.getColor();
+		g.setColor(Color.BLUE);
+
+		g.drawLine(0, 0, 0, H);
+		/* Correction for finite thickness of the line */
+		g.drawLine(0, H-strokeWidth, W, H-strokeWidth);
+		g.drawLine(W-strokeWidth, H, W-strokeWidth, 0);
+		g.drawLine(W, 0, 0, 0);
+
+		g.setColor(curColor);
+
+//		log(String.format("bounding box : %d, %d, %d, %d\n", 0, 0, W, H));
 	}
 
 /*********************************** Plot Specific Drawing Methods ************************************************/
-    /* Draw the X and Y axes */
+    /** Draw the X and Y axes */
 	public void drawAxes() {
 		Color curColor = g.getColor();
 		g.setColor(axesColor);
 
-        g.drawLine(dx+moveX, 0, dx+moveX, W);
-        g.drawLine(0, dy-moveY, H, dy-moveY);
+		// X Axis
+		g.drawLine(0, dy-moveY, W, dy-moveY);
+		// Y Axis
+		g.drawLine(dx+moveX, 0, dx+moveX, H);
+
 		g.setColor(curColor);
+		
+//		log(String.format("moveX : %d, moveY : %d, dx : %d, dy : %d\n", moveX, moveY, dx, dy));
+//		log(String.format("axis x: %d, %d -> %d, %d\n", 0, dx-moveY, H, dx-moveY));
+//		log(String.format("axis y: %d, %d -> %d, %d\n", dy+moveX, 0, dy+moveX, W));
 	}
 
     /* Draw tics along the axes */
@@ -221,7 +226,6 @@ public class Canvas {
         // When the screen is shifted, the axes need to be redrawn
         int offsetTicsX = (int) ((moveX*noOfMajorTics)/(W*scaleFactor));
         int offsetTicsY = (int) ((moveY*noOfMajorTics)/(H*scaleFactor));
-        //System.out.println(offsetTics);
         
         for (int i = (-(noOfMajorTics/2 - 1) - offsetTicsX - (int) scaleFactor); i < (noOfMajorTics/2 - offsetTicsX + (int) scaleFactor); i++) {
             // X axis tics

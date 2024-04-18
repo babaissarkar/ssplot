@@ -248,6 +248,12 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 		plt.initPlot();
 		repaint();
 	}
+	
+	/* Resize canvas */
+	public void resize(int w, int h) {
+		plt.initPlot(w, h);
+		repaint();
+	}
 
 	public void log(String s) {
 		logger.log(s);

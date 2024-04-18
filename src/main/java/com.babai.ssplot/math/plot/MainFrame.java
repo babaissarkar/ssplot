@@ -27,6 +27,9 @@ import java.awt.Color;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -325,6 +328,11 @@ public class MainFrame extends JFrame implements ActionListener {
 		mainPane.setDragMode(JDesktopPane.OUTLINE_DRAG_MODE);
 		
 		ifrmPlot.setSize(Plotter.DEFAULT_W+50, Plotter.DEFAULT_H + 80);
+		ifrmPlot.addComponentListener(new ComponentAdapter() {
+			public void componentResized(ComponentEvent ce) {
+				pv.resize(ifrmPlot.getWidth() - 50, ifrmPlot.getHeight() - 50 - MENUBAR_WIDTH);
+			}
+		});
 		
 		dbv.setSize(500, 500);
 		dbv.setLocation(Plotter.DEFAULT_W + 100, 180);
@@ -595,12 +603,12 @@ public class MainFrame extends JFrame implements ActionListener {
 //		
 //		UIManager.put("RadioButton.foreground", new Color(80,28,0));
 //		
-		UIManager.put("Menu.selectionBackground", new Color(255,247,132));
+		UIManager.put("Menu.selectionBackground", new Color(255,156,95));
 		UIManager.put("Menu.selectionForeground", new Color(0,0,0));
-		UIManager.put("MenuItem.selectionBackground", new Color(255,247,132));
+		UIManager.put("MenuItem.selectionBackground", new Color(255,156,95));
 		UIManager.put("MenuItem.selectionForeground", new Color(0,0,0));
 		UIManager.put("MenuItem.checkBackground", new Color(153, 204, 255));
-//		UIManager.put("MenuItem.acceleratorForeground", new Color(5,132,37));
+		UIManager.put("MenuItem.acceleratorSelectionForeground", new Color(0,0,0));
 //		UIManager.put("MenuItem.foreground", new Color(4,88,25));
 //		UIManager.put("MenuItem.background", Color.WHITE);
 		
