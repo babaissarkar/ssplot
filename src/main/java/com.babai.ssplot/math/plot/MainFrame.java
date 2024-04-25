@@ -3,7 +3,7 @@ package math.plot;
 /*
  * PlotterFrame.java
  * 
- * Copyright 2021 Subhraman Sarkar <subhraman@subhraman-Inspiron>
+ * Copyright 2021-2024 Subhraman Sarkar <suvrax@gmail.com>
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -29,7 +29,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -63,6 +62,7 @@ import com.formdev.flatlaf.intellijthemes.FlatArcOrangeIJTheme;
 import com.formdev.flatlaf.util.SystemInfo;
 
 import cli.SSPlotCLI;
+import help.HelpFrame;
 
 //@SuppressWarnings("serial")
 public class MainFrame extends JFrame implements ActionListener {
@@ -320,9 +320,17 @@ public class MainFrame extends JFrame implements ActionListener {
         JMenu mnuWindow = new JMenu("Window");
         JMenuItem jmiShowDBV = new JMenuItem("Data Editor...");
         JMenuItem jmiShowEqn = new JMenuItem("Equation Editor...");
+        JMenuItem jmiShowHelp = new JMenuItem("Help...");
+        jmiShowHelp.addActionListener(
+        	e -> {
+        		HelpFrame hf = new HelpFrame("Parser Reference", "/docs/parser_guide.html");
+        		hf.setVisible(true);
+        	}
+        );
         
         mnuWindow.add(jmiShowDBV);
         mnuWindow.add(jmiShowEqn);
+        mnuWindow.add(jmiShowHelp);
 		
 		JDesktopPane mainPane = new JDesktopPane();
 		mainPane.setDragMode(JDesktopPane.OUTLINE_DRAG_MODE);
@@ -444,7 +452,7 @@ public class MainFrame extends JFrame implements ActionListener {
 				   + "<br> <b>g</b> and <b>h</b> : fine zoom adjustment"
 				   + "<br> <b>q, a; w, s; e, d</b> : 3d rotation keys";
         showMsg(msg);
-        JOptionPane.showMessageDialog(this, "Help printed to Logs window");
+        JOptionPane.showMessageDialog(this, "<html>"+msg+"</html>");
 	}
 	 
     public void changePlotType() {
