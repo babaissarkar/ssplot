@@ -33,6 +33,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.geom.Point2D;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
@@ -396,7 +397,7 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 		log("<b>Overlay mode :</b> " + overlayMode);
 	}
 	
-	public void toggleAnimate() {		
+	public void toggleAnimate() {
 		if (animate) {
 			stopAnimation();
 		} else {
@@ -425,7 +426,6 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 
 	@Override
 	public void mouseDragged(MouseEvent mout) {
-//		logger.log("Mouse Dragged to : " + mout.getX() + ", " + mout.getY());
 		dragOn = true;
 	}
 
@@ -442,16 +442,34 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 	public void mouseExited(MouseEvent arg0) {}
 
 	@Override
-	public void mousePressed(MouseEvent min) {
-		this.mouseDragStart[0] = min.getX();
-		this.mouseDragStart[1] = min.getY();
-//		logger.log("Mouse Pressed : " + this.mouseDragStart[0] + ", " + this.mouseDragStart[1]);
+	public void mousePressed(MouseEvent ev) {
+		this.mouseDragStart[0] = ev.getX();
+		this.mouseDragStart[1] = ev.getY();
+		
+		// FIXME origin is a magic number
+		if (ev.getButton() != MouseEvent.BUTTON1) {
+			/* The plotting area starts from (20,20) in java graphics space,
+			 * so we are substracting it. */
+			Point2D.Double clickedAt = new Point2D.Double(ev.getX() - 20, ev.getY() - 20);
+			Point2D.Double p = plt.getCanvas().getInvTransformedPoint(clickedAt);
+//			String label = String.format("(%3.1f, %3.1f)", p.getX(), p.getY());
+			String label = p.toString();
+			
+			if (ev.getButton() == MouseEvent.BUTTON3) {
+				//pv.addNode(new Point2D.Double(x-20, y-20), label, Color.BLUE);
+				log("Point : " + label);
+			} else if (ev.getButton() == MouseEvent.BUTTON2) {
+				plt.setZoomCenter(p);
+				log("Zoom Center set at " + label);
+			}
+			
+			repaint();
+		}
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent mout) {
 		if (dragOn) {
-//			logger.log("Mouse Released to : " + mout.getX() + ", " + mout.getY());
 			//Rudimentary view rotation using a mouse
 			int x2 = mout.getX();
 			int y2 = mout.getY();
@@ -485,6 +503,25 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 		
 		dragOn = false;
 	}
+	
+	/*
+	pv.addMouseWheelListener(
+		new MouseWheelListener() {
+			public void mouseWheelMoved(MouseWheelEvent ev) {
+				int x = ev.getX()-20;
+				int y = ev.getY()-20;
+
+				Point2D.Double p = pv.getCanvas().getInvTransformedPoint(new Point2D.Double(x, y));
+
+				if (ev.getWheelRotation() < 0) {
+					pv.zoomIn(p.getX(), p.getY());
+				} else if (ev.getWheelRotation() > 0) {
+					pv.zoomOut(p.getX(), p.getY());
+				}
+			}
+		}
+		);
+	 */
 
 }
 
