@@ -25,25 +25,46 @@ package math.plot;
 
 import java.awt.Color;
 import java.awt.geom.Point2D;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Vector;
 
 public class PlotData {
-    /* This class is the Model.*/
-    public enum PlotType { LINES, POINTS, LP, VECTORS, THREED, TRLINE };
-    public enum PointType { SQUARE, CIRCLE };
-    
-    public Vector<Vector<Double>> data;
-    public Vector<Node> nodes;
-    private int dataCol1, dataCol2;
-    private PlotType pltype;
-    private Color fgColor, fgColor2;
-    
-    public PointType pttype;
-    public int ptX, ptY;
-    
-    private String title;
-	private String xlabel, ylabel;
+	/* This class is the Model of MVC pattern.*/
+	public enum PlotType {
+		LINES("Lines"),
+		POINTS("Points"),
+		LP("Both Lines and Points"),
+		VECTORS("3D Points"), 
+		THREED("3D Lines"), 
+		TRLINE("Vector field");
+		
+		private final String type;
+
+		PlotType(String type) {
+			this.type = type;
+		}
+		
+		@Override
+		public String toString() {
+			return this.type;
+		}
+	};
 	
+	public enum PointType { SQUARE, CIRCLE };
+
+	public Vector<Vector<Double>> data;
+	public Vector<Node> nodes;
+	private int dataCol1, dataCol2;
+	private PlotType pltype;
+	private Color fgColor, fgColor2;
+
+	public PointType pttype;
+	public int ptX, ptY;
+
+	private String title;
+	private String xlabel, ylabel;
+
 	public SystemData sysData;
 
 	public String getXLabel() {
@@ -62,43 +83,43 @@ public class PlotData {
 		this.ylabel = ylabel;
 	}
 
-    public PlotData() {
-        this(new Vector<Vector<Double>>());
-    }
+	public PlotData() {
+		this(new Vector<Vector<Double>>());
+	}
 
-    public PlotData(Vector<Vector<Double>> extData) {
-    	nodes = new Vector<Node>();
-    	sysData = new SystemData();
-        data = extData;
-        pltype = PlotType.LINES;
-        pttype = PointType.SQUARE;
-        ptX = 2; ptY = 2;
-        fgColor = Color.RED;
-        fgColor2 = Color.BLUE;
-        setDataCols(1, 2);
-        title = "New Data " + System.nanoTime();
-    }
-    
-    public void setTitle(String title) {
-    	this.title = title;
-    }
-    
-    public String getTitle() {
-    	return this.title;
-    }
-    
-    public void setFgColor(Color c) {
-    	this.fgColor = (c != null) ? c : Color.RED;
-    }
-    
-    public Color getFgColor() {
+	public PlotData(Vector<Vector<Double>> extData) {
+		nodes = new Vector<Node>();
+		sysData = new SystemData();
+		data = extData;
+		pltype = PlotType.LINES;
+		pttype = PointType.SQUARE;
+		ptX = 2; ptY = 2;
+		fgColor = Color.RED;
+		fgColor2 = Color.BLUE;
+		setDataCols(1, 2);
+		title = "New Data " + System.nanoTime();
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public String getTitle() {
+		return this.title;
+	}
+
+	public void setFgColor(Color c) {
+		this.fgColor = (c != null) ? c : Color.RED;
+	}
+
+	public Color getFgColor() {
 		return fgColor;
 	}
 
 	public void setFgColor2(Color fgColor2) {
 		this.fgColor2 = (fgColor2 != null) ? fgColor2 : Color.BLUE;
 	}
-	
+
 	public Color getFgColor2() {
 		return fgColor2;
 	}
@@ -106,15 +127,15 @@ public class PlotData {
 	public void setPltype(PlotType pltype) {
 		this.pltype = pltype;
 	}
-	
+
 	public PlotType getPltype() {
 		return pltype;
 	}
 
 	public void addNode(Point2D.Double p, String str, Color c) {
-        Node n = new Node(p, str, c);
-        nodes.add(n);
-    }
+		Node n = new Node(p, str, c);
+		nodes.add(n);
+	}
 
 	/**
 	 * @return the dataCol1
@@ -122,7 +143,7 @@ public class PlotData {
 	public int getDataCol1() {
 		return dataCol1;
 	}
-	
+
 	/**
 	 * @return the dataCol2
 	 */
@@ -137,7 +158,7 @@ public class PlotData {
 		this.dataCol1 = dataCol1;
 		this.dataCol2 = dataCol2;
 	}
-	
+
 	/** @return max value among all data in a column */
 	public double getMax(int dataCol) {
 		double max = this.data.get(0).get(dataCol);
@@ -146,7 +167,7 @@ public class PlotData {
 		}
 		return max;
 	}
-	
+
 	/** @return min value among all data in a column */
 	public double getMin(int dataCol) {
 		double min = this.data.get(0).get(dataCol);

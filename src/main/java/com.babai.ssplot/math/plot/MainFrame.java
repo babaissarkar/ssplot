@@ -63,6 +63,7 @@ import com.formdev.flatlaf.util.SystemInfo;
 
 import cli.SSPlotCLI;
 import help.HelpFrame;
+import math.plot.PlotData.PlotType;
 
 //@SuppressWarnings("serial")
 public class MainFrame extends JFrame implements ActionListener {
@@ -409,49 +410,18 @@ public class MainFrame extends JFrame implements ActionListener {
 	}
 
 	public void changePlotType() {
-		final String[] types = {
-			"Lines",
-			"Points",
-			"Both Lines and Points",
-			"3D Points",
-			"3D Lines",
-			"Vector field"
-		};
-
-		String type = (String) JOptionPane.showInputDialog(
+		PlotType type = (PlotType) JOptionPane.showInputDialog(
 			this,
 			"Choose Plot Type :",
 			"Plot Type",
 			JOptionPane.QUESTION_MESSAGE,
 			null,
-			types,
-			types[0]
+			PlotType.values(),
+			PlotType.LINES
 		);
 
-		if (!type.isEmpty()) {
-			for (int i = 0; i < types.length; i++) {
-				if (type == types[i]) {
-					switch(i) {
-					case 1 :
-						pv.setCurPlotType(PlotData.PlotType.POINTS);
-						break;
-					case 2 :
-						pv.setCurPlotType(PlotData.PlotType.LP);
-						break;
-					case 3 :
-						pv.setCurPlotType(PlotData.PlotType.THREED);
-						break;
-					case 4 :
-						pv.setCurPlotType(PlotData.PlotType.TRLINE);
-						break;
-					case 5 :
-						pv.setCurPlotType(PlotData.PlotType.VECTORS);
-						break;
-					default :
-						pv.setCurPlotType(PlotData.PlotType.LINES);
-					}
-				}
-			}
+		if (type != null) {
+			pv.setCurPlotType(type);
 		}
 	}
 
