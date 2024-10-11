@@ -24,6 +24,7 @@ package math.plot;
  */
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -34,9 +35,14 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Optional;
 
 import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JColorChooser;
 import javax.swing.JDesktopPane;
@@ -96,17 +102,24 @@ public class MainFrame extends JFrame implements ActionListener {
 	 /* Valid only for default Metal look and feel. */
 	private static final int MENUBAR_WIDTH = 60;
 	
+	// Note: html string does not show up correctly in JOptionPane
+	// unless the \n -> <br/> replacement is done.
 	private static final String VERSION = "2.2.2";
 	private static final String ABOUT_MSG ="""
-			 <h1>SSPlot</h1>
-			 Version : %s<br>
-			 Created by : Subhraman Sarkar, 2021-2024<br/>
-			 Available under the LGPL 2.1 license or, (at your choice)
-			 any later version.<br/>
-			 Homepage : <a href='https://github.com/babaissarkar/ssplot'>
-			 https://github.com/babaissarkar/ssplot</a>
-			""";
-
+			<h1>SSPlot %s</h1>
+			Copyright 2021-2024 Subhraman Sarkar
+			Available under the LGPL 2.1 license or, (at your choice) any later version.
+			<b>Homepage :</b> https://github.com/babaissarkar/ssplot
+			""".replace("\n", "<br/>").formatted(VERSION);
+	
+	private static final String KEY_HELP_MSG = """
+			<h1>Key bindings</h1>
+			<b>Arrow keys :</b> translate graph,
+			<b>j</b> and <b>f</b> : zoom in and out (2x or 0.5x)
+			<b>g</b> and <b>h</b> : fine zoom adjustment
+			<b>q, a; w, s; e, d</b> : 3d rotation keys
+			""".replace("\n", "<br/>");
+	
 
 	public MainFrame() {
 		//setup icon
@@ -144,7 +157,7 @@ public class MainFrame extends JFrame implements ActionListener {
 		JInternalFrame ifrmPlot = new JInternalFrame("Plot", true, false, true, true);
 		JInternalFrame ifrmLogs = new JInternalFrame("Logs", true, true, true, true);
 
-		/* Menu */
+		// Menu setup
 		jmOpen = new JMenuItem("From File...");
 		jmPhase = new JMenuItem("From Equation...");
 		jmSvData = new JMenuItem("Save Data...");
@@ -219,9 +232,9 @@ public class MainFrame extends JFrame implements ActionListener {
 		jmOpen.addActionListener(e -> openFile());
 		jmSave.addActionListener(e -> saveImage());
 		jmHelp.addActionListener(e -> showHelp());
-		jmShowData.addActionListener(e -> showData());
+		jmShowData.addActionListener(e -> dbv.setVisible(true));
 		jmQuit.addActionListener(e -> System.exit(0));
-		jmSvData.addActionListener(e -> saveData());
+		jmSvData.addActionListener(e -> dbv.saveFile());
 		jmPaint.addActionListener(this);
 		jmClear.addActionListener(this);
 		jmClearLogs.addActionListener(e -> logger.clear());
@@ -283,7 +296,27 @@ public class MainFrame extends JFrame implements ActionListener {
 		jmiShowHelp.addActionListener(e -> {
 			new HelpFrame("Parser Reference", "/docs/parser_guide.html").setVisible(true);
 		});
+		
+		jmiShowDBV.addActionListener(e -> {
+			if (!dbv.isVisible()) {
+				dbv.setVisible(true);
+			}
+		});
 
+		jmiShowEqn.addActionListener(e -> {
+			if (!odeinput.isVisible()) {
+				odeinput.setVisible(true);
+			}
+		});
+		
+		JMenuBar jmb = new JMenuBar();
+		jmb.add(mnuFile);
+		jmb.add(mnuPlot);
+		jmb.add(mnuWindow);
+		
+		this.setJMenuBar(jmb);
+
+		// Main layouting
 		JDesktopPane mainPane = new JDesktopPane();
 		mainPane.setDragMode(JDesktopPane.OUTLINE_DRAG_MODE);
 
@@ -310,27 +343,6 @@ public class MainFrame extends JFrame implements ActionListener {
 		mainPane.add(odeinput);
 		mainPane.add(dbv);
 
-		jmiShowDBV.addActionListener(
-			evt -> {
-				if (!dbv.isVisible()) {
-					dbv.setVisible(true);
-				}
-			}
-		);
-
-		jmiShowEqn.addActionListener(
-			evt -> {
-				if (!odeinput.isVisible()) {
-					odeinput.setVisible(true);
-				}
-			}
-		);
-
-		JMenuBar jmb = new JMenuBar();
-		jmb.add(mnuFile);
-		jmb.add(mnuPlot);
-		jmb.add(mnuWindow);
-
 		odeinput.pack();
 
 		ifrmPlot.setVisible(true);
@@ -349,8 +361,7 @@ public class MainFrame extends JFrame implements ActionListener {
 		mainPane2.setTopComponent(mainPane);
 		mainPane2.setBottomComponent(statusPane);
 
-		this.setJMenuBar(jmb);
-		this.getContentPane().setLayout(new BorderLayout());        
+		this.getContentPane().setLayout(new BorderLayout());
 		this.getContentPane().add(mainPane2, BorderLayout.CENTER);
 		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
 	}
@@ -385,28 +396,10 @@ public class MainFrame extends JFrame implements ActionListener {
 		pv.setCurPlot(dbv.getData());
 	}
 
-	public void saveData() {
-		dbv.saveFile();
-	}
-
-	public void showData() {
-		//		if (pv.getCurPlot() != null) {
-		//			dbv.setData(pv.getCurPlot());
-		//		}
-		//        dbv.addListener(this);
-		dbv.setVisible(true);
-	}
-
 	public void showHelp() {
 		// Shows help message
-		String msg = """
-				<h2> Key bindings </h2>
-				<b>Arrow keys :</b> translate graph,
-				<br> <b>j</b> and <b>f</b> : zoom in and out
-				<br> <b>g</b> and <b>h</b> : fine zoom adjustment
-				<br> <b>q, a; w, s; e, d</b> : 3d rotation keys""";
-		showMsg(msg);
-		JOptionPane.showMessageDialog(this, "<html>"+msg+"</html>");
+		showMsg(KEY_HELP_MSG);
+		JOptionPane.showMessageDialog(this, "<html>" + KEY_HELP_MSG + "</html>");
 	}
 
 	public void changePlotType() {
@@ -435,8 +428,62 @@ public class MainFrame extends JFrame implements ActionListener {
 	public void actionPerformed(ActionEvent ae) {
 		/* Triggers the actions associated with the menus */
 		if (ae.getSource() == jmAbout) {
-			logger.log(String.format(ABOUT_MSG, VERSION));
-			JOptionPane.showMessageDialog(this, "Info printed to Logs.");
+			String[] buttonStrs = {"Homepage", "Report a problem...", "License", "Close"};
+			
+			logger.log(ABOUT_MSG);
+			int status = JOptionPane.showOptionDialog(
+				this,
+				"<html>" + ABOUT_MSG + "</html>",
+				"About SSPlot",
+				JOptionPane.YES_NO_CANCEL_OPTION,
+				JOptionPane.INFORMATION_MESSAGE,
+				new ImageIcon(
+					Toolkit.getDefaultToolkit().getImage(
+						getClass().getResource("/ssplot_icon.png"))),
+				buttonStrs,
+				buttonStrs[3]
+			);
+			
+			logger.log("Selected option: " + status);
+			
+			switch (status) {
+			// TODO reduce duplicated code in case 0 and 1
+			case 0:
+				if (Desktop.isDesktopSupported()) {
+					URI homepage;
+					try {
+						homepage = new URI("https://github.com/babaissarkar/ssplot");
+						Desktop.getDesktop().browse(homepage);
+					} catch (URISyntaxException e) {
+						e.printStackTrace();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				} else {
+					logger.log("Not supported on this platform!");
+				}
+				break;
+			case 1:
+				if (Desktop.isDesktopSupported()) {
+					URI homepage;
+					try {
+						homepage = new URI("https://github.com/babaissarkar/ssplot/issues");
+						Desktop.getDesktop().browse(homepage);
+					} catch (URISyntaxException e) {
+						e.printStackTrace();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				} else {
+					logger.log("Not supported on this platform!");
+				}
+				break;
+			case 2:
+				new HelpFrame("License", "/docs/lgpl-2.1-standalone.html").setVisible(true);
+				break;
+			default:
+				// Do nothing
+			}
 		} else if (ae.getSource() == jmTitle) {
 			Optional<PlotData> pdata = pv.getCurPlot();
 			if (pdata.isPresent()) {
