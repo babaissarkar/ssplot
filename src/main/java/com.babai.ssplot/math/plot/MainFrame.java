@@ -125,7 +125,7 @@ public class MainFrame extends JFrame implements ActionListener {
 		//setup icon
 		this.setIconImage(
 			Toolkit.getDefaultToolkit().getImage(
-				getClass().getResource("/ssplot_icon.png")));
+				getClass().getResource("/ssplot.png")));
 
 		//setup logger
 		this.setLogger(new StatLogger());
