@@ -106,13 +106,6 @@
             <artifactId>exec-maven-plugin</artifactId>
             <version>3.0.0</version>
             <executions>
-		<execution>
-                    <id>show-dir</id>
-                    <phase>package</phase>
-                    <goals>
-                        <goal>exec</goal>
-                    </goals>
-                </execution>
                 <execution>
                     <id>run-jpackage</id>
                     <phase>package</phase>
@@ -121,12 +114,6 @@
                     </goals>
                 </execution>
             </executions>
-	    <configuration>
-                <executable>dir</executable>
-	        <arguments>
-			<argument>/s</argument>
-		</arguments>
-	    </configuration>
             <configuration>
                 <executable>jpackage</executable>
                 <arguments>
