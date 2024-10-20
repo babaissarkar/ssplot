@@ -57,9 +57,14 @@ jobs:
       run: mvn -B -X package --file pom-windows.xml
       
     - name: Show Directory Contents
-      run: dir jar
+      run: dir
         
     - uses: actions/upload-artifact@v4
       with:
-        name: ssplot.jar
+        name: ssplot-win.jar
         path: "./jar/ssplot.jar"
+        
+    - uses: actions/upload-artifact@v4
+      with:
+        name: ssplot.msi
+        path: "./*.msi"
