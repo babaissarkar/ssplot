@@ -58,7 +58,7 @@ jobs:
       
     - name: Show Directory Contents
       run: |
-          dir path\to\output\directory
+          dir
         
     - uses: actions/upload-artifact@v4
       with:
