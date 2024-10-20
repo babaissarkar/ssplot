@@ -117,6 +117,7 @@
             <configuration>
                 <executable>jpackage</executable>
                 <arguments>
+		    <argument>--verbose</argument>
                     <argument>--type</argument>
                     <argument>app-image</argument>
                     <argument>--input</argument>
