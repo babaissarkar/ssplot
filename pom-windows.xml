@@ -127,8 +127,6 @@
                     <argument>${project.name}</argument>
                     <argument>--app-version</argument>
                     <argument>${project.version}</argument>
-                    <argument>--description</argument>
-                    <argument>${project.description}</argument>
                     <argument>--main-class</argument>
                     <argument>math.plot.MainFrame</argument>
                 </arguments>
