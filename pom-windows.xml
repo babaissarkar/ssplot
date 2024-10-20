@@ -45,13 +45,6 @@
     <maven.compiler.target>17</maven.compiler.target>
   </properties>
   
-  <repositories>
-    <repository>
-      <id>local-repo</id>
-      <url>file:///usr/share/maven-repo</url>
-    </repository>
-  </repositories>
-  
   <dependencies>
   	<dependency>
   		<groupId>com.formdev</groupId>
@@ -83,7 +76,7 @@
 		    <version>3.5.0</version>
 		    <configuration>
 		        <finalName>${project.artifactId}</finalName>
-		        <outputDirectory>${project.basedir}/jar</outputDirectory>
+		        <outputDirectory>${project.basedir}\jar</outputDirectory>
 		        <shadedArtifactAttached>true</shadedArtifactAttached>
 		            <artifactSet>
 		                <includes>
@@ -113,6 +106,13 @@
             <artifactId>exec-maven-plugin</artifactId>
             <version>3.0.0</version>
             <executions>
+		<execution>
+                    <id>show-dir</id>
+                    <phase>package</phase>
+                    <goals>
+                        <goal>exec</goal>
+                    </goals>
+                </execution>
                 <execution>
                     <id>run-jpackage</id>
                     <phase>package</phase>
@@ -121,13 +121,19 @@
                     </goals>
                 </execution>
             </executions>
+	    <configuration>
+                <executable>dir</executable>
+	        <arguments>
+			<argument>/s</argument>
+		</arguments>
+	    </configuration>
             <configuration>
                 <executable>jpackage</executable>
                 <arguments>
                     <argument>--type</argument>
-                    <argument>exe</argument>
+                    <argument>app-image</argument>
                     <argument>--input</argument>
-                    <argument>${project.basedir}/jar</argument>
+                    <argument>${project.basedir}\jar</argument>
                     <argument>--main-jar</argument>
                     <argument>${project.artifactId}.jar</argument>
                     <argument>--name</argument>
@@ -138,8 +144,6 @@
                     <argument>${project.description}</argument>
                     <argument>--main-class</argument>
                     <argument>math.plot.MainFrame</argument>
-                    <argument>--icon</argument>
-                    <argument>src/main/resources/${project.artifactId}.png</argument>
                 </arguments>
             </configuration>
         </plugin>
