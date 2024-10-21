@@ -117,7 +117,7 @@
             <configuration>
                 <executable>jpackage</executable>
                 <arguments>
-		    		<argument>--verbose</argument>
+		    <argument>--verbose</argument>
                     <argument>--type</argument>
                     <argument>msi</argument>
                     <argument>--input</argument>
@@ -130,6 +130,9 @@
                     <argument>${project.version}</argument>
                     <argument>--main-class</argument>
                     <argument>math.plot.MainFrame</argument>
+		    <argument>--win-menu</argument>
+		    <argument>--win-shortcut-prompt</argument>
+		    <argument>--win-per-user-install</argument>
                 </arguments>
             </configuration>
         </plugin>
