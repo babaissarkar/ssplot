@@ -5,8 +5,6 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -15,7 +13,6 @@ import java.awt.event.MouseEvent;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
-import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 
 /** TODO : needs to be a real terminal, with input and output both handled by it */
@@ -24,6 +21,7 @@ public class ConsoleLabel extends JLabel {
 	private final String defaultEngine = "rhino";
 	private StringBuffer input = new StringBuffer();
 	private String output = "";
+	// TODO we are setting current but not actually using it
 	private String current = ""; // Value of last JS expression
 	private String initScript;
 	

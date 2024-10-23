@@ -25,8 +25,6 @@ package math.plot;
 
 import java.awt.Color;
 import java.awt.geom.Point2D;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Vector;
 
 public class PlotData {
