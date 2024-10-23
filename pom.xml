@@ -145,6 +145,23 @@
                 </arguments>
             </configuration>
         </plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-checkstyle-plugin</artifactId>
+            <version>3.2.0</version> <!-- Make sure to use the latest version -->
+            <executions>
+                <execution>
+                    <id>checkstyle</id>
+                    <goals>
+                        <goal>check</goal>
+                    </goals>
+                </execution>
+            </executions>
+            <configuration>
+                <configLocation>checkstyle.xml</configLocation>
+                <!-- Optional: You can suppress warnings from 3rd-party libraries with excludeFilter properties -->
+            </configuration>
+        </plugin>
     </plugins>
   </build>
 </project>
