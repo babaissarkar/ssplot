@@ -32,9 +32,11 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Optional;
+import java.util.Properties;
 
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
@@ -97,7 +99,17 @@ public class MainFrame extends JFrame {
 	
 	// Note: html string does not show up correctly in JOptionPane
 	// unless the \n -> <br/> replacement is done.
-	private static final String VERSION = "2.2.2";
+	private static String VERSION;
+	static {
+		final Properties prop = new Properties();
+		try(InputStream is = MainFrame.class.getResourceAsStream("/project.properties")) {
+			prop.load(is);
+			VERSION = prop.getProperty("version");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	private static final String ABOUT_MSG ="""
 	<h1>SSPlot %s</h1>
 	Copyright 2021-2024 Subhraman Sarkar
@@ -434,17 +446,16 @@ public class MainFrame extends JFrame {
 		
 		logger.log(ABOUT_MSG);
 		int status = JOptionPane.showOptionDialog(
-		this,
-		"<html>" + ABOUT_MSG + "</html>",
-		"About SSPlot",
-		JOptionPane.YES_NO_CANCEL_OPTION,
-		JOptionPane.INFORMATION_MESSAGE,
-		new ImageIcon(
-		Toolkit.getDefaultToolkit().getImage(
-		getClass().getResource("/ssplot_icon.png"))),
-		buttonStrs,
-		buttonStrs[3]
-		);
+			this,
+			"<html>" + ABOUT_MSG + "</html>",
+			"About SSPlot",
+			JOptionPane.YES_NO_CANCEL_OPTION,
+			JOptionPane.INFORMATION_MESSAGE,
+			new ImageIcon(
+				Toolkit.getDefaultToolkit().getImage(
+					MainFrame.class.getResource("/ssplot.png"))),
+					buttonStrs,
+					buttonStrs[3]);
 		
 		logger.log("Selected option: " + status);
 		
