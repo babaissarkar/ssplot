@@ -32,11 +32,11 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
+//import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Optional;
-import java.util.Properties;
+//import java.util.Properties;
 
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
@@ -60,6 +60,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.UnsupportedLookAndFeelException;
+
 import com.formdev.flatlaf.intellijthemes.FlatArcDarkOrangeIJTheme;
 import com.formdev.flatlaf.intellijthemes.FlatArcOrangeIJTheme;
 import com.formdev.flatlaf.util.SystemInfo;
@@ -67,6 +68,7 @@ import com.formdev.flatlaf.util.SystemInfo;
 import cli.SSPlotCLI;
 import help.HelpFrame;
 import math.plot.PlotData.PlotType;
+import util.autorevision;
 
 public class MainFrame extends JFrame {
 	
@@ -93,29 +95,35 @@ public class MainFrame extends JFrame {
 	private final JMenuItem jmLineWidth;
 	private final JMenuItem jmXLabel, jmYLabel;
 	
+//	private final static Properties prop = new Properties();
+	
 	// FIXME should be a theme-independent way instead of relying on this
-	/* Valid only for default Metal look and feel. */
+	// Valid only for default Metal look and feel.
 	private static final int MENUBAR_WIDTH = 60;
+	
+//	static {
+//		try(InputStream is = MainFrame.class.getResourceAsStream("/project.properties")) {
+//			prop.load(is);
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+//	}
 	
 	// Note: html string does not show up correctly in JOptionPane
 	// unless the \n -> <br/> replacement is done.
-	private static String VERSION;
-	static {
-		final Properties prop = new Properties();
-		try(InputStream is = MainFrame.class.getResourceAsStream("/project.properties")) {
-			prop.load(is);
-			VERSION = prop.getProperty("version");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
 	private static final String ABOUT_MSG ="""
-	<h1>SSPlot %s</h1>
+	<h1>%s %s </h1>
 	Copyright 2021-2024 Subhraman Sarkar
 	Available under the LGPL 2.1 license or, (at your choice) any later version.
+	<small>(commit %s)</small>
 	<b>Homepage :</b> https://github.com/babaissarkar/ssplot
-	""".replace("\n", "<br/>").formatted(VERSION);
+	"""
+	.replace("\n", "<br/>")
+	.formatted(
+		autorevision.VCS_BASENAME,
+		autorevision.VCS_TAG,
+		autorevision.VCS_FULL_HASH
+	);
 	
 	private static final String KEY_HELP_MSG = """
 	<h1>Key bindings</h1>
@@ -123,18 +131,19 @@ public class MainFrame extends JFrame {
 	<b>j</b> and <b>f</b> : zoom in and out (2x or 0.5x)
 	<b>g</b> and <b>h</b> : fine zoom adjustment
 	<b>q, a; w, s; e, d</b> : 3d rotation keys
-	""".replace("\n", "<br/>");
+	"""
+	.replace("\n", "<br/>");
 	
 	
 	public MainFrame() {
 		// Set icon
-		this.setIconImage(
-		Toolkit.getDefaultToolkit().getImage(
-		getClass().getResource("/ssplot.png")));
+		setIconImage(
+			Toolkit.getDefaultToolkit().getImage(
+				getClass().getResource("/ssplot.png")));
 		
 		// Initialize logger
-		this.setLogger(new StatLogger());
-		this.getLogger().log("<h1>Welcome to SSPlot!</h1>");
+		setLogger(new StatLogger());
+		getLogger().log("<h1>Welcome to %s!</h1>".formatted(autorevision.VCS_BASENAME));
 		
 		plt = new Plotter(logger);
 		plt.initPlot();
@@ -152,10 +161,11 @@ public class MainFrame extends JFrame {
 		dbv.setIconifiable(true);
 		dbv.setMaximizable(true);
 		
-		// Create GUI
+		////////////////
+		// Create GUI //
+		////////////////
 		
-		setTitle("SSPlot");
-		// FIXME this MENUBAR_WIDTH should really be removed
+		setTitle(autorevision.VCS_BASENAME);
 		setBounds(100, 20, 1300, 700 + MainFrame.MENUBAR_WIDTH);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
@@ -448,7 +458,7 @@ public class MainFrame extends JFrame {
 		int status = JOptionPane.showOptionDialog(
 			this,
 			"<html>" + ABOUT_MSG + "</html>",
-			"About SSPlot",
+			"About %s".formatted(autorevision.VCS_BASENAME),
 			JOptionPane.YES_NO_CANCEL_OPTION,
 			JOptionPane.INFORMATION_MESSAGE,
 			new ImageIcon(

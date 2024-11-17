@@ -3,8 +3,10 @@
 # beta version, can't do everything yet.
 # AppImageTool and any other required build programs
 # should exist on PATH
-# build-deps : maven, dpkg-deb, appimagetool, markdown
+# build-deps : maven, dpkg-deb, appimagetool, markdown, autorevision
 VERSION=2.2.2
+
+./autorevision.sh -t java > src/main/java/com.babai.ssplot/util/autorevision.java
 echo "Running Maven: Compile and generate DEB"
 mvn clean package -X
 echo "Generating Docs"
