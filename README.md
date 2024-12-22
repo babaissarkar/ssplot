@@ -1,6 +1,9 @@
 # SSPlot
 A simple plotting utility for dynamical systems.
 
+[![License: LGPL v2.1](https://img.shields.io/badge/License-LGPL%20v2.1-orange.svg)](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html) [![CI](https://github.com/babaissarkar/ssplot/actions/workflows/maven-publish.yml/badge.svg)](https://github.com/babaissarkar/ssplot/actions/workflows/maven-publish.yml?query=branch%3Amaster) ![GitHub Release](https://img.shields.io/github/v/release/babaissarkar/ssplot?display_name=release&labelColor=orange&color=black)
+
+
 # Requirements
 Any Java version >= 17. (Use latest version if possible)
 
