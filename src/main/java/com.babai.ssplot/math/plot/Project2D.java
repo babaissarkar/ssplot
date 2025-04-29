@@ -39,19 +39,23 @@ public class Project2D {
 		this.logger = logger;
 	}
 	
+	/**
+	 *  Set viewing angle for 3d plots
+	 */
 	public void setView(double a, double b, double c) {
-        /* Set viewing angle */
-        double a2 = Math.toDegrees(a) % 360;
-        double b2 = Math.toDegrees(b) % 360;
-        double c2 = Math.toDegrees(c) % 360;
-        if (logger != null) {
-        	String threedpos = String.format("3D Rotation angles : %f, %f, %f\n", a2, b2, c2);
-        	logger.log(threedpos);
-        }
+		double a2 = Math.toDegrees(a) % 360;
+		double b2 = Math.toDegrees(b) % 360;
+		double c2 = Math.toDegrees(c) % 360;
+		// TODO: this creates too much noise on the log window.
+		// Perhaps various log modes (Info/Debug) are needed?
+		if (logger != null) {
+			String threedpos = String.format("3D Rotation angles : %f, %f, %f\n", a2, b2, c2);
+			logger.log(threedpos);
+		}
 		this.a = a;
 		this.b = b;
 		this.c = c;
-    }
+	}
 	
 	public double getMoveAngle() {
 		return moveAngle;
