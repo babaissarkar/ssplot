@@ -1,5 +1,3 @@
-package math.plot;
-
 /*
 * PlotterFrame.java
 * 
@@ -22,6 +20,8 @@ package math.plot;
 * 
 * 
 */
+package math.plot;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Desktop;

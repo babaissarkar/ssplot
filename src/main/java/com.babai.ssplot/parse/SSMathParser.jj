@@ -12,8 +12,7 @@ import java.io.StringReader;
 public class SSMathParser {
 
 	public static TreeNode parseString(String s) throws Exception {
-		StringReader r = new StringReader(s);
-		SSMathParser parser = new SSMathParser(r);
+		SSMathParser parser = new SSMathParser(new StringReader(s));
 		TreeNode node = parser.getNode();
 		return node;
 	}
