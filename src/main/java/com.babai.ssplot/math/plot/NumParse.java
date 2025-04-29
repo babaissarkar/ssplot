@@ -33,13 +33,17 @@ import java.util.Vector;
 public class NumParse {
 	public static final String sep = "\\s+";
 	
-	public static Vector<Vector<Double>> parse(Path fpath) throws IOException {		
-		// Opening data file.
+	public static Vector<Vector<Double>> parse(Path fpath) throws IOException {
+		//System.out.println("Enter Float no. :");
+		//Path path = Paths.get("num.dat");
+		
+		/* Opening data file.*/
 		Vector<Vector<Double>> arEntries = new Vector<Vector<Double>>();
 		BufferedReader bin = Files.newBufferedReader(fpath);
 		
-		// Reading and parsing data.
+		/* Reading and parsing data.*/
 		String line;
+        //~ int i = 1;
 		while ((line = bin.readLine())!= null) {
 			Vector<Double> entries = new Vector<Double>();
 			String[] strEntries = line.split(sep);
@@ -47,14 +51,21 @@ public class NumParse {
 				entries.add(Double.parseDouble(str));
 			}
 			arEntries.add(entries);
+            //~ System.out.println("NumParse : line no " + i);
+            //~ i++;
 		}
 		
-		bin.close();
+		
+		/* Writing parsed data */
+		//System.out.println("The output is :");
+		//System.out.println(arEntries.toString());
+		
 		return arEntries;
 	}
 	
 	public static void write(Vector<Vector<Double>> data, Path p) {
-		try (PrintStream print = new PrintStream(p.toFile())) {
+		try {
+			PrintStream print = new PrintStream(p.toFile());
 			for (Vector<Double> v : data) {
 				for (int i = 0; i < v.size(); i++) {
 					print.print(v.get(i));

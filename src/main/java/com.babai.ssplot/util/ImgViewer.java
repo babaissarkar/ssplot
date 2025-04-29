@@ -1,11 +1,9 @@
 package util;
 
+import javax.swing.*;
+import java.awt.*;
 import java.awt.image.BufferedImage;
-
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
 
 public class ImgViewer {
     private JFrame frmMain;

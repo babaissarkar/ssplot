@@ -29,6 +29,7 @@ import java.nio.file.Paths;
 import math.plot.Plotter;
 import math.plot.NumParse;
 import math.plot.PlotData;
+import math.plot.MainFrame;
 
 public class SSPlotCLI {
     Plotter plt;
