@@ -195,6 +195,7 @@ public class MainFrame extends JFrame {
 		
 		JMenuItem jmShowHelp = new JMenuItem("Help...");
 		JMenuItem jmKeyHelp = new JMenuItem("Keymaps Help");
+		JMenuItem jmDonate = new JMenuItem("Donate...");
 		JMenuItem jmAbout = new JMenuItem("About");
 		
 		// Add keybindings
@@ -255,6 +256,7 @@ public class MainFrame extends JFrame {
 		jmPlotType.addActionListener(e -> changePlotType());
 		jmFit.addActionListener(e -> pv.fit());
 		
+		jmDonate.addActionListener(e -> openLink("https://ko-fi.com/lumiouse"));
 		jmShowHelp.addActionListener(e -> new HelpFrame("Parser Reference", "/docs/parser_guide.html").setVisible(true));
 		jmAbout.addActionListener(e -> showAbout());
 		jmKeyHelp.addActionListener(e -> {
@@ -327,6 +329,7 @@ public class MainFrame extends JFrame {
 		JMenu mnuHelp = new JMenu("Help");
 		mnuHelp.add(jmShowHelp);
 		mnuHelp.add(jmKeyHelp);
+		mnuHelp.add(jmDonate);
 		mnuHelp.add(jmAbout);
 		
 		JMenuBar jmb = new JMenuBar();
