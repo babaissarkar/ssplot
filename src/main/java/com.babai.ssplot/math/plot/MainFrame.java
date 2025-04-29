@@ -78,7 +78,6 @@ public class MainFrame extends JFrame {
 	
 	private final JMenuItem jmSave;
 	private final JMenuItem jmOpen;
-	private final JMenuItem jmHelp;
 	private final JMenuItem jmShowData;
 	private final JMenuItem jmQuit;
 	private final JMenuItem jmPlotType;
@@ -87,7 +86,6 @@ public class MainFrame extends JFrame {
 	private final JMenuItem jmClear;
 	private final JMenuItem jmSvData;
 	private final JCheckBoxMenuItem jmAxes;
-	private final JMenuItem jmAbout;
 	private final JMenuItem jmClearLogs;
 	private final JMenuItem jmTitle;
 	private final JMenuItem jmLineWidth;
@@ -119,6 +117,7 @@ public class MainFrame extends JFrame {
 	
 	private static final String KEY_HELP_MSG = """
 	<h1>Key bindings</h1>
+	<p>(Can be used when the plot window is selected.)</p>
 	<b>Arrow keys :</b> translate graph,
 	<b>j</b> and <b>f</b> : zoom in and out (2x or 0.5x)
 	<b>g</b> and <b>h</b> : fine zoom adjustment
@@ -129,8 +128,8 @@ public class MainFrame extends JFrame {
 	public MainFrame() {
 		// Set icon
 		this.setIconImage(
-		Toolkit.getDefaultToolkit().getImage(
-		getClass().getResource("/ssplot.png")));
+				Toolkit.getDefaultToolkit().getImage(
+						getClass().getResource("/ssplot.png")));
 		
 		// Initialize logger
 		this.setLogger(new StatLogger());
@@ -168,7 +167,6 @@ public class MainFrame extends JFrame {
 		jmSvData = new JMenuItem("Save Data...");
 		jmSave = new JMenuItem("Save Image...");
 		jmShowData = new JMenuItem("View/Edit Plot Data");
-		jmHelp = new JMenuItem("Keymaps Help");
 		jmQuit = new JMenuItem("Quit");
 		
 		JRadioButtonMenuItem jcmNormal = new JRadioButtonMenuItem("Normal mode");
@@ -190,12 +188,14 @@ public class MainFrame extends JFrame {
 		jmCol = new JMenuItem("Set Plot Color");
 		jmPlotType = new JMenuItem("Set Plot Type");
 		jmClear = new JMenuItem("Clear plot");
-		jmAbout = new JMenuItem("About");
 		JMenuItem jmFit = new JMenuItem("Autoscale");
 		
-		JMenuItem jmiShowDBV = new JMenuItem("Data Editor...");
-		JMenuItem jmiShowEqn = new JMenuItem("Equation Editor...");
-		JMenuItem jmiShowHelp = new JMenuItem("Help...");
+		JMenuItem jmShowDBV = new JMenuItem("Data Editor...");
+		JMenuItem jmShowEqn = new JMenuItem("Equation Editor...");
+		
+		JMenuItem jmShowHelp = new JMenuItem("Help...");
+		JMenuItem jmKeyHelp = new JMenuItem("Keymaps Help");
+		JMenuItem jmAbout = new JMenuItem("About");
 		
 		// Add keybindings
 		jmOpen.setAccelerator(
@@ -222,7 +222,7 @@ public class MainFrame extends JFrame {
 			pv.setCurPlot(dbv.getData());
 		});
 		jmSave.addActionListener(e -> saveImage());
-		jmHelp.addActionListener(e -> {
+		jmKeyHelp.addActionListener(e -> {
 			// Shows help message
 			showMsg(KEY_HELP_MSG);
 			JOptionPane.showMessageDialog(this, "<html>" + KEY_HELP_MSG + "</html>");
@@ -262,17 +262,17 @@ public class MainFrame extends JFrame {
 		jmPhase.addActionListener(e -> odeinput.setVisible(true));
 		jmPlotType.addActionListener(e -> changePlotType());
 		jmFit.addActionListener(e -> pv.fit());
-		jmiShowHelp.addActionListener(e -> {
+		jmShowHelp.addActionListener(e -> {
 			new HelpFrame("Parser Reference", "/docs/parser_guide.html").setVisible(true);
 		});
 		
-		jmiShowDBV.addActionListener(e -> {
+		jmShowDBV.addActionListener(e -> {
 			if (!dbv.isVisible()) {
 				dbv.setVisible(true);
 			}
 		});
 		
-		jmiShowEqn.addActionListener(e -> {
+		jmShowEqn.addActionListener(e -> {
 			if (!odeinput.isVisible()) {
 				odeinput.setVisible(true);
 			}
@@ -302,8 +302,6 @@ public class MainFrame extends JFrame {
 		mnuFile.add(jmSvData);
 		mnuFile.addSeparator();
 		mnuFile.add(jmClearLogs);
-		mnuFile.add(jmHelp);
-		mnuFile.add(jmAbout);
 		mnuFile.add(jmQuit);
 		
 		JMenu mnuPlot = new JMenu("Plot");
@@ -326,14 +324,19 @@ public class MainFrame extends JFrame {
 		mnuPlot.add(mnuProp);
 		
 		JMenu mnuWindow = new JMenu("Window");
-		mnuWindow.add(jmiShowDBV);
-		mnuWindow.add(jmiShowEqn);
-		mnuWindow.add(jmiShowHelp);
+		mnuWindow.add(jmShowDBV);
+		mnuWindow.add(jmShowEqn);
+		
+		JMenu mnuHelp = new JMenu("Help");
+		mnuHelp.add(jmShowHelp);
+		mnuHelp.add(jmKeyHelp);
+		mnuHelp.add(jmAbout);
 		
 		JMenuBar jmb = new JMenuBar();
 		jmb.add(mnuFile);
 		jmb.add(mnuPlot);
 		jmb.add(mnuWindow);
+		jmb.add(mnuHelp);
 		
 		this.setJMenuBar(jmb);
 		
