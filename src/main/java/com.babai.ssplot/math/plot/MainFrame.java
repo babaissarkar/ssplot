@@ -199,22 +199,22 @@ public class MainFrame extends JFrame {
 		
 		// Add keybindings
 		jmOpen.setAccelerator(
-		KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK));
+				KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK));
 		jmSave.setAccelerator(
-		KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK));
+				KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK));
 		jmSvData.setAccelerator(
-		KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK|ActionEvent.SHIFT_MASK));
+				KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK|ActionEvent.SHIFT_MASK));
 		jmShowData.setAccelerator(
-		KeyStroke.getKeyStroke(KeyEvent.VK_D, ActionEvent.CTRL_MASK));
+				KeyStroke.getKeyStroke(KeyEvent.VK_D, ActionEvent.CTRL_MASK));
 		jmQuit.setAccelerator(
-		KeyStroke.getKeyStroke(KeyEvent.VK_Q, ActionEvent.CTRL_MASK));
-		
+				KeyStroke.getKeyStroke(KeyEvent.VK_Q, ActionEvent.CTRL_MASK));
+
 		jmPhase.setAccelerator(
-		KeyStroke.getKeyStroke(KeyEvent.VK_M, ActionEvent.CTRL_MASK));
+				KeyStroke.getKeyStroke(KeyEvent.VK_M, ActionEvent.CTRL_MASK));
 		jmFit.setAccelerator(
-		KeyStroke.getKeyStroke(KeyEvent.VK_F, ActionEvent.CTRL_MASK));
+				KeyStroke.getKeyStroke(KeyEvent.VK_F, ActionEvent.CTRL_MASK));
 		jmClear.setAccelerator(
-		KeyStroke.getKeyStroke(KeyEvent.VK_X, ActionEvent.CTRL_MASK));
+				KeyStroke.getKeyStroke(KeyEvent.VK_X, ActionEvent.CTRL_MASK));
 		
 		// Add Listener
 		jmOpen.addActionListener(e -> {
@@ -222,11 +222,6 @@ public class MainFrame extends JFrame {
 			pv.setCurPlot(dbv.getData());
 		});
 		jmSave.addActionListener(e -> saveImage());
-		jmKeyHelp.addActionListener(e -> {
-			// Shows help message
-			showMsg(KEY_HELP_MSG);
-			JOptionPane.showMessageDialog(this, "<html>" + KEY_HELP_MSG + "</html>");
-		});
 		jmShowData.addActionListener(e -> dbv.setVisible(true));
 		jmQuit.addActionListener(e -> System.exit(0));
 		jmSvData.addActionListener(e -> dbv.saveFile());
@@ -235,7 +230,6 @@ public class MainFrame extends JFrame {
 			dbv.clear();
 		});
 		jmClearLogs.addActionListener(e -> logger.clear());
-		jmAbout.addActionListener(e -> showAbout());
 		jmTitle.addActionListener(e -> {
 			Optional<PlotData> pdata = pv.getCurPlot();
 			if (pdata.isPresent()) {
@@ -251,9 +245,7 @@ public class MainFrame extends JFrame {
 			plt.getCanvas().setYLabel(JOptionPane.showInputDialog("Y Label:"));
 			pv.repaint();
 		});
-		jmCol.addActionListener(e -> {
-			pv.setColor(JColorChooser.showDialog(this, "Plot Color 1", Color.RED));
-		});
+		jmCol.addActionListener(e -> pv.setColor(JColorChooser.showDialog(this, "Plot Color 1", Color.RED)));
 		jmLineWidth.addActionListener(e -> setLineWidth());
 		jmAxes.addActionListener(e -> {
 			plt.toggleAxes();
@@ -262,8 +254,13 @@ public class MainFrame extends JFrame {
 		jmPhase.addActionListener(e -> odeinput.setVisible(true));
 		jmPlotType.addActionListener(e -> changePlotType());
 		jmFit.addActionListener(e -> pv.fit());
-		jmShowHelp.addActionListener(e -> {
-			new HelpFrame("Parser Reference", "/docs/parser_guide.html").setVisible(true);
+		
+		jmShowHelp.addActionListener(e -> new HelpFrame("Parser Reference", "/docs/parser_guide.html").setVisible(true));
+		jmAbout.addActionListener(e -> showAbout());
+		jmKeyHelp.addActionListener(e -> {
+			// Shows help message
+			showMsg(KEY_HELP_MSG);
+			JOptionPane.showMessageDialog(this, "<html>" + KEY_HELP_MSG + "</html>");
 		});
 		
 		jmShowDBV.addActionListener(e -> {
@@ -444,6 +441,25 @@ public class MainFrame extends JFrame {
 		}
 	}
 	
+	private void openLink(String url) {
+		if (url.isBlank()) {
+			logger.log("Empty link, not opening.");
+		}
+		
+		if (!Desktop.isDesktopSupported()) {
+			logger.log("Browsing links not supported on this platform!");
+			return;
+		}
+		
+		try {
+			Desktop.getDesktop().browse(new URI(url));
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public void showAbout() {
 		String[] buttonStrs = {"Homepage", "Report a problem...", "License", "Close"};
 		
@@ -460,42 +476,19 @@ public class MainFrame extends JFrame {
 					buttonStrs,
 					buttonStrs[3]);
 		
-		logger.log("Selected option: " + status);
+		// TODO do we really need to make this end user visible?
+//		logger.log("Selected option: " + status);
 		
 		switch (status) {
 			// TODO reduce duplicated code in case 0 and 1
 			case 0:
-			if (Desktop.isDesktopSupported()) {
-				URI homepage;
-				try {
-					homepage = new URI("https://github.com/babaissarkar/ssplot");
-					Desktop.getDesktop().browse(homepage);
-				} catch (URISyntaxException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			} else {
-				logger.log("Not supported on this platform!");
-			}
+				openLink("https://github.com/babaissarkar/ssplot");
 			break;
 			case 1:
-			if (Desktop.isDesktopSupported()) {
-				URI homepage;
-				try {
-					homepage = new URI("https://github.com/babaissarkar/ssplot/issues");
-					Desktop.getDesktop().browse(homepage);
-				} catch (URISyntaxException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			} else {
-				logger.log("Not supported on this platform!");
-			}
+				openLink("https://github.com/babaissarkar/ssplot/issues");
 			break;
 			case 2:
-			new HelpFrame("License", "/docs/lgpl-2.1-standalone.html").setVisible(true);
+				new HelpFrame("License", "/docs/lgpl-2.1-standalone.html").setVisible(true);
 			break;
 			default:
 			// Do nothing
