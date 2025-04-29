@@ -13,14 +13,17 @@
   <icon type="stock">io.github.babaissarkar.ssplot</icon>
   
   <url type="homepage">https://babaissarkar.github.io/</url>
+  <url type="donation">https://ko-fi.com/lumiouse</url>
+  <url type="bugtracker">https://github.com/babaissarkar/ssplot/issues</url>
+  <url type="contribute">https://github.com/babaissarkar/ssplot/pulls</url>
   <url type="vcs-browser">https://github.com/babaissarkar/ssplot</url>
   
   <description>
-     <p>A simple plotter and numerical solver, which can plot csv style plain text files with numerical data separated by whitespace, as well can numerically solve equations and ODEs to generate data and plot them for studying dynamical systems.</p>
+     <p>A simple plotter and numerical solver, which can plot csv style plain text files with numerical data separated by whitespace, and can numerically solve equations and ODEs to generate data and plot them for studying dynamical systems.</p>
      <p>Features :</p>
      <ol>
         <li>Plot datafiles (2D and 3D).</li>
-        <li>Can change appearance of plot.</li>
+        <li>Plot appearance customization.</li>
         <li>Solve and plot ODE and Difference Equations.</li>
         <li>Plot functions of one and two variables.</li>
         <li>Comes with its own JavaScript based Console for simple calculation tasks.</li>
