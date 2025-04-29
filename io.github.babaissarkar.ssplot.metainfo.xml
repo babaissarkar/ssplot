@@ -41,6 +41,9 @@
     <keyword>Dynamical Systems</keyword>
   </keywords>
   <releases>
+    <release version="2.2.5" date="2025-04-29" type="stable">
+      <url>https://github.com/babaissarkar/ssplot/releases/tag/v2.2.5</url>
+    </release>
     <release version="2.2.4" date="2024-03-31" type="stable">
       <url>https://github.com/babaissarkar/ssplot/releases/tag/v2.2.4</url>
     </release>
