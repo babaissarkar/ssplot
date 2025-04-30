@@ -1,43 +1,43 @@
 # SSPlot
-A simple plotting utility for dynamical systems.
+A simple plotting utility for plotting CSV datafiles, equations and dynamical systems (differential and difference equations).
 
-[![License: LGPL v2.1](https://img.shields.io/badge/License-LGPL%20v2.1-orange.svg)](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html) [![CI](https://github.com/babaissarkar/ssplot/actions/workflows/maven-publish.yml/badge.svg)](https://github.com/babaissarkar/ssplot/actions/workflows/maven-publish.yml?query=branch%3Amaster) [![GitHub Release](https://img.shields.io/github/v/release/babaissarkar/ssplot?display_name=release&labelColor=orange&color=black)](https://github.com/babaissarkar/ssplot/releases/tag/v2.2.4)
+[![License: LGPL v2.1](https://img.shields.io/badge/License-LGPL%20v2.1-orange.svg)](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html) [![CI](https://github.com/babaissarkar/ssplot/actions/workflows/maven-publish.yml/badge.svg)](https://github.com/babaissarkar/ssplot/actions/workflows/maven-publish.yml?query=branch%3Amaster) [![GitHub Release](https://img.shields.io/github/v/release/babaissarkar/ssplot?display_name=release&labelColor=orange&color=black)](https://github.com/babaissarkar/ssplot/releases/tag/v2.2.5)
 
 
 # Requirements
 Any Java version >= 17. (Use latest version if possible)
 
 # Installation
+
+## Windows
+Use the generated MSI from the latest workflow run from the Actions tab.
+
+## Linux
+A `DEB` package (Actions tab), a flatpak from flathub and an `AppImage` with bundled AdoptOpenJDK java runtime is available.
+
+<a href='https://flathub.org/apps/io.github.babaissarkar.ssplot'><img width='240' alt='Download on Flathub' src='https://flathub.org/api/badge?locale=en'/></a>
+<a href='https://github.com/babaissarkar/ssplot/releases/download/v2.2.1/SSPlot-x86_64.AppImage'><img width='240' alt='DDownload as AppImage' src='https://docs.appimage.org/_images/download-appimage-banner.svg'/></a>
+
+## Other OSes
+See [Manual Installation](#manual-installation) below.
+
+# Donation
+Highly appreciated and helpful to the future of this project!<br/>
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/I2I11E85IE)
+
+# Manual Installation
 1. Install Java runtime (JRE).
 2. Download the latest release of SSPlot from the releases section. (You can also clone this repository, either using `git clone` or using the Code menu in this page (Code -> Dropdown -> Download ZIP))
 3. Extract the ZIP.
 4. Enter the folder inside the ZIP (or the cloned folder) and open a terminal there.
 5. Run using `./ssplot` from your terminal/command line (For linux), or go to the directory where the file `SSPlot.jar` is, open a terminal there and run `java -jar SSPlot.jar`
-7. You may need to set the `CLASSPATH` environment variable if you want to use an alternate engine for math equation parsing, as explained in a later section.
 
-A `DEB` package, a flatpak from flathub and an `AppImage` with bundled AdoptOpenJDK java runtime is available.
+Note 1. You may need to set the `CLASSPATH` environment variable if you want to use an alternate engine for math equation parsing, as explained in a later section. You can search the internet for how to do that for your OS.
+Note 2. Make sure you can access the `java` command from the JRE on the terminal/command prompt. You probably have to set another variable called `PATH`. The `java` command may be called something different in your OS.
 
-<a href='https://flathub.org/apps/io.github.babaissarkar.ssplot'><img width='240' alt='Download on Flathub' src='https://flathub.org/api/badge?locale=en'/></a>
-<a href='https://github.com/babaissarkar/ssplot/releases/download/v2.2.1/SSPlot-x86_64.AppImage'><img width='240' alt='DDownload as AppImage' src='https://docs.appimage.org/_images/download-appimage-banner.svg'/></a>
 
 # Screenshot
 ![Main Screen of SSPlot, version 2.2.4](https://babaissarkar.github.io/images/ssplot_screenshot.png)
-
-# Themes
-Four themes are available, current accessible only through command line options.
-1. *Light Theme* -- The default (FlatLAF Arc Orange). No options needed.
-2. *Dark Theme* -- Use `-dark` option (FlatLAF Arc Orange Dark)
-3. *Nimbus Theme* -- Use `-nimbus`. Java's inbuilt Nimbus theme.
-4. *Metal Theme* -- Use `-metal`. Java's inbuilt Metal theme.
-
-Options only available when you run using the command line (i.e. `ssplot -dark` or `java -jar SSPlot.jar -dark`).
-
-# Documentation
-Please see the `docs` directory in this repository.
-
-# Important notes
-1. You may have to set the `CLASSPATH` yourself. You can search the internet for how to do that for your OS.
-2. Make sure you can access the `java` command from the JRE on the terminal/command prompt. You probably have to set another variable called `PATH`. The `java` command may be called something different in your OS.
 
 # Documentation
 A manual is available inside the `docs/manual` directory (or its link, the `doc` directory at the root) in pdf and odt formats. You can generate the pdf from the odt using LibreOffice Writer or any other tool you prefer.
@@ -52,7 +52,7 @@ You will require Java JDK and Apache Maven. You will also require Markdown if yo
 
 1. Clone this repository.
 2. `cd` into the cloned directory and run `mvn package`. It will build everything and put the generated jar file into the jar directory.
-3. Link the final jar file into the jar directory.
+3. Link the final jar file into the jar directory. Choose the correct pom file for your OS using `mvn` 's `-f` option.
 3. You can run the generated `SSPlot.jar` file using the command `java -jar jar/SSPlot.jar` or simple `./ssplot`, if the link is correctly created.
 4. Generate the README.html using markdown : `markdown README.md > README.html`.
 
