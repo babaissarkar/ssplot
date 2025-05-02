@@ -32,7 +32,7 @@ Highly appreciated and helpful to the future of this project!<br/>
 4. Enter the folder inside the ZIP (or the cloned folder) and open a terminal there.
 5. Run using `./ssplot` from your terminal/command line (For linux), or go to the directory where the file `SSPlot.jar` is, open a terminal there and run `java -jar SSPlot.jar`
 
-Note 1. You may need to set the `CLASSPATH` environment variable if you want to use an alternate engine for math equation parsing, as explained in a later section. You can search the internet for how to do that for your OS.
+Note 1. You may need to set the `CLASSPATH` environment variable if you want to use an alternate engine for math equation parsing, as explained in a later section. You can search the internet for how to do that for your OS.<br/>
 Note 2. Make sure you can access the `java` command from the JRE on the terminal/command prompt. You probably have to set another variable called `PATH`. The `java` command may be called something different in your OS.
 
 
