@@ -25,7 +25,6 @@ import javax.swing.JTextArea;
 /** TODO : needs to be a real terminal, with input and output both handled by it */
 public class ScriptConsole extends JPanel {
 	private JTextArea txtIn;
-//	private JTextArea txtOut;
 	private JLabel lblOut;
 	private JButton btnRun;
 	private ScriptEngine engine;
@@ -43,8 +42,8 @@ public class ScriptConsole extends JPanel {
 			private String current = ""; // Value of last JS expression
 
 			@Override
-			public void paint(Graphics g) {
-//				super.paint(g);
+			public void paintComponent(Graphics g) {
+				super.paintComponent(g);
 				Graphics2D g2 = (Graphics2D) g;
 				RenderingHints rh = new RenderingHints(
 						RenderingHints.KEY_TEXT_ANTIALIASING,
@@ -117,7 +116,11 @@ public class ScriptConsole extends JPanel {
 		this.add(pnlOutput, BorderLayout.CENTER);
 	}
 	
-	public void initEngine(String engineName) {
+	public void focusInput() {
+		txtIn.requestFocusInWindow();
+	}
+	
+	private void initEngine(String engineName) {
 		ScriptEngineManager m = new ScriptEngineManager();
 //		SimpleScriptContext con = new SimpleScriptContext();
 		

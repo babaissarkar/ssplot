@@ -381,13 +381,16 @@ public class MainFrame extends JFrame {
 		ifrmPlot.setVisible(true);
 		odeinput.setVisible(true);
 		
+		ScriptConsole console = new ScriptConsole();
 		JTabbedPane statusPane = new JTabbedPane();
 		statusPane.addTab("Logs", ifrmLogs.getContentPane());
-		ScriptConsole con = new ScriptConsole();
-		statusPane.addTab("Console", con);
-		JTextArea txtNotes = new JTextArea();
-		txtNotes.setText("You can write anything here.");
-		statusPane.addTab("Notes", txtNotes);
+		statusPane.addTab("Console", console);
+		statusPane.addTab("Notes", new JTextArea("You can write anything here."));
+		statusPane.addChangeListener(e -> {
+			if (statusPane.getSelectedIndex() == 1) {
+				SwingUtilities.invokeLater(console::focusInput);
+			}
+		});
 		
 		JSplitPane mainPane2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 		mainPane2.setDividerLocation(550);
