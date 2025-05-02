@@ -195,6 +195,9 @@ public class MainFrame extends JFrame {
 		
 		JMenuItem jmShowHelp = new JMenuItem("Help...");
 		JMenuItem jmKeyHelp = new JMenuItem("Keymaps Help");
+		JMenuItem jmHomepage = new JMenuItem("Homepage...");
+		JMenuItem jmIssues = new JMenuItem("Report An Issue...");
+		JMenuItem jmContribute = new JMenuItem("Contribute code...");
 		JMenuItem jmDonate = new JMenuItem("Donate...");
 		JMenuItem jmAbout = new JMenuItem("About");
 		
@@ -256,6 +259,9 @@ public class MainFrame extends JFrame {
 		jmPlotType.addActionListener(e -> changePlotType());
 		jmFit.addActionListener(e -> pv.fit());
 		
+		jmHomepage.addActionListener(e -> openLink("https://github.com/babaissarkar/ssplot"));
+		jmIssues.addActionListener(e -> openLink("https://github.com/babaissarkar/ssplot/issues"));
+		jmContribute.addActionListener(e -> openLink("https://github.com/babaissarkar/ssplot/pulls"));
 		jmDonate.addActionListener(e -> openLink("https://ko-fi.com/lumiouse"));
 		jmShowHelp.addActionListener(e -> new HelpFrame("Parser Reference", "/docs/parser_guide.html").setVisible(true));
 		jmAbout.addActionListener(e -> showAbout());
@@ -329,6 +335,9 @@ public class MainFrame extends JFrame {
 		JMenu mnuHelp = new JMenu("Help");
 		mnuHelp.add(jmShowHelp);
 		mnuHelp.add(jmKeyHelp);
+		mnuHelp.add(jmHomepage);
+		mnuHelp.add(jmIssues);
+		mnuHelp.add(jmContribute);
 		mnuHelp.add(jmDonate);
 		mnuHelp.add(jmAbout);
 		
@@ -464,33 +473,23 @@ public class MainFrame extends JFrame {
 	}
 	
 	public void showAbout() {
-		String[] buttonStrs = {"Homepage", "Report a problem...", "License", "Close"};
+		String[] buttonStrs = {"License", "Close"};
 		
 		logger.log(ABOUT_MSG);
 		int status = JOptionPane.showOptionDialog(
 			this,
 			"<html>" + ABOUT_MSG + "</html>",
 			"About SSPlot",
-			JOptionPane.YES_NO_CANCEL_OPTION,
+			JOptionPane.YES_NO_OPTION,
 			JOptionPane.INFORMATION_MESSAGE,
 			new ImageIcon(
 				Toolkit.getDefaultToolkit().getImage(
 					MainFrame.class.getResource("/ssplot.png"))),
 					buttonStrs,
-					buttonStrs[3]);
-		
-		// TODO do we really need to make this end user visible?
-//		logger.log("Selected option: " + status);
+					buttonStrs[1]);
 		
 		switch (status) {
-			// TODO reduce duplicated code in case 0 and 1
 			case 0:
-				openLink("https://github.com/babaissarkar/ssplot");
-			break;
-			case 1:
-				openLink("https://github.com/babaissarkar/ssplot/issues");
-			break;
-			case 2:
 				new HelpFrame("License", "/docs/lgpl-2.1-standalone.html").setVisible(true);
 			break;
 			default:
