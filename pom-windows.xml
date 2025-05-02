@@ -131,8 +131,14 @@
                     <argument>--main-class</argument>
                     <argument>math.plot.MainFrame</argument>
                     <argument>--win-menu</argument>
+                    <argument>--win-menu-group</argument>
+                    <argument>SSPlot</argument>
+                    <argument>--win-shortcut</argument>
                     <argument>--win-shortcut-prompt</argument>
                     <argument>--win-per-user-install</argument>
+                    <argument>--win-dir-chooser</argument>
+                    <argument>--icon</argument>
+                    <argument>${project.artifactId}.ico</argument>
                 </arguments>
             </configuration>
         </plugin>
