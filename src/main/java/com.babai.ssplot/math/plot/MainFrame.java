@@ -537,20 +537,16 @@ public class MainFrame extends JFrame {
 	
 	public static void main(String[] args) {
 		/* Global UI Configuration */
-		//        UIManager.put("Label.font", new FontUIResource("Cantarell", Font.PLAIN, 15));
-		//		UIManager.put("RadioButton.font", new FontUIResource("Cantarell", Font.PLAIN, 16));
-		//		
-		//		UIManager.put("RadioButton.foreground", new Color(80,28,0));
-		//		
-		UIManager.put("Menu.selectionBackground", new Color(255,156,95));
-		UIManager.put("Menu.selectionForeground", new Color(0,0,0));
-		UIManager.put("MenuItem.selectionBackground", new Color(255,156,95));
-		UIManager.put("MenuItem.selectionForeground", new Color(0,0,0));
+		// TODO should be loaded from file?
+		final Color sspOrange = new Color(255,156,95);
+		UIManager.put("Menu.selectionBackground", sspOrange);
+		UIManager.put("Menu.selectionForeground", Color.BLACK);
+		UIManager.put("MenuItem.selectionBackground", sspOrange);
+		UIManager.put("MenuItem.selectionForeground", Color.BLACK);
 		UIManager.put("MenuItem.checkBackground", new Color(153, 204, 255));
-		UIManager.put("MenuItem.acceleratorSelectionForeground", new Color(0,0,0));
-		//		UIManager.put("MenuItem.foreground", new Color(4,88,25));
-		//		UIManager.put("MenuItem.background", Color.WHITE);
-		
+		UIManager.put("MenuItem.acceleratorSelectionForeground", Color.BLACK);
+		UIManager.put("TabbedPane.hoverColor", sspOrange);
+
 		if (hasArg("dark", args)) {
 			FlatArcDarkOrangeIJTheme.setup();
 		} else if (hasArg("metal", args)) {
