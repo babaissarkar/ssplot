@@ -13,5 +13,7 @@ cp -v "jar/ssplot.jar" "SSPlot.AppDir/usr/share/ssplot/ssplot.jar"
 # download appimagetool
 wget -nc https://github.com/AppImage/AppImageKit/releases/latest/download/appimagetool-x86_64.AppImage
 chmod +x appimagetool-x86_64.AppImage
+./appimagetool-x86_64.AppImage --appimage-extract
+mv squashfs-root appimagetool-dir
 # run appimagetool
-ARCH=x86_64 ./appimagetool-x86_64.AppImage "SSPlot.AppDir"
+ARCH=x86_64 appimagetool-dir/AppRun "SSPlot.AppDir"

@@ -24,7 +24,7 @@ jobs:
         settings-path: ${{ github.workspace }} # location for the settings.xml file
 
     - name: Build everything
-      run: ./generate-all.sh
+      run: ./generate_all.sh
 
     - uses: actions/upload-artifact@v4
       with:
