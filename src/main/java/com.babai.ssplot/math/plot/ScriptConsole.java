@@ -1,5 +1,6 @@
 package math.plot;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -12,6 +13,8 @@ import java.awt.Toolkit;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -88,39 +91,40 @@ public class ScriptConsole extends JPanel {
 			}
 		};
 		btnRun = new JButton("Run");
-		btnRun.addActionListener(
-			e -> {
-				lblOut.setText(txtIn.getText());
-			}
-		);
+		btnRun.addActionListener(e -> lblOut.setText(txtIn.getText()));
 		
-		Toolkit kit = Toolkit.getDefaultToolkit();
-		Dimension size = kit.getScreenSize();
-		lblOut.setPreferredSize(new Dimension(size.width - 100, 60));
+		Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
+		lblOut.setPreferredSize(new Dimension(size.width - 10, 60));
 		
-		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+		this.setLayout(new BorderLayout());
 		JPanel pnlInput = new JPanel();
-		pnlInput.setLayout(new FlowLayout(FlowLayout.LEFT));
+		pnlInput.setLayout(new BoxLayout(pnlInput, BoxLayout.LINE_AXIS));
 		JScrollPane sIn = new JScrollPane(
 				txtIn,
 				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		sIn.setMaximumSize(new Dimension(Integer.MAX_VALUE, sIn.getPreferredSize().height));
+		pnlInput.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		pnlInput.add(sIn);
+		pnlInput.add(Box.createHorizontalStrut(5));
 		pnlInput.add(btnRun);
+		
 		JPanel pnlOutput = new JPanel();
 		pnlOutput.setLayout(new FlowLayout(FlowLayout.LEFT));
 		pnlOutput.add(lblOut);
-		this.add(pnlInput);
-		this.add(pnlOutput);
+		
+		this.add(pnlInput, BorderLayout.NORTH);
+		this.add(pnlOutput, BorderLayout.CENTER);
 	}
 	
 	public void initEngine(String engineName) {
 		ScriptEngineManager m = new ScriptEngineManager();
 //		SimpleScriptContext con = new SimpleScriptContext();
 		
+		// TODO load these methods from a initial script file
 		// Add print method	
 		initScript = """
-	        function print2(value) {
+	        function debugPrint(value) {
 				    java.lang.System.out.print(value);
 	        }
 	        
@@ -128,7 +132,7 @@ public class ScriptConsole extends JPanel {
 				    txt = value;
 	        }
 	        
-	        function printLn2(value) {
+	        function debugPrintLn(value) {
 				    java.lang.System.out.println(value);
 	        }
 	    """;
