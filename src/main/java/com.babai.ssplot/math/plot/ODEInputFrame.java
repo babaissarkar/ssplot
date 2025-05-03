@@ -24,10 +24,11 @@
 package math.plot;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.GridLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Vector;
@@ -122,58 +123,77 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 		pnlRB.add(rbFunc);
 		pnlRB.add(rbFunc2);
 
+		// Iteration paramters entry
 		JPanel pnlCounts = new JPanel();
-		pnlCounts.setLayout(new BoxLayout(pnlCounts, BoxLayout.Y_AXIS));
-		JLabel lblCounts = new JLabel("Iteration count");
+		pnlCounts.setLayout(new GridBagLayout());
+
+		var gbc = new GridBagConstraints();
+		gbc.anchor = GridBagConstraints.WEST;
+		gbc.insets = new Insets(5, 5, 5, 5);
+		gbc.fill = GridBagConstraints.NONE;
+
+		var lblCounts = new JLabel("Iteration count");
 		tfCounts = new JTextField(10);
-		JPanel pnlIter = new JPanel();
-		pnlIter.setLayout(new GridLayout(2, 2));
-		JPanel pnlLoCounts = new JPanel();
-		pnlLoCounts.setLayout(new FlowLayout(FlowLayout.LEFT));
-		pnlLoCounts.add(lblCounts);
-		pnlLoCounts.add(Box.createRigidArea(new Dimension(38, 0)));
-		pnlLoCounts.add(tfCounts);
-		
-		JLabel lblStep = new JLabel("Iteration stepsize");
+		var lblStep = new JLabel("Iteration stepsize");
 		tfStep = new JTextField(10);
-		
-		JPanel pnlLoStep = new JPanel();
-		pnlLoStep.setLayout(new FlowLayout(FlowLayout.LEFT));
-		pnlLoStep.add(lblStep);
-		pnlLoStep.add(Box.createRigidArea(new Dimension(20, 0)));
-		pnlLoStep.add(tfStep);
-		
-		pnlCounts.add(pnlLoCounts);
-		pnlCounts.add(pnlLoStep);
+
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		gbc.weightx = 0;
+		pnlCounts.add(lblCounts, gbc);
+
+		gbc.gridx = 1;
+		gbc.weightx = 1;
+		pnlCounts.add(tfCounts, gbc);
+
+		gbc.gridx = 0;
+		gbc.gridy = 1;
+		gbc.weightx = 0;
+		pnlCounts.add(lblStep, gbc);
+
+		gbc.gridx = 1;
+		gbc.weightx = 1;
+		pnlCounts.add(tfStep, gbc);
+
 		pnlCounts.setBorder(
 			BorderFactory.createTitledBorder(
 				BorderFactory.createLineBorder(new Color(127, 0, 140), 3),
 				"Iteration Parameters"));
 
+
+		// Equations Entry
 		JPanel pnlMatrix = new JPanel();
-		pnlMatrix.setLayout(new BoxLayout(pnlMatrix, BoxLayout.Y_AXIS));
+		pnlMatrix.setLayout(new GridBagLayout());
 
-		lbls = new JLabel[3];
-		lbls[0] = new JLabel("Equation 1");
-		lbls[1] = new JLabel("Equation 2");
-		lbls[2] = new JLabel("Equation 3");
+		lbls = new JLabel[] {
+			new JLabel("Equation 1"),
+			new JLabel("Equation 2"),
+			new JLabel("Equation 3")
+		};
 
-		tfs = new JTextField[4];
-		tfs[0] = new JTextField(20);
-		tfs[1] = new JTextField(20);
-		tfs[2] = new JTextField(20);
-		
-		JPanel[] pnlLayout = new JPanel[3];
+		tfs = new JTextField[] {
+			new JTextField(20),
+			new JTextField(20),
+			new JTextField(20)
+		};
 
-		for (int i = 0; i < 3; i++) {
-			pnlLayout[i] = new JPanel();
-			pnlLayout[i].setLayout(new FlowLayout(FlowLayout.LEFT));
-			lbls[i].setAlignmentX(LEFT_ALIGNMENT);
-			pnlLayout[i].add(lbls[i]);
-			pnlLayout[i].add(Box.createRigidArea(new Dimension(20, 0)));
-			
-			pnlLayout[i].add(tfs[i]);
-			pnlMatrix.add(pnlLayout[i]);
+		gbc = new GridBagConstraints();
+		gbc.insets = new Insets(5, 5, 5, 5);
+		gbc.anchor = GridBagConstraints.WEST;
+
+		for (int i = 0; i < lbls.length; i++) {
+			// Add the label (column 0)
+			gbc.gridx = 0;
+			gbc.gridy = i;
+			gbc.weightx = 0;
+			gbc.fill = GridBagConstraints.NONE; // Don't stretch the label
+			pnlMatrix.add(lbls[i], gbc);
+
+			// Add the text field (column 1)
+			gbc.gridx = 1;
+			gbc.weightx = 1;
+			gbc.fill = GridBagConstraints.HORIZONTAL; // Make text field stretch to fill available space
+			pnlMatrix.add(tfs[i], gbc);
 		}
 
 		pnlMatrix.setBorder(
@@ -181,42 +201,52 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 				BorderFactory.createLineBorder(new Color(255, 90, 38), 3),
 				"Equations"));
 
-		JPanel pnlRange = new JPanel();
-		pnlRange.setLayout(new GridLayout(3, 3, 5, 5));
+		// Ranges entry
+		JPanel pnlRange = new JPanel(new GridBagLayout());
 		final String sub_markup = "<html><body>%s<sub>%s</sub></body></html>";
 
+		String[] axes = {"X", "Y", "Z"};
+		String[] tags = {"min", "max", "gap"};
+
 		JLabel[] lbls2 = new JLabel[9];
-		lbls2[0] = new JLabel(sub_markup.formatted("X", "min"));
-		lbls2[1] = new JLabel(sub_markup.formatted("X", "max"));
-		lbls2[2] = new JLabel(sub_markup.formatted("X", "gap"));
-
-		lbls2[3] = new JLabel(sub_markup.formatted("Y", "min"));
-		lbls2[4] = new JLabel(sub_markup.formatted("Y", "max"));
-		lbls2[5] = new JLabel(sub_markup.formatted("Y", "gap"));
-
-		lbls2[6] = new JLabel(sub_markup.formatted("Z", "min"));
-		lbls2[7] = new JLabel(sub_markup.formatted("Z", "max"));
-		lbls2[8] = new JLabel(sub_markup.formatted("Z", "gap"));
-
 		tfs2 = new JTextField[9];
-
-		double[] defVals = { -10, 10, 0.1, -10, 10, 0.1, -10, 10, 0.1 };
-
-		for (int j = 0; j < 9; j++) {
-			tfs2[j] = new JTextField(4);
-			tfs2[j].setHorizontalAlignment(JTextField.CENTER);
-			tfs2[j].setFont(new Font("monospace", Font.PLAIN, 16));
-			tfs2[j].setText("" + defVals[j]);
-		}
+		double[] defVals = {-10, 10, 0.1, -10, 10, 0.1, -10, 10, 0.1};
 
 		for (int i = 0; i < 9; i++) {
-			
-			pnlRange.add(lbls2[i]);
-			pnlRange.add(tfs2[i]);
+			lbls2[i] = new JLabel(sub_markup.formatted(axes[i / 3], tags[i % 3]));
+			tfs2[i] = new JTextField(6);
+			tfs2[i].setHorizontalAlignment(JTextField.CENTER);
+			tfs2[i].setFont(new Font("monospace", Font.PLAIN, 16));
+			tfs2[i].setText("" + defVals[i]);
 		}
 
-		pnlRange.setBorder(
-				BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new Color(24, 110, 1), 3), "Ranges"));
+		gbc = new GridBagConstraints();
+		gbc.insets = new Insets(5, 5, 5, 5);
+		gbc.anchor = GridBagConstraints.WEST;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+
+		for (int row = 0; row < 3; row++) {
+			for (int i = 0; i < 3; i++) {
+				int idx = row * 3 + i;
+				int col = i * 3;
+
+				gbc.gridx = col;
+				gbc.gridy = row;
+				gbc.weightx = 0;
+				pnlRange.add(lbls2[idx], gbc);
+
+				gbc.gridx = col + 1;
+				gbc.weightx = 1;
+				pnlRange.add(tfs2[idx], gbc);
+
+				gbc.gridx = col + 2;
+				gbc.weightx = 0;
+				pnlRange.add(Box.createHorizontalStrut(10), gbc);
+			}
+		}
+
+		pnlRange.setBorder(BorderFactory.createTitledBorder(
+			BorderFactory.createLineBorder(new Color(24, 110, 1), 3), "Ranges"));
 
 		JPanel pnlButton2 = new JPanel();
 		btnOK = new JButton();
