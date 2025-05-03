@@ -343,8 +343,8 @@ public class MainFrame extends JFrame {
 		dbv.setLocation(Plotter.DEFAULT_W + 100, 180);
 		dbv.setDefaultCloseOperation(JInternalFrame.HIDE_ON_CLOSE);
 		
-		odeinput.setSize(600, Plotter.DEFAULT_H + 80);
 		odeinput.setLocation(Plotter.DEFAULT_W + 100, 0);
+		odeinput.pack();
 		
 		ifrmPlot.add(pv);
 		ifrmLogs.add(this.getLogger().getComponent());
@@ -353,15 +353,12 @@ public class MainFrame extends JFrame {
 		mainPane.add(odeinput);
 		mainPane.add(dbv);
 		
-		odeinput.pack();
-		
 		ifrmPlot.setVisible(true);
 		odeinput.setVisible(true);
 		
-		ScriptConsole console = new ScriptConsole();
-		
+		var console = new ScriptConsole();
 		// TextArea with hint text that gets cleared as soon as user starts typing
-		JTextArea txtScratchpad = new JTextArea("You can write anything here.");
+		var txtScratchpad = new JTextArea("You can write anything here.");
 		txtScratchpad.setForeground(Color.GRAY);
 		txtScratchpad.addKeyListener(new KeyAdapter() {
 			private boolean cleared = false;
@@ -376,7 +373,7 @@ public class MainFrame extends JFrame {
 			}
 		});
 		
-		JTabbedPane statusPane = new JTabbedPane();
+		var statusPane = new JTabbedPane();
 		statusPane.addTab("Logs", ifrmLogs.getContentPane());
 		statusPane.addTab("Console", console);
 		statusPane.addTab("Notes", txtScratchpad);
@@ -393,7 +390,7 @@ public class MainFrame extends JFrame {
 			}
 		});
 		
-		JSplitPane mainPane2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+		var mainPane2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 		mainPane2.setDividerLocation(550);
 		mainPane2.setTopComponent(mainPane);
 		mainPane2.setBottomComponent(statusPane);
