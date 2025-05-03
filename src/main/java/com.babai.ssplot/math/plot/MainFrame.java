@@ -196,8 +196,9 @@ public class MainFrame extends JFrame {
 		
 		// Add Listener
 		jmOpen.addActionListener(e -> {
-			dbv.openFile();
-			pv.setCurPlot(dbv.getData());
+			if (dbv.openFile()) {
+				pv.setCurPlot(dbv.getData());
+			}
 		});
 		jmSaveImage.addActionListener(e -> saveImage());
 		jmShowData.addActionListener(e -> dbv.setVisible(true));
