@@ -3,7 +3,7 @@
 # AppImageTool and any other required build programs
 # should exist on PATH
 # build-deps : maven, dpkg-deb, markdown
-VERSION=2.2.5
+VERSION=2.2.6
 echo "Running Maven: Compile and generate DEB"
 mvn clean package -X -f pom.xml
 echo "Generating Docs"
