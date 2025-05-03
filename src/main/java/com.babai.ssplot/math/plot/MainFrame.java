@@ -26,7 +26,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyAdapter;
@@ -77,21 +76,6 @@ public class MainFrame extends JFrame {
 	private final DBViewer dbv;
 	private final ODEInputFrame odeinput;
 	private StatLogger logger;
-	
-	private final JMenuItem jmSave;
-	private final JMenuItem jmOpen;
-	private final JMenuItem jmShowData;
-	private final JMenuItem jmQuit;
-	private final JMenuItem jmPlotType;
-	private final JMenuItem jmPhase;
-	private final JMenuItem jmCol;
-	private final JMenuItem jmClear;
-	private final JMenuItem jmSvData;
-	private final JCheckBoxMenuItem jmAxes;
-	private final JMenuItem jmClearLogs;
-	private final JMenuItem jmTitle;
-	private final JMenuItem jmLineWidth;
-	private final JMenuItem jmXLabel, jmYLabel;
 	
 	// FIXME should be a theme-independent way instead of relying on this
 	/* Valid only for default Metal look and feel. */
@@ -160,77 +144,65 @@ public class MainFrame extends JFrame {
 		setBounds(100, 20, 1300, 700 + MainFrame.MENUBAR_WIDTH);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		JInternalFrame ifrmPlot = new JInternalFrame("Plot", true, false, true, true);
-		JInternalFrame ifrmLogs = new JInternalFrame("Logs", true, true, true, true);
+		var ifrmPlot = new JInternalFrame("Plot", true, false, true, true);
+		var ifrmLogs = new JInternalFrame("Logs", true, true, true, true);
 		
 		// Initialize menu variables
-		jmOpen = new JMenuItem("From File...");
-		jmPhase = new JMenuItem("From Equation...");
-		jmSvData = new JMenuItem("Save Data...");
-		jmSave = new JMenuItem("Save Image...");
-		jmShowData = new JMenuItem("View/Edit Plot Data");
-		jmQuit = new JMenuItem("Quit");
+		var jmOpen = new JMenuItem("From File...");
+		var jmSetupEqn = new JMenuItem("From Equation...");
+		var jmSaveData = new JMenuItem("Save Data...");
+		var jmSaveImage = new JMenuItem("Save Image...");
+		var jmShowData = new JMenuItem("View/Edit Plot Data");
+		var jmQuit = new JMenuItem("Quit");
 		
-		JRadioButtonMenuItem jcmNormal = new JRadioButtonMenuItem("Normal mode");
-		JRadioButtonMenuItem jcmOverlay = new JRadioButtonMenuItem("Overlay mode");
-		JRadioButtonMenuItem jcmAnimate = new JRadioButtonMenuItem("Animate");
-		jcmNormal.setSelected(true);
-		ButtonGroup bg = new ButtonGroup();
+		var jcmNormal = new JRadioButtonMenuItem("Normal mode", true);
+		var jcmOverlay = new JRadioButtonMenuItem("Overlay mode");
+		var jcmAnimate = new JRadioButtonMenuItem("Animate");
+		var bg = new ButtonGroup();
 		bg.add(jcmNormal);
 		bg.add(jcmAnimate);
 		bg.add(jcmOverlay);
 		
-		jmClearLogs = new JMenuItem("Clear Logs");
-		jmTitle = new JMenuItem("Add title");
-		jmXLabel = new JMenuItem("Add X axis label");
-		jmYLabel = new JMenuItem("Add Y axis label");
-		jmAxes = new JCheckBoxMenuItem("Toggle axes");
-		jmAxes.setSelected(true);
-		jmLineWidth = new JMenuItem("Set Line Width");
-		jmCol = new JMenuItem("Set Plot Color");
-		jmPlotType = new JMenuItem("Set Plot Type");
-		jmClear = new JMenuItem("Clear plot");
-		JMenuItem jmFit = new JMenuItem("Autoscale");
+		var jmClearLogs = new JMenuItem("Clear Logs");
+		var jmTitle = new JMenuItem("Add title");
+		var jmXLabel = new JMenuItem("Add X axis label");
+		var jmYLabel = new JMenuItem("Add Y axis label");
+		var jmAxes = new JCheckBoxMenuItem("Toggle axes", true);
+		var jmLineWidth = new JMenuItem("Set Line Width");
+		var jmCol = new JMenuItem("Set Plot Color");
+		var jmPlotType = new JMenuItem("Set Plot Type");
+		var jmClear = new JMenuItem("Clear plot");
+		var jmFit = new JMenuItem("Autoscale");
 		
-		JMenuItem jmShowDBV = new JMenuItem("Data Editor...");
-		JMenuItem jmShowEqn = new JMenuItem("Equation Editor...");
-		
-		JMenuItem jmShowHelp = new JMenuItem("Help...");
-		JMenuItem jmKeyHelp = new JMenuItem("Keymaps Help");
-		JMenuItem jmHomepage = new JMenuItem("Homepage...");
-		JMenuItem jmIssues = new JMenuItem("Report An Issue...");
-		JMenuItem jmContribute = new JMenuItem("Contribute code...");
-		JMenuItem jmDonate = new JMenuItem("Donate...");
-		JMenuItem jmAbout = new JMenuItem("About");
+		var jmShowDBV = new JMenuItem("Data Editor...");
+		var jmShowEqn = new JMenuItem("Equation Editor...");	
+		var jmShowHelp = new JMenuItem("Help...");
+		var jmKeyHelp = new JMenuItem("Keymaps Help");
+		var jmHomepage = new JMenuItem("Homepage...");
+		var jmIssues = new JMenuItem("Report An Issue...");
+		var jmContribute = new JMenuItem("Contribute code...");
+		var jmDonate = new JMenuItem("Donate...");
+		var jmAbout = new JMenuItem("About");
 		
 		// Add keybindings
-		jmOpen.setAccelerator(
-				KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK));
-		jmSave.setAccelerator(
-				KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK));
-		jmSvData.setAccelerator(
-				KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK|ActionEvent.SHIFT_MASK));
-		jmShowData.setAccelerator(
-				KeyStroke.getKeyStroke(KeyEvent.VK_D, ActionEvent.CTRL_MASK));
-		jmQuit.setAccelerator(
-				KeyStroke.getKeyStroke(KeyEvent.VK_Q, ActionEvent.CTRL_MASK));
-
-		jmPhase.setAccelerator(
-				KeyStroke.getKeyStroke(KeyEvent.VK_M, ActionEvent.CTRL_MASK));
-		jmFit.setAccelerator(
-				KeyStroke.getKeyStroke(KeyEvent.VK_F, ActionEvent.CTRL_MASK));
-		jmClear.setAccelerator(
-				KeyStroke.getKeyStroke(KeyEvent.VK_X, ActionEvent.CTRL_MASK));
+		jmOpen.setAccelerator(KeyStroke.getKeyStroke("ctrl O"));
+		jmSaveImage.setAccelerator(KeyStroke.getKeyStroke("ctrl S"));
+		jmSaveData.setAccelerator(KeyStroke.getKeyStroke("ctrl shift S"));
+		jmShowData.setAccelerator(KeyStroke.getKeyStroke("ctrl D"));
+		jmQuit.setAccelerator(KeyStroke.getKeyStroke("ctrl Q"));
+		jmSetupEqn.setAccelerator(KeyStroke.getKeyStroke("ctrl M"));
+		jmFit.setAccelerator(KeyStroke.getKeyStroke("ctrl F"));
+		jmClear.setAccelerator(KeyStroke.getKeyStroke("ctrl X"));
 		
 		// Add Listener
 		jmOpen.addActionListener(e -> {
 			dbv.openFile();
 			pv.setCurPlot(dbv.getData());
 		});
-		jmSave.addActionListener(e -> saveImage());
+		jmSaveImage.addActionListener(e -> saveImage());
 		jmShowData.addActionListener(e -> dbv.setVisible(true));
 		jmQuit.addActionListener(e -> System.exit(0));
-		jmSvData.addActionListener(e -> dbv.saveFile());
+		jmSaveData.addActionListener(e -> dbv.saveFile());
 		jmClear.addActionListener(e -> {
 			pv.clear();
 			dbv.clear();
@@ -257,7 +229,10 @@ public class MainFrame extends JFrame {
 			plt.toggleAxes();
 			pv.repaint();
 		});
-		jmPhase.addActionListener(e -> odeinput.setVisible(true));
+		jmSetupEqn.addActionListener(e -> {
+			odeinput.setVisible(true);
+			odeinput.requestFocusInWindow();
+		});
 		jmPlotType.addActionListener(e -> changePlotType());
 		jmFit.addActionListener(e -> pv.fit());
 		
@@ -274,15 +249,13 @@ public class MainFrame extends JFrame {
 		});
 		
 		jmShowDBV.addActionListener(e -> {
-			if (!dbv.isVisible()) {
-				dbv.setVisible(true);
-			}
+			dbv.setVisible(true);
+			dbv.requestFocusInWindow();
 		});
 		
 		jmShowEqn.addActionListener(e -> {
-			if (!odeinput.isVisible()) {
-				odeinput.setVisible(true);
-			}
+			odeinput.setVisible(true);
+			odeinput.requestFocusInWindow();
 		});
 
 		jcmNormal.addActionListener(e -> {
@@ -299,29 +272,30 @@ public class MainFrame extends JFrame {
 		});
 		
 		// Setup menu
-		JMenu mnuFile = new JMenu("File");
-		JMenu sbmnNew = new JMenu("New Plot");
+		var sbmnNew = new JMenu("New Plot");
 		sbmnNew.add(jmOpen);
-		sbmnNew.add(jmPhase);
+		sbmnNew.add(jmSetupEqn);
 		
+		var mnuFile = new JMenu("File");
 		mnuFile.add(sbmnNew);
-		mnuFile.add(jmSave);
-		mnuFile.add(jmSvData);
+		mnuFile.add(jmSaveImage);
+		mnuFile.add(jmSaveData);
 		mnuFile.addSeparator();
 		mnuFile.add(jmClearLogs);
 		mnuFile.add(jmQuit);
 		
-		JMenu mnuPlot = new JMenu("Plot");
-		JMenu mnuMode = new JMenu("Plot Mode");
+		var sbmnMode = new JMenu("Plot Mode");
+		sbmnMode.add(jcmNormal);
+		sbmnMode.add(jcmOverlay);
+		sbmnMode.add(jcmAnimate);
+		
+		var mnuPlot = new JMenu("Plot");
 		mnuPlot.add(jmAxes);
-		mnuMode.add(jcmNormal);
-		mnuMode.add(jcmOverlay);
-		mnuMode.add(jcmAnimate);
-		mnuPlot.add(mnuMode);
+		mnuPlot.add(sbmnMode);
 		mnuPlot.add(jmFit);
 		mnuPlot.add(jmClear);
 		
-		JMenu mnuProp = new JMenu("Plot Properties");
+		var mnuProp = new JMenu("Plot Properties");
 		mnuProp.add(jmTitle);
 		mnuProp.add(jmXLabel);
 		mnuProp.add(jmYLabel);
@@ -330,11 +304,11 @@ public class MainFrame extends JFrame {
 		mnuProp.add(jmCol);
 		mnuPlot.add(mnuProp);
 		
-		JMenu mnuWindow = new JMenu("Window");
+		var mnuWindow = new JMenu("Window");
 		mnuWindow.add(jmShowDBV);
 		mnuWindow.add(jmShowEqn);
 		
-		JMenu mnuHelp = new JMenu("Help");
+		var mnuHelp = new JMenu("Help");
 		mnuHelp.add(jmShowHelp);
 		mnuHelp.add(jmKeyHelp);
 		mnuHelp.add(jmHomepage);
@@ -343,7 +317,7 @@ public class MainFrame extends JFrame {
 		mnuHelp.add(jmDonate);
 		mnuHelp.add(jmAbout);
 		
-		JMenuBar jmb = new JMenuBar();
+		var jmb = new JMenuBar();
 		jmb.add(mnuFile);
 		jmb.add(mnuPlot);
 		jmb.add(mnuWindow);
@@ -352,7 +326,7 @@ public class MainFrame extends JFrame {
 		this.setJMenuBar(jmb);
 		
 		// Main layouting
-		JDesktopPane mainPane = new JDesktopPane();
+		var mainPane = new JDesktopPane();
 		mainPane.setDragMode(JDesktopPane.OUTLINE_DRAG_MODE);
 		
 		ifrmPlot.setSize(Plotter.DEFAULT_W+50, Plotter.DEFAULT_H + 80);
