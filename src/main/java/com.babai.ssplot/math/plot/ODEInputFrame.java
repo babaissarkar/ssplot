@@ -28,7 +28,6 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Vector;
@@ -63,7 +62,6 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 	private JTextField tfCounts, tfStep;
 	private JTextField[] tfs, tfs2, tfs3;
 	private JButton btnOK, btnCancel, btnDF, btnTR, btnCW;
-	private JRadioButton rbODE, rbIM, rbFunc, rbFunc2;
 
 	// boolean modeODE, modeFunc;
 
@@ -83,40 +81,34 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 
 	public void initInputDialog() {
 		/* Creating Gui */
-		this.setTitle("System Parameters");
-		this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-		JPanel pnlMain = new JPanel();
+		setTitle("System Parameters");
+		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+		var pnlMain = new JPanel();
 		pnlMain.setLayout(new BoxLayout(pnlMain, BoxLayout.PAGE_AXIS));
 		pnlMain.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-		JPanel pnlRB = new JPanel();
-		rbODE = new JRadioButton("Differential Equation");
-		rbODE.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent evt) {
-				curMode = SystemMode.ODE;
-				updateInterface();
-			}
+		var pnlRB = new JPanel();
+		var rbODE = new JRadioButton("Differential Equation", true);
+		var rbIM = new JRadioButton("Difference Equation");
+		var rbFunc = new JRadioButton("1D function");
+		var rbFunc2 = new JRadioButton("2D function");
+		
+		rbODE.addActionListener(e -> {
+			curMode = SystemMode.ODE;
+			updateInterface();
 		});
-		rbIM = new JRadioButton("Difference Equation");
-		rbIM.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent evt) {
-				curMode = SystemMode.DFE;
-				updateInterface();
-			}
+		rbIM.addActionListener(e -> {
+			curMode = SystemMode.DFE;
+			updateInterface();
 		});
-		rbFunc = new JRadioButton("1D function");
-		rbFunc.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent evt) {
-				curMode = SystemMode.FN1;
-				updateInterface();
-			}
+		
+		rbFunc.addActionListener(e -> {
+			curMode = SystemMode.FN1;
+			updateInterface();
 		});
-		rbFunc2 = new JRadioButton("2D function");
-		rbFunc2.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent evt) {
-				curMode = SystemMode.FN2;
-				updateInterface();
-			}
+		rbFunc2.addActionListener(e -> {
+			curMode = SystemMode.FN2;
+			updateInterface();
 		});
 
 		ButtonGroup bg = new ButtonGroup();
@@ -124,8 +116,6 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 		bg.add(rbIM);
 		bg.add(rbFunc);
 		bg.add(rbFunc2);
-		
-		rbODE.setSelected(true);
 
 		pnlRB.add(rbODE);
 		pnlRB.add(rbIM);
@@ -133,7 +123,6 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 		pnlRB.add(rbFunc2);
 
 		JPanel pnlCounts = new JPanel();
-//		pnlCounts.setLayout(new GridLayout(2, 1, 5, 5));
 		pnlCounts.setLayout(new BoxLayout(pnlCounts, BoxLayout.Y_AXIS));
 		JLabel lblCounts = new JLabel("Iteration count");
 		tfCounts = new JTextField(10);
@@ -156,7 +145,9 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 		
 		pnlCounts.add(pnlLoCounts);
 		pnlCounts.add(pnlLoStep);
-		pnlCounts.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new Color(127, 0, 140), 3),
+		pnlCounts.setBorder(
+			BorderFactory.createTitledBorder(
+				BorderFactory.createLineBorder(new Color(127, 0, 140), 3),
 				"Iteration Parameters"));
 
 		JPanel pnlMatrix = new JPanel();
@@ -185,25 +176,27 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 			pnlMatrix.add(pnlLayout[i]);
 		}
 
-		pnlMatrix.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new Color(255, 90, 38), 3),
+		pnlMatrix.setBorder(
+			BorderFactory.createTitledBorder(
+				BorderFactory.createLineBorder(new Color(255, 90, 38), 3),
 				"Equations"));
 
 		JPanel pnlRange = new JPanel();
 		pnlRange.setLayout(new GridLayout(3, 3, 5, 5));
-//		pnlRange.setLayout(new BoxLayout(pnlRange, BoxLayout.Y_AXIS));
+		final String sub_markup = "<html><body>%s<sub>%s</sub></body></html>";
 
 		JLabel[] lbls2 = new JLabel[9];
-		lbls2[0] = new JLabel("<html><body>X<sub>min</sub></body></html>");
-		lbls2[1] = new JLabel("<html><body>X<sub>max</sub></body></html>");
-		lbls2[2] = new JLabel("<html><body>X<sub>gap</sub></body></html>");
+		lbls2[0] = new JLabel(sub_markup.formatted("X", "min"));
+		lbls2[1] = new JLabel(sub_markup.formatted("X", "max"));
+		lbls2[2] = new JLabel(sub_markup.formatted("X", "gap"));
 
-		lbls2[3] = new JLabel("<html><body>Y<sub>min</sub></body></html>");
-		lbls2[4] = new JLabel("<html><body>Y<sub>max</sub></body></html>");
-		lbls2[5] = new JLabel("<html><body>Y<sub>gap</sub></body></html>");
+		lbls2[3] = new JLabel(sub_markup.formatted("Y", "min"));
+		lbls2[4] = new JLabel(sub_markup.formatted("Y", "max"));
+		lbls2[5] = new JLabel(sub_markup.formatted("Y", "gap"));
 
-		lbls2[6] = new JLabel("<html><body>Z<sub>min</sub></body></html>");
-		lbls2[7] = new JLabel("<html><body>Z<sub>max</sub></body></html>");
-		lbls2[8] = new JLabel("<html><body>Z<sub>gap</sub></body></html>");
+		lbls2[6] = new JLabel(sub_markup.formatted("Z", "min"));
+		lbls2[7] = new JLabel(sub_markup.formatted("Z", "max"));
+		lbls2[8] = new JLabel(sub_markup.formatted("Z", "gap"));
 
 		tfs2 = new JTextField[9];
 
@@ -230,20 +223,16 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 		btnCancel = new JButton();
 		btnOK.setToolTipText("Apply changes");
 		btnCancel.setToolTipText("Cancel changes");
-		btnOK.setIcon(new ImageIcon(Toolkit.getDefaultToolkit().getImage(
-    			getClass().getResource("/check.png"))));
-		btnCancel.setIcon(new ImageIcon(Toolkit.getDefaultToolkit().getImage(
-    			getClass().getResource("/cross.png"))));
+		btnOK.setIcon(new ImageIcon(getClass().getResource("/check.png")));
+		btnCancel.setIcon(new ImageIcon(getClass().getResource("/cross.png")));
 		
 		JPanel pnlButton = new JPanel();
 		btnTR = new JButton();
 		btnTR2 = new JButton();
 		btnTR.setToolTipText("Draw 2d plot");
 		btnTR2.setToolTipText("Draw 3d plot");
-		btnTR.setIcon(new ImageIcon(Toolkit.getDefaultToolkit().getImage(
-    			getClass().getResource("/2d.png"))));
-		btnTR2.setIcon(new ImageIcon(Toolkit.getDefaultToolkit().getImage(
-    			getClass().getResource("/3d.png"))));
+		btnTR.setIcon(new ImageIcon(getClass().getResource("/2d.png")));
+		btnTR2.setIcon(new ImageIcon(getClass().getResource("/3d.png")));
 		tfs3 = new JTextField[3];
 		tfs3[0] = new JTextField(3);
 		tfs3[1] = new JTextField(3);
@@ -259,10 +248,8 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 		btnCW = new JButton();
 		btnDF.setToolTipText("Draw Vector Field");
 		btnCW.setToolTipText("Draw Cobweb Plot");
-		btnDF.setIcon(new ImageIcon(Toolkit.getDefaultToolkit().getImage(
-    			getClass().getResource("/vfield.png"))));
-		btnCW.setIcon(new ImageIcon(Toolkit.getDefaultToolkit().getImage(
-    			getClass().getResource("/cobweb.png"))));
+		btnDF.setIcon(new ImageIcon(getClass().getResource("/vfield.png")));
+		btnCW.setIcon(new ImageIcon(getClass().getResource("/cobweb.png")));
 
 		btnDF.setEnabled(false);
 		btnTR.setEnabled(false);
