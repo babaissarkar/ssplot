@@ -48,6 +48,7 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
+import javax.swing.border.TitledBorder;
 /** This class takes the input from user, sends data to backend,
  *  get processed data from backend, and send it back to MainFrame
  *  for plotting.
@@ -112,7 +113,7 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 			updateInterface();
 		});
 
-		ButtonGroup bg = new ButtonGroup();
+		var bg = new ButtonGroup();
 		bg.add(rbODE);
 		bg.add(rbIM);
 		bg.add(rbFunc);
@@ -124,7 +125,7 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 		pnlRB.add(rbFunc2);
 
 		// Iteration paramters entry
-		JPanel pnlCounts = new JPanel();
+		var pnlCounts = new JPanel();
 		pnlCounts.setLayout(new GridBagLayout());
 
 		var gbc = new GridBagConstraints();
@@ -158,11 +159,15 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 		pnlCounts.setBorder(
 			BorderFactory.createTitledBorder(
 				BorderFactory.createLineBorder(new Color(127, 0, 140), 3),
-				"Iteration Parameters"));
+				"Iteration Parameters",
+				TitledBorder.LEFT,
+				TitledBorder.TOP,
+				new Font("Serif", Font.BOLD, 14),
+				new Color(127, 0, 140).darker().darker()));
 
 
 		// Equations Entry
-		JPanel pnlMatrix = new JPanel();
+		var pnlMatrix = new JPanel();
 		pnlMatrix.setLayout(new GridBagLayout());
 
 		lbls = new JLabel[] {
@@ -199,10 +204,14 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 		pnlMatrix.setBorder(
 			BorderFactory.createTitledBorder(
 				BorderFactory.createLineBorder(new Color(255, 90, 38), 3),
-				"Equations"));
+				"Equations",
+				TitledBorder.LEFT,
+				TitledBorder.TOP,
+				new Font("Serif", Font.BOLD, 14),
+				new Color(255, 90, 38).darker().darker()));
 
 		// Ranges entry
-		JPanel pnlRange = new JPanel(new GridBagLayout());
+		var pnlRange = new JPanel(new GridBagLayout());
 		final String sub_markup = "<html><body>%s<sub>%s</sub></body></html>";
 
 		String[] axes = {"X", "Y", "Z"};
@@ -214,7 +223,7 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 
 		for (int i = 0; i < 9; i++) {
 			lbls2[i] = new JLabel(sub_markup.formatted(axes[i / 3], tags[i % 3]));
-			tfs2[i] = new JTextField(6);
+			tfs2[i] = new JTextField(9);
 			tfs2[i].setHorizontalAlignment(JTextField.CENTER);
 			tfs2[i].setFont(new Font("monospace", Font.PLAIN, 16));
 			tfs2[i].setText("" + defVals[i]);
@@ -246,9 +255,14 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 		}
 
 		pnlRange.setBorder(BorderFactory.createTitledBorder(
-			BorderFactory.createLineBorder(new Color(24, 110, 1), 3), "Ranges"));
+			BorderFactory.createLineBorder(new Color(24, 110, 1), 3),
+			"Ranges",
+			TitledBorder.LEFT,
+			TitledBorder.TOP,
+			new Font("Serif", Font.BOLD, 14),
+			new Color(24, 110, 1).darker().darker()));
 
-		JPanel pnlButton2 = new JPanel();
+		var pnlButton2 = new JPanel();
 		btnOK = new JButton();
 		btnCancel = new JButton();
 		btnOK.setToolTipText("Apply changes");
@@ -256,7 +270,7 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 		btnOK.setIcon(new ImageIcon(getClass().getResource("/check.png")));
 		btnCancel.setIcon(new ImageIcon(getClass().getResource("/cross.png")));
 		
-		JPanel pnlButton = new JPanel();
+		var pnlButton = new JPanel();
 		btnTR = new JButton();
 		btnTR2 = new JButton();
 		btnTR.setToolTipText("Draw 2d plot");
@@ -273,7 +287,6 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 		lbls3[1] = new JLabel("Y");
 		lbls3[2] = new JLabel("Z");
 		
-		JPanel pnlButton3 = new JPanel();
 		btnDF = new JButton();
 		btnCW = new JButton();
 		btnDF.setToolTipText("Draw Vector Field");
@@ -300,20 +313,17 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 		tfStep.setHorizontalAlignment(JTextField.CENTER);
 		tfStep.setFont(new Font("monospace", Font.PLAIN, 16));
 
-		FlowLayout f = new FlowLayout(FlowLayout.LEFT, 5, 5);
-		pnlButton.setLayout(f);
+		pnlButton.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
 		pnlButton.add(btnTR);
 		pnlButton.add(btnTR2);
 		for (int i = 0; i < 3; i++) {
 			pnlButton.add(lbls3[i]);
 			pnlButton.add(tfs3[i]);
 		}
-
-		pnlButton3.setLayout(new FlowLayout(FlowLayout.LEFT));
-		pnlButton3.add(btnCW);
-		pnlButton3.add(btnDF);
+		pnlButton.add(btnCW);
+		pnlButton.add(btnDF);
 		
-		pnlButton2.setLayout(new FlowLayout(FlowLayout.CENTER));
+		pnlButton2.setLayout(new FlowLayout(FlowLayout.RIGHT));
 		pnlButton2.add(btnOK);
 		pnlButton2.add(btnCancel);
 
@@ -326,7 +336,6 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 
 		JToolBar tools = new JToolBar("Plot Tools");
 		tools.add(pnlButton);
-		tools.add(pnlButton3);
 		tools.add(pnlButton2);
 		
 		pnlMain.add(tools);
