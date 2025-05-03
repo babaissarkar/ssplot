@@ -29,6 +29,7 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
@@ -60,6 +61,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.UnsupportedLookAndFeelException;
+
 import com.formdev.flatlaf.intellijthemes.FlatArcDarkOrangeIJTheme;
 import com.formdev.flatlaf.intellijthemes.FlatArcOrangeIJTheme;
 import com.formdev.flatlaf.util.SystemInfo;
@@ -382,13 +384,37 @@ public class MainFrame extends JFrame {
 		odeinput.setVisible(true);
 		
 		ScriptConsole console = new ScriptConsole();
+		
+		// TextArea with hint text that gets cleared as soon as user starts typing
+		JTextArea txtScratchpad = new JTextArea("You can write anything here.");
+		txtScratchpad.setForeground(Color.GRAY);
+		txtScratchpad.addKeyListener(new KeyAdapter() {
+			private boolean cleared = false;
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (!cleared) {
+					txtScratchpad.setText("");
+					txtScratchpad.setForeground(Color.BLACK);
+					cleared = true;
+				}
+			}
+		});
+		
 		JTabbedPane statusPane = new JTabbedPane();
 		statusPane.addTab("Logs", ifrmLogs.getContentPane());
 		statusPane.addTab("Console", console);
-		statusPane.addTab("Notes", new JTextArea("You can write anything here."));
+		statusPane.addTab("Notes", txtScratchpad);
 		statusPane.addChangeListener(e -> {
-			if (statusPane.getSelectedIndex() == 1) {
+			switch(statusPane.getSelectedIndex()) {
+			case 1:
 				SwingUtilities.invokeLater(console::focusInput);
+				break;
+			case 2:
+				SwingUtilities.invokeLater(txtScratchpad::requestFocusInWindow);
+				break;
+			default:
+				// Nothing
 			}
 		});
 		
@@ -541,7 +567,7 @@ public class MainFrame extends JFrame {
 	public static void main(String[] args) {
 		/* Global UI Configuration */
 		// TODO should be loaded from file?
-		final Color sspOrange = new Color(255,156,95);
+		final var sspOrange = new Color(255,156,95);
 		UIManager.put("Menu.selectionBackground", sspOrange);
 		UIManager.put("Menu.selectionForeground", Color.BLACK);
 		UIManager.put("MenuItem.selectionBackground", sspOrange);
@@ -566,7 +592,7 @@ public class MainFrame extends JFrame {
 		UIManager.put("Button.arc", 20);
 		UIManager.put("TextComponent.arc", 50);
 		
-		MainFrame pframe = new MainFrame();
+		final var pframe = new MainFrame();
 		
 		if(hasArg("nimbus", args)) {
 			pframe.setNimbusLF();
