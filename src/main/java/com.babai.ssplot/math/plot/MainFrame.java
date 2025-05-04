@@ -43,14 +43,12 @@ import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JColorChooser;
 import javax.swing.JDesktopPane;
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
@@ -58,16 +56,14 @@ import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-import javax.swing.UIManager.LookAndFeelInfo;
-import javax.swing.UnsupportedLookAndFeelException;
-
-import com.formdev.flatlaf.intellijthemes.FlatArcDarkOrangeIJTheme;
-import com.formdev.flatlaf.intellijthemes.FlatArcOrangeIJTheme;
-import com.formdev.flatlaf.util.SystemInfo;
 
 import cli.SSPlotCLI;
 import help.HelpFrame;
 import math.plot.PlotData.PlotType;
+import util.UIHelper;
+
+import static javax.swing.JOptionPane.*;
+import static cli.ArgParse.hasArg;
 
 public class MainFrame extends JFrame {
 	
@@ -113,20 +109,20 @@ public class MainFrame extends JFrame {
 	
 	public MainFrame() {
 		// Set icon
-		this.setIconImage(
+		setIconImage(
 				Toolkit.getDefaultToolkit().getImage(
 						getClass().getResource("/ssplot.png")));
 		
 		// Initialize logger
-		this.setLogger(new StatLogger());
-		this.getLogger().log("<h1>Welcome to SSPlot!</h1>");
+		setLogger(new StatLogger());
+		getLogger().log("<h1>Welcome to SSPlot!</h1>");
 		
 		plt = new Plotter(logger);
 		plt.initPlot();
 		
-		pv = new PlotView(this.getLogger(), plt);
+		pv = new PlotView(getLogger(), plt);
 		
-		odeinput = new ODEInputFrame(this);
+		odeinput = new ODEInputFrame();
 		odeinput.setResizable(true);
 		odeinput.setClosable(true);
 		odeinput.setIconifiable(true);
@@ -218,16 +214,16 @@ public class MainFrame extends JFrame {
 		jmTitle.addActionListener(e -> {
 			Optional<PlotData> pdata = pv.getCurPlot();
 			if (pdata.isPresent()) {
-				pdata.get().setTitle(JOptionPane.showInputDialog("Title:"));
+				pdata.get().setTitle(showInputDialog("Title:"));
 				pv.repaint();
 			}
 		});
 		jmXLabel.addActionListener(e -> {
-			plt.getCanvas().setXLabel(JOptionPane.showInputDialog("X Label:"));
+			plt.getCanvas().setXLabel(showInputDialog("X Label:"));
 			pv.repaint();
 		});
 		jmYLabel.addActionListener(e -> {
-			plt.getCanvas().setYLabel(JOptionPane.showInputDialog("Y Label:"));
+			plt.getCanvas().setYLabel(showInputDialog("Y Label:"));
 			pv.repaint();
 		});
 		jmCol.addActionListener(e -> pv.setColor(JColorChooser.showDialog(this, "Plot Color 1", Color.RED)));
@@ -238,7 +234,7 @@ public class MainFrame extends JFrame {
 		});
 		jmSetupEqn.addActionListener(e -> {
 			odeinput.setVisible(true);
-			odeinput.requestFocusInWindow();
+			odeinput.requestFocusInWindow(); // TODO should focus on the first element in tab order
 		});
 		jmPlotType.addActionListener(e -> changePlotType());
 		jmFit.addActionListener(e -> pv.fit());
@@ -251,8 +247,8 @@ public class MainFrame extends JFrame {
 		jmAbout.addActionListener(e -> showAbout());
 		jmKeyHelp.addActionListener(e -> {
 			// Shows help message
-			showMsg(KEY_HELP_MSG);
-			JOptionPane.showMessageDialog(this, "<html>" + KEY_HELP_MSG + "</html>");
+			getLogger().log(KEY_HELP_MSG);
+			showMessageDialog(this, "<html>" + KEY_HELP_MSG + "</html>");
 		});
 		
 		jmShowDBV.addActionListener(e -> {
@@ -330,7 +326,7 @@ public class MainFrame extends JFrame {
 		jmb.add(mnuWindow);
 		jmb.add(mnuHelp);
 		
-		this.setJMenuBar(jmb);
+		setJMenuBar(jmb);
 		
 		// Main layouting
 		var mainPane = new JDesktopPane();
@@ -353,7 +349,7 @@ public class MainFrame extends JFrame {
 		odeinput.pack();
 		
 		ifrmPlot.add(pv);
-		ifrmLogs.add(this.getLogger().getComponent());
+		ifrmLogs.add(getLogger().getComponent());
 		
 		mainPane.add(ifrmPlot);
 		mainPane.add(odeinput);
@@ -401,20 +397,14 @@ public class MainFrame extends JFrame {
 		mainPane2.setTopComponent(mainPane);
 		mainPane2.setBottomComponent(statusPane);
 		
-		this.getContentPane().setLayout(new BorderLayout());
-		this.getContentPane().add(mainPane2, BorderLayout.CENTER);
-		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
-	}
-	
-	public void startApp() {
-		if (!this.isVisible()) {
-			this.setVisible(true);
-		}
+		getContentPane().setLayout(new BorderLayout());
+		getContentPane().add(mainPane2, BorderLayout.CENTER);
+		setExtendedState(JFrame.MAXIMIZED_BOTH);
 	}
 	
 	/* Getters and Setters */
 	public StatLogger getLogger() {
-		return this.logger;
+		return logger;
 	}
 	
 	public void setLogger(StatLogger logger) {
@@ -432,7 +422,7 @@ public class MainFrame extends JFrame {
 	}
 	
 	public void setLineWidth() {
-		String strWidth = JOptionPane.showInputDialog("Line Width:");
+		String strWidth = showInputDialog("Line Width:");
 		if (strWidth != null) {
 			int width = Integer.parseInt(strWidth);
 			Optional<PlotData> pd = pv.getCurPlot();
@@ -445,15 +435,14 @@ public class MainFrame extends JFrame {
 	}
 	
 	public void changePlotType() {
-		PlotType type = (PlotType) JOptionPane.showInputDialog(
-		this,
-		"Choose Plot Type :",
-		"Plot Type",
-		JOptionPane.QUESTION_MESSAGE,
-		null,
-		PlotType.values(),
-		PlotType.LINES
-		);
+		PlotType type = (PlotType) showInputDialog(
+			this,
+			"Choose Plot Type :",
+			"Plot Type",
+			QUESTION_MESSAGE,
+			null,
+			PlotType.values(),
+			PlotType.LINES);
 		
 		if (type != null) {
 			pv.setCurPlotType(type);
@@ -462,11 +451,12 @@ public class MainFrame extends JFrame {
 	
 	private void openLink(String url) {
 		if (url.isBlank()) {
-			logger.log("Empty link, not opening.");
+			getLogger().log("Empty link, not opening.");
+			return;
 		}
 		
 		if (!Desktop.isDesktopSupported()) {
-			logger.log("Browsing links not supported on this platform!");
+			getLogger().log("Browsing links not supported on this platform!");
 			return;
 		}
 		
@@ -480,65 +470,39 @@ public class MainFrame extends JFrame {
 	}
 	
 	public void showAbout() {
-		String[] buttonStrs = {"License", "Close"};
+		getLogger().log(ABOUT_MSG);
 		
-		logger.log(ABOUT_MSG);
-		int status = JOptionPane.showOptionDialog(
+		String[] buttonStrs = {"License", "Close"};
+		int status = showOptionDialog(
 			this,
 			"<html>" + ABOUT_MSG + "</html>",
 			"About SSPlot",
-			JOptionPane.YES_NO_OPTION,
-			JOptionPane.INFORMATION_MESSAGE,
-			new ImageIcon(
-				Toolkit.getDefaultToolkit().getImage(
-					MainFrame.class.getResource("/ssplot.png"))),
-					buttonStrs,
-					buttonStrs[1]);
+			YES_NO_OPTION,
+			INFORMATION_MESSAGE,
+			new ImageIcon(getClass().getResource("/ssplot.png")),
+			buttonStrs,
+			buttonStrs[1]);
 		
-		switch (status) {
-			case 0:
-				new HelpFrame("License", "/docs/lgpl-2.1-standalone.html").setVisible(true);
-			break;
-			default:
-			// Do nothing
+		if (status == 0) {
+			new HelpFrame("License", "/docs/lgpl-2.1-standalone.html").setVisible(true);
 		}
-	}
-	
-	public void showMsg(String str) {
-		logger.log(str);
-	}
-	
-	
-	// Look and Feel
-	public void setNimbusLF() {
-		for (LookAndFeelInfo lafinf : UIManager.getInstalledLookAndFeels()) {
-			if ("Nimbus".equals(lafinf.getName())) {
-				try {
-					UIManager.setLookAndFeel(lafinf.getClassName());
-				} catch (ClassNotFoundException | InstantiationException
-				| IllegalAccessException
-				| UnsupportedLookAndFeelException e) {
-					e.printStackTrace();
-					setMetalLF();
-				}
-				SwingUtilities.updateComponentTreeUI(this);
-			}
-		}
-	}
-	
-	public void setMetalLF() {
-		try {
-			UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-			//			UIManager.setLookAndFeel("com.sun.java.swing.plaf.motif.MotifLookAndFeel");
-		} catch (ClassNotFoundException | InstantiationException
-		| IllegalAccessException | UnsupportedLookAndFeelException e) {
-			e.printStackTrace();
-		}
-		SwingUtilities.updateComponentTreeUI(this);
-	}
+	}	
 	
 	public static void main(String[] args) {
-		/* Global UI Configuration */
+		if (hasArg("cli", args)) {
+			SSPlotCLI.main(args);
+			return;
+		}
+		
+		// Global UI Theme Configuration
+		if (hasArg("dark", args)) {
+			UIHelper.setDarkLF();
+		} else if(hasArg("nimbus", args)) {
+			UIHelper.setNimbusLF();
+		} else if (!hasArg("metal", args)) {
+			UIHelper.setLightLF();
+		}
+		
 		// TODO should be loaded from file?
 		final var sspOrange = new Color(255,156,95);
 		UIManager.put("Menu.selectionBackground", sspOrange);
@@ -548,57 +512,10 @@ public class MainFrame extends JFrame {
 		UIManager.put("MenuItem.checkBackground", new Color(153, 204, 255));
 		UIManager.put("MenuItem.acceleratorSelectionForeground", Color.BLACK);
 		UIManager.put("TabbedPane.hoverColor", sspOrange);
-
-		if (hasArg("dark", args)) {
-			FlatArcDarkOrangeIJTheme.setup();
-		} else if (hasArg("metal", args)) {
-			// do nothing, default theme
-		} else {
-			FlatArcOrangeIJTheme.setup();
-		}
-		
-		if (SystemInfo.isLinux) {
-			JFrame.setDefaultLookAndFeelDecorated(true);
-			JDialog.setDefaultLookAndFeelDecorated(true);
-		}
-		
+		UIManager.put("TabbedPane.hoverForeground", Color.BLACK);
 		UIManager.put("Button.arc", 20);
 		UIManager.put("TextComponent.arc", 50);
 		
-		final var pframe = new MainFrame();
-		
-		if(hasArg("nimbus", args)) {
-			pframe.setNimbusLF();
-			pframe.pack();
-		}
-		
-		if (hasArg("cli", args)) {
-			SSPlotCLI.main(args);
-		} else {
-			pframe.startApp();
-		}
+		new MainFrame().setVisible(true);
 	}
-	
-	/* Basic command line option parsing */
-	public static boolean hasArg(String arg, String[] args) {
-		// Note: arg has no hyphen/slash
-		boolean result = false;
-		
-		for (String a : args) {
-			String option = a;
-			if (a.startsWith("-")||a.startsWith("/")) {
-				option = a.substring(1, a.length());
-			} else if (a.startsWith("--")) {
-				option = a.substring(2, a.length());
-			}
-			
-			if (option.equalsIgnoreCase(arg)) {
-				result = true;
-				break;
-			}
-		}
-		
-		return result;
-	}
-	
 }
