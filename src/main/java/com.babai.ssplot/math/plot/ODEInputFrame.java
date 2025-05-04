@@ -57,24 +57,20 @@ import javax.swing.border.TitledBorder;
 
 public class ODEInputFrame extends JInternalFrame implements ActionListener {
 
-//	private SystemData getSysData();
+	//	private SystemData getSysData();
 
-//	private JInternalFrame frmMain = null;
+	//	private JInternalFrame frmMain = null;
 	private JLabel[] lbls;
 	private JTextField tfCounts, tfStep;
 	private JTextField[] tfs, tfs2, tfs3;
 	private JButton btnOK, btnCancel, btnDF, btnTR, btnCW;
 
-	// boolean modeODE, modeFunc;
-
 	private SystemMode curMode;
 	private JButton btnTR2;
 	private PlotData curData;
-	private MainFrame mainFrame;
+	private UpdateCallback updater;
 
-	public ODEInputFrame(MainFrame main) {
-//		this.getSysData() = new SystemData();
-		this.mainFrame = main;
+	public ODEInputFrame() {
 		this.curData = new PlotData();
 		this.curMode = SystemMode.ODE;
 		initInputDialog();
@@ -94,7 +90,7 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 		var rbIM = new JRadioButton("Difference Equation");
 		var rbFunc = new JRadioButton("1D function");
 		var rbFunc2 = new JRadioButton("2D function");
-		
+
 		rbODE.addActionListener(e -> {
 			curMode = SystemMode.ODE;
 			updateInterface();
@@ -103,7 +99,7 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 			curMode = SystemMode.DFE;
 			updateInterface();
 		});
-		
+
 		rbFunc.addActionListener(e -> {
 			curMode = SystemMode.FN1;
 			updateInterface();
@@ -157,13 +153,13 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 		pnlCounts.add(tfStep, gbc);
 
 		pnlCounts.setBorder(
-			BorderFactory.createTitledBorder(
-				BorderFactory.createLineBorder(new Color(127, 0, 140), 3),
-				"Iteration Parameters",
-				TitledBorder.LEFT,
-				TitledBorder.TOP,
-				new Font("Serif", Font.BOLD, 14),
-				new Color(127, 0, 140).darker().darker()));
+				BorderFactory.createTitledBorder(
+						BorderFactory.createLineBorder(new Color(127, 0, 140), 3),
+						"Iteration Parameters",
+						TitledBorder.LEFT,
+						TitledBorder.TOP,
+						new Font("Serif", Font.BOLD, 14),
+						new Color(127, 0, 140).darker().darker()));
 
 
 		// Equations Entry
@@ -171,15 +167,15 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 		pnlMatrix.setLayout(new GridBagLayout());
 
 		lbls = new JLabel[] {
-			new JLabel("Equation 1"),
-			new JLabel("Equation 2"),
-			new JLabel("Equation 3")
+				new JLabel("Equation 1"),
+				new JLabel("Equation 2"),
+				new JLabel("Equation 3")
 		};
 
 		tfs = new JTextField[] {
-			new JTextField(20),
-			new JTextField(20),
-			new JTextField(20)
+				new JTextField(20),
+				new JTextField(20),
+				new JTextField(20)
 		};
 
 		gbc = new GridBagConstraints();
@@ -202,13 +198,13 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 		}
 
 		pnlMatrix.setBorder(
-			BorderFactory.createTitledBorder(
-				BorderFactory.createLineBorder(new Color(255, 90, 38), 3),
-				"Equations",
-				TitledBorder.LEFT,
-				TitledBorder.TOP,
-				new Font("Serif", Font.BOLD, 14),
-				new Color(255, 90, 38).darker().darker()));
+				BorderFactory.createTitledBorder(
+						BorderFactory.createLineBorder(new Color(255, 90, 38), 3),
+						"Equations",
+						TitledBorder.LEFT,
+						TitledBorder.TOP,
+						new Font("Serif", Font.BOLD, 14),
+						new Color(255, 90, 38).darker().darker()));
 
 		// Ranges entry
 		var pnlRange = new JPanel(new GridBagLayout());
@@ -255,12 +251,12 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 		}
 
 		pnlRange.setBorder(BorderFactory.createTitledBorder(
-			BorderFactory.createLineBorder(new Color(24, 110, 1), 3),
-			"Ranges",
-			TitledBorder.LEFT,
-			TitledBorder.TOP,
-			new Font("Serif", Font.BOLD, 14),
-			new Color(24, 110, 1).darker().darker()));
+				BorderFactory.createLineBorder(new Color(24, 110, 1), 3),
+				"Ranges",
+				TitledBorder.LEFT,
+				TitledBorder.TOP,
+				new Font("Serif", Font.BOLD, 14),
+				new Color(24, 110, 1).darker().darker()));
 
 		var pnlButton2 = new JPanel();
 		btnOK = new JButton();
@@ -269,7 +265,7 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 		btnCancel.setToolTipText("Cancel changes");
 		btnOK.setIcon(new ImageIcon(getClass().getResource("/check.png")));
 		btnCancel.setIcon(new ImageIcon(getClass().getResource("/cross.png")));
-		
+
 		var pnlButton = new JPanel();
 		btnTR = new JButton();
 		btnTR2 = new JButton();
@@ -281,12 +277,12 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 		tfs3[0] = new JTextField(3);
 		tfs3[1] = new JTextField(3);
 		tfs3[2] = new JTextField(3);
-		
+
 		JLabel[] lbls3 = new JLabel[3];
 		lbls3[0] = new JLabel("X");
 		lbls3[1] = new JLabel("Y");
 		lbls3[2] = new JLabel("Z");
-		
+
 		btnDF = new JButton();
 		btnCW = new JButton();
 		btnDF.setToolTipText("Draw Vector Field");
@@ -301,7 +297,7 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 		tfs3[0].setEnabled(false);
 		tfs3[1].setEnabled(false);
 		tfs3[2].setEnabled(false);
-		
+
 		for (int i = 0; i < 3; i++) {
 			tfs[i].setHorizontalAlignment(JTextField.CENTER);
 			tfs[i].setFont(new Font("monospace", Font.PLAIN, 16));
@@ -322,7 +318,7 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 		}
 		pnlButton.add(btnCW);
 		pnlButton.add(btnDF);
-		
+
 		pnlButton2.setLayout(new FlowLayout(FlowLayout.RIGHT));
 		pnlButton2.add(btnOK);
 		pnlButton2.add(btnCancel);
@@ -337,15 +333,15 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 		JToolBar tools = new JToolBar("Plot Tools");
 		tools.add(pnlButton);
 		tools.add(pnlButton2);
-		
+
 		pnlMain.add(tools);
 		pnlMain.add(pnlRB);
 		pnlMain.add(pnlCounts);
 		pnlMain.add(pnlMatrix);
 		pnlMain.add(pnlRange);
-		
+
 		JScrollPane sp = new JScrollPane(pnlMain, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		this.add(sp);
+		add(sp);
 	}
 
 	public void setODERange() {
@@ -360,48 +356,53 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 			getSysData().max[2] = Double.parseDouble(tfs2[7].getText());
 			getSysData().gap[2] = Double.parseDouble(tfs2[8].getText());
 
-			getSysData().N = Integer.parseInt(tfCounts.getText());
-			getSysData().h = Double.parseDouble(tfStep.getText());
+			String input;
+			if ( !(input = tfCounts.getText()).isBlank() ) {
+				getSysData().N = Integer.parseInt(input);
+			}
+			
+			if ( !(input = tfStep.getText()).isBlank() ) {
+				getSysData().h = Double.parseDouble(input);
+			}
 		} catch (Exception e) {
-
+			e.printStackTrace();
 		}
 	}
 
 	private void setData(PlotData pdata) {
 		this.curData = pdata;
 	}
-	
+
 	private PlotData getData() {
 		return this.curData;
 	}
 
 	// set the UI from DBViewer
 	public void setSystemData(SystemData data) {
-//		this.getSysData() = data;
-		this.curData.sysData = data; //ch
+		//		this.getSysData() = data;
+		this.curData.sysData = data;
 		reloadUI();
 	}
-	
+
 	// Problematic method
 	private void reloadUI() {
 		// Update UI, changed
-//		curMode = this.getSysData().curMode;
-        if (this.curData.sysData != null) {
-		    curMode = this.curData.sysData.curMode;
-		    for (int i = 0; i < 3; i++) {
-		    	tfs[i].setText(this.curData.sysData.eqns[i]);
-		    }
+		//		curMode = this.getSysData().curMode;
+		if (this.curData.sysData != null) {
+			curMode = this.curData.sysData.curMode;
+			for (int i = 0; i < 3; i++) {
+				tfs[i].setText(this.curData.sysData.eqns[i]);
+			}
 		} else {
 			curMode = SystemMode.ODE;
 		}
-		
+
 		// TODO set other fields except Eqns
-        if (curMode != null) {
-        	switchStates();
+		if (curMode != null) {
+			switchStates();
 			updateInterface();
-        }
+		}
 	}
-	
 
 	private void updateInterface() {
 		if (curMode == SystemMode.ODE) {
@@ -413,6 +414,8 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 			tfs2[6].setEditable(true);
 			tfs2[7].setEditable(true);
 			tfs2[8].setEditable(true);
+			tfStep.setEditable(true);
+			tfCounts.setEditable(true);
 		} else if (curMode == SystemMode.DFE) {
 			lbls[0].setText("<html><body>x<sub>n+1</sub> =</body></html>");
 			lbls[1].setText("<html><body>y<sub>n+1</sub> =</body></html>");
@@ -422,6 +425,8 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 			tfs2[6].setEditable(true);
 			tfs2[7].setEditable(true);
 			tfs2[8].setEditable(true);
+			tfStep.setEditable(true);
+			tfCounts.setEditable(true);
 		} else if (curMode == SystemMode.FN1) {
 			lbls[0].setText("y(x) =");
 			lbls[1].setText("");
@@ -431,6 +436,8 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 			tfs2[6].setEditable(false);
 			tfs2[7].setEditable(false);
 			tfs2[8].setEditable(false);
+			tfStep.setEditable(false);
+			tfCounts.setEditable(false);
 		} else if (curMode == SystemMode.FN2) {
 			lbls[0].setText("z(x, y) =");
 			lbls[1].setText("");
@@ -440,6 +447,8 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 			tfs2[6].setEditable(true);
 			tfs2[7].setEditable(true);
 			tfs2[8].setEditable(true);
+			tfStep.setEditable(false);
+			tfCounts.setEditable(false);
 		}
 
 	}
@@ -448,11 +457,11 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 	public void plotTrajectory(double x, double y) {
 		PlotData trjData;
 		switch (curMode) {
-		default:
-			trjData = new PlotData(getSysData().RK4Iterate(x, y));
-			break;
 		case DFE:
 			trjData = new PlotData(getSysData().iterateMap(x, x));
+			break;
+		default:
+			trjData = new PlotData(getSysData().RK4Iterate(x, y));
 			break;
 		}
 		trjData.setPltype(PlotData.PlotType.LINES);
@@ -460,17 +469,17 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 
 		setData(trjData);
 	}
-	
+
 	/* TODO remove setFgColor, it is forcing plot color to black always,
 	 * should use existing fgcolor, and use black as fallback instead. */
-	 
+
 	/* FIXME setPltype is not having any effect. */
 
 	public void plotCobweb(double x) {
 		PlotData pdata = new PlotData(getSysData().cobweb(x));
 		pdata.setPltype(PlotData.PlotType.LINES);
 		pdata.setFgColor(Color.BLACK);
-		
+
 		setData(pdata);
 	}
 
@@ -487,7 +496,7 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 		trjData.setPltype(PlotData.PlotType.LINES);
 		trjData.setFgColor(Color.BLACK);
 		trjData.setTitle(String.format("y = %s", tfs[0].getText()));
-		
+
 		setData(trjData);
 	}
 
@@ -499,7 +508,7 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 
 		setData(trjData);
 	}
-	
+
 	public void vectorPlot(Vector<Vector<Double>> data) {
 		PlotData pdata = new PlotData(data);
 		pdata.setPltype(PlotData.PlotType.VECTORS);
@@ -565,7 +574,7 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 		} else if (evt.getSource() == btnDF) {
 
 			vectorPlot(getSysData().directionField());
-			updateView();
+			updater.update(getData());
 
 		} else if (evt.getSource() == btnTR) {
 
@@ -579,7 +588,7 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 				plotTrajectory(x, y);
 				break;
 			}
-			updateView();
+			updater.update(getData());
 
 		} else if (evt.getSource() == btnTR2) {
 			switch (curMode) {
@@ -593,31 +602,33 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 
 				plotTrajectory3D(x, y, z);
 			}
-			
-			updateView();
+			updater.update(getData());
 
 		} else if (evt.getSource() == btnCW) {
 
 			double x = Double.parseDouble(tfs3[0].getText());
 			plotCobweb(x);
-			updateView();
+			updater.update(getData());
 
 		} else if (evt.getSource() == btnCancel) {
 			hide();
 		}
 	}
-	
+
 	public SystemData getSysData() {
 		return this.curData.sysData;
 	}
 
-	private void updateView() {
-		mainFrame.setPlotData(getData());
+	public void setUpdateCallback(UpdateCallback update) {
+		this.updater = update;
 	}
 
-	private void setEqnSystem() {      
-    	this.curData.sysData.setEqns(tfs[0].getText(), tfs[1].getText(), tfs[2].getText());
+	private void setEqnSystem() {
+		this.curData.sysData.setEqns(tfs[0].getText(), tfs[1].getText(), tfs[2].getText());
 	}
 
-
+	@FunctionalInterface
+	interface UpdateCallback {
+		void update(PlotData data);
+	}
 }

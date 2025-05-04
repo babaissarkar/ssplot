@@ -137,6 +137,12 @@ public class MainFrame extends JFrame {
 		dbv.setIconifiable(true);
 		dbv.setMaximizable(true);
 		
+		odeinput.setUpdateCallback(data -> {
+			pv.setCurPlot(data);
+			pv.setCurPlotType(data.getPltype());
+			dbv.setData(data);
+		});
+		
 		// Create GUI
 		
 		setTitle("SSPlot");
@@ -502,11 +508,6 @@ public class MainFrame extends JFrame {
 		logger.log(str);
 	}
 	
-	public void setPlotData(PlotData pdata) {
-		pv.setCurPlot(pdata);
-		pv.setCurPlotType(pdata.getPltype());
-		dbv.setData(pdata);
-	}
 	
 	// Look and Feel
 	public void setNimbusLF() {
