@@ -1,9 +1,9 @@
-package cli;
+	package cli;
 
 /*
  * SSPlotCLI.java
  * 
- * Copyright 2021 Subhraman Sarkar <subhraman@subhraman-Inspiron>
+ * Copyright 2021-2025 Subhraman Sarkar <suvrax@gmail.com>
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,10 +26,9 @@ package cli;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import math.plot.Plotter;
 import math.plot.NumParse;
 import math.plot.PlotData;
-import math.plot.MainFrame;
+import math.plot.Plotter;
 
 public class SSPlotCLI {
     Plotter plt;

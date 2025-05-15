@@ -1,7 +1,7 @@
 /*
  * Variable.java
  * 
- * Copyright 2021 Subhraman Sarkar <subhraman@subhraman-Inspiron>
+ * Copyright 2021-2025 Subhraman Sarkar <suvrax@gmail.com>
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
