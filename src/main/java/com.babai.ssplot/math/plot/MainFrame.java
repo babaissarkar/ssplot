@@ -1,7 +1,7 @@
 /*
-* PlotterFrame.java
+* MainFrame.java
 * 
-* Copyright 2021-2024 Subhraman Sarkar <suvrax@gmail.com>
+* Copyright 2021-2025 Subhraman Sarkar <suvrax@gmail.com>
 * 
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU Lesser General Public License as published by
@@ -117,7 +117,7 @@ public class MainFrame extends JFrame {
 		setLogger(new StatLogger());
 		getLogger().log("<h1>Welcome to SSPlot!</h1>");
 		
-		plt = new Plotter(logger);
+		plt = new Plotter(getLogger());
 		plt.initPlot();
 		
 		pv = new PlotView(getLogger(), plt);
@@ -413,7 +413,7 @@ public class MainFrame extends JFrame {
 	
 	/* Menu Actions */
 	public void saveImage() {
-		JFileChooser files = new JFileChooser();
+		var files = new JFileChooser();
 		int stat = files.showSaveDialog(this);
 		if (stat == JFileChooser.APPROVE_OPTION) {
 			File f = files.getSelectedFile();
