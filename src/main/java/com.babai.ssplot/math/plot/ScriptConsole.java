@@ -39,15 +39,16 @@ import javax.script.ScriptException;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
+import javax.swing.JTextField;
 
 /** TODO : needs to be a real terminal, with input and output both handled by it */
 public class ScriptConsole extends JPanel {
-	private JTextArea txtIn;
+	private JTextField txtIn;
 	private JLabel lblOut;
 	private JButton btnRun;
 	private ScriptEngine engine;
@@ -58,7 +59,7 @@ public class ScriptConsole extends JPanel {
 	public ScriptConsole() {
 		initEngine(defaultEngine);
 		
-		txtIn = new JTextArea(2, 60);
+		txtIn = new JTextField(60);
 		lblOut = new JLabel() {
 			private String input = "";
 			private String output = "";
@@ -113,12 +114,14 @@ public class ScriptConsole extends JPanel {
 			}
 		};
 		btnRun = new JButton("Run");
+		btnRun.setIcon(new ImageIcon(getClass().getResource("/run.png")));
+		btnRun.setBackground(Color.GREEN);
 		btnRun.addActionListener(e -> lblOut.setText(txtIn.getText()));
 		
 		Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
 		lblOut.setPreferredSize(new Dimension(size.width - 10, 60));
 		
-		this.setLayout(new BorderLayout());
+		setLayout(new BorderLayout());
 		JPanel pnlInput = new JPanel();
 		pnlInput.setLayout(new BoxLayout(pnlInput, BoxLayout.LINE_AXIS));
 		JScrollPane sIn = new JScrollPane(
@@ -145,7 +148,6 @@ public class ScriptConsole extends JPanel {
 	
 	private void initEngine(String engineName) {
 		ScriptEngineManager m = new ScriptEngineManager();
-//		SimpleScriptContext con = new SimpleScriptContext();
 		
 		// TODO load these methods from a initial script file
 		// Add print method	
