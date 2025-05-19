@@ -34,15 +34,19 @@ import java.awt.image.BufferedImage;
 
 import ui.StatLogger;
 
+// TODO should this be moved under `ui` package?
+// or should be made UI independent?
+// Like draw on a BufferedImage and show that instead.
+
 public class Canvas {
-	/*This is the view helper*/
+	/* This is the view helper */
 	private int W, H; /* Size of image */
 	private BufferedImage img; /* The image */
 	private Graphics2D g;
 	private Color fgColor, bgColor, axesColor, titleColor;
 	private boolean axesVisible = true;
 	private boolean axes3d = false;
-	public int curNoTics = 10;
+	private int curNoTics = 10;
 
 	/* Transformation Params */
 	private double scaleFactor;
