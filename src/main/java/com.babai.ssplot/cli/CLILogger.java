@@ -23,7 +23,7 @@
 
 package cli;
 
-import math.plot.StatLogger;
+import ui.StatLogger;
 
 public class CLILogger extends StatLogger {
 	

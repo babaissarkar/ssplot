@@ -20,7 +20,7 @@
 * 
 * 
 */
-package math.plot;
+package ui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -59,6 +59,7 @@ import javax.swing.UIManager;
 
 import cli.SSPlotCLI;
 import help.HelpFrame;
+import math.plot.*;
 import math.plot.PlotData.PlotType;
 import util.UIHelper;
 

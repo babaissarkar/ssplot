@@ -21,7 +21,7 @@
  * 
  */
 
-package math.plot;
+package ui;
 
 import java.awt.Color;
 import java.awt.FlowLayout;
@@ -50,6 +50,8 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
+
+import math.plot.*;
 
 public class DBViewer extends JInternalFrame implements ActionListener {
 	private Vector<PlotData> plotlist;

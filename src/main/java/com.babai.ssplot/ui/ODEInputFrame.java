@@ -21,7 +21,7 @@
  * 
  */
 
-package math.plot;
+package ui;
 
 import java.awt.Color;
 import java.awt.FlowLayout;
@@ -49,12 +49,14 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.border.TitledBorder;
+
+import math.plot.*;
+
 /** This class takes the input from user, sends data to backend,
  *  get processed data from backend, and send it back to MainFrame
  *  for plotting.
  *  @author ssarkar
  */
-
 public class ODEInputFrame extends JInternalFrame implements ActionListener {
 
 	//	private SystemData getSysData();
@@ -358,7 +360,7 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 
 			String input;
 			if ( !(input = tfCounts.getText()).isBlank() ) {
-				getSysData().N = Integer.parseInt(input);
+				getSysData().n = Integer.parseInt(input);
 			}
 			
 			if ( !(input = tfStep.getText()).isBlank() ) {

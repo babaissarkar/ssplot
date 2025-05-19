@@ -21,7 +21,7 @@
  * 
  */
 
-package math.plot;
+package ui;
 
 import java.awt.Component;
 
@@ -37,11 +37,11 @@ public class StatLogger {
 	public StatLogger() {
 		txStatus = new JTextPane();
 		txStatus.setContentType("text/html");
-        txStatus.setEditable(false);        
+		txStatus.setEditable(false);
 
-        jscroll = new JScrollPane(txStatus,
-        		ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-        		ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		jscroll = new JScrollPane(txStatus,
+				ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 	}
 
 	public void log(String s) {

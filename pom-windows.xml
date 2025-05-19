@@ -102,7 +102,7 @@
 		            </artifactSet>
 		        <transformers>
 		            <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-		              <mainClass>math.plot.MainFrame</mainClass>
+		              <mainClass>ui.MainFrame</mainClass>
 		            </transformer>
 		        </transformers>
 		    </configuration>
@@ -143,7 +143,7 @@
                     <argument>--app-version</argument>
                     <argument>${project.version}</argument>
                     <argument>--main-class</argument>
-                    <argument>math.plot.MainFrame</argument>
+                    <argument>ui.MainFrame</argument>
                     <argument>--win-menu</argument>
                     <argument>--win-menu-group</argument>
                     <argument>SSPlot</argument>

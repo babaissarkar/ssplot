@@ -23,7 +23,7 @@
 
 /* 20.07.2021 : Functions drawNode and addNode and class Node added. Function paint() changed to add node drawing.*/
  
-package math.plot;
+package ui;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -43,6 +43,8 @@ import javax.swing.AbstractAction;
 import javax.swing.JLabel;
 import javax.swing.KeyStroke;
 import javax.swing.Timer;
+
+import math.plot.*;
 
 public class PlotView extends JLabel implements MouseListener, MouseMotionListener {
 	

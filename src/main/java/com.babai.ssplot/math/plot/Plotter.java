@@ -32,6 +32,8 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
+import ui.StatLogger;
+
 public final class Plotter {
 	private Canvas canv;
 	private final Project2D p;

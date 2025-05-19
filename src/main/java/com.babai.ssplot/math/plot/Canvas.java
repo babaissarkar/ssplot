@@ -32,6 +32,8 @@ import java.awt.RenderingHints;
 import java.awt.geom.*;
 import java.awt.image.BufferedImage;
 
+import ui.StatLogger;
+
 public class Canvas {
 	/*This is the view helper*/
 	private int W, H; /* Size of image */

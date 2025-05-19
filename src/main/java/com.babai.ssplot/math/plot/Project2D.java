@@ -26,6 +26,7 @@ package math.plot;
 import java.awt.geom.Point2D;
 
 import math.prim.Matrix;
+import ui.StatLogger;
 
 public class Project2D {
 	private double a, b, c;
