@@ -21,7 +21,7 @@
  * 
  */
 
-package help;
+package ui.help;
 
 import java.awt.BorderLayout;
 

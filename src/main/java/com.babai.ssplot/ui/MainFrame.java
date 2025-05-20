@@ -58,9 +58,9 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 import cli.SSPlotCLI;
-import help.HelpFrame;
 import math.plot.*;
 import math.plot.PlotData.PlotType;
+import ui.help.HelpFrame;
 import util.UIHelper;
 
 import static javax.swing.JOptionPane.*;
