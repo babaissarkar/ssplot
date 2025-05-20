@@ -21,7 +21,7 @@
  * 
  */
 
-package parse.tree;
+package math.system.parser.internal.tree;
 
 public class FnOperator extends TreeOperator {
 	/** Abstract representation of a function, like sine, cosine functions etc. */

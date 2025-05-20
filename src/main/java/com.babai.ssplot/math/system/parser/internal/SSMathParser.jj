@@ -5,8 +5,9 @@ options
 }
 
 PARSER_BEGIN(SSMathParser)
-package parse;
-import parse.tree.*;
+package math.system.parser.internal;
+
+import math.system.parser.internal.tree.*;
 import java.io.StringReader;
 
 public class SSMathParser {

@@ -21,22 +21,24 @@
  * 
  */
 
-package math.plot;
+package math.system.core;
 
+import java.util.Map;
 import java.util.Vector;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
-import parse.tree.TreeNode;
-import parse.tree.TreeParser;
+import math.system.parser.internal.tree.TreeNode;
+import math.system.parser.internal.tree.TreeParser;
 
 // TODO This class is doing too many things
 // It handles engine intialization
 // It contains data
 // It also contains solution methods
 // Should be split up
+// Progress: Being broken up
 
 public class SystemData {
 	//Matrix A; // The coefficient matrix
@@ -162,7 +164,7 @@ public class SystemData {
 				e.printStackTrace();
 			} 
 		} else {
-			res = eqnNodes[0].evalAt("x", x, "y", y, "z", z);
+			res = eqnNodes[0].evalAt(Map.of("x", x, "y", y, "z", z));
 		}
 
 		return res;
@@ -185,7 +187,7 @@ public class SystemData {
 				e.printStackTrace();
 			} 
 		} else {
-			res = eqnNodes[1].evalAt("x", x, "y", y, "z", z);
+			res = eqnNodes[1].evalAt(Map.of("x", x, "y", y, "z", z));
 		}
 
 		return res;
