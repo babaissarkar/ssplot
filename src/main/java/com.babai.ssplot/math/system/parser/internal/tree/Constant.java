@@ -1,5 +1,5 @@
 /*
- * PowOperator.java
+ * Constant.java
  * 
  * Copyright 2021-2025 Subhraman Sarkar <suvrax@gmail.com>
  * 
@@ -21,25 +21,25 @@
  * 
  */
 
-package parse.tree;
+package math.system.parser.internal.tree;
 
-public class PowOperator extends TreeOperator {
-	/** Abstract representation of exponentiation operation */
+public class Constant extends TreeOperator {
+	/** Abstract representation of Constant */
+	
+	public double val;
+	
+	public Constant(double val) {
+		this.val = val;
+	}
 
 	@Override
 	public double applyTo(TreeNode... nodes) {
-		double result = nodes[0].getValue();
-
-        for (int i = 1; i < nodes.length; i++) {
-            result = Math.pow(result, nodes[i].getValue());
-        }
-        
-		return result;
+		return val;
 	}
 	
 	@Override
 	public String toString() {
-		return "expt";
+		return ""+val;
 	}
 
 }

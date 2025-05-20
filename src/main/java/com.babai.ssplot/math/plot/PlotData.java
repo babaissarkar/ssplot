@@ -27,6 +27,8 @@ import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.util.Vector;
 
+import math.system.core.SystemData;
+
 public class PlotData {
 	/* This class is the Model of MVC pattern.*/
 	public enum PlotType {

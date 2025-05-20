@@ -20,16 +20,16 @@
  * 
  */
 
-package parse.tree;
+package math.system.parser.internal.tree;
 
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import math.system.parser.internal.SSMathParser;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-
-import parse.SSMathParser;
 
 public class TreeParser {
 

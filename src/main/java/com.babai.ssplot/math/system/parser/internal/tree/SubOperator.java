@@ -1,5 +1,5 @@
 /*
- * AddOperator.java
+ * SubOperator.java
  * 
  * Copyright 2021-2025 Subhraman Sarkar <suvrax@gmail.com>
  * 
@@ -21,25 +21,33 @@
  * 
  */
 
-package parse.tree;
+package math.system.parser.internal.tree;
 
-public class AddOperator extends TreeOperator {
-	/** Abstract representation of Addition operation */
+public class SubOperator extends TreeOperator {
+	/** Abstract representation of Subtraction. */
 
 	@Override
 	public double applyTo(TreeNode... nodes) {
 		double result = 0.0;
-        
-        for (TreeNode node : nodes) {
-            result += node.getValue();
-		}
-        
+        if (nodes.length == 1) {
+            double d1 = nodes[0].getValue();
+            result = -d1;
+        } else if (nodes.length >= 2) {
+            double d1 = nodes[0].getValue();
+
+            for (int i = 1; i < nodes.length; i++) {
+                result += nodes[i].getValue();
+            }
+
+            result = d1 - result;
+        }
+		
 		return result;
 	}
 	
 	@Override
 	public String toString() {
-		return "+";
+		return "-";
 	}
 
 }

@@ -21,7 +21,7 @@
  * 
  */
 
-package math.plot;
+package math.system.core;
 
 public enum SystemMode {
 	ODE, DFE, FN1, FN2

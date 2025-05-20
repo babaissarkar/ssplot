@@ -51,6 +51,8 @@ import javax.swing.JToolBar;
 import javax.swing.border.TitledBorder;
 
 import math.plot.*;
+import math.system.core.SystemData;
+import math.system.core.SystemMode;
 
 /** This class takes the input from user, sends data to backend,
  *  get processed data from backend, and send it back to MainFrame
