@@ -51,6 +51,7 @@ import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 
+import math.io.NumParse;
 import math.plot.*;
 
 public class DBViewer extends JInternalFrame implements ActionListener {

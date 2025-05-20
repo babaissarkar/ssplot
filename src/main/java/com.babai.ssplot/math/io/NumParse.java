@@ -24,7 +24,7 @@
 /* A simple class that reads data blocks from a datafile,
  * and stores them in a two dimension dynamic array.*/
 
-package math.plot;
+package math.io;
 
 import java.io.*;
 import java.nio.file.*;

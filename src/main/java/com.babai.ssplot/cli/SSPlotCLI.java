@@ -26,7 +26,7 @@
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import math.plot.NumParse;
+import math.io.NumParse;
 import math.plot.PlotData;
 import math.plot.Plotter;
 
