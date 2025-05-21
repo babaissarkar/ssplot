@@ -2,16 +2,17 @@ package math.system.core;
 
 import java.util.Vector;
 
+/** Class that holds data for system of equations */
 public class EquationSystem {
-	private final int dim = 3;      /* Dimension of this system     */
+	public static final int DIM = 3; /* Max dimension (global)        */
 	
-	private Vector<Equation> eqns;
-	private int n;                  /* iteration count (ODE/DE)     */
-	private double h;               /* stepsize (ODE)               */
+	private Vector<Equation> eqns;   /* The equations                 */
+	private SystemMode mode;         /* Identifies the type of system */
+	private int n;                   /* iteration count (ODE/DE)      */
+	private double h;                /* stepsize (ODE)                */
 	
-	// Class that holds data for an equation system
 	private EquationSystem() {
-		eqns = new Vector<>(dim);
+		eqns = new Vector<>(DIM);
 		
 		n = 1000;
 		h = 0.05;
@@ -24,11 +25,13 @@ public class EquationSystem {
 	
 	/* ***** GETTERS ******* */
 	public Equation get(int index) { return eqns.get(index); }
+	public SystemMode getMode()    { return mode; }
 	public int n()    { return n; }
 	public double h() { return h; }
+	public int dim()  { return eqns.size(); }
 	
-	// Builds the EquationSystem
-	public static class Builder {
+	/** Builder class for the EquationSystem */
+ 	public static class Builder {
 		private EquationSystem system;
 		
 		public Builder() {
@@ -39,7 +42,11 @@ public class EquationSystem {
 			system.eqns.add(eqn);
 		}
 		
-		public void setCount(int n) {
+		public void setMode(SystemMode mode) {
+			system.mode = mode;
+		}
+		
+ 		public void setCount(int n) {
 			system.n = n;
 		}
 		
