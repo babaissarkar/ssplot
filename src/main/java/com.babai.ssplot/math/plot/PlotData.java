@@ -27,10 +27,9 @@ import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.util.Vector;
 
-import math.system.core.SystemData;
-
+// TODO convert to record
+/* This class is the Model of MVC pattern.*/
 public class PlotData {
-	/* This class is the Model of MVC pattern.*/
 	public enum PlotType {
 		LINES("Lines"),
 		POINTS("Points"),
@@ -55,17 +54,16 @@ public class PlotData {
 
 	public Vector<Vector<Double>> data;
 	public Vector<Node> nodes;
+	
+	public PointType pttype;
+	public int ptX, ptY;
+	
 	private int dataCol1, dataCol2;
 	private PlotType pltype;
 	private Color fgColor, fgColor2;
 
-	public PointType pttype;
-	public int ptX, ptY;
-
 	private String title;
 	private String xlabel, ylabel;
-
-	public SystemData sysData;
 
 	public String getXLabel() {
 		return xlabel;
@@ -89,7 +87,6 @@ public class PlotData {
 
 	public PlotData(Vector<Vector<Double>> extData) {
 		nodes = new Vector<Node>();
-		sysData = new SystemData();
 		data = extData;
 		pltype = PlotType.LINES;
 		pttype = PointType.SQUARE;
