@@ -34,7 +34,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
 public class TreeParser implements Parser {
-	public final String NAME = "Internal"; 
+	public static final String NAME = "Internal"; 
 	
 	@Override
 	public double evaluate(String expression, Map<String, Double> variables) {
