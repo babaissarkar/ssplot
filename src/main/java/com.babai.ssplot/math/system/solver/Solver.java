@@ -177,7 +177,7 @@ public class Solver {
 				X2 = X1 + Xdot;
 				Y2 = Y1 + Ydot;
 				/* Normalizing */
-				r = Math.sqrt((X2-X1)*(X2-X1) + (Y2-Y1)*(Y2-Y1));
+				r = Math.hypot(X2 - X1, Y2 - Y1);
 				X2 = X1 + Xdot/r;
 				Y2 = Y1 + Ydot/r;
 
