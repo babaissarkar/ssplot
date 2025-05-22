@@ -1,5 +1,5 @@
 /*
- * ODEInputFrame.java
+ * SystemInputFrame.java
  * 
  * Copyright 2021-2025 Subhraman Sarkar <suvrax@gmail.com>
  * 
@@ -51,30 +51,30 @@ import javax.swing.JToolBar;
 import javax.swing.border.TitledBorder;
 
 import math.plot.*;
-import math.system.core.SystemData;
+import math.system.core.EquationSystem;
 import math.system.core.SystemMode;
+import math.system.parser.ParserManager;
+import math.system.solver.Solver;
 
 /** This class takes the input from user, sends data to backend,
  *  get processed data from backend, and send it back to MainFrame
  *  for plotting.
  *  @author ssarkar
  */
-public class ODEInputFrame extends JInternalFrame implements ActionListener {
+public class SystemInputFrame extends JInternalFrame implements ActionListener {
 
-	//	private SystemData getSysData();
-
-	//	private JInternalFrame frmMain = null;
 	private JLabel[] lbls;
 	private JTextField tfCounts, tfStep;
 	private JTextField[] tfs, tfs2, tfs3;
 	private JButton btnOK, btnCancel, btnDF, btnTR, btnCW;
+	private JButton btnTR2;
 
 	private SystemMode curMode;
-	private JButton btnTR2;
+	private EquationSystem system;
 	private PlotData curData;
 	private UpdateCallback updater;
 
-	public ODEInputFrame() {
+	public SystemInputFrame() {
 		this.curData = new PlotData();
 		this.curMode = SystemMode.ODE;
 		initInputDialog();
@@ -344,30 +344,35 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 		pnlMain.add(pnlMatrix);
 		pnlMain.add(pnlRange);
 
-		JScrollPane sp = new JScrollPane(pnlMain, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		JScrollPane sp = new JScrollPane(
+			pnlMain,
+			JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+			JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		add(sp);
 	}
 
-	public void setODERange() {
+	private void updateSystemFromUI() {
 		try {
-			getSysData().min[0] = Double.parseDouble(tfs2[0].getText());
-			getSysData().max[0] = Double.parseDouble(tfs2[1].getText());
-			getSysData().gap[0] = Double.parseDouble(tfs2[2].getText());
-			getSysData().min[1] = Double.parseDouble(tfs2[3].getText());
-			getSysData().max[1] = Double.parseDouble(tfs2[4].getText());
-			getSysData().gap[1] = Double.parseDouble(tfs2[5].getText());
-			getSysData().min[2] = Double.parseDouble(tfs2[6].getText());
-			getSysData().max[2] = Double.parseDouble(tfs2[7].getText());
-			getSysData().gap[2] = Double.parseDouble(tfs2[8].getText());
-
-			String input;
-			if ( !(input = tfCounts.getText()).isBlank() ) {
-				getSysData().n = Integer.parseInt(input);
+			var builder = new EquationSystem.Builder();
+			
+			String input = tfCounts.getText();
+			if (!input.isBlank()) {
+				builder.setCount(Integer.parseInt(input));
+			}
+			input = tfStep.getText();
+			if (!input.isBlank()) {
+				builder.setStepSize(Double.parseDouble(input));
 			}
 			
-			if ( !(input = tfStep.getText()).isBlank() ) {
-				getSysData().h = Double.parseDouble(input);
+			for (int i = 0; i < EquationSystem.DIM; i++) {
+				builder.addEquation(tfs[i].getText());
+				builder.addRange(
+					Double.parseDouble(tfs2[i].getText()),
+					Double.parseDouble(tfs2[i+1].getText()),
+					Double.parseDouble(tfs2[i+2].getText()));
 			}
+			
+			setSystem(builder.build());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -380,33 +385,35 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 	private PlotData getData() {
 		return this.curData;
 	}
+	
+	public EquationSystem getSystem() {
+		return this.system;
+	}
 
-	// set the UI from DBViewer
-	public void setSystemData(SystemData data) {
-		//		this.getSysData() = data;
-		this.curData.sysData = data;
-		reloadUI();
+	// FIXME to be changed
+	// used to set the UI from DBViewer
+	public void setSystem(EquationSystem system) {
+		this.system = system;
 	}
 
 	// Problematic method
-	private void reloadUI() {
+//	private void reloadUI() {
 		// Update UI, changed
-		//		curMode = this.getSysData().curMode;
-		if (this.curData.sysData != null) {
-			curMode = this.curData.sysData.curMode;
-			for (int i = 0; i < 3; i++) {
-				tfs[i].setText(this.curData.sysData.eqns[i]);
-			}
-		} else {
-			curMode = SystemMode.ODE;
-		}
+//		if (getSystem() != null) {
+//			curMode = getSystem().getMode();
+//			for (int i = 0; i < 3; i++) {
+//				tfs[i].setText(getSystem().get(i));
+//			}
+//		} else {
+//			curMode = SystemMode.ODE;
+//		}
 
 		// TODO set other fields except Eqns
-		if (curMode != null) {
-			switchStates();
-			updateInterface();
-		}
-	}
+//		if (curMode != null) {
+//			switchStates();
+//			updateInterface();
+//		}
+//	}
 
 	private void updateInterface() {
 		if (curMode == SystemMode.ODE) {
@@ -457,15 +464,20 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 
 	}
 
-	/** Plotting functions : Calculated PlotData from Equation System */
+	
+	// TODO these methods sort of violate MVC, perhaps there should be some sort
+	// of controller class?
+	// Plotting functions : Calculates PlotData from EquationSystem
+	
 	public void plotTrajectory(double x, double y) {
+		var solver = new Solver(ParserManager.getParser(), getSystem());
 		PlotData trjData;
 		switch (curMode) {
 		case DFE:
-			trjData = new PlotData(getSysData().iterateMap(x, x));
+			trjData = new PlotData(solver.iterateMap(x, x));
 			break;
 		default:
-			trjData = new PlotData(getSysData().RK4Iterate(x, y));
+			trjData = new PlotData(solver.RK4Iterate(x, y));
 			break;
 		}
 		trjData.setPltype(PlotData.PlotType.LINES);
@@ -474,13 +486,9 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 		setData(trjData);
 	}
 
-	/* TODO remove setFgColor, it is forcing plot color to black always,
-	 * should use existing fgcolor, and use black as fallback instead. */
-
-	/* FIXME setPltype is not having any effect. */
-
 	public void plotCobweb(double x) {
-		PlotData pdata = new PlotData(getSysData().cobweb(x));
+		var solver = new Solver(ParserManager.getParser(), getSystem());
+		PlotData pdata = new PlotData(solver.cobweb(x));
 		pdata.setPltype(PlotData.PlotType.LINES);
 		pdata.setFgColor(Color.BLACK);
 
@@ -488,7 +496,8 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 	}
 
 	public void plotTrajectory3D(double x, double y, double z) {
-		PlotData trjData = new PlotData(getSysData().RK4Iterate3D(x, y, z));
+		var solver = new Solver(ParserManager.getParser(), getSystem());
+		PlotData trjData = new PlotData(solver.RK4Iterate3D(x, y, z));
 		trjData.setPltype(PlotData.PlotType.THREED);
 		trjData.setFgColor(Color.BLACK);
 
@@ -496,7 +505,8 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 	}
 
 	public void plotFunction() {
-		PlotData trjData = new PlotData(getSysData().functionData());
+		var solver = new Solver(ParserManager.getParser(), getSystem());
+		PlotData trjData = new PlotData(solver.functionData());
 		trjData.setPltype(PlotData.PlotType.LINES);
 		trjData.setFgColor(Color.BLACK);
 		trjData.setTitle(String.format("y = %s", tfs[0].getText()));
@@ -505,7 +515,8 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 	}
 
 	public void plotFunction2D() {
-		PlotData trjData = new PlotData(getSysData().functionData2D());
+		var solver = new Solver(ParserManager.getParser(), getSystem());
+		PlotData trjData = new PlotData(solver.functionData2D());
 		trjData.setPltype(PlotData.PlotType.THREED);
 		trjData.setFgColor(Color.BLACK);
 		trjData.setTitle(String.format("z = %s", tfs[0].getText()));
@@ -513,7 +524,7 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 		setData(trjData);
 	}
 
-	public void vectorPlot(Vector<Vector<Double>> data) {
+	public void plotDirectionField(Vector<Vector<Double>> data) {
 		PlotData pdata = new PlotData(data);
 		pdata.setPltype(PlotData.PlotType.VECTORS);
 		setData(pdata);
@@ -571,13 +582,13 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 	public void actionPerformed(ActionEvent evt) {
 		if (evt.getSource() == btnOK) {
 			/* Just sets up the System of Equations, but doesn't plot anything */
-			setEqnSystem();
 			switchStates();
-			setODERange();
+			updateSystemFromUI();
 
 		} else if (evt.getSource() == btnDF) {
 
-			vectorPlot(getSysData().directionField());
+			var solver = new Solver(ParserManager.getParser(), getSystem());
+			plotDirectionField(solver.directionField());
 			updater.update(getData());
 
 		} else if (evt.getSource() == btnTR) {
@@ -619,16 +630,8 @@ public class ODEInputFrame extends JInternalFrame implements ActionListener {
 		}
 	}
 
-	public SystemData getSysData() {
-		return this.curData.sysData;
-	}
-
 	public void setUpdateCallback(UpdateCallback update) {
 		this.updater = update;
-	}
-
-	private void setEqnSystem() {
-		this.curData.sysData.setEqns(tfs[0].getText(), tfs[1].getText(), tfs[2].getText());
 	}
 
 	@FunctionalInterface
