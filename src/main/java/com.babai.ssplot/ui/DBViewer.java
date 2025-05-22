@@ -71,15 +71,15 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 	private JButton btnEditProp;
 	private JTextField tfXData, tfYData, tfZData;
 
-	private ODEInputFrame input = null;
+	private SystemInputFrame input = null;
 
 	private static PlotData zeroData;
 
-	public DBViewer(ODEInputFrame input, PlotView pv) {
+	public DBViewer(SystemInputFrame input, PlotView pv) {
 		this(null, input, pv);
 	}
 
-	public DBViewer(PlotData data, ODEInputFrame input, PlotView pv) {
+	public DBViewer(PlotData data, SystemInputFrame input, PlotView pv) {
 		setODEInputFrame(input);
 		setView(pv);
 
@@ -111,20 +111,18 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 		JLabel lblPlots = new JLabel("Plots");
 		btnEditProp = new JButton("Edit Properties...");
 		btnEditProp.setToolTipText("Edit the properties of the current plot");
-		btnEditProp.addActionListener(
-				evt -> {
-					int id = jcbPlotlist.getSelectedIndex();
-					String title = JOptionPane.showInputDialog("Title :");
-					if (id != -1) {
-						PlotData curData = plotlist.get(id);
-						curData.setTitle(title);
-						updateList();
-						setDataOnly(curData);
-					}
-					jcbPlotlist.setSelectedIndex(id);
-					applyChanges();
-				}
-				);
+		btnEditProp.addActionListener(evt -> {
+			int id = jcbPlotlist.getSelectedIndex();
+			String title = JOptionPane.showInputDialog("Title :");
+			if (id != -1) {
+				PlotData curData = plotlist.get(id);
+				curData.setTitle(title);
+				updateList();
+				setDataOnly(curData);
+			}
+			jcbPlotlist.setSelectedIndex(id);
+			applyChanges();
+		});
 
 		pnlPlots.add(lblPlots);
 		pnlPlots.add(jcbPlotlist);
@@ -269,11 +267,11 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 	/** @return the dataset */
 	public PlotData getData() {
 		//PlotData pdata = new PlotData(dataset); /* Needs improvement */
-		Vector<Vector<Double>> newdataset = new Vector<Vector<Double>>();
+		var newdataset = new Vector<Vector<Double>>();
 		DefaultTableModel model = (DefaultTableModel) table.getModel();
 
 		for (int i = 0; i < model.getRowCount(); i++) {
-			Vector<Double> row = new Vector<Double>();
+			var row = new Vector<Double>();
 			for (int j = 0; j < model.getColumnCount(); j++) {
 				Object o = model.getValueAt(i, j);
 				if (o instanceof Double) {
@@ -290,7 +288,6 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 			newdataset.add(row);
 		}
 
-		//    	PlotData pdata = new PlotData(newdataset);
 		int id = jcbPlotlist.getSelectedIndex();
 		if (id != -1) {
 			PlotData curData = plotlist.get(id);
@@ -444,7 +441,7 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 		pv.log(String.format("Plotting col %d (y axis) vs col %d (x axis).", this.getCol2(), this.getCol1()));
 		pv.clear();
 		pv.setCurPlot(getData());
-		input.setSystemData(getData().sysData);
+//		input.setSystemData(getData().sysData);
 	}
 
 	/**
@@ -470,7 +467,7 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 		this.setData(zeroData);
 	}
 
-	public void setODEInputFrame(ODEInputFrame odeinput) {
+	public void setODEInputFrame(SystemInputFrame odeinput) {
 		this.input = odeinput;
 	}
 }

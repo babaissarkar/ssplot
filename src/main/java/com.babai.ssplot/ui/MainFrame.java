@@ -71,7 +71,7 @@ public class MainFrame extends JFrame {
 	private final Plotter plt;
 	private final PlotView pv;
 	private final DBViewer dbv;
-	private final ODEInputFrame odeinput;
+	private final SystemInputFrame odeinput;
 	private StatLogger logger;
 	
 	// FIXME should be a theme-independent way instead of relying on this
@@ -123,7 +123,7 @@ public class MainFrame extends JFrame {
 		
 		pv = new PlotView(getLogger(), plt);
 		
-		odeinput = new ODEInputFrame();
+		odeinput = new SystemInputFrame();
 		odeinput.setResizable(true);
 		odeinput.setClosable(true);
 		odeinput.setIconifiable(true);

@@ -21,7 +21,7 @@
  * 
  */
 
-package parse.tree;
+package math.system.parser.internal.tree;
 
 public abstract class TreeOperator {
 	

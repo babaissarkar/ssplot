@@ -1,5 +1,5 @@
 /*
- * Constant.java
+ * DivOperator.java
  * 
  * Copyright 2021-2025 Subhraman Sarkar <suvrax@gmail.com>
  * 
@@ -21,25 +21,32 @@
  * 
  */
 
-package parse.tree;
+package math.system.parser.internal.tree;
 
-public class Constant extends TreeOperator {
-	/** Abstract representation of Constant */
-	
-	public double val;
-	
-	public Constant(double val) {
-		this.val = val;
-	}
+public class DivOperator extends TreeOperator {
+	/** Abstract representation of Division operation */
 
 	@Override
 	public double applyTo(TreeNode... nodes) {
-		return val;
+		double result = 1.0;
+		if (nodes.length == 1) {
+            double d1 = nodes[0].getValue();
+            result = 1.0/d1;
+        } else if (nodes.length >= 2) {
+            double d1 = nodes[0].getValue(); 
+
+            for (int i = 1; i < nodes.length; i++) {
+                result *= nodes[i].getValue();
+            }
+
+            result = d1/result;
+        }
+		return result;
 	}
 	
 	@Override
 	public String toString() {
-		return ""+val;
+		return "/";
 	}
 
 }
