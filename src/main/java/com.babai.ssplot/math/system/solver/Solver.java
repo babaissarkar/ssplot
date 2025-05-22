@@ -43,13 +43,8 @@ public class Solver {
 			return soln;
 		}
 		
-		Evaluator2D dx_dt = (double x, double y) -> {
-			return parser.evaluate(system.get(0), Map.of("x", x, "y", y));
-		};
-		
-		Evaluator2D dy_dt = (double x, double y) -> {
-			return parser.evaluate(system.get(1), Map.of("x", x, "y", y));
-		};
+		Evaluator2D dx_dt = (x, y) -> parser.evaluate(system.get(0), Map.of("x", x, "y", y));		
+		Evaluator2D dy_dt = (x, y) -> parser.evaluate(system.get(1), Map.of("x", x, "y", y));
 		
 		int n;
 		double x, y, h;
@@ -87,17 +82,9 @@ public class Solver {
 			return soln;
 		}
 		
-		Evaluator3D dx_dt = (double x, double y, double z) -> {
-			return parser.evaluate(system.get(0), Map.of("x", x, "y", y, "z", z));
-		};
-		
-		Evaluator3D dy_dt = (double x, double y, double z) -> {
-			return parser.evaluate(system.get(1), Map.of("x", x, "y", y, "z", z));
-		};
-		
-		Evaluator3D dz_dt = (double x, double y, double z) -> {
-			return parser.evaluate(system.get(2), Map.of("x", x, "y", y, "z", z));
-		};
+		Evaluator3D dx_dt = (x, y, z) -> parser.evaluate(system.get(0), Map.of("x", x, "y", y, "z", z));
+		Evaluator3D dy_dt = (x, y, z) -> parser.evaluate(system.get(1), Map.of("x", x, "y", y, "z", z));
+		Evaluator3D dz_dt = (x, y, z) -> parser.evaluate(system.get(2), Map.of("x", x, "y", y, "z", z));
 		
 		int n;
 		double x, y, z, h;
@@ -153,19 +140,11 @@ public class Solver {
 		// TODO dimension validation?
 		String eqn1 = system.get(0);
 		String eqn2 = system.get(1);
-		EquationSystem.Range rx = system.getRange(0);
-		EquationSystem.Range ry = system.getRange(1);
+		Evaluator2D dx_dt = (x, y) -> parser.evaluate(eqn1, Map.of("x", x, "y", y));
+		Evaluator2D dy_dt = (x, y) -> parser.evaluate(eqn2, Map.of("x", x, "y", y));
 		
-		Evaluator2D dx_dt = (double x, double y) -> {
-			return parser.evaluate(eqn1, Map.of("x", x, "y", y));
-		};
-		
-		Evaluator2D dy_dt = (double x, double y) -> {
-			return parser.evaluate(eqn2, Map.of("x", x, "y", y));
-		};
-		
-		for (double i = rx.min(); i <= rx.max(); i += rx.step()) {
-			for (double j = ry.min(); j <= ry.max(); j += ry.step()) {
+		system.getRange(0).forEach(i ->
+			system.getRange(1).forEach(j -> {
 				double Xdot, Ydot;
 				double X1, Y1, X2, Y2;
 				double r;
@@ -181,21 +160,15 @@ public class Solver {
 				Y2 = Y1 + Ydot/r;
 
 				data.add(new Vector<>(List.of(X1, Y1, X2, Y2)));
-			} 
-		}
+			})
+		);
 		return data;
 	}
 
 	public Vector<Vector<Double>> iterateMap(double x0, double y0) {
 		var soln = new Vector<Vector<Double>>();
-		
-		Evaluator2D x2 = (double x, double y) -> {
-			return parser.evaluate(system.get(0), Map.of("x", x, "y", y));
-		};
-		
-		Evaluator2D y2 = (double x, double y) -> {
-			return parser.evaluate(system.get(1), Map.of("x", x, "y", y));
-		};
+		Evaluator2D x2 = (x, y) -> parser.evaluate(system.get(0), Map.of("x", x, "y", y));
+		Evaluator2D y2 = (x, y) -> parser.evaluate(system.get(1), Map.of("x", x, "y", y));
 		
 		double x = x0;
 		double y = y0;
@@ -216,29 +189,22 @@ public class Solver {
 	public Vector<Vector<Double>> functionData() {
 		var soln = new Vector<Vector<Double>>();
 		String eqn = system.get(0);
-		EquationSystem.Range r = system.getRange(0);
 		DoubleUnaryOperator x2 = x -> parser.evaluate(eqn, Map.of("x", x));
-		for (double i = r.min(); i <= r.max(); i += r.step()) {
-			soln.add(new Vector<>(List.of(i, x2.applyAsDouble(i))));
-		}
+		system.getRange(0).forEach(i -> soln.add(new Vector<>(List.of(i, x2.applyAsDouble(i)))));
 		return soln;
 	}
 
 	public Vector<Vector<Double>> functionData2D() {
 		var soln = new Vector<Vector<Double>>();
-		String eqn1 = system.get(0);
-		EquationSystem.Range rx = system.getRange(0);
-		EquationSystem.Range ry = system.getRange(1);
-		
-		Evaluator2D f = (double x, double y) -> {
-			return parser.evaluate(eqn1, Map.of("x", x, "y", y));
-		};
+		String eqn1 = system.get(0);		
+		Evaluator2D f = (x, y) -> parser.evaluate(eqn1, Map.of("x", x, "y", y));
 
-		for (double i = rx.min(); i <= rx.max(); i += rx.step()) {
-			for (double j = ry.min(); j <= ry.max(); j += ry.step()) {
-				soln.add(new Vector<>(List.of(i, j, f.of(i, j))));
-			}
-		}
+		system.getRange(0).forEach(i ->
+			system.getRange(1).forEach(j ->
+				soln.add(new Vector<>(List.of(i, j, f.of(i, j))))
+			)
+		);
+
 		return soln;
 	}
 
