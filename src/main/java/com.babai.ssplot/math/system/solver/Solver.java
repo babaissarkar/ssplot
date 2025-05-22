@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Vector;
 import java.util.function.DoubleUnaryOperator;
 
-import math.system.core.Equation;
 import math.system.core.EquationSystem;
 import math.system.parser.Parser;
 
@@ -21,7 +20,7 @@ public class Solver {
 	private boolean validate(int dim) {
 		return parser != null
 			&& system != null
-			&& system.dim() == dim;
+			&& system.numberOfEqns() == dim;
 	}
 	
 	@FunctionalInterface
@@ -45,11 +44,11 @@ public class Solver {
 		}
 		
 		Evaluator2D dx_dt = (double x, double y) -> {
-			return parser.evaluate(system.get(0).toString(), Map.of("x", x, "y", y));
+			return parser.evaluate(system.get(0), Map.of("x", x, "y", y));
 		};
 		
 		Evaluator2D dy_dt = (double x, double y) -> {
-			return parser.evaluate(system.get(1).toString(), Map.of("x", x, "y", y));
+			return parser.evaluate(system.get(1), Map.of("x", x, "y", y));
 		};
 		
 		int n;
@@ -89,15 +88,15 @@ public class Solver {
 		}
 		
 		Evaluator3D dx_dt = (double x, double y, double z) -> {
-			return parser.evaluate(system.get(0).toString(), Map.of("x", x, "y", y, "z", z));
+			return parser.evaluate(system.get(0), Map.of("x", x, "y", y, "z", z));
 		};
 		
 		Evaluator3D dy_dt = (double x, double y, double z) -> {
-			return parser.evaluate(system.get(1).toString(), Map.of("x", x, "y", y, "z", z));
+			return parser.evaluate(system.get(1), Map.of("x", x, "y", y, "z", z));
 		};
 		
 		Evaluator3D dz_dt = (double x, double y, double z) -> {
-			return parser.evaluate(system.get(2).toString(), Map.of("x", x, "y", y, "z", z));
+			return parser.evaluate(system.get(2), Map.of("x", x, "y", y, "z", z));
 		};
 		
 		int n;
@@ -152,21 +151,21 @@ public class Solver {
 	public Vector<Vector<Double>> directionField() {
 		var data = new Vector<Vector<Double>>();
 		// TODO dimension validation?
-		Equation eqn1 = system.get(0);
-		Equation eqn2 = system.get(1);
+		String eqn1 = system.get(0);
+		String eqn2 = system.get(1);
+		EquationSystem.Range rx = system.getRange(0);
+		EquationSystem.Range ry = system.getRange(1);
 		
 		Evaluator2D dx_dt = (double x, double y) -> {
-			return parser.evaluate(eqn1.toString(), Map.of("x", x, "y", y));
+			return parser.evaluate(eqn1, Map.of("x", x, "y", y));
 		};
 		
 		Evaluator2D dy_dt = (double x, double y) -> {
-			return parser.evaluate(eqn2.toString(), Map.of("x", x, "y", y));
+			return parser.evaluate(eqn2, Map.of("x", x, "y", y));
 		};
 		
-		double i, j;
-
-		for (i = eqn1.min(); i <= eqn1.max(); i = i + eqn1.gap()) {
-			for (j = eqn2.min(); j <= eqn2.max(); j = j + eqn2.gap()) {
+		for (double i = rx.min(); i <= rx.max(); i += rx.step()) {
+			for (double j = ry.min(); j <= ry.max(); j += ry.step()) {
 				double Xdot, Ydot;
 				double X1, Y1, X2, Y2;
 				double r;
@@ -191,11 +190,11 @@ public class Solver {
 		var soln = new Vector<Vector<Double>>();
 		
 		Evaluator2D x2 = (double x, double y) -> {
-			return parser.evaluate(system.get(0).toString(), Map.of("x", x, "y", y));
+			return parser.evaluate(system.get(0), Map.of("x", x, "y", y));
 		};
 		
 		Evaluator2D y2 = (double x, double y) -> {
-			return parser.evaluate(system.get(1).toString(), Map.of("x", x, "y", y));
+			return parser.evaluate(system.get(1), Map.of("x", x, "y", y));
 		};
 		
 		double x = x0;
@@ -216,31 +215,28 @@ public class Solver {
 
 	public Vector<Vector<Double>> functionData() {
 		var soln = new Vector<Vector<Double>>();
-		Equation eqn = system.get(0);
-		DoubleUnaryOperator x2 = x -> parser.evaluate(eqn.toString(), Map.of("x", x));
-		for (double i = eqn.min(); i <= eqn.max(); i = i + eqn.gap()) {
+		String eqn = system.get(0);
+		EquationSystem.Range r = system.getRange(0);
+		DoubleUnaryOperator x2 = x -> parser.evaluate(eqn, Map.of("x", x));
+		for (double i = r.min(); i <= r.max(); i += r.step()) {
 			soln.add(new Vector<>(List.of(i, x2.applyAsDouble(i))));
 		}
 		return soln;
 	}
 
 	public Vector<Vector<Double>> functionData2D() {
-		// FIXME equations can have multiple ranges, each corresponding
-		// to one independent variable, but I messed that up!
-		// so Y range in now stored in eqn 2 :(
 		var soln = new Vector<Vector<Double>>();
-		Equation eqn1 = system.get(0);
-		Equation eqn2 = system.get(1);
-		Evaluator2D f = (double x, double y) -> {
-			return parser.evaluate(eqn1.toString(), Map.of("x", x, "y", y));
-		};
+		String eqn1 = system.get(0);
+		EquationSystem.Range rx = system.getRange(0);
+		EquationSystem.Range ry = system.getRange(1);
 		
-		double i, j, z;
+		Evaluator2D f = (double x, double y) -> {
+			return parser.evaluate(eqn1, Map.of("x", x, "y", y));
+		};
 
-		for (i = eqn1.min(); i <= eqn1.max(); i = i + eqn1.gap()) {
-			for (j = eqn2.min(); j <= eqn2.max(); j = j + eqn2.gap()) {
-				z = f.of(i, j);
-				soln.add(new Vector<>(List.of(i, j, z)));
+		for (double i = rx.min(); i <= rx.max(); i += rx.step()) {
+			for (double j = ry.min(); j <= ry.max(); j += ry.step()) {
+				soln.add(new Vector<>(List.of(i, j, f.of(i, j))));
 			}
 		}
 		return soln;
@@ -249,8 +245,7 @@ public class Solver {
 	public Vector<Vector<Double>> cobweb(double x0) {
 		/* Works for 1D maps only */
 		var soln = new Vector<Vector<Double>>();
-		Equation eqn = system.get(0);
-		DoubleUnaryOperator x2 = x -> parser.evaluate(eqn.toString(), Map.of("x", x));
+		DoubleUnaryOperator x2 = x -> parser.evaluate(system.get(0), Map.of("x", x));
 		
 		int n = system.n();
 		double x = x0, y = 0;

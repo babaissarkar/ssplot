@@ -6,13 +6,15 @@ import java.util.Vector;
 public class EquationSystem {
 	public static final int DIM = 3; /* Max dimension (global)        */
 	
-	private Vector<Equation> eqns;   /* The equations                 */
+	private Vector<String> eqns;     /* The equations                 */
+	private Vector<Range> ranges;    /* Ranges for each variable      */
 	private SystemMode mode;         /* Identifies the type of system */
 	private int n;                   /* iteration count (ODE/DE)      */
 	private double h;                /* stepsize (ODE)                */
 	
 	private EquationSystem() {
 		eqns = new Vector<>(DIM);
+		ranges = new Vector<>(DIM);
 		
 		n = 1000;
 		h = 0.05;
@@ -24,11 +26,15 @@ public class EquationSystem {
 	}
 	
 	/* ***** GETTERS ******* */
-	public Equation get(int index) { return eqns.get(index); }
-	public SystemMode getMode()    { return mode; }
+	public String get(int index)     { return eqns.get(index); }
+	public Range getRange(int index) { return ranges.get(index); }
+	public SystemMode getMode()      { return mode; }
+	public int numberOfEqns()  { return eqns.size(); }
 	public int n()    { return n; }
 	public double h() { return h; }
-	public int dim()  { return eqns.size(); }
+	
+	/** Small record for storing range info for each independent variable */
+	public record Range(double min, double max, double step) {}
 	
 	/** Builder class for the EquationSystem */
  	public static class Builder {
@@ -38,8 +44,12 @@ public class EquationSystem {
 			system = new EquationSystem();
 		}
 		
-		public void addEquation(Equation eqn) {
+		public void addEquation(String eqn) {
 			system.eqns.add(eqn);
+		}
+		
+		public void addRange(double min, double max, double step) {
+			system.ranges.add(new Range(min, max, step));
 		}
 		
 		public void setMode(SystemMode mode) {
