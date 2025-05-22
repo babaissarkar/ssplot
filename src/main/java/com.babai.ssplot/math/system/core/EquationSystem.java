@@ -1,6 +1,7 @@
 package math.system.core;
 
 import java.util.Vector;
+import java.util.function.DoubleConsumer;
 
 /** Class that holds data for system of equations */
 public class EquationSystem {
@@ -34,7 +35,16 @@ public class EquationSystem {
 	public double h() { return h; }
 	
 	/** Small record for storing range info for each independent variable */
-	public record Range(double min, double max, double step) {}
+	public record Range(double min, double max, double step) {
+		/** Allows looping over this range */
+		public void forEach(DoubleConsumer consumer) {
+			double i = min;
+			while (i <= max) {
+				consumer.accept(i);
+				i += step;
+			}
+		}
+	}
 	
 	/** Builder class for the EquationSystem */
  	public static class Builder {
