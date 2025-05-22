@@ -7,33 +7,19 @@ import javax.script.ScriptEngineManager;
 import math.system.parser.internal.tree.TreeParser;
 
 public class ParserManager {
-	private HashMap<String, Parser> parsers;
-	private Parser currParser = null;
+	private static HashMap<String, Parser> parsers = new HashMap<>();
+	private static Parser currParser = null;
 	
-	public ParserManager() {
-		parsers = new HashMap<>();
-		
+	private static void init() {
 		populateEngineList();
 		
 		// Current engine selection
 		// Engine set via envvar
 		String engineName = System.getenv("SSPLOT_ENGINE");
-		if (engineName.isEmpty()) {
-			currParser = parsers.get(engineName);
-		} else {
-			currParser = parsers.get("Internal"); // TODO Magic string
-		}
+		currParser = parsers.get(engineName == null ? TreeParser.NAME : engineName);
 	}
 	
-	public HashMap<String, Parser> availableParsers() {
-		return parsers;
-	}
-	
-	public Parser getParser() {
-		return currParser;
-	}
-	
-	private void populateEngineList() {
+	private static void populateEngineList() {
 		// Internal parser is always available
 		final var internalParser = new TreeParser();
 		System.out.println("Found engine: " + internalParser.getName());
@@ -47,5 +33,19 @@ public class ParserManager {
 			System.out.println("Found engine: " + name);
 			parsers.put(name, parser);
 		}
+	}
+	
+	public static HashMap<String, Parser> availableParsers() {
+		if (currParser == null) {
+			init();
+		}
+		return parsers;
+	}
+	
+	public static Parser getParser() {
+		if (currParser == null) {
+			init();
+		}
+		return currParser;
 	}
 }
