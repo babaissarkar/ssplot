@@ -93,7 +93,7 @@ public class MainFrame extends JFrame {
 	
 	private static final String ABOUT_MSG ="""
 	<h1>SSPlot %s</h1>
-	Copyright 2021-2024 Subhraman Sarkar
+	Copyright 2021-2025 Subhraman Sarkar
 	Available under the LGPL 2.1 license or, (at your choice) any later version.
 	<b>Homepage :</b> https://github.com/babaissarkar/ssplot
 	""".replace("\n", "<br/>").formatted(VERSION);
