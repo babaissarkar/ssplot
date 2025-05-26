@@ -22,19 +22,16 @@
  */
 
 /* 20.07.2021 : Functions drawNode and addNode and class Node added. Function paint() changed to add node drawing.*/
- 
+
 package ui;
 
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Vector;
@@ -44,17 +41,16 @@ import javax.swing.JLabel;
 import javax.swing.KeyStroke;
 import javax.swing.Timer;
 
-import math.plot.*;
+import math.plot.PlotData;
+import math.plot.Plotter;
+import math.plot.Project2D;
 
 public class PlotView extends JLabel implements MouseListener, MouseMotionListener {
-	
+
 	private Vector<PlotData> plots;
-	//private PlotData curPlot;
-//	private int col1, col2;
-	//private Canvas canv;
 	private Plotter plt;
 	private StatLogger logger;
-	
+
 	// Actions
 	private LeftAction move_left = new LeftAction();
 	private RightAction move_right = new RightAction();
@@ -71,85 +67,78 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 	private RotBMinusAction rot_b_min = new RotBMinusAction();
 	private RotCPlusAction rot_c_pos = new RotCPlusAction();
 	private RotCMinusAction rot_c_min = new RotCMinusAction();
-	
-	
+
 	private boolean overlayMode;
 	private boolean animate;
-	int i;
-	private Timer refresher;
-	private int[] mouseDragStart;
 	private boolean dragOn;
+	private int frameCounter;
+	private int[] mouseDragStart = {0, 0};
+	private Timer refresher;
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -1906949716987184760L;
 
-	public PlotView(StatLogger logger, Plotter plt2) {
-		
-		this.plt = plt2;
-		this.setLogger(logger);
-		//curPlot = null;
+	public PlotView(StatLogger logger, Plotter plt) {
+
+		this.plt = plt;
+		setLogger(logger);
+
 		overlayMode = false;
 		animate = false;
-		i = 0;
-		mouseDragStart = new int[2];
-		Arrays.fill(mouseDragStart, 0);
 		dragOn = false;
-		
-		ActionListener trigger = new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				updateCanvas();
-			}
-		};
-		refresher = new Timer(1000, trigger);
-		
+
+		frameCounter = 0;
+		// TODO make the time customizable
+		refresher = new Timer(100, e -> updateCanvas());
+
 		clear();
-		
+
 		// Mouse Listener
 		addMouseListener(this);
 		addMouseMotionListener(this);
-		
+
 		// Setting Keybinding for movement
-		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0, false), "left");
-		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0, false), "right");
-		getInputMap().put(KeyStroke.getKeyStroke("UP"), "up");
-		getInputMap().put(KeyStroke.getKeyStroke("DOWN"), "down");
-		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_J, 0, false), "plus");
-		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_F, 0, false), "minus");
-		
-		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_Q, 0, false), "rotAp");
-		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_A, 0, false), "rotAm");
-		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_W, 0, false), "rotBp");
-		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_S, 0, false), "rotBm");
-		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_E, 0, false), "rotCp");
-		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0, false), "rotCm");
-		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_H, 0, false), "splus");
-		getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_G, 0, false), "sminus");
+		// This temporary avoids too many calls to getInputMap()
+		var inputMap = getInputMap();
+		inputMap.put(KeyStroke.getKeyStroke("LEFT"), "left");
+		inputMap.put(KeyStroke.getKeyStroke("RIGHT"), "right");
+		inputMap.put(KeyStroke.getKeyStroke("UP"), "up");
+		inputMap.put(KeyStroke.getKeyStroke("DOWN"), "down");
+		inputMap.put(KeyStroke.getKeyStroke("J"), "plus");
+		inputMap.put(KeyStroke.getKeyStroke("F"), "minus");
+		inputMap.put(KeyStroke.getKeyStroke("H"), "splus");
+		inputMap.put(KeyStroke.getKeyStroke("G"), "sminus");
+		inputMap.put(KeyStroke.getKeyStroke("Q"), "rotAp");
+		inputMap.put(KeyStroke.getKeyStroke("A"), "rotAm");
+		inputMap.put(KeyStroke.getKeyStroke("W"), "rotBp");
+		inputMap.put(KeyStroke.getKeyStroke("S"), "rotBm");
+		inputMap.put(KeyStroke.getKeyStroke("E"), "rotCp");
+		inputMap.put(KeyStroke.getKeyStroke("D"), "rotCm");
 
+		// This temporary avoids too many calls to getActionMap()
+		var actionMap = getActionMap();
+		actionMap.put("left", move_left);
+		actionMap.put("right", move_right);
+		actionMap.put("up", move_up);
+		actionMap.put("down", move_down);
+		actionMap.put("plus", zoom_in);
+		actionMap.put("minus", zoom_out);
+		actionMap.put("splus", szoom_in);
+		actionMap.put("sminus", szoom_out);
+		actionMap.put("rotAp", rot_a_pos);
+		actionMap.put("rotAm", rot_a_min);
+		actionMap.put("rotBp", rot_b_pos);
+		actionMap.put("rotBm", rot_b_min);
+		actionMap.put("rotCp", rot_c_pos);
+		actionMap.put("rotCm", rot_c_min);
+	}
 
-		getActionMap().put("left", move_left);
-		getActionMap().put("right", move_right);
-		getActionMap().put("up", move_up);
-		getActionMap().put("down", move_down);
-		getActionMap().put("plus", zoom_in);
-		getActionMap().put("minus", zoom_out);
-		getActionMap().put("splus", szoom_in);
-		getActionMap().put("sminus", szoom_out);
-		
-		getActionMap().put("rotAp", rot_a_pos);
-		getActionMap().put("rotAm", rot_a_min);
-		getActionMap().put("rotBp", rot_b_pos);
-		getActionMap().put("rotBm", rot_b_min);
-		getActionMap().put("rotCp", rot_c_pos);
-		getActionMap().put("rotCm", rot_c_min);
-    }
-	
 	@Override
 	public void paint(Graphics g) {
+		plt.clear();
 		
 		if (overlayMode) {
-			plt.clear();
 			for (PlotData pdata : plots) {
 				if (plots.size() > 0) {
 					plt.plotData(pdata);
@@ -157,76 +146,64 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 				}
 			} 
 		} else if (animate) {
-			plt.clear();
-			
 			Optional<PlotData> optCurPlot = getCurPlot();
-			
-			if ((plots.size() > 0) && (i > 0) && optCurPlot.isPresent()) {
-				
-				PlotData pdata = new PlotData(
-					new Vector<Vector<Double>>(
-						optCurPlot.get().data.subList(0, i)));
-				
-				if (i < optCurPlot.get().data.size()) {
-					//log("t = " + i + " sec.");
-					plt.plotData(pdata);
-					plt.plotOthers(pdata);
-				} else {
-					animate = false;
-					i = 0;
-					refresher.stop();
+			if ((plots.size() > 0) && (frameCounter > 0) && optCurPlot.isPresent()) {
+				if (frameCounter >= optCurPlot.get().data.size()) {
+					frameCounter = 0;
 				}
+				var pdata = optCurPlot.get().splice(0, frameCounter);
+				plt.plotData(pdata);
+				plt.plotOthers(pdata);
 			}
 		} else {
-			plt.clear();
 			Optional<PlotData> optCurPlot = getCurPlot();
-			if (plots.size() > 0 && optCurPlot.isPresent()) {
-				plt.plotData(optCurPlot.get());
-				plt.plotOthers(optCurPlot.get());
+			if ((plots.size() > 0) && optCurPlot.isPresent()) {
+				var pdata = optCurPlot.get();
+				plt.plotData(pdata);
+				plt.plotOthers(pdata);
 			}
 		}
-		
+
 		g.drawImage(plt.getImage(), 20, 20, null);
 	}
-	
+
 	private void updateCanvas() {
-		i++;
+		frameCounter++;
 		repaint();
 	}
-	
+
 	/*** Get current plots ***/
 	public Optional<PlotData> getCurPlot() {
 		return (plots.size() > 0) ? Optional.of(plots.lastElement()) : Optional.empty();
 	}
-	
+
 	public void setCurPlot(PlotData data) {
 		Objects.requireNonNull(data, "(setCurPlot) : null PlotData");
 		plots.add(data);
 		fit();
 	}
-	
-	/* Getter and Setters */
+
 	/** Gets current plot type */
 	public Optional<PlotData.PlotType> getCurPlotType() {
 		Optional<PlotData> optCurPlot = getCurPlot();
 		return (optCurPlot.isPresent())
 				? Optional.of(optCurPlot.get().getPltype())
-				: Optional.empty();
+						: Optional.empty();
 	}
-	
+
 	public void setCurPlotType(PlotData.PlotType pltype) {
 		Optional<PlotData> optCurPlot = getCurPlot();
-		
+
 		if (optCurPlot.isPresent()) {
 			optCurPlot.get().setPltype(pltype);
 			repaint();
 			log("<b>Plot Type : </b>" + pltype);
 		}
 	}
-	
+
 	public void setColor(Color col) {
 		Optional<PlotData> optCurPlot = getCurPlot();
-		
+
 		if (optCurPlot.isPresent()) {
 			optCurPlot.get().setFgColor(col);
 			repaint();
@@ -242,7 +219,7 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 			repaint();
 		}
 	}
-	
+
 	/* Reset canvas */
 	public void clear() {
 		plots = new Vector<PlotData>();
@@ -251,7 +228,7 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 		plt.initPlot();
 		repaint();
 	}
-	
+
 	/* Resize canvas */
 	public void resize(int w, int h) {
 		plt.initPlot(w, h);
@@ -261,12 +238,12 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 	public void log(String s) {
 		logger.log(s);
 	}
-	
+
 	public void setLogger(StatLogger logger) {
 		this.logger = logger;
 		//plt.setLogger(logger);
 	}
-	
+
 	/* Actions */
 	public class ZoomInAction extends AbstractAction {
 		@Override
@@ -275,7 +252,7 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 			repaint();
 		}
 	}
-	
+
 	public class ZoomOutAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
@@ -283,7 +260,7 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 			repaint();
 		}
 	}
-	
+
 	public class SmallZoomInAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
@@ -291,7 +268,7 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 			repaint();
 		}
 	}
-	
+
 	public class SmallZoomOutAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
@@ -301,7 +278,7 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 			repaint();
 		}
 	}
-	
+
 	public class UpAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
@@ -310,7 +287,7 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 			repaint();
 		}
 	}
-	
+
 	public class DownAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
@@ -319,7 +296,7 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 			repaint();
 		}
 	}
-	
+
 	public class LeftAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
@@ -328,7 +305,7 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 			repaint();
 		}
 	}
-	
+
 	public class RightAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
@@ -337,35 +314,35 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 			repaint();
 		}
 	}
-	
+
 	public class RotAPlusAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			//p.setView(p.a + getMoveAngle(), p.b, p.c);
 			plt.moveView(Project2D.Axis.X);
-			
+
 			repaint();
 		}
 	}
-	
+
 	public class RotAMinusAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			plt.moveView(Project2D.Axis.NX);
-			
+
 			repaint();
 		}
 	}
-	
+
 	public class RotBPlusAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			plt.moveView(Project2D.Axis.Y);
-			
+
 			repaint();
 		}
 	}
-	
+
 	public class RotBMinusAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
@@ -373,21 +350,21 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 			repaint();
 		}
 	}
-	
+
 	public class RotCPlusAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			plt.moveView(Project2D.Axis.Z);
-			
+
 			repaint();
 		}
 	}
-	
+
 	public class RotCMinusAction extends AbstractAction {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			plt.moveView(Project2D.Axis.NZ);
-		
+
 			repaint();
 		}
 	}
@@ -395,10 +372,10 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 	public void toggleOverlayMode() {
 		stopAnimation();
 		overlayMode = !overlayMode;
-		
+
 		log("<b>Overlay mode :</b> " + overlayMode);
 	}
-	
+
 	public void toggleAnimate() {
 		if (animate) {
 			stopAnimation();
@@ -406,19 +383,21 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 			startAnimation();
 		}
 	}
-	
+
 	public void startAnimation() {
 		animate = true;
+		frameCounter = 0;
 		refresher.start();
 		log("<b>Animate :</b> " + "ON");
 	}
-	
+
 	public void stopAnimation() {
 		animate = false;
+		frameCounter = 0;
 		refresher.stop();
 		log("<b>Animate :</b> " + "OFF");
 	}
-	
+
 	public void setNormal() {
 		if (overlayMode) {
 			toggleOverlayMode();
@@ -447,16 +426,16 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 	public void mousePressed(MouseEvent ev) {
 		this.mouseDragStart[0] = ev.getX();
 		this.mouseDragStart[1] = ev.getY();
-		
+
 		// FIXME origin is a magic number
 		if (ev.getButton() != MouseEvent.BUTTON1) {
 			/* The plotting area starts from (20,20) in java graphics space,
 			 * so we are substracting it. */
 			Point2D.Double clickedAt = new Point2D.Double(ev.getX() - 20, ev.getY() - 20);
 			Point2D.Double p = plt.getCanvas().getInvTransformedPoint(clickedAt);
-//			String label = String.format("(%3.1f, %3.1f)", p.getX(), p.getY());
+			//			String label = String.format("(%3.1f, %3.1f)", p.getX(), p.getY());
 			String label = p.toString();
-			
+
 			if (ev.getButton() == MouseEvent.BUTTON3) {
 				//pv.addNode(new Point2D.Double(x-20, y-20), label, Color.BLUE);
 				log("Point : " + label);
@@ -464,7 +443,7 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 				plt.setZoomCenter(p);
 				log("Zoom Center set at " + label);
 			}
-			
+
 			repaint();
 		}
 	}
@@ -477,12 +456,12 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 			int y2 = mout.getY();
 			int x1 = this.mouseDragStart[0];
 			int y1 = this.mouseDragStart[1];
-			
+
 			int dx = x2-x1;
 			int dy = y2-y1;
-			
+
 			plt.setViewMoveAngle(30.0);
-			
+
 			if (dx > dy) {
 				if (dx > 0) {
 					plt.moveView(Project2D.Axis.Y);
@@ -496,16 +475,16 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 					plt.moveView(Project2D.Axis.NX);
 				}
 			}
-			
+
 			plt.setViewMoveAngle(10.0);
-			
+
 			repaint();
-			
+
 		}
-		
+
 		dragOn = false;
 	}
-	
+
 	/*
 	pv.addMouseWheelListener(
 		new MouseWheelListener() {

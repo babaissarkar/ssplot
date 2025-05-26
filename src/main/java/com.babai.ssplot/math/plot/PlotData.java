@@ -76,7 +76,7 @@ public class PlotData implements Cloneable {
 	}
 	
 	public PlotData splice(int from, int to) {
-		if (from >= to) {
+		if (from > to) {
 			throw new IllegalArgumentException(
 				"Invalid splice range: from (" + from + ") must be less than to (" + to + ")");
 		}
