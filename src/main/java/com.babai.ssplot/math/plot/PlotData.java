@@ -29,7 +29,7 @@ import java.util.Vector;
 
 // TODO convert to record
 /* This class is the Model of MVC pattern.*/
-public class PlotData {
+public class PlotData implements Cloneable {
 	public enum PlotType {
 		LINES("Lines"),
 		POINTS("Points"),
@@ -64,6 +64,34 @@ public class PlotData {
 
 	private String title;
 	private String xlabel, ylabel;
+	
+	// Sliences an exception in splice
+	@Override
+	public Object clone() {
+		try {
+			return super.clone(); // shallow clone
+		} catch (CloneNotSupportedException e) {
+			throw new AssertionError(); // Should never happen since we implement Cloneable
+		}
+	}
+	
+	public PlotData splice(int from, int to) {
+		if (from >= to) {
+			throw new IllegalArgumentException(
+				"Invalid splice range: from (" + from + ") must be less than to (" + to + ")");
+		}
+		
+		from = Math.max(0, from);
+		to = Math.min(this.data.size(), to);
+
+		var pdata = (PlotData) this.clone();
+		pdata.data = new Vector<>();
+		for (Vector<Double> row : this.data.subList(from, to)) {
+			pdata.data.add(new Vector<>(row)); // copy inner vectors too
+		}
+		return pdata;
+	}
+
 
 	public String getXLabel() {
 		return xlabel;
