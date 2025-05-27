@@ -71,6 +71,8 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 	private JButton btnEditProp;
 	private JTextField tfXData, tfYData, tfZData;
 
+	// TODO
+	@SuppressWarnings("unused")
 	private SystemInputFrame input = null;
 
 	private static PlotData zeroData;
@@ -235,7 +237,7 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 	/** Show the given plot data in the table */
 	private void setDataOnly(PlotData pdata) {
 		DefaultTableModel model;
-		dataset = pdata.data;
+		dataset = pdata.getData();
 		colNo = dataset.firstElement().size();
 		rowNo = dataset.size();
 
@@ -291,7 +293,7 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 		int id = jcbPlotlist.getSelectedIndex();
 		if (id != -1) {
 			PlotData curData = plotlist.get(id);
-			curData.data = newdataset;
+			curData.setData(newdataset);
 			curData.setDataCols(getCol1(), getCol2());
 			updateList();
 			jcbPlotlist.setSelectedIndex(id);

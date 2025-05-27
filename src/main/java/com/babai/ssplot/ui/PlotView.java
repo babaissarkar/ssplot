@@ -148,7 +148,7 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 		} else if (animate) {
 			Optional<PlotData> optCurPlot = getCurPlot();
 			if ((plots.size() > 0) && (frameCounter > 0) && optCurPlot.isPresent()) {
-				if (frameCounter >= optCurPlot.get().data.size()) {
+				if (frameCounter >= optCurPlot.get().getData().size()) {
 					frameCounter = 0;
 				}
 				var pdata = optCurPlot.get().splice(0, frameCounter);

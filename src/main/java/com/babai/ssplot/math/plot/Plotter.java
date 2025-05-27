@@ -84,7 +84,7 @@ public final class Plotter {
 		
 		Point2D.Double p1 = null, p2 = null;
 
-		Vector<Vector<Double>> dataset = pdata.data;
+		Vector<Vector<Double>> dataset = pdata.getData();
 		canv.setFGColor(pdata.getFgColor());
 		Color curPlotColor2 = pdata.getFgColor2();
 		
@@ -203,9 +203,9 @@ public final class Plotter {
 			canv.drawTitle(pdata.getTitle());
 		}
 
-		for (Node node : pdata.nodes) {
-            canv.drawNode(node);
-        }
+		for (Node node : pdata.getNodes()) {
+			canv.drawNode(node);
+		}
 	}
 
 	public BufferedImage getImage() {

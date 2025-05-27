@@ -27,7 +27,6 @@ import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.util.Vector;
 
-// TODO convert to record
 /* This class is the Model of MVC pattern.*/
 public class PlotData implements Cloneable {
 	public enum PlotType {
@@ -52,10 +51,18 @@ public class PlotData implements Cloneable {
 	
 	public enum PointType { SQUARE, CIRCLE };
 
-	public Vector<Vector<Double>> data;
-	public Vector<Node> nodes;
+	private Vector<Vector<Double>> data;
+	private Vector<Node> nodes;
 	
-	public PointType pttype;
+	private PointType pttype;
+	
+	// TODO make this private
+	// TODO double-check if ptX is circle radius
+	/**
+	 * Width and height of the plotted point's marker
+	 * If Circle, ptX is the circle's radius, ptY is ignored
+	 * If Square, ptX and ptY are the width and height of the square
+	 */
 	public int ptX, ptY;
 	
 	private int dataCol1, dataCol2;
@@ -135,7 +142,7 @@ public class PlotData implements Cloneable {
 		nodes = new Vector<Node>();
 		data = extData;
 		pltype = PlotType.LINES;
-		pttype = PointType.SQUARE;
+		setPointType(PointType.SQUARE);
 		ptX = 2; ptY = 2;
 		fgColor = Color.RED;
 		fgColor2 = Color.BLUE;
@@ -205,9 +212,9 @@ public class PlotData implements Cloneable {
 	}
 
 	/**
-	 * @param  index of a column
+	 * @param dataCol     index of a column
 	 * 
-	 * @return max value among all data in the given column
+	 * @return            max value among all data in the given column
 	 */
 	public double getMax(int dataCol) {
 		double max = this.data.get(0).get(dataCol);
@@ -218,9 +225,9 @@ public class PlotData implements Cloneable {
 	}
 
 	/**
-	 * @param  index of a column
+	 * @param dataCol     index of a column
 	 * 
-	 * @return min value among all data in the given column
+	 * @return            min value among all data in the given column
 	 */
 	public double getMin(int dataCol) {
 		double min = this.data.get(0).get(dataCol);
@@ -228,5 +235,47 @@ public class PlotData implements Cloneable {
 			min = row.get(dataCol) < min ? row.get(dataCol) : min; 
 		}
 		return min;
+	}
+
+	/**
+	 * @return the data
+	 */
+	public Vector<Vector<Double>> getData() {
+		return data;
+	}
+
+	/**
+	 * @return the nodes
+	 */
+	public Vector<Node> getNodes() {
+		return nodes;
+	}
+
+	/**
+	 * @param data the data to set
+	 */
+	public void setData(Vector<Vector<Double>> data) {
+		this.data = data;
+	}
+
+	/**
+	 * @param nodes the nodes to set
+	 */
+	public void setNodes(Vector<Node> nodes) {
+		this.nodes = nodes;
+	}
+
+	/**
+	 * @return the PointType
+	 */
+	public PointType getPointType() {
+		return pttype;
+	}
+
+	/**
+	 * @param pttype the PointType to set
+	 */
+	public void setPointType(PointType pttype) {
+		this.pttype = pttype;
 	}
 }
