@@ -25,6 +25,9 @@ jobs:
 
     - name: Build everything
       run: ./generate_all.sh
+     
+    - name: Build and run tests
+      run: mvn test
 
     - uses: actions/upload-artifact@v4
       with:

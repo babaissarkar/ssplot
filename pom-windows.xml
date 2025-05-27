@@ -67,6 +67,13 @@
 			<artifactId>rhino-engine</artifactId>
 			<version>1.7.14</version>
 		</dependency>
+		<!-- JUnit 5 -->
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<version>5.10.0</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -157,6 +164,11 @@
 						<argument>${project.artifactId}.ico</argument>
 					</arguments>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>3.1.2</version>
 			</plugin>
 		</plugins>
 	</build>
