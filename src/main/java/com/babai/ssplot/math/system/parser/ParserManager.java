@@ -51,7 +51,7 @@ public class ParserManager {
 		// Initialize script engines
 		final var m = new ScriptEngineManager();
 		for (var factory : m.getEngineFactories()) {
-			final String name = factory.getNames().getFirst();
+			final String name = factory.getNames().get(0);
 			final Parser parser = new ScriptParser(name, factory.getScriptEngine());
 			System.out.println("Found engine: " + name);
 			parsers.put(name, parser);
