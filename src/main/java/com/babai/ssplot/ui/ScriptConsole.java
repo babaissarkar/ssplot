@@ -30,6 +30,7 @@ import java.awt.FlowLayout;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Insets;
 import java.awt.RenderingHints;
 import java.awt.Toolkit;
 
@@ -43,7 +44,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
 /** TODO : needs to be a real terminal, with input and output both handled by it */
@@ -59,41 +59,51 @@ public class ScriptConsole extends JPanel {
 	public ScriptConsole() {
 		initEngine(defaultEngine);
 		
+		Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
+		
 		txtIn = new JTextField(60);
+		txtIn.setHorizontalAlignment(JTextField.CENTER);
+		txtIn.setMargin(new Insets(5, 5, 5, 5));
+		txtIn.setMaximumSize(new Dimension(Integer.MAX_VALUE, txtIn.getPreferredSize().height));
+		
 		lblOut = new JLabel() {
 			private String input = "";
 			private String output = "";
-			private String current = ""; // Value of last JS expression
+			private String current = ""; // Value of last expression
+			private boolean isError = false; // Did the last evaluation succeed?
 
 			@Override
 			public void paintComponent(Graphics g) {
 				super.paintComponent(g);
 				Graphics2D g2 = (Graphics2D) g;
-				RenderingHints rh = new RenderingHints(
+				g2.setFont(g2.getFont().deriveFont(16f));
+				g2.addRenderingHints(new RenderingHints(
 						RenderingHints.KEY_TEXT_ANTIALIASING,
-						RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-				g2.addRenderingHints(rh);
+						RenderingHints.VALUE_TEXT_ANTIALIAS_ON));
+				g2.addRenderingHints(new RenderingHints(
+						RenderingHints.KEY_ANTIALIASING,
+						RenderingHints.VALUE_ANTIALIAS_ON));
 				FontMetrics fm = g2.getFontMetrics();
 				int textH = fm.getHeight();
 				
 				g2.setColor(Color.BLACK);
-				g2.fillRect(0, 0, 1000, 200);
-				if (!input.equals("")) {
+				g2.fillRect(0, 0, getSize().width, getSize().height);
+				if (!input.isEmpty()) {
 					g2.setColor(Color.WHITE);
 					g2.drawString(">> " + input, 20, 20);
 					g2.setColor(Color.YELLOW);
 					String temp = "[" + this.current + "]";
 					int size = fm.stringWidth(temp);
 					g2.drawString(temp, 20, 25+textH);
-					g2.setColor(Color.GREEN);
+					g2.setColor(isError ? Color.RED : Color.GREEN);
 					g2.drawString(output, 25+size, 25+textH);
 					g2.setColor(Color.WHITE);
 				}
 			}
 			
 			private void clearVariables() {
-				this.output = "";
-				this.current = "";
+				output = "";
+				current = "";
 				engine.put("txt", "");
 			}
 			@Override
@@ -102,35 +112,29 @@ public class ScriptConsole extends JPanel {
 				
 				this.input = input;
 				try {
-					this.current = engine.eval(initScript + input).toString();
+					current = engine.eval(initScript + input).toString();
 					Object out = engine.get("txt");
-					if (out!= null) {
-						this.output = out.toString();
+					if (out != null) {
+						output = out.toString();
 					}
 				} catch (ScriptException e) {
-					this.output = "Error!";
+					output = "Error!";
 				}
-				this.repaint();
+				repaint();
 			}
 		};
+		lblOut.setPreferredSize(new Dimension(size.width - 10, 100));
+		
 		btnRun = new JButton("Run");
 		btnRun.setIcon(new ImageIcon(getClass().getResource("/run.png")));
 		btnRun.setBackground(Color.GREEN);
 		btnRun.addActionListener(e -> lblOut.setText(txtIn.getText()));
 		
-		Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
-		lblOut.setPreferredSize(new Dimension(size.width - 10, 60));
-		
 		setLayout(new BorderLayout());
 		JPanel pnlInput = new JPanel();
 		pnlInput.setLayout(new BoxLayout(pnlInput, BoxLayout.LINE_AXIS));
-		JScrollPane sIn = new JScrollPane(
-				txtIn,
-				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		sIn.setMaximumSize(new Dimension(Integer.MAX_VALUE, sIn.getPreferredSize().height));
 		pnlInput.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		pnlInput.add(sIn);
+		pnlInput.add(txtIn);
 		pnlInput.add(Box.createHorizontalStrut(5));
 		pnlInput.add(btnRun);
 		
@@ -152,18 +156,18 @@ public class ScriptConsole extends JPanel {
 		// TODO load these methods from a initial script file
 		// Add print method	
 		initScript = """
-	        function debugPrint(value) {
-				    java.lang.System.out.print(value);
-	        }
-	        
-	        function print(value) {
-				    txt = value;
-	        }
-	        
-	        function debugPrintLn(value) {
-				    java.lang.System.out.println(value);
-	        }
-	    """;
+			function debugPrint(value) {
+				java.lang.System.out.print(value);
+			}
+			
+			function debugPrintLn(value) {
+				java.lang.System.out.println(value);
+			}
+	
+			function print(value) {
+				txt = value;
+			}
+		""";
 		
 		engine = m.getEngineByName(engineName);
 	}
