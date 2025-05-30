@@ -83,7 +83,7 @@ public class MainFrame extends JFrame {
 	private static String VERSION;
 	static {
 		final Properties prop = new Properties();
-		try(InputStream is = MainFrame.class.getResourceAsStream("/project.properties")) {
+		try (InputStream is = MainFrame.class.getResourceAsStream("/project.properties")) {
 			prop.load(is);
 			VERSION = prop.getProperty("version");
 		} catch (IOException e) {
