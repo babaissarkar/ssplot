@@ -61,7 +61,12 @@ public class SSPlotCLI {
 		try (var input = new Scanner(System.in)) {
 			Parser parser = ParserManager.getParser();
 			while (true) {
-				System.out.print("(" + parser.getName() + ")>> ");
+				System.out.print(
+					ANSIFormatter.fg(255, 255, 0)
+					+ "(" + parser.getName() + ")"
+					+ ANSIFormatter.RESET
+					+ ANSIFormatter.fg(255, 255, 255)
+					+ ">> ");
 				String line = input.nextLine();
 				if (line.equalsIgnoreCase("exit")) {
 					break;
