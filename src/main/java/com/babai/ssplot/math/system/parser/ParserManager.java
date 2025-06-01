@@ -34,12 +34,18 @@ public class ParserManager {
 	private static Parser currParser = null;
 	
 	private static void init() {
+		// Detect all available parsing engines
 		populateEngineList();
 		
-		// Current engine selection
+		// Current parsing engine selection
+		
 		// Engine set via envvar
 		String engineName = System.getenv("SSPLOT_ENGINE");
-		currParser = parsers.get(engineName == null ? TreeParser.NAME : engineName);
+		if (engineName == null) {
+			engineName = TreeParser.NAME;
+		}
+		currParser = parsers.get(engineName);
+		System.out.println("Using parsing engine: " + engineName);
 	}
 	
 	private static void populateEngineList() {

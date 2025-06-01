@@ -33,10 +33,8 @@ import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.RenderingHints;
 import java.awt.Toolkit;
+import java.util.Map;
 
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -46,18 +44,21 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-/** TODO : needs to be a real terminal, with input and output both handled by it */
+import com.babai.ssplot.math.system.parser.Parser;
+import com.babai.ssplot.math.system.parser.ParserManager;
+
+// TODO : needs to be a real terminal, with input and output both handled by it
+// TODO : the initscript is not being used, partly because difference parsing
+// backends need different code.
 public class ScriptConsole extends JPanel {
 	private JTextField txtIn;
 	private JLabel lblOut;
 	private JButton btnRun;
-	private ScriptEngine engine;
-	private final String defaultEngine = "rhino";
-	private String initScript;
-	
+	private Parser parser;
+//	private String initScript;
 	
 	public ScriptConsole() {
-		initEngine(defaultEngine);
+		initEngine();
 		
 		Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
 		
@@ -69,7 +70,6 @@ public class ScriptConsole extends JPanel {
 		lblOut = new JLabel() {
 			private String input = "";
 			private String output = "";
-			private String current = ""; // Value of last expression
 			private boolean isError = false; // Did the last evaluation succeed?
 
 			@Override
@@ -89,37 +89,27 @@ public class ScriptConsole extends JPanel {
 				g2.setColor(Color.BLACK);
 				g2.fillRect(0, 0, getSize().width, getSize().height);
 				if (!input.isEmpty()) {
-					g2.setColor(Color.WHITE);
-					g2.drawString(">> " + input, 20, 20);
 					g2.setColor(Color.YELLOW);
-					String temp = "[" + this.current + "]";
-					int size = fm.stringWidth(temp);
-					g2.drawString(temp, 20, 25+textH);
+					String header = "(" + parser.getName() + ")";
+					int headerWidth = fm.stringWidth(header);
+					g2.drawString(header, 20, 20);
+					g2.setColor(Color.WHITE);
+					g2.drawString(">> " + input, headerWidth + 20, 20);
 					g2.setColor(isError ? Color.RED : Color.GREEN);
-					g2.drawString(output, 25+size, 25+textH);
+					g2.drawString(output, 20, 25 + textH);
 					g2.setColor(Color.WHITE);
 				}
 			}
 			
 			private void clearVariables() {
 				output = "";
-				current = "";
-				engine.put("txt", "");
 			}
 			@Override
 			public void setText(String input) {
 				clearVariables();
-				
 				this.input = input;
-				try {
-					current = engine.eval(initScript + input).toString();
-					Object out = engine.get("txt");
-					if (out != null) {
-						output = out.toString();
-					}
-				} catch (ScriptException e) {
-					output = "Error!";
-				}
+				double res = parser.evaluate(/* initScript + */ input, Map.of());
+				output = "" + res;
 				repaint();
 			}
 		};
@@ -150,25 +140,23 @@ public class ScriptConsole extends JPanel {
 		txtIn.requestFocusInWindow();
 	}
 	
-	private void initEngine(String engineName) {
-		ScriptEngineManager m = new ScriptEngineManager();
-		
+	private void initEngine() {
 		// TODO load these methods from a initial script file
 		// Add print method	
-		initScript = """
-			function debugPrint(value) {
-				java.lang.System.out.print(value);
-			}
-			
-			function debugPrintLn(value) {
-				java.lang.System.out.println(value);
-			}
-	
-			function print(value) {
-				txt = value;
-			}
-		""";
+//		initScript = """
+//			function debugPrint(value) {
+//				java.lang.System.out.print(value);
+//			}
+//			
+//			function debugPrintLn(value) {
+//				java.lang.System.out.println(value);
+//			}
+//	
+//			function print(value) {
+//				txt = value;
+//			}
+//		""";
 		
-		engine = m.getEngineByName(engineName);
+		parser = ParserManager.getParser();
 	}
 }

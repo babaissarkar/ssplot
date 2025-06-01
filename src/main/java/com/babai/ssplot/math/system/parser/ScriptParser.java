@@ -39,6 +39,10 @@ public class ScriptParser implements Parser {
 
 	@Override
 	public double evaluate(String expression, Map<String, Double> variables) {
+		if (expression.isEmpty()) {
+			return 0;
+		}
+		
 		variables.forEach((var, val) -> engine.put(var, val));
 		try {
 			engine.eval("answer = " + expression);
