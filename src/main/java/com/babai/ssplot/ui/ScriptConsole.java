@@ -104,12 +104,12 @@ public class ScriptConsole extends JPanel {
 			private void clearVariables() {
 				output = "";
 			}
+			
 			@Override
 			public void setText(String input) {
 				clearVariables();
 				this.input = input;
-				double res = parser.evaluate(/* initScript + */ input, Map.of());
-				output = "" + res;
+				output = "" + parser.evaluate(/* initScript + */ input, Map.of());
 				repaint();
 			}
 		};

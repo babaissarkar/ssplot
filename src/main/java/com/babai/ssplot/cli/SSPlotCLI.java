@@ -25,10 +25,14 @@ package com.babai.ssplot.cli;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
+import java.util.Scanner;
 
 import com.babai.ssplot.math.io.NumParse;
 import com.babai.ssplot.math.plot.PlotData;
 import com.babai.ssplot.math.plot.Plotter;
+import com.babai.ssplot.math.system.parser.Parser;
+import com.babai.ssplot.math.system.parser.ParserManager;
 
 public class SSPlotCLI {
 	Plotter plt;
@@ -42,7 +46,7 @@ public class SSPlotCLI {
 	}
 
 	public static void main (String[] args) {
-		SSPlotCLI cli = new SSPlotCLI();
+		var cli = new SSPlotCLI();
 
 		for (int i = 0; i < args.length; i++) {
 			String arg = args[i];
@@ -52,12 +56,30 @@ public class SSPlotCLI {
 				cli.plot(args[i+1]);
 			}
 		}
-		//		if (MainFrame.hasArg("i", args)) {
-		//			System.out.println("Parsing...");
-		//            cli.plot(args[i+1]);
-		//		}
 
-		System.exit(0);
+		if (args.length > 0) {
+			System.exit(0);
+		} else {
+			startREPL();
+		}
+	}
+
+	private static void startREPL() {
+		try (var input = new Scanner(System.in)) {
+			Parser parser = ParserManager.getParser();
+			while (true) {
+				System.out.print("(" + parser.getName() + ")>> ");
+				String line = input.nextLine();
+				switch (line) {
+					case "exit" -> { break; }
+					default -> {
+						System.out.println(parser.evaluate(line, Map.of()));
+					}
+				}
+			}
+		} catch (Exception e) {
+			System.err.println("Exception raised, exiting!");
+		}
 	}
 
 	public void plot(String fname) {
