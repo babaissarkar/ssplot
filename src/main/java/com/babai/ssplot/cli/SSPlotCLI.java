@@ -47,21 +47,14 @@ public class SSPlotCLI {
 
 	public static void main (String[] args) {
 		var cli = new SSPlotCLI();
-
-		for (int i = 0; i < args.length; i++) {
-			String arg = args[i];
-			//System.out.println("Arg " + i + " " + arg);
-			if (arg.equals("-i")) {
+		ArgParse.nextArg("i", args).ifPresentOrElse(
+			inputFile -> {
 				System.out.println("Parsing...");
-				cli.plot(args[i+1]);
-			}
-		}
-
-		if (args.length > 0) {
-			System.exit(0);
-		} else {
-			startREPL();
-		}
+				cli.plot(inputFile);
+				System.exit(0);
+			},
+			() -> startREPL()
+		);
 	}
 
 	private static void startREPL() {
@@ -70,11 +63,10 @@ public class SSPlotCLI {
 			while (true) {
 				System.out.print("(" + parser.getName() + ")>> ");
 				String line = input.nextLine();
-				switch (line) {
-					case "exit" -> { break; }
-					default -> {
-						System.out.println(parser.evaluate(line, Map.of()));
-					}
+				if (line.equalsIgnoreCase("exit")) {
+					break;
+				} else {
+					System.out.println(parser.evaluate(line, Map.of()));
 				}
 			}
 		} catch (Exception e) {

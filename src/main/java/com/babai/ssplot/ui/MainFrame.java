@@ -35,9 +35,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 
@@ -68,6 +65,7 @@ import com.babai.ssplot.util.UIHelper;
 
 import static javax.swing.JOptionPane.*;
 import static com.babai.ssplot.cli.ArgParse.hasArg;
+import static com.babai.ssplot.cli.ArgParse.removeArg;
 
 public class MainFrame extends JFrame {
 	
@@ -494,9 +492,7 @@ public class MainFrame extends JFrame {
 	
 	public static void main(String[] args) {
 		if (hasArg("cli", args)) {
-			var argList = new ArrayList<>(List.of(args));
-			argList.removeIf(arg -> arg.equals("-cli"));  // TODO introduce isArg function
-			SSPlotCLI.main(argList.toArray(new String[0]));
+			SSPlotCLI.main(removeArg("cli", args));
 			return;
 		}
 		
