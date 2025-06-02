@@ -17,16 +17,6 @@ public class SSMathParser {
 		TreeNode node = parser.getNode();
 		return node;
 	}
-	
-	public static void main(String[] args) {
-		System.out.println("Init Parser...");
-		
-		try {
-			System.out.println(SSMathParser.parseString("x").toString());
-		} catch(Exception e) {
-			// nothing
-		}
-	}
 }
 
 PARSER_END(SSMathParser)
@@ -36,7 +26,10 @@ SKIP : { " "|"\t"| < "!" (~["\n","\r"])* ("\n"|"\r"|"\r\n") > }
 TOKEN : {
 	< NUMBER : ["0"-"9"] >
 |	< DIGIT : (<NUMBER>)+ ("." (<NUMBER>)+)? >
-|	< LETTER : ["A"-"Z"]|["a"-"z"] >
+// E is excluded from variable names. It is used for the math constant "e" instead.
+|	< LETTER : (["A"-"D"] | ["F"-"Z"] | ["a"-"d"] | ["f"-"z"]) >
+|	< PI : "pi"|"PI" >
+|	< E : "e"|"E" >
 |	< FN : "sin"|"cos"|"tan"|"asin"|"acos"|"atan"|"exp"|"log"|"ln" >
 |	< PLUS : "+" >
 |	< MINUS : "-" >
@@ -241,6 +234,20 @@ TreeNode doubleStmt() :
 		| s = <NUMBER> {
 			try {
 				d = new Constant(Double.parseDouble(s.toString()));
+				node = new TreeNode(d);
+			} catch (Exception e) {}
+			return node;
+		}
+		| s = <PI> {
+			try {
+				d = new Constant(Math.PI);
+				node = new TreeNode(d);
+			} catch (Exception e) {}
+			return node;
+		}
+		| s = <E> {
+			try {
+				d = new Constant(Math.E);
 				node = new TreeNode(d);
 			} catch (Exception e) {}
 			return node;
