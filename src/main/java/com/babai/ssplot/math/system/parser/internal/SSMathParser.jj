@@ -28,7 +28,7 @@ TOKEN : {
 |	< DIGIT : (<NUMBER>)+ ("." (<NUMBER>)+)? >
 // E is excluded from variable names. It is used for the math constant "e" instead.
 |	< LETTER : (["A"-"D"] | ["F"-"Z"] | ["a"-"d"] | ["f"-"z"]) >
-|	< PI : "pi"|"PI" >
+|	< PI : "pi"|"PI"|"π" >
 |	< E : "e"|"E" >
 |	< FN : "sin"|"cos"|"tan"|"asin"|"acos"|"atan"|"exp"|"log"|"ln" >
 |	< PLUS : "+" >
@@ -162,7 +162,7 @@ TreeNode powStmt() :
 	TreeNode b = null;
 }
 {
-	a=unaryStmt() (<POW> b = unaryStmt())?
+	a=unaryStmt() (<POW> b = powStmt())?
 	{
 		if (b != null) {
 			TreeNode powNode = new TreeNode(TreeOperator.forName("^"));
