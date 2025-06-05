@@ -23,9 +23,7 @@
 
 package com.babai.ssplot.ui;
 
-import java.awt.Color;
 import java.awt.FlowLayout;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.print.PrinterException;
@@ -52,7 +50,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 
 import com.babai.ssplot.math.io.NumParse;
-import com.babai.ssplot.math.plot.*;
+import com.babai.ssplot.math.plot.PlotData;
 
 public class DBViewer extends JInternalFrame implements ActionListener {
 	private Vector<PlotData> plotlist;
@@ -96,19 +94,14 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 		pnlPlots.setLayout(new FlowLayout());
 		jcbPlotlist = new JComboBox<String>();
 		jcbPlotlist.setEditable(false);
-		jcbPlotlist.addActionListener(
-				evt -> {
-					int id = jcbPlotlist.getSelectedIndex();
-					if (id != -1) {
-						PlotData curData = plotlist.get(id);
-						setDataOnly(curData);
-						//						if ((input != null) && (curData.sysData != null)) {
-						//							input.setSystemData(curData.sysData);
-						//						}
-					}
-					jcbPlotlist.setSelectedIndex(id);
-				}
-				);
+		jcbPlotlist.addActionListener(evt -> {
+			int id = jcbPlotlist.getSelectedIndex();
+			if (id != -1) {
+				PlotData curData = plotlist.get(id);
+				setDataOnly(curData);
+			}
+			jcbPlotlist.setSelectedIndex(id);
+		});
 
 		JLabel lblPlots = new JLabel("Plots");
 		btnEditProp = new JButton("Edit Properties...");
@@ -131,9 +124,9 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 		pnlPlots.add(btnEditProp);
 
 		JPanel pnlPrefs = new JPanel();
-		JLabel lblXData = new JLabel("X");
-		JLabel lblYData = new JLabel("Y");
-		JLabel lblZData = new JLabel("Z");
+		JLabel lblXData = new JLabel("Axis X");
+		JLabel lblYData = new JLabel("Axis Y");
+		JLabel lblZData = new JLabel("Axis Z");
 		tfXData = new JTextField("1", 2);
 		tfYData = new JTextField("2", 2);
 		tfZData = new JTextField("3", 2);
@@ -142,8 +135,6 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 		tfZData.setHorizontalAlignment(JTextField.CENTER);
 		btnPlot = new JButton("Apply");
 		btnPlot.addActionListener(this);
-		JLabel lblPlotUsing = new JLabel("Plot using :");
-		pnlPrefs.add(lblPlotUsing);
 		pnlPrefs.add(lblXData);
 		pnlPrefs.add(tfXData);
 		pnlPrefs.add(lblYData);
@@ -152,28 +143,17 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 		pnlPrefs.add(tfZData);
 		pnlPrefs.add(btnPlot);
 
-		pnlPrefs.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new Color(255, 90, 38), 3),
-				"Data Columns"));
-
 		table = new JTable();
 		table.setAutoCreateRowSorter(true);
 
 		if (data != null) {
 			setData(data);
-		} else {
-			setBounds(500, 100, 600, 600);
 		}
 
 		JScrollPane scroll = new JScrollPane(table,
 				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED
-				);
-		JPanel pnlTable = new JPanel();
-		pnlTable.setLayout(new FlowLayout());
-		pnlTable.add(scroll);
-		pnlTable.setBorder(
-				BorderFactory.createEmptyBorder(5, 5, 5, 5)
-				);
+				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		scroll.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
 		JPanel pnlEdit = new JPanel();
 
@@ -191,18 +171,12 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 		btnColumn.setToolTipText("Add Column");
 		btnPrint.setToolTipText("Print Data");
 
-		btnNew.setIcon(new ImageIcon(Toolkit.getDefaultToolkit().getImage(
-				getClass().getResource("/new_data.png"))));
-		btnRow.setIcon(new ImageIcon(Toolkit.getDefaultToolkit().getImage(
-				getClass().getResource("/insert_row.png"))));
-		btnColumn.setIcon(new ImageIcon(Toolkit.getDefaultToolkit().getImage(
-				getClass().getResource("/insert_col.png"))));
-		btnPrint.setIcon(new ImageIcon(Toolkit.getDefaultToolkit().getImage(
-				getClass().getResource("/printer.png"))));
-		btnLoad.setIcon(new ImageIcon(Toolkit.getDefaultToolkit().getImage(
-				getClass().getResource("/open.jpg"))));
-		btnSave.setIcon(new ImageIcon(Toolkit.getDefaultToolkit().getImage(
-				getClass().getResource("/save.jpg"))));
+		btnNew.setIcon(new ImageIcon(getClass().getResource("/new_data.png")));
+		btnRow.setIcon(new ImageIcon(getClass().getResource("/insert_row.png")));
+		btnColumn.setIcon(new ImageIcon(getClass().getResource("/insert_col.png")));
+		btnPrint.setIcon(new ImageIcon(getClass().getResource("/printer.png")));
+		btnLoad.setIcon(new ImageIcon(getClass().getResource("/open.jpg")));
+		btnSave.setIcon(new ImageIcon(getClass().getResource("/save.jpg")));
 
 		btnNew.addActionListener(this);
 		btnLoad.addActionListener(this);
@@ -220,12 +194,11 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 
 		mainPanel.add(pnlPlots);
 		mainPanel.add(pnlPrefs);
-		mainPanel.add(pnlTable);
 		mainPanel.add(pnlEdit);
+		mainPanel.add(scroll);
 
-		this.setContentPane(mainPanel);
-		this.pack();
-		this.setResizable(false);
+		setContentPane(mainPanel);
+		pack();
 	}
 
 	public void setData(PlotData pdata) {
@@ -253,13 +226,6 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 		TableColumnModel columns = table.getColumnModel();
 		for (int i = 0; i < colNo; i++) {
 			columns.getColumn(i).setPreferredWidth(20);
-		}
-
-		// I should remove this part
-		if (80*colNo > 500) {
-			setBounds(500, 100, 50*colNo+200, 600);
-		} else {
-			setBounds(500, 100, 500+200, 600);
 		}
 
 		pv.log(String.format("Max : %f, Min : %f", pdata.getMax(0), pdata.getMin(0)));
@@ -360,10 +326,6 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 			data.add(row);
 		}
 
-		/*IntStream.range(0, colNo).forEach(
-    			m -> IntStream.range(0, rowNo).forEach(
-    					n -> System.out.println(data.get(n).get(m))));*/
-
 		JFileChooser files = new JFileChooser();
 		int stat = files.showSaveDialog(this);
 		File f = null;
@@ -380,8 +342,15 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 	public void actionPerformed(ActionEvent evt) {	
 		if (evt.getSource() == btnNew) {
 
-			int col = Integer.parseInt(JOptionPane.showInputDialog("No. of columns :"));
-			int row = Integer.parseInt(JOptionPane.showInputDialog("No. of rows :"));
+			String colString = JOptionPane.showInputDialog("No. of columns :");
+			String rowString = JOptionPane.showInputDialog("No. of rows :");
+			
+			if (colString == null || rowString == null) {
+				return;
+			}
+			
+			int col = Integer.parseInt(colString);
+			int row = Integer.parseInt(rowString);
 			colNo = col;
 			rowNo = row;
 
