@@ -25,7 +25,6 @@ package com.babai.ssplot.ui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Desktop;
-import java.awt.Toolkit;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyAdapter;
@@ -38,6 +37,7 @@ import java.net.URISyntaxException;
 import java.util.Optional;
 import java.util.Properties;
 
+import javax.imageio.ImageIO;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
@@ -111,9 +111,11 @@ public class MainFrame extends JFrame {
 	
 	public MainFrame() {
 		// Set icon
-		setIconImage(
-				Toolkit.getDefaultToolkit().getImage(
-						getClass().getResource("/ssplot.png")));
+		try {
+			setIconImage(ImageIO.read(getClass().getResource("/ssplot.png")));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		
 		// Initialize logger
 		setLogger(new StatLogger());
@@ -144,8 +146,6 @@ public class MainFrame extends JFrame {
 		// Create GUI
 		
 		setTitle("SSPlot");
-		// FIXME this MENUBAR_WIDTH should really be removed
-		setBounds(100, 20, 1300, 700 + MainFrame.MENUBAR_WIDTH);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		var ifrmPlot = new JInternalFrame("Plot", true, false, true, true);
@@ -334,7 +334,7 @@ public class MainFrame extends JFrame {
 		var mainPane = new JDesktopPane();
 		mainPane.setDragMode(JDesktopPane.OUTLINE_DRAG_MODE);
 		
-		ifrmPlot.setSize(Plotter.DEFAULT_W+50, Plotter.DEFAULT_H + 80);
+		ifrmPlot.setSize(Plotter.DEFAULT_W + 50, Plotter.DEFAULT_H + 80);
 		ifrmPlot.addComponentListener(new ComponentAdapter() {
 			public void componentResized(ComponentEvent ce) {
 				// FIXME more embedded magic numbers
@@ -343,8 +343,7 @@ public class MainFrame extends JFrame {
 		});
 		
 		// FIXME more embedded magic numbers
-		dbv.setSize(500, 500);
-		dbv.setLocation(Plotter.DEFAULT_W + 100, 180);
+		dbv.setLocation(Plotter.DEFAULT_W + 100, 0);
 		dbv.setDefaultCloseOperation(JInternalFrame.HIDE_ON_CLOSE);
 		
 		odeinput.setLocation(Plotter.DEFAULT_W + 100, 0);
@@ -361,6 +360,8 @@ public class MainFrame extends JFrame {
 		odeinput.setVisible(true);
 		
 		var console = new ScriptConsole();
+		
+		// TODO move to separate class, say HintTextField
 		// TextArea with hint text that gets cleared as soon as user starts typing
 		var txtScratchpad = new JTextArea("You can write anything here.");
 		txtScratchpad.setForeground(Color.GRAY);
@@ -423,6 +424,7 @@ public class MainFrame extends JFrame {
 		}
 	}
 	
+	
 	public void setLineWidth() {
 		String strWidth = showInputDialog("Line Width:");
 		if (strWidth != null) {
@@ -435,6 +437,7 @@ public class MainFrame extends JFrame {
 			pv.repaint();
 		}
 	}
+	
 	
 	public void changePlotType() {
 		PlotType type = (PlotType) showInputDialog(
@@ -450,6 +453,7 @@ public class MainFrame extends JFrame {
 			pv.setCurPlotType(type);
 		}
 	}
+	
 	
 	private void openLink(String url) {
 		if (url.isBlank()) {
@@ -470,6 +474,7 @@ public class MainFrame extends JFrame {
 			e.printStackTrace();
 		}
 	}
+	
 	
 	public void showAbout() {
 		getLogger().log(ABOUT_MSG);
