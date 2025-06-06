@@ -25,6 +25,7 @@ package com.babai.ssplot.ui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Desktop;
+import java.awt.Dimension;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyAdapter;
@@ -344,13 +345,13 @@ public class MainFrame extends JFrame {
 		
 		// FIXME more embedded magic numbers
 		dbv.setLocation(Plotter.DEFAULT_W + 100, 0);
-		dbv.setDefaultCloseOperation(JInternalFrame.HIDE_ON_CLOSE);
-		
-		odeinput.setLocation(Plotter.DEFAULT_W + 100, 0);
-		odeinput.pack();
 		
 		ifrmPlot.add(pv);
 		ifrmLogs.add(getLogger().getComponent());
+		
+		odeinput.setLocation(Plotter.DEFAULT_W + 50, 0);
+		odeinput.pack();
+		odeinput.setSize(new Dimension(odeinput.getWidth(), ifrmPlot.getHeight()));
 		
 		mainPane.add(ifrmPlot);
 		mainPane.add(odeinput);

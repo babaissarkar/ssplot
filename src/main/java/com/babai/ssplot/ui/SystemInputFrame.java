@@ -134,9 +134,9 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 		gbc.fill = GridBagConstraints.NONE;
 
 		var lblCounts = new JLabel("Iteration count");
-		tfCounts = new JTextField(10);
+		tfCounts = new JTextField(6);
 		var lblStep = new JLabel("Iteration stepsize");
-		tfStep = new JTextField(10);
+		tfStep = new JTextField(6);
 
 		gbc.gridx = 0;
 		gbc.gridy = 0;
@@ -162,7 +162,7 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 						"Iteration Parameters",
 						TitledBorder.LEFT,
 						TitledBorder.TOP,
-						new Font("Serif", Font.BOLD, 14),
+						new Font("Serif", Font.BOLD, 12),
 						new Color(127, 0, 140).darker().darker()));
 
 
@@ -177,9 +177,9 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 		};
 
 		tfs = new JTextField[] {
-				new JTextField(20),
-				new JTextField(20),
-				new JTextField(20)
+				new JTextField(10),
+				new JTextField(10),
+				new JTextField(10)
 		};
 
 		gbc = new GridBagConstraints();
@@ -207,7 +207,7 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 						"Equations",
 						TitledBorder.LEFT,
 						TitledBorder.TOP,
-						new Font("Serif", Font.BOLD, 14),
+						new Font("Serif", Font.BOLD, 12),
 						new Color(255, 90, 38).darker().darker()));
 
 		// Ranges entry
@@ -223,9 +223,9 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 
 		for (int i = 0; i < 9; i++) {
 			lbls2[i] = new JLabel(sub_markup.formatted(axes[i / 3], tags[i % 3]));
-			tfs2[i] = new JTextField(9);
+			tfs2[i] = new JTextField(5);
 			tfs2[i].setHorizontalAlignment(JTextField.CENTER);
-			tfs2[i].setFont(new Font("monospace", Font.PLAIN, 16));
+			tfs2[i].setFont(new Font("monospace", Font.PLAIN, 14));
 			tfs2[i].setText("" + defVals[i]);
 		}
 
@@ -259,7 +259,7 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 				"Ranges",
 				TitledBorder.LEFT,
 				TitledBorder.TOP,
-				new Font("Serif", Font.BOLD, 14),
+				new Font("Serif", Font.BOLD, 12),
 				new Color(24, 110, 1).darker().darker()));
 
 		var pnlButton2 = new JPanel();
@@ -304,14 +304,14 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 
 		for (int i = 0; i < 3; i++) {
 			tfs[i].setHorizontalAlignment(JTextField.CENTER);
-			tfs[i].setFont(new Font("monospace", Font.PLAIN, 16));
+			tfs[i].setFont(new Font("monospace", Font.PLAIN, 14));
 			tfs3[i].setHorizontalAlignment(JTextField.CENTER);
-			tfs3[i].setFont(new Font("monospace", Font.PLAIN, 16));
+			tfs3[i].setFont(new Font("monospace", Font.PLAIN, 14));
 		}
 		tfCounts.setHorizontalAlignment(JTextField.CENTER);
-		tfCounts.setFont(new Font("monospace", Font.PLAIN, 16));
+		tfCounts.setFont(new Font("monospace", Font.PLAIN, 14));
 		tfStep.setHorizontalAlignment(JTextField.CENTER);
-		tfStep.setFont(new Font("monospace", Font.PLAIN, 16));
+		tfStep.setFont(new Font("monospace", Font.PLAIN, 14));
 
 		pnlButton.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
 		pnlButton.add(btnTR);
