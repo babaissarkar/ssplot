@@ -231,10 +231,13 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 		for (int i = 1; i <= colNo; i++) {
 			if (i == pdata.getDataCol1()) {
 				headers.add("X Data");
+				pv.log(String.format("X Max : %f, Min : %f", pdata.getMax(i-1), pdata.getMin(i-1)));
 			} else if (i == pdata.getDataCol2()) {
 				headers.add("Y Data");
+				pv.log(String.format("Y Max : %f, Min : %f", pdata.getMax(i-1), pdata.getMin(i-1)));
 			} else {
 				headers.add("Column " + i);
+				pv.log(String.format("Col %d Max : %f, Min : %f", i, pdata.getMax(i-1), pdata.getMin(i-1)));
 			}
 		}
 
@@ -245,8 +248,6 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 		for (int i = 0; i < colNo; i++) {
 			columns.getColumn(i).setPreferredWidth(10);
 		}
-
-		pv.log(String.format("Max : %f, Min : %f", pdata.getMax(0), pdata.getMin(0)));
 	}
 
 	// TODO this should return an Optional
