@@ -100,7 +100,6 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 				PlotData curData = plotlist.get(id);
 				setDataOnly(curData);
 			}
-			jcbPlotlist.setSelectedIndex(id);
 		});
 
 		JLabel lblPlots = new JLabel("Plots");
@@ -109,13 +108,16 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 		btnEditProp.addActionListener(evt -> {
 			int id = jcbPlotlist.getSelectedIndex();
 			String title = JOptionPane.showInputDialog("Title :");
+			if (title == null) {
+				return;
+			}
+			
 			if (id != -1) {
 				PlotData curData = plotlist.get(id);
 				curData.setTitle(title);
 				updateList();
 				setDataOnly(curData);
 			}
-			jcbPlotlist.setSelectedIndex(id);
 			applyChanges();
 		});
 
