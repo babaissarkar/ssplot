@@ -91,7 +91,7 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 
 		JPanel pnlPlots = new JPanel();
-		pnlPlots.setLayout(new FlowLayout());
+		pnlPlots.setLayout(new FlowLayout(FlowLayout.LEADING));
 		jcbPlotlist = new JComboBox<String>();
 		jcbPlotlist.setEditable(false);
 		jcbPlotlist.addActionListener(evt -> {
@@ -105,7 +105,7 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 			}
 		});
 
-		JLabel lblPlots = new JLabel("Plots");
+		JLabel lblPlots = new JLabel("<html><body><b>Plots:</b></body></html>");
 		btnEditProp = new JButton("Edit Properties...");
 		btnEditProp.setToolTipText("Edit the properties of the current plot");
 		btnEditProp.addActionListener(evt -> {
@@ -129,17 +129,19 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 		pnlPlots.add(btnEditProp);
 
 		JPanel pnlPrefs = new JPanel();
-		JLabel lblXData = new JLabel("Axis X");
-		JLabel lblYData = new JLabel("Axis Y");
-		JLabel lblZData = new JLabel("Axis Z");
+		pnlPrefs.setLayout(new FlowLayout(FlowLayout.LEADING));
+		JLabel lblXData = new JLabel("X →");
+		JLabel lblYData = new JLabel("Y →");
+		JLabel lblZData = new JLabel("Z →");
 		tfXData = new JTextField("1", 2);
 		tfYData = new JTextField("2", 2);
 		tfZData = new JTextField("3", 2);
 		tfXData.setHorizontalAlignment(JTextField.CENTER);
 		tfYData.setHorizontalAlignment(JTextField.CENTER);
 		tfZData.setHorizontalAlignment(JTextField.CENTER);
-		btnPlot = new JButton("Apply");
+		btnPlot = new JButton("Replot");
 		btnPlot.addActionListener(this);
+		pnlPrefs.add(new JLabel("<html><body><b>Axes:</b></body></html>"));
 		pnlPrefs.add(lblXData);
 		pnlPrefs.add(tfXData);
 		pnlPrefs.add(lblYData);
@@ -161,6 +163,7 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 		scroll.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
 		JPanel pnlEdit = new JPanel();
+		pnlEdit.setLayout(new FlowLayout(FlowLayout.LEADING));
 
 		btnNew = new JButton();
 		btnLoad = new JButton();
@@ -196,6 +199,10 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 		pnlEdit.add(btnColumn);
 		pnlEdit.add(btnRow);
 		pnlEdit.add(btnPrint);
+		
+		pnlPlots.setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 5));
+		pnlPrefs.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+		pnlEdit.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
 		mainPanel.add(pnlPlots);
 		mainPanel.add(pnlPrefs);
@@ -220,9 +227,15 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 		rowNo = dataset.size();
 
 		/* Update the table */
-		Vector<String> headers = new Vector<String>();
+		var headers = new Vector<String>();
 		for (int i = 1; i <= colNo; i++) {
-			headers.add("Column " + i);
+			if (i == pdata.getDataCol1()) {
+				headers.add("X Data");
+			} else if (i == pdata.getDataCol2()) {
+				headers.add("Y Data");
+			} else {
+				headers.add("Column " + i);
+			}
 		}
 
 		model = new DefaultTableModel(dataset, headers);
@@ -230,7 +243,7 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 
 		TableColumnModel columns = table.getColumnModel();
 		for (int i = 0; i < colNo; i++) {
-			columns.getColumn(i).setPreferredWidth(20);
+			columns.getColumn(i).setPreferredWidth(10);
 		}
 
 		pv.log(String.format("Max : %f, Min : %f", pdata.getMax(0), pdata.getMin(0)));
@@ -284,6 +297,8 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 	public int getCol2() {
 		return Integer.parseInt(tfYData.getText());
 	}
+	
+	// TODO Z is missing
 
 	/** @return the number of columns in the dataset */
 	public int getColumnNo() {

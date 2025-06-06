@@ -343,15 +343,19 @@ public class MainFrame extends JFrame {
 			}
 		});
 		
-		// FIXME more embedded magic numbers
-		dbv.setLocation(Plotter.DEFAULT_W + 100, 0);
-		
 		ifrmPlot.add(pv);
 		ifrmLogs.add(getLogger().getComponent());
 		
+		// FIXME magic number
 		odeinput.setLocation(Plotter.DEFAULT_W + 50, 0);
 		odeinput.pack();
 		odeinput.setSize(new Dimension(odeinput.getWidth(), ifrmPlot.getHeight()));
+		
+		// FIXME magic number
+		int dbvX = odeinput.getLocation().x + odeinput.getWidth()/2;
+		dbv.setLocation(dbvX, 0);
+		dbv.pack();
+		dbv.setSize(new Dimension(dbv.getWidth(), ifrmPlot.getHeight()));
 		
 		mainPane.add(ifrmPlot);
 		mainPane.add(odeinput);
