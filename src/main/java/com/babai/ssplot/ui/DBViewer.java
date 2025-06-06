@@ -97,8 +97,11 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 		jcbPlotlist.addActionListener(evt -> {
 			int id = jcbPlotlist.getSelectedIndex();
 			if (id != -1) {
-				PlotData curData = plotlist.get(id);
-				setDataOnly(curData);
+				PlotData pdata = plotlist.get(id);
+				if (pdata != null) {
+					setDataOnly(pdata);
+					applyChanges();
+				}
 			}
 		});
 
@@ -251,10 +254,7 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 				} else {
 					row.add(-1.0);
 				}
-
-				//System.out.format("%d %d\n", i, j);
 			}
-			//System.out.println("Row done");
 			newdataset.add(row);
 		}
 
@@ -414,7 +414,6 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 		pv.log(String.format("Plotting col %d (y axis) vs col %d (x axis).", this.getCol2(), this.getCol1()));
 		pv.clear();
 		pv.setCurPlot(getData());
-//		input.setSystemData(getData().sysData);
 	}
 
 	/**
