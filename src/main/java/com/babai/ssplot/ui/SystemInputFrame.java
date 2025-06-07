@@ -31,7 +31,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Vector;
+import java.util.function.Consumer;
 
 /* A class for drawing phase plot of two simultaneous 1nd order ode. */
 import javax.swing.BorderFactory;
@@ -50,7 +50,7 @@ import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.border.TitledBorder;
 
-import com.babai.ssplot.math.plot.*;
+import com.babai.ssplot.math.plot.PlotData;
 import com.babai.ssplot.math.system.core.EquationSystem;
 import com.babai.ssplot.math.system.core.SystemMode;
 import com.babai.ssplot.math.system.parser.ParserManager;
@@ -68,11 +68,12 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 	private JTextField[] tfs, tfs2, tfs3;
 	private JButton btnOK, btnCancel, btnDF, btnTR, btnCW;
 	private JButton btnTR2;
+	
+	private Consumer<PlotData> updater;
 
 	private SystemMode curMode;
 	private EquationSystem system;
 	private PlotData curData;
-	private UpdateCallback updater;
 
 	public SystemInputFrame() {
 		this.curData = new PlotData();
@@ -92,8 +93,8 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 		var pnlRB = new JPanel();
 		var rbODE = new JRadioButton("Differential Equation", true);
 		var rbIM = new JRadioButton("Difference Equation");
-		var rbFunc = new JRadioButton("1D function");
-		var rbFunc2 = new JRadioButton("2D function");
+		var rbFunc = new JRadioButton("2D function");
+		var rbFunc2 = new JRadioButton("3D function");
 
 		rbODE.addActionListener(e -> {
 			curMode = SystemMode.ODE;
@@ -535,8 +536,9 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 		setData(trjData);
 	}
 
-	public void plotDirectionField(Vector<Vector<Double>> data) {
-		PlotData pdata = new PlotData(data);
+	public void plotDirectionField() {
+		var solver = new Solver(ParserManager.getParser(), getSystem());
+		PlotData pdata = new PlotData(solver.directionField());
 		pdata.setPltype(PlotData.PlotType.VECTORS);
 		pdata.setSystem(getSystem());
 		
@@ -597,58 +599,44 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 			/* Just sets up the System of Equations, but doesn't plot anything */
 			switchStates();
 			updateSystemFromUI();
-
-		} else if (evt.getSource() == btnDF) {
-
-			var solver = new Solver(ParserManager.getParser(), getSystem());
-			plotDirectionField(solver.directionField());
-			updater.update(getData());
-
-		} else if (evt.getSource() == btnTR) {
-
-			switch (curMode) {
-			case FN1:
-				plotFunction();
-				break;
-			default:
-				double x = Double.parseDouble(tfs3[0].getText());
-				double y = Double.parseDouble(tfs3[1].getText());
-				plotTrajectory(x, y);
-				break;
-			}
-			updater.update(getData());
-
-		} else if (evt.getSource() == btnTR2) {
-			switch (curMode) {
-			case FN2:
-				plotFunction2D();
-				break;
-			default:
-				double x = Double.parseDouble(tfs3[0].getText());
-				double y = Double.parseDouble(tfs3[1].getText());
-				double z = Double.parseDouble(tfs3[2].getText());
-
-				plotTrajectory3D(x, y, z);
-			}
-			updater.update(getData());
-
-		} else if (evt.getSource() == btnCW) {
-
-			double x = Double.parseDouble(tfs3[0].getText());
-			plotCobweb(x);
-			updater.update(getData());
-
 		} else if (evt.getSource() == btnCancel) {
 			hide();
+		} else {
+			if (evt.getSource() == btnDF) {
+				plotDirectionField();
+			} else if (evt.getSource() == btnTR) {
+				switch (curMode) {
+				case FN1:
+					plotFunction();
+					break;
+				default:
+					double x = Double.parseDouble(tfs3[0].getText());
+					double y = Double.parseDouble(tfs3[1].getText());
+					plotTrajectory(x, y);
+					break;
+				}
+			} else if (evt.getSource() == btnTR2) {
+				switch (curMode) {
+				case FN2:
+					plotFunction2D();
+					break;
+				default:
+					double x = Double.parseDouble(tfs3[0].getText());
+					double y = Double.parseDouble(tfs3[1].getText());
+					double z = Double.parseDouble(tfs3[2].getText());
+	
+					plotTrajectory3D(x, y, z);
+				}	
+			} else if (evt.getSource() == btnCW) {
+				double x = Double.parseDouble(tfs3[0].getText());
+				plotCobweb(x);
+			}
+			
+			updater.accept(getData());
 		}
 	}
 
-	public void setUpdateCallback(UpdateCallback update) {
+	public void setUpdateCallback(Consumer<PlotData> update) {
 		this.updater = update;
-	}
-
-	@FunctionalInterface
-	interface UpdateCallback {
-		void update(PlotData data);
 	}
 }
