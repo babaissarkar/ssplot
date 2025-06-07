@@ -371,6 +371,7 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 					Double.parseDouble(tfs2[i+1].getText()),
 					Double.parseDouble(tfs2[i+2].getText()));
 			}
+			builder.setMode(curMode);
 			
 			setSystem(builder.build());
 		} catch (Exception e) {
@@ -392,28 +393,30 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 
 	public void setSystem(EquationSystem system) {
 		this.system = system;
+		reloadUI();
 	}
 
 	// Problematic method
-//	private void reloadUI() {
-		// Update UI, changed
-//		if (getSystem() != null) {
-//			curMode = getSystem().getMode();
-//			for (int i = 0; i < 3; i++) {
-//				tfs[i].setText(getSystem().get(i));
-//			}
-//		} else {
-//			curMode = SystemMode.ODE;
-//		}
+	private void reloadUI() {
+		var system = getSystem();
+		if (system != null) {
+			curMode = getSystem().getMode();
+			for (int i = 0; i < 3; i++) {
+				tfs[i].setText(system.get(i));
+			}
+		} else {
+			curMode = SystemMode.ODE;
+		}
 
 		// TODO set other fields except Eqns
-//		if (curMode != null) {
-//			switchStates();
-//			updateInterface();
-//		}
-//	}
+		if (curMode != null) {
+			switchStates();
+			updateInterface();
+		}
+	}
 
 	private void updateInterface() {
+		
 		if (curMode == SystemMode.ODE) {
 			lbls[0].setText("dx/dt =");
 			lbls[1].setText("dy/dt =");
@@ -469,7 +472,7 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 	
 	public void plotTrajectory(double x, double y) {
 		var solver = new Solver(ParserManager.getParser(), getSystem());
-		PlotData trjData;
+		PlotData trjData;		
 		switch (curMode) {
 		case DFE:
 			trjData = new PlotData(solver.iterateMap(x, x));
@@ -480,6 +483,8 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 		}
 		trjData.setPltype(PlotData.PlotType.LINES);
 		trjData.setFgColor(Color.BLACK);
+		
+		trjData.setSystem(getSystem());
 
 		setData(trjData);
 	}
@@ -489,6 +494,8 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 		PlotData pdata = new PlotData(solver.cobweb(x));
 		pdata.setPltype(PlotData.PlotType.LINES);
 		pdata.setFgColor(Color.BLACK);
+		
+		pdata.setSystem(getSystem());
 
 		setData(pdata);
 	}
@@ -498,6 +505,8 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 		PlotData trjData = new PlotData(solver.RK4Iterate3D(x, y, z));
 		trjData.setPltype(PlotData.PlotType.THREED);
 		trjData.setFgColor(Color.BLACK);
+		
+		trjData.setSystem(getSystem());
 
 		setData(trjData);
 	}
@@ -508,6 +517,8 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 		trjData.setPltype(PlotData.PlotType.LINES);
 		trjData.setFgColor(Color.BLACK);
 		trjData.setTitle(String.format("y = %s", tfs[0].getText()));
+		
+		trjData.setSystem(getSystem());
 
 		setData(trjData);
 	}
@@ -518,6 +529,8 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 		trjData.setPltype(PlotData.PlotType.THREED);
 		trjData.setFgColor(Color.BLACK);
 		trjData.setTitle(String.format("z = %s", tfs[0].getText()));
+		
+		trjData.setSystem(getSystem());
 
 		setData(trjData);
 	}
@@ -525,6 +538,8 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 	public void plotDirectionField(Vector<Vector<Double>> data) {
 		PlotData pdata = new PlotData(data);
 		pdata.setPltype(PlotData.PlotType.VECTORS);
+		pdata.setSystem(getSystem());
+		
 		setData(pdata);
 	}
 

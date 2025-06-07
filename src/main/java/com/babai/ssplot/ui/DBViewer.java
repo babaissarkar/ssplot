@@ -430,6 +430,7 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 		pv.log(String.format("Plotting col %d (y axis) vs col %d (x axis).", this.getCol2(), this.getCol1()));
 		pv.clear();
 		pv.setCurPlot(getData());
+		input.setSystem(getData().getSystem());
 	}
 
 	/**

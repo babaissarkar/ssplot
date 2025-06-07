@@ -27,7 +27,14 @@ import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.util.Vector;
 
-/* This class is the Model of MVC pattern.*/
+import com.babai.ssplot.math.system.core.EquationSystem;
+
+
+/**
+ * A data class that contains information about the plot
+ * including the data, the plot properties and the system
+ * of equations.
+ */
 public class PlotData implements Cloneable {
 	public enum PlotType {
 		LINES("Lines"),
@@ -53,6 +60,7 @@ public class PlotData implements Cloneable {
 
 	private Vector<Vector<Double>> data;
 	private Vector<Node> nodes;
+	private EquationSystem system;
 	
 	private PointType pttype;
 	
@@ -118,22 +126,6 @@ public class PlotData implements Cloneable {
 	}
 
 
-	public String getXLabel() {
-		return xlabel;
-	}
-
-	public void setXLabel(String xlabel) {
-		this.xlabel = xlabel;
-	}
-
-	public String getYLabel() {
-		return ylabel;
-	}
-
-	public void setYLabel(String ylabel) {
-		this.ylabel = ylabel;
-	}
-
 	public PlotData() {
 		this(new Vector<Vector<Double>>());
 	}
@@ -148,6 +140,22 @@ public class PlotData implements Cloneable {
 		fgColor2 = Color.BLUE;
 		setDataCols(1, 2);
 		title = "New Data " + System.nanoTime();
+	}
+	
+	public String getXLabel() {
+		return xlabel;
+	}
+
+	public void setXLabel(String xlabel) {
+		this.xlabel = xlabel;
+	}
+
+	public String getYLabel() {
+		return ylabel;
+	}
+
+	public void setYLabel(String ylabel) {
+		this.ylabel = ylabel;
 	}
 
 	public void setTitle(String title) {
@@ -277,5 +285,20 @@ public class PlotData implements Cloneable {
 	 */
 	public void setPointType(PointType pttype) {
 		this.pttype = pttype;
+	}
+
+	/**
+	 * @return the system of equations
+	 */
+	public EquationSystem getSystem() {
+		return system;
+	}
+
+	/**
+	 * Sets the system of equations
+	 * @param system the system to set
+	 */
+	public void setSystem(EquationSystem system) {
+		this.system = system;
 	}
 }
