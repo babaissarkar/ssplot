@@ -82,7 +82,7 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 		updateInterface();
 	}
 
-	public void initInputDialog() {
+	private void initInputDialog() {
 		/* Creating Gui */
 		setTitle("System Parameters");
 		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
@@ -397,7 +397,6 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 		reloadUI();
 	}
 
-	// Problematic method
 	private void reloadUI() {
 		var system = getSystem();
 		if (system != null) {
@@ -411,7 +410,7 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 
 		// TODO set other fields except Eqns
 		if (curMode != null) {
-			switchStates();
+			switchSystemMode();
 			updateInterface();
 		}
 	}
@@ -463,7 +462,55 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 			tfStep.setEditable(false);
 			tfCounts.setEditable(false);
 		}
+	}
+	
 
+	public void switchSystemMode() {
+		switch (curMode) {
+		default:
+			btnDF.setEnabled(true);
+			btnCW.setEnabled(false);
+			btnTR.setEnabled(true);
+			btnTR2.setEnabled(true);
+
+			tfs3[0].setEnabled(true);
+			tfs3[1].setEnabled(true);
+			tfs3[2].setEnabled(true);
+			break;
+
+		case FN1:
+			btnDF.setEnabled(false);
+			btnCW.setEnabled(false);
+			btnTR.setEnabled(true);
+			btnTR2.setEnabled(false);
+
+			tfs3[0].setEnabled(false);
+			tfs3[1].setEnabled(false);
+			tfs3[2].setEnabled(false);
+			break;
+
+		case FN2:
+			btnDF.setEnabled(false);
+			btnCW.setEnabled(false);
+			btnTR.setEnabled(false);
+			btnTR2.setEnabled(true);
+
+			tfs3[0].setEnabled(false);
+			tfs3[1].setEnabled(false);
+			tfs3[2].setEnabled(false);
+			break;
+
+		case DFE:
+			btnDF.setEnabled(false);
+			btnCW.setEnabled(true);
+			btnTR.setEnabled(true);
+			btnTR2.setEnabled(false);
+
+			tfs3[0].setEnabled(true);
+			tfs3[1].setEnabled(true);
+			tfs3[2].setEnabled(false);
+			break;
+		}
 	}
 
 	
@@ -545,59 +592,11 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 		setData(pdata);
 	}
 
-	public void switchStates() {
-		switch (curMode) {
-		default:
-			btnDF.setEnabled(true);
-			btnCW.setEnabled(false);
-			btnTR.setEnabled(true);
-			btnTR2.setEnabled(true);
-
-			tfs3[0].setEnabled(true);
-			tfs3[1].setEnabled(true);
-			tfs3[2].setEnabled(true);
-			break;
-
-		case FN1:
-			btnDF.setEnabled(false);
-			btnCW.setEnabled(false);
-			btnTR.setEnabled(true);
-			btnTR2.setEnabled(false);
-
-			tfs3[0].setEnabled(false);
-			tfs3[1].setEnabled(false);
-			tfs3[2].setEnabled(false);
-			break;
-
-		case FN2:
-			btnDF.setEnabled(false);
-			btnCW.setEnabled(false);
-			btnTR.setEnabled(false);
-			btnTR2.setEnabled(true);
-
-			tfs3[0].setEnabled(false);
-			tfs3[1].setEnabled(false);
-			tfs3[2].setEnabled(false);
-			break;
-
-		case DFE:
-			btnDF.setEnabled(false);
-			btnCW.setEnabled(true);
-			btnTR.setEnabled(true);
-			btnTR2.setEnabled(false);
-
-			tfs3[0].setEnabled(true);
-			tfs3[1].setEnabled(true);
-			tfs3[2].setEnabled(false);
-			break;
-		}
-	}
-
 	@Override
 	public void actionPerformed(ActionEvent evt) {
 		if (evt.getSource() == btnOK) {
 			/* Just sets up the System of Equations, but doesn't plot anything */
-			switchStates();
+			switchSystemMode();
 			updateSystemFromUI();
 		} else if (evt.getSource() == btnCancel) {
 			hide();
