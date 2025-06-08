@@ -74,7 +74,7 @@ public class MainFrame extends JFrame {
 	private final PlotView pv;
 	private final DBViewer dbv;
 	private final SystemInputFrame odeinput;
-	private StatLogger logger;
+	private final StatLogger logger;
 	
 	// FIXME should be a theme-independent way instead of relying on this
 	/* Valid only for default Metal look and feel. */
@@ -119,13 +119,13 @@ public class MainFrame extends JFrame {
 		}
 		
 		// Initialize logger
-		setLogger(new StatLogger());
-		getLogger().log("<h1>Welcome to SSPlot!</h1>");
+		logger = new StatLogger();
+		logger.log("<h1>Welcome to SSPlot!</h1>");
 		
-		plt = new Plotter(getLogger());
+		plt = new Plotter(logger);
 		plt.initPlot();
 		
-		pv = new PlotView(getLogger(), plt);
+		pv = new PlotView(logger, plt);
 		
 		odeinput = new SystemInputFrame();
 		odeinput.setResizable(true);
@@ -250,7 +250,7 @@ public class MainFrame extends JFrame {
 		jmAbout.addActionListener(e -> showAbout());
 		jmKeyHelp.addActionListener(e -> {
 			// Shows help message
-			getLogger().log(KEY_HELP_MSG);
+			logger.log(KEY_HELP_MSG);
 			showMessageDialog(this, "<html>" + KEY_HELP_MSG + "</html>");
 		});
 		
@@ -344,7 +344,7 @@ public class MainFrame extends JFrame {
 		});
 		
 		ifrmPlot.add(pv);
-		ifrmLogs.add(getLogger().getComponent());
+		ifrmLogs.add(logger.getComponent());
 		
 		// FIXME magic number
 		odeinput.setLocation(Plotter.DEFAULT_W + 50, 0);
@@ -410,15 +410,6 @@ public class MainFrame extends JFrame {
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
 	}
 	
-	/* Getters and Setters */
-	public StatLogger getLogger() {
-		return logger;
-	}
-	
-	public void setLogger(StatLogger logger) {
-		this.logger = logger;
-	}
-	
 	/* Menu Actions */
 	public void saveImage() {
 		var files = new JFileChooser();
@@ -462,12 +453,12 @@ public class MainFrame extends JFrame {
 	
 	private void openLink(String url) {
 		if (url.isBlank()) {
-			getLogger().log("Empty link, not opening.");
+			logger.log("Empty link, not opening.");
 			return;
 		}
 		
 		if (!Desktop.isDesktopSupported()) {
-			getLogger().log("Browsing links not supported on this platform!");
+			logger.log("Browsing links not supported on this platform!");
 			return;
 		}
 		
@@ -482,7 +473,7 @@ public class MainFrame extends JFrame {
 	
 	
 	public void showAbout() {
-		getLogger().log(ABOUT_MSG);
+		logger.log(ABOUT_MSG);
 		
 		String[] buttonStrs = {"License", "Close"};
 		int status = showOptionDialog(
