@@ -64,15 +64,15 @@
 			<artifactId>flatlaf-intellij-themes</artifactId>
 			<version>3.2</version>
 		</dependency>
-		<dependency>
-			<groupId>org.mozilla</groupId>
-			<artifactId>rhino</artifactId>
-			<version>1.7.14</version>
-		</dependency>
-		<dependency>
-			<groupId>org.mozilla</groupId>
-			<artifactId>rhino-engine</artifactId>
-			<version>1.7.14</version>
+<!--		<dependency>-->
+<!--			<groupId>org.mozilla</groupId>-->
+<!--			<artifactId>rhino</artifactId>-->
+<!--			<version>1.7.14</version>-->
+<!--		</dependency>-->
+<!--		<dependency>-->
+<!--			<groupId>org.mozilla</groupId>-->
+<!--			<artifactId>rhino-engine</artifactId>-->
+<!--			<version>1.7.14</version>-->
 		</dependency>
 		<!-- JUnit 5 -->
 		<dependency>
@@ -128,8 +128,8 @@
 						<includes>
 							<include>com.formdev:flatlaf</include>
 							<include>com.formdev:flatlaf-intellij-themes</include>
-							<include>org.mozilla:rhino</include>
-							<include>org.mozilla:rhino-engine</include>
+<!--							<include>org.mozilla:rhino</include>-->
+<!--							<include>org.mozilla:rhino-engine</include>-->
 						</includes>
 					</artifactSet>
 					<transformers>
