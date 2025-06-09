@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Vector;
+import java.util.function.Consumer;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -51,6 +52,7 @@ import javax.swing.table.TableColumnModel;
 
 import com.babai.ssplot.math.io.NumParse;
 import com.babai.ssplot.math.plot.PlotData;
+import com.babai.ssplot.util.InfoLogger;
 
 public class DBViewer extends JInternalFrame implements ActionListener {
 	private Vector<PlotData> plotlist;
@@ -63,26 +65,17 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 	private JTable table;
 	private JButton btnPlot;
 
-	private PlotView pv;
-
 	private JButton btnNew, btnLoad, btnSave, btnRow, btnColumn, btnPrint;
 	private JButton btnEditProp;
 	private JTextField tfXData, tfYData, tfZData;
+	
+	private InfoLogger logger;
+	private Consumer<PlotData> updater;
 
-	// TODO
-	@SuppressWarnings("unused")
-	private SystemInputFrame input = null;
-
-	private static PlotData zeroData;
-
-	public DBViewer(SystemInputFrame input, PlotView pv) {
-		this(null, input, pv);
-	}
-
-	public DBViewer(PlotData data, SystemInputFrame input, PlotView pv) {
-		setODEInputFrame(input);
-		setView(pv);
-
+	private static PlotData zeroData = new PlotData();
+	
+	public DBViewer(InfoLogger logger) {
+		this.logger = logger;
 		plotlist = new Vector<PlotData>();
 
 		/* GUI */
@@ -100,7 +93,7 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 				PlotData pdata = plotlist.get(id);
 				if (pdata != null) {
 					setDataOnly(pdata);
-					applyChanges();
+					updateView();
 				}
 			}
 		});
@@ -118,10 +111,10 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 			if (id != -1) {
 				PlotData curData = plotlist.get(id);
 				curData.setTitle(title);
-				updateList();
+				updatePlotList();
 				setDataOnly(curData);
+				updateView();
 			}
-			applyChanges();
 		});
 
 		pnlPlots.add(lblPlots);
@@ -152,10 +145,6 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 
 		table = new JTable();
 		table.setAutoCreateRowSorter(true);
-
-		if (data != null) {
-			setData(data);
-		}
 
 		JScrollPane scroll = new JScrollPane(table,
 				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
@@ -213,9 +202,16 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 		pack();
 	}
 
+	public DBViewer(PlotData data, InfoLogger logger) {
+		this(logger);
+		if (data != null) {
+			setData(data);
+		}
+	}
+	
 	public void setData(PlotData pdata) {
 		plotlist.add(pdata);
-		updateList();
+		updatePlotList();
 		setDataOnly(pdata);
 	}
 
@@ -231,13 +227,13 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 		for (int i = 1; i <= colNo; i++) {
 			if (i == pdata.getDataCol1()) {
 				headers.add("X Data");
-				pv.log(String.format("X Max : %f, Min : %f", pdata.getMax(i-1), pdata.getMin(i-1)));
+				logger.log(String.format("X Max : %f, Min : %f", pdata.getMax(i-1), pdata.getMin(i-1)));
 			} else if (i == pdata.getDataCol2()) {
 				headers.add("Y Data");
-				pv.log(String.format("Y Max : %f, Min : %f", pdata.getMax(i-1), pdata.getMin(i-1)));
+				logger.log(String.format("Y Max : %f, Min : %f", pdata.getMax(i-1), pdata.getMin(i-1)));
 			} else {
 				headers.add("Column " + i);
-				pv.log(String.format("Col %d Max : %f, Min : %f", i, pdata.getMax(i-1), pdata.getMin(i-1)));
+				logger.log(String.format("Col %d Max : %f, Min : %f", i, pdata.getMax(i-1), pdata.getMin(i-1)));
 			}
 		}
 
@@ -253,7 +249,6 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 	// TODO this should return an Optional
 	/** @return the dataset */
 	public PlotData getData() {
-		//PlotData pdata = new PlotData(dataset); /* Needs improvement */
 		var newdataset = new Vector<Vector<Double>>();
 		DefaultTableModel model = (DefaultTableModel) table.getModel();
 
@@ -277,7 +272,7 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 			PlotData curData = plotlist.get(id);
 			curData.setData(newdataset);
 			curData.setDataCols(getCol1(), getCol2());
-			updateList();
+			updatePlotList();
 			jcbPlotlist.setSelectedIndex(id);
 			return curData;
 		} else {
@@ -422,25 +417,16 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 			}
 
 		} else if (evt.getSource() == btnPlot) {
-			applyChanges();
+			updateView();
 		}
 	}
-
-	private void applyChanges() {
-		pv.log(String.format("Plotting col %d (y axis) vs col %d (x axis).", this.getCol2(), this.getCol1()));
-		pv.clear();
-		pv.setCurPlot(getData());
-		input.setSystem(getData().getSystem());
+	
+	private void updateView() {
+		logger.log(String.format("Plotting col %d (y axis) vs col %d (x axis)", this.getCol2(), this.getCol1()));
+		updater.accept(getData());
 	}
 
-	/**
-	 * @param pv the pv to set
-	 */
-	public void setView(PlotView pv) {
-		this.pv = pv;
-	}
-
-	private void updateList() {
+	private void updatePlotList() {
 		jcbPlotlist.removeAllItems();
 		for (PlotData pdata : plotlist) {
 			if (pdata != null) {
@@ -452,11 +438,10 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 
 	public void clear() {
 		plotlist.clear();
-		//		updateList();
 		this.setData(zeroData);
 	}
-
-	public void setODEInputFrame(SystemInputFrame odeinput) {
-		this.input = odeinput;
+	
+	public void setUpdateCallback(Consumer<PlotData> update) {
+		this.updater = update;
 	}
 }

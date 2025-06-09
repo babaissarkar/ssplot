@@ -32,7 +32,7 @@ import java.awt.RenderingHints;
 import java.awt.geom.*;
 import java.awt.image.BufferedImage;
 
-import com.babai.ssplot.ui.StatLogger;
+import com.babai.ssplot.util.InfoLogger;
 
 // TODO should this be moved under `ui` package?
 // or should be made UI independent?
@@ -41,18 +41,18 @@ import com.babai.ssplot.ui.StatLogger;
 public class Canvas {
 	/* This is the view helper */
 	private int W, H; /* Size of image */
-	private BufferedImage img; /* The image */
-	private Graphics2D g;
-	private Color fgColor, bgColor, axesColor, titleColor;
 	private boolean axesVisible = true;
 	private boolean axes3d = false;
 	private int curNoTics = 10;
+	private BufferedImage img; /* The image */
+	private Graphics2D g;
+	private Color fgColor, bgColor, axesColor, titleColor;
 
 	/* Transformation Params */
 	private double scaleFactor;
 	private int dx, dy, moveX, moveY;
 	private Point2D.Double zc = new Point2D.Double(0, 0); /* Center of Zoom */
-	private StatLogger logger;
+	private InfoLogger logger;
 	private String xlbl, ylbl;
 	private Project2D project;
 
@@ -86,7 +86,7 @@ public class Canvas {
 		return g2;
 	}
 
-	public Canvas(int W, int H, StatLogger logger) {
+	public Canvas(int W, int H, InfoLogger logger) {
 		this.logger = logger;
 		this.project = new Project2D(this.logger);
 		initParams();

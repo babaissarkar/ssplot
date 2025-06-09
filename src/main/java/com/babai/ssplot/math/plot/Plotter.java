@@ -32,17 +32,17 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-import com.babai.ssplot.ui.StatLogger;
+import com.babai.ssplot.util.InfoLogger;
 
 public final class Plotter {
 	private Canvas canv;
 	private final Project2D p;
-	private final StatLogger logger;
+	private final InfoLogger logger;
 	private int c1, c2;
 	
 	public static final int DEFAULT_W = 450, DEFAULT_H = 450;
 	
-	public Plotter(StatLogger logger) {
+	public Plotter(InfoLogger logger) {
 		this.logger = logger;
 		p = new Project2D(logger);
 		c1 = 1;

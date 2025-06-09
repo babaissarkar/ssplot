@@ -29,7 +29,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.ScrollPaneConstants;
 
-public class StatLogger {
+import com.babai.ssplot.util.InfoLogger;
+
+public class StatLogger implements InfoLogger {
 	private StringBuffer logs = new StringBuffer();
 	private JTextPane txStatus;
 	private JScrollPane jscroll;

@@ -23,9 +23,9 @@
 
 package com.babai.ssplot.cli;
 
-import com.babai.ssplot.ui.StatLogger;
+import com.babai.ssplot.util.InfoLogger;
 
-public class CLILogger extends StatLogger {
+public class CLILogger implements InfoLogger {
 	
 	public void log(String s) {
 		System.err.println(s);

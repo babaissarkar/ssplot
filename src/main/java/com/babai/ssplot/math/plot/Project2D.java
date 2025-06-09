@@ -26,17 +26,17 @@ package com.babai.ssplot.math.plot;
 import java.awt.geom.Point2D;
 
 import com.babai.ssplot.math.prim.Matrix;
-import com.babai.ssplot.ui.StatLogger;
+import com.babai.ssplot.util.InfoLogger;
 
 public class Project2D {
 	private double a, b, c;
 	private static final double defaultMoveAngle = 10.0;
 	private double moveAngle = Math.toRadians(defaultMoveAngle);
-	private StatLogger logger;
+	private InfoLogger logger;
 	
 	public enum Axis {X, Y, Z, NX, NY, NZ};
 	
-	public Project2D(StatLogger logger) {
+	public Project2D(InfoLogger logger) {
 		this.logger = logger;
 	}
 	

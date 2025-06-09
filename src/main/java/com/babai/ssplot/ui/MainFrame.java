@@ -132,7 +132,7 @@ public class MainFrame extends JFrame {
 		odeinput.setClosable(true);
 		odeinput.setIconifiable(true);
 		
-		dbv = new DBViewer(odeinput, pv);
+		dbv = new DBViewer(logger);
 		dbv.setClosable(true);
 		dbv.setResizable(true);
 		dbv.setIconifiable(true);
@@ -142,6 +142,12 @@ public class MainFrame extends JFrame {
 			pv.setCurPlot(data);
 			pv.setCurPlotType(data.getPltype());
 			dbv.setData(data);
+		});
+		
+		dbv.setUpdateCallback(data -> {
+			pv.clear();
+			pv.setCurPlot(data);
+			odeinput.setSystem(data.getSystem());
 		});
 		
 		// Create GUI
