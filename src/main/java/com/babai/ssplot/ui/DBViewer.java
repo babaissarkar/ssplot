@@ -46,7 +46,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 
@@ -67,7 +66,8 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 
 	private JButton btnNew, btnLoad, btnSave, btnRow, btnColumn, btnPrint;
 	private JButton btnEditProp;
-	private JTextField tfXData, tfYData, tfZData;
+	private JLabel lblZData;
+	private JComboBox<Integer> jcbXData, jcbYData, jcbZData;
 	
 	private InfoLogger logger;
 	private Consumer<PlotData> updater;
@@ -123,24 +123,21 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 
 		JPanel pnlPrefs = new JPanel();
 		pnlPrefs.setLayout(new FlowLayout(FlowLayout.LEADING));
-		JLabel lblXData = new JLabel("X →");
-		JLabel lblYData = new JLabel("Y →");
-		JLabel lblZData = new JLabel("Z →");
-		tfXData = new JTextField("1", 2);
-		tfYData = new JTextField("2", 2);
-		tfZData = new JTextField("3", 2);
-		tfXData.setHorizontalAlignment(JTextField.CENTER);
-		tfYData.setHorizontalAlignment(JTextField.CENTER);
-		tfZData.setHorizontalAlignment(JTextField.CENTER);
+		JLabel lblXData = new JLabel("X → Col");
+		JLabel lblYData = new JLabel("Y → Col");
+		lblZData = new JLabel("Z → Col");
+		jcbXData = new JComboBox<>();
+		jcbYData = new JComboBox<>();
+		jcbZData = new JComboBox<>();
 		btnPlot = new JButton("Replot");
 		btnPlot.addActionListener(this);
 		pnlPrefs.add(new JLabel("<html><body><b>Axes:</b></body></html>"));
 		pnlPrefs.add(lblXData);
-		pnlPrefs.add(tfXData);
+		pnlPrefs.add(jcbXData);
 		pnlPrefs.add(lblYData);
-		pnlPrefs.add(tfYData);
+		pnlPrefs.add(jcbYData);
 		pnlPrefs.add(lblZData);
-		pnlPrefs.add(tfZData);
+		pnlPrefs.add(jcbZData);
 		pnlPrefs.add(btnPlot);
 
 		table = new JTable();
@@ -219,9 +216,11 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 	private void setDataOnly(PlotData pdata) {
 		DefaultTableModel model;
 		dataset = pdata.getData();
-		colNo = dataset.firstElement().size();
-		rowNo = dataset.size();
+		colNo = pdata.getColumnCount();
+		rowNo = pdata.getRowCount();
 
+		populateAxisSelectors(pdata);
+		
 		/* Update the table */
 		var headers = new Vector<String>();
 		for (int i = 1; i <= colNo; i++) {
@@ -236,6 +235,9 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 				logger.log(String.format("Col %d Max : %f, Min : %f", i, pdata.getMax(i-1), pdata.getMin(i-1)));
 			}
 		}
+		
+		lblZData.setEnabled(colNo > 2);
+		jcbZData.setEnabled(colNo > 2);
 
 		model = new DefaultTableModel(dataset, headers);
 		table.setModel(model);
@@ -244,6 +246,22 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 		for (int i = 0; i < colNo; i++) {
 			columns.getColumn(i).setPreferredWidth(10);
 		}
+	}
+
+	private void populateAxisSelectors(PlotData pdata) {
+		jcbXData.removeAllItems();
+		jcbYData.removeAllItems();
+		jcbZData.removeAllItems();
+		
+		for (int i = 1; i <= pdata.getColumnCount(); i++) {
+			jcbXData.addItem(i);
+			jcbYData.addItem(i);
+			jcbZData.addItem(i);
+		}
+		
+		jcbXData.setSelectedItem(pdata.getDataCol1());
+		jcbYData.setSelectedItem(pdata.getDataCol2());
+		jcbZData.setSelectedItem(pdata.getDataCol3());
 	}
 
 	// TODO this should return an Optional
@@ -285,29 +303,27 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 	public int getRowNo() {
 		return rowNo;
 	}
-
-	public int getCol1() {
-		return Integer.parseInt(tfXData.getText());
-	}
-
-	public int getCol2() {
-		return Integer.parseInt(tfYData.getText());
-	}
 	
-	// TODO Z is missing
-
 	/** @return the number of columns in the dataset */
 	public int getColumnNo() {
 		return colNo;
 	}
 
-	public void addListener(ActionListener l) {
-		btnPlot.addActionListener(l);
+	public int getCol1() {
+		return (Integer) jcbXData.getSelectedItem();
+	}
+
+	public int getCol2() {
+		return (Integer) jcbYData.getSelectedItem();
+	}
+	
+	public int getCol3() {
+		return (Integer) jcbZData.getSelectedItem();
 	}
 
 	public void toggleColumnChanger() {
-		tfXData.setEnabled(!tfXData.isEnabled());
-		tfYData.setEnabled(!tfYData.isEnabled());
+		jcbXData.setEnabled(!jcbXData.isEnabled());
+		jcbYData.setEnabled(!jcbYData.isEnabled());
 		btnPlot.setEnabled(!btnPlot.isEnabled());
 	}
 
