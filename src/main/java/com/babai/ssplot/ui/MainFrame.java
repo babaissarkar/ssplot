@@ -125,6 +125,9 @@ public class MainFrame extends JFrame {
 		plt = new Plotter(logger);
 		plt.initPlot();
 		
+		var ifrmPlot = new JInternalFrame("Plot", true, false, true, true);
+		var ifrmLogs = new JInternalFrame("Logs", true, true, true, true);
+		
 		pv = new PlotView(logger, plt);
 		
 		odeinput = new SystemInputFrame();
@@ -142,21 +145,20 @@ public class MainFrame extends JFrame {
 			pv.setCurPlot(data);
 			pv.setCurPlotType(data.getPltype());
 			dbv.setData(data);
+			dbv.show();
 		});
 		
 		dbv.setUpdateCallback(data -> {
 			pv.clear();
 			pv.setCurPlot(data);
 			odeinput.setSystem(data.getSystem());
+			ifrmPlot.show();
 		});
 		
 		// Create GUI
 		
 		setTitle("SSPlot");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
-		var ifrmPlot = new JInternalFrame("Plot", true, false, true, true);
-		var ifrmLogs = new JInternalFrame("Logs", true, true, true, true);
 		
 		// Initialize menu variables
 		var jmOpen = new JMenuItem("From File...");
