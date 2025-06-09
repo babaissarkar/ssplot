@@ -73,7 +73,7 @@ public class PlotData implements Cloneable {
 	 */
 	public int ptX, ptY;
 	
-	private int dataCol1, dataCol2;
+	private int dataCol1, dataCol2, dataCol3;
 	private PlotType pltype;
 	private Color fgColor, fgColor2;
 
@@ -125,21 +125,28 @@ public class PlotData implements Cloneable {
 		return pdata;
 	}
 
-
 	public PlotData() {
 		this(new Vector<Vector<Double>>());
 	}
 
 	public PlotData(Vector<Vector<Double>> extData) {
-		nodes = new Vector<Node>();
 		data = extData;
+		nodes = new Vector<Node>();
 		pltype = PlotType.LINES;
 		setPointType(PointType.SQUARE);
 		ptX = 2; ptY = 2;
 		fgColor = Color.RED;
 		fgColor2 = Color.BLUE;
-		setDataCols(1, 2);
+		setDataCols(1, 2, 3);
 		title = "New Data " + System.nanoTime();
+	}
+	
+	public int getRowCount() {
+		return data.size();
+	}
+	
+	public int getColumnCount() {
+		return data.firstElement().size();
 	}
 	
 	public String getXLabel() {
@@ -208,6 +215,13 @@ public class PlotData implements Cloneable {
 	public int getDataCol2() {
 		return dataCol2;
 	}
+	
+	/**
+	 * @return the second active data column's index
+	 */
+	public int getDataCol3() {
+		return dataCol3;
+	}
 
 	/**
 	 * Set the active data columns
@@ -217,6 +231,17 @@ public class PlotData implements Cloneable {
 	public void setDataCols(int dataCol1, int dataCol2) {
 		this.dataCol1 = dataCol1;
 		this.dataCol2 = dataCol2;
+	}
+	
+	/**
+	 * Set the active data columns
+	 * 
+	 * @param dataCol1, dataCol2, dataCol3 : the dataCols to set
+	 */
+	public void setDataCols(int dataCol1, int dataCol2, int dataCol3) {
+		this.dataCol1 = dataCol1;
+		this.dataCol2 = dataCol2;
+		this.dataCol3 = dataCol3;
 	}
 
 	/**
