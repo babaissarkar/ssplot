@@ -30,6 +30,7 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -113,7 +114,8 @@ public class MainFrame extends JFrame {
 	public MainFrame() {
 		// Set icon
 		try {
-			setIconImage(ImageIO.read(getClass().getResource("/ssplot.png")));
+			BufferedImage img = ImageIO.read(getClass().getResource("/ssplot.png"));
+			setIconImage(img);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
