@@ -244,11 +244,8 @@ public final class Plotter {
 		double Xmin = pdata.getMin(0);
 		double Ymax = pdata.getMax(1);
 		double Ymin = pdata.getMin(1);
-		if ((Ymax-Ymin) > (Xmax-Xmin)) {
-			canv.setScaleFactor(canv.getPlotWidth()/(Ymax - Ymin));
-		} else {
-			canv.setScaleFactor(canv.getPlotWidth()/(Xmax - Xmin));
-		}
+		double maxWidth = Math.max(Ymax-Ymin, Xmax - Xmin);
+		canv.setScaleFactor(canv.getPlotWidth()/maxWidth);
 	}
 	
 	public double getScale() {
@@ -267,11 +264,11 @@ public final class Plotter {
 		return canv;
 	}
 
-    public void save(File outfile) {
-        try {
-            ImageIO.write(getCanvas().getImage(), "png", outfile);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+	public void save(File outfile) {
+		try {
+			ImageIO.write(getCanvas().getImage(), "png", outfile);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 }
