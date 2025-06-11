@@ -25,8 +25,12 @@ package com.babai.ssplot.ui;
 
 import java.awt.Color;
 import java.awt.FlowLayout;
+import java.awt.Toolkit;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.print.PrinterException;
 import java.io.File;
 import java.io.IOException;
@@ -35,6 +39,7 @@ import java.util.Arrays;
 import java.util.Vector;
 import java.util.function.Consumer;
 
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -47,6 +52,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.KeyStroke;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 
@@ -142,9 +148,21 @@ public class DataViewer extends JInternalFrame implements ActionListener {
 		pnlPrefs.add(btnPlot);
 
 		table = new JTable();
+		table.setBorder(BorderFactory.createLineBorder(Color.GRAY));
 		table.setShowGrid(true);
 		table.setGridColor(Color.GRAY);
 		table.setAutoCreateRowSorter(true);
+		// Add paste support from spreadsheet
+		table.getInputMap().put(
+			KeyStroke.getKeyStroke(
+				KeyEvent.VK_V,
+				Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()), "Paste");
+		table.getActionMap().put("Paste", new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				pasteFromClipboard(table);
+			}
+		});
 
 		JScrollPane scroll = new JScrollPane(table,
 				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
@@ -213,6 +231,32 @@ public class DataViewer extends JInternalFrame implements ActionListener {
 		plotlist.add(pdata);
 		updatePlotList();
 		setDataOnly(pdata);
+	}
+	
+	private static void pasteFromClipboard(JTable table) {
+		try {
+			String clipboardText = (String) Toolkit.getDefaultToolkit()
+					.getSystemClipboard()
+					.getData(DataFlavor.stringFlavor);
+
+			int startRow = table.getSelectedRow();
+			int startCol = table.getSelectedColumn();
+
+			String[] rows = clipboardText.split("\n");
+
+			for (int i = 0; i < rows.length; i++) {
+				String[] cells = rows[i].split("\\s+");
+				for (int j = 0; j < cells.length; j++) {
+					int row = startRow + i;
+					int col = startCol + j;
+					if (row < table.getRowCount() && col < table.getColumnCount()) {
+						table.setValueAt(cells[j].trim(), row, col);
+					}
+				}
+			}
+		} catch (UnsupportedFlavorException | IOException ex) {
+			ex.printStackTrace();
+		}
 	}
 
 	/** Show the given plot data in the table */
@@ -348,16 +392,16 @@ public class DataViewer extends JInternalFrame implements ActionListener {
 	}
 
 	public void saveFile() {
-		Vector<Vector<Double>> data = new Vector<Vector<Double>>(); 
+		var data = new Vector<Vector<Double>>(); 
 		for (int i = 0; i < rowNo; i++) {
-			Vector<Double> row = new Vector<Double>();
+			var row = new Vector<Double>();
 			for (int j = 0; j < colNo; j++) {
 				row.add(Double.parseDouble(table.getValueAt(i, j).toString()));
 			}
 			data.add(row);
 		}
 
-		JFileChooser files = new JFileChooser();
+		var files = new JFileChooser();
 		int stat = files.showSaveDialog(this);
 		File f = null;
 		if (stat == JFileChooser.APPROVE_OPTION) {

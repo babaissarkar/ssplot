@@ -250,6 +250,14 @@ public class PlotData implements Cloneable {
 	 * @return            max value among all data in the given column
 	 */
 	public double getMax(int dataCol) {
+		if (this.data.isEmpty()) {
+			return 0.0;
+		}
+		
+		if (this.data.get(0).isEmpty()) {
+			return 0.0;
+		}
+		
 		double max = this.data.get(0).get(dataCol);
 		for (var row : this.data) {
 			max = row.get(dataCol) > max ? row.get(dataCol) : max; 
@@ -263,6 +271,14 @@ public class PlotData implements Cloneable {
 	 * @return            min value among all data in the given column
 	 */
 	public double getMin(int dataCol) {
+		if (this.data.isEmpty()) {
+			return 0.0;
+		}
+		
+		if (this.data.get(0).isEmpty()) {
+			return 0.0;
+		}
+		
 		double min = this.data.get(0).get(dataCol);
 		for (var row : this.data) {
 			min = row.get(dataCol) < min ? row.get(dataCol) : min; 
