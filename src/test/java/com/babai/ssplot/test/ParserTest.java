@@ -29,6 +29,7 @@ class ParserTest {
 	
 	@Test
 	void testAssociativity() {
+		assertEquals(parser.parse("2 / 2 / 2 / 2").evalAt(Map.of()), 0.25, "2 / 2 / 2 / 2 != 0.25");
 		assertEquals(parser.parse("2 + 3 - 4 * 2").evalAt(Map.of()), -3, "2 + 3 - 4 * 2 != -3");
 	}
 	

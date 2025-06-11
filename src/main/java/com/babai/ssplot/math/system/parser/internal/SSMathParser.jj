@@ -136,19 +136,20 @@ TreeNode multStmt() :
 
 TreeNode divStmt() :
 {
-	Token s;
-	Double d = 0.0, d2 = 0.0;
-	TreeNode a;
+	TreeNode a = null;
 	TreeNode b = null;
 }
 {
-	a=unaryStmt() (<DIV> b = unaryStmt())?
+	(a=unaryStmt()) {
+		TreeNode divNode = new TreeNode(TreeOperator.forName("/"));
+		divNode.addChild(a);
+	}
+	(
+		<DIV> (b=unaryStmt()) { divNode.addChild(b); }
+	)*
 	{
 		if (b != null) {
-			TreeNode unaryNode = new TreeNode(TreeOperator.forName("/"));
-			unaryNode.addChild(a);
-			unaryNode.addChild(b);
-			return unaryNode;
+			return divNode;
 		} else {
 			return a;
 		}
