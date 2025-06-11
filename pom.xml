@@ -73,7 +73,7 @@
 <!--			<groupId>org.mozilla</groupId>-->
 <!--			<artifactId>rhino-engine</artifactId>-->
 <!--			<version>1.7.14</version>-->
-		</dependency>
+<!--		</dependency>-->
 		<!-- JUnit 5 -->
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
