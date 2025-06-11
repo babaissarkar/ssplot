@@ -23,6 +23,7 @@
 
 package com.babai.ssplot.ui;
 
+import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -53,7 +54,7 @@ import com.babai.ssplot.math.io.NumParse;
 import com.babai.ssplot.math.plot.PlotData;
 import com.babai.ssplot.util.InfoLogger;
 
-public class DBViewer extends JInternalFrame implements ActionListener {
+public class DataViewer extends JInternalFrame implements ActionListener {
 	private Vector<PlotData> plotlist;
 	private JComboBox<String> jcbPlotlist;
 	public Vector<Vector<Double>> dataset;
@@ -72,9 +73,9 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 	private InfoLogger logger;
 	private Consumer<PlotData> updater;
 
-	private static PlotData zeroData = new PlotData();
+	private static final PlotData zeroData = new PlotData();
 	
-	public DBViewer(InfoLogger logger) {
+	public DataViewer(InfoLogger logger) {
 		this.logger = logger;
 		plotlist = new Vector<PlotData>();
 
@@ -141,6 +142,8 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 		pnlPrefs.add(btnPlot);
 
 		table = new JTable();
+		table.setShowGrid(true);
+		table.setGridColor(Color.GRAY);
 		table.setAutoCreateRowSorter(true);
 
 		JScrollPane scroll = new JScrollPane(table,
@@ -199,7 +202,7 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 		pack();
 	}
 
-	public DBViewer(PlotData data, InfoLogger logger) {
+	public DataViewer(PlotData data, InfoLogger logger) {
 		this(logger);
 		if (data != null) {
 			setData(data);
@@ -239,8 +242,7 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 		lblZData.setEnabled(colNo > 2);
 		jcbZData.setEnabled(colNo > 2);
 
-		model = new DefaultTableModel(dataset, headers);
-		table.setModel(model);
+		table.setModel(new DefaultTableModel(dataset, headers));
 
 		TableColumnModel columns = table.getColumnModel();
 		for (int i = 0; i < colNo; i++) {
@@ -268,7 +270,7 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 	/** @return the dataset */
 	public PlotData getData() {
 		var newdataset = new Vector<Vector<Double>>();
-		DefaultTableModel model = (DefaultTableModel) table.getModel();
+		var model = (DefaultTableModel) table.getModel();
 
 		for (int i = 0; i < model.getRowCount(); i++) {
 			var row = new Vector<Double>();
@@ -279,7 +281,7 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 				} else if (o instanceof String) {
 					row.add(Double.parseDouble((String) model.getValueAt(i, j)));
 				} else {
-					row.add(-1.0);
+					row.add(-1.0); // FIXME why -1.0?
 				}
 			}
 			newdataset.add(row);
@@ -373,24 +375,33 @@ public class DBViewer extends JInternalFrame implements ActionListener {
 
 			String colString = JOptionPane.showInputDialog("No. of columns :");
 			String rowString = JOptionPane.showInputDialog("No. of rows :");
+			String filler    = JOptionPane.showInputDialog("Fill with :");
 			
 			if (colString == null || rowString == null) {
 				return;
 			}
 			
-			int col = Integer.parseInt(colString);
-			int row = Integer.parseInt(rowString);
-			colNo = col;
-			rowNo = row;
-
-			Vector<String> headers = new Vector<String>();
-			for (int i = 1; i <= col; i++) {
-				headers.add("Column " + i);
+			Double fillWith = filler == null ? 0 : Double.parseDouble(filler);
+			
+			colNo = Integer.parseInt(colString);
+			rowNo = Integer.parseInt(rowString);
+			
+			var dataset = new Vector<Vector<Double>>();
+			for (int i = 0; i < rowNo; i++) {
+				var row = new Vector<Double>();
+				for (int j = 0; j < colNo; j++) {
+					row.add(fillWith);
+				}
+				dataset.add(row);
 			}
+			setData(new PlotData(dataset));
 
-			DefaultTableModel model = new DefaultTableModel(headers, row);
-
-			table.setModel(model);
+//			Vector<String> headers = new Vector<String>();
+//			for (int i = 1; i <= colNo; i++) {
+//				headers.add("Column " + i);
+//			}
+//
+//			table.setModel(new DefaultTableModel(headers, rowNo));
 
 		} else if (evt.getSource() == btnLoad) {
 			openFile();

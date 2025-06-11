@@ -72,7 +72,7 @@ public class MainFrame extends JFrame {
 	
 	private final Plotter plt;
 	private final PlotView pv;
-	private final DBViewer dbv;
+	private final DataViewer dbv;
 	private final SystemInputFrame odeinput;
 	private final StatLogger logger;
 	
@@ -135,7 +135,7 @@ public class MainFrame extends JFrame {
 		odeinput.setClosable(true);
 		odeinput.setIconifiable(true);
 		
-		dbv = new DBViewer(logger);
+		dbv = new DataViewer(logger);
 		dbv.setClosable(true);
 		dbv.setResizable(true);
 		dbv.setIconifiable(true);
