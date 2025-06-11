@@ -33,6 +33,15 @@ class ParserTest {
 	}
 	
 	@Test
+	void testPower() {
+		assertEquals(parser.parse("2 ^ 2").evalAt(Map.of()), 4, "2^2 != 4");
+		assertEquals(parser.parse("2 ^ -2").evalAt(Map.of()), 0.25, "2^-2 != 0.25");
+		assertEquals(parser.parse("-2 ^ 2").evalAt(Map.of()), -4, "-2^2 != -4");
+		assertEquals(parser.parse("-2 ^ -2").evalAt(Map.of()), -0.25, "-2^-2 != -0.25");
+		assertEquals(parser.parse("2 ^ -1 ^ -1").evalAt(Map.of()), 0.5, "2^-1^-1 != 0.5");
+	}
+	
+	@Test
 	void testConstants() {
 		assertEquals(parser.parse("pi").evalAt(Map.of()), Math.PI, 1e-10, "pi constant mismatch");
 		assertEquals(parser.parse("e").evalAt(Map.of()), Math.E, 1e-10, "e constant mismatch");

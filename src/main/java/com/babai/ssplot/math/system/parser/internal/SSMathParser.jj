@@ -61,6 +61,8 @@ TreeNode getNode() :
 }
 {
 	root=mathStmt() { return root; }
+	|
+	"debugPrint(" (root=mathStmt()) ")" { System.out.println(root.toString()); return root; }
 }
 
 TreeNode mathStmt() :
@@ -116,12 +118,12 @@ TreeNode multStmt() :
 	TreeNode b = null;
 }
 {
-	(a=divStmt()|a=unaryStmt()) {
+	(a=divStmt()) {
 		TreeNode multNode = new TreeNode(TreeOperator.forName("*"));
 		multNode.addChild(a);
 	}
 	(
-		<TIMES> (b=divStmt()|b=unaryStmt()) { multNode.addChild(b); }
+		<TIMES> (b=divStmt()) { multNode.addChild(b); }
 	)*
 	{
 		if (b != null) {
@@ -140,19 +142,43 @@ TreeNode divStmt() :
 	TreeNode b = null;
 }
 {
-	a=powStmt() (<DIV> b = powStmt())?
+	a=unaryStmt() (<DIV> b = unaryStmt())?
 	{
 		if (b != null) {
-			TreeNode divNode = new TreeNode(TreeOperator.forName("/"));
-			divNode.addChild(a);
-			divNode.addChild(b);
-			return divNode;
+			TreeNode unaryNode = new TreeNode(TreeOperator.forName("/"));
+			unaryNode.addChild(a);
+			unaryNode.addChild(b);
+			return unaryNode;
 		} else {
 			return a;
 		}
 	}
 }
 
+TreeNode unaryStmt() :
+{
+	TreeNode a;
+	int minusCount = 0;
+}
+{
+	(<PLUS>)* a=powStmt() {
+		return a;
+	}
+	|
+	(
+		(<MINUS>) { minusCount++; }
+	)+
+	(a=powStmt()) {
+		if (minusCount % 2 != 0) {
+			TreeNode negNode = new TreeNode(TreeOperator.forName("-"));
+			negNode.addChild(a);
+			return negNode;
+		} else {
+			return a;
+		}
+		minusCount = 1;
+	}
+}
 
 TreeNode powStmt() :
 {
@@ -162,7 +188,7 @@ TreeNode powStmt() :
 	TreeNode b = null;
 }
 {
-	a=unaryStmt() (<POW> b = powStmt())?
+	a=doubleStmt() (<POW> b = unaryStmt())?
 	{
 		if (b != null) {
 			TreeNode powNode = new TreeNode(TreeOperator.forName("^"));
@@ -172,33 +198,6 @@ TreeNode powStmt() :
 		} else {
 			return a;
 		}
-	}
-}
-
-// TODO : function statements
-
-TreeNode unaryStmt() :
-{
-	TreeNode a;
-	int minusCount = 0;
-}
-{
-	(<PLUS>)* a=doubleStmt() {
-		return a;
-	}
-	|
-	(
-		(<MINUS>) { minusCount++; }
-	)+
-	(a=doubleStmt()) {
-		if (minusCount % 2 != 0) {
-			TreeNode negNode = new TreeNode(TreeOperator.forName("-"));
-			negNode.addChild(a);
-			return negNode;
-		} else {
-			return a;
-		}
-		minusCount = 1;
 	}
 }
 
