@@ -46,6 +46,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -87,6 +88,8 @@ public class DataViewer extends JInternalFrame implements ActionListener {
 
 		/* GUI */
 		setTitle("Dataset Viewer");
+		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+		
 		JPanel mainPanel = new JPanel();
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 
