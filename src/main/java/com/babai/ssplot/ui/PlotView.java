@@ -51,46 +51,27 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 	private Plotter plt;
 	private StatLogger logger;
 
-	// Actions
-	private LeftAction move_left = new LeftAction();
-	private RightAction move_right = new RightAction();
-	private UpAction move_up = new UpAction();
-	private DownAction move_down = new DownAction();
-	private ZoomInAction zoom_in = new ZoomInAction();
-	private ZoomOutAction zoom_out = new ZoomOutAction();
-	private SmallZoomInAction szoom_in = new SmallZoomInAction();
-	private SmallZoomOutAction szoom_out = new SmallZoomOutAction();
-
-	private RotAPlusAction rot_a_pos = new RotAPlusAction();
-	private RotAMinusAction rot_a_min = new RotAMinusAction();
-	private RotBPlusAction rot_b_pos = new RotBPlusAction();
-	private RotBMinusAction rot_b_min = new RotBMinusAction();
-	private RotCPlusAction rot_c_pos = new RotCPlusAction();
-	private RotCMinusAction rot_c_min = new RotCMinusAction();
-
 	private boolean overlayMode;
-	private boolean animate;
 	private boolean dragOn;
-	private int frameCounter;
 	private int[] mouseDragStart = {0, 0};
+	private int padding = 0;
+	
+	// TODO add animation controls and make timing customizable
+	private boolean animate;
+	private int frameCounter;
 	private Timer refresher;
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -1906949716987184760L;
+	private int timerInterval = 100;
 
 	public PlotView(StatLogger logger, Plotter plt) {
-
 		this.plt = plt;
-		setLogger(logger);
+		this.logger = logger;
 
 		overlayMode = false;
 		animate = false;
 		dragOn = false;
 
 		frameCounter = 0;
-		// TODO make the time customizable
-		refresher = new Timer(100, e -> updateCanvas());
+		refresher = new Timer(timerInterval, e -> nextAnimationFrame());
 
 		clear();
 
@@ -99,39 +80,23 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 		addMouseMotionListener(this);
 
 		// Setting Keybinding for movement
-		// This temporary avoids too many calls to getInputMap()
-		var inputMap = getInputMap();
-		inputMap.put(KeyStroke.getKeyStroke("LEFT"), "left");
-		inputMap.put(KeyStroke.getKeyStroke("RIGHT"), "right");
-		inputMap.put(KeyStroke.getKeyStroke("UP"), "up");
-		inputMap.put(KeyStroke.getKeyStroke("DOWN"), "down");
-		inputMap.put(KeyStroke.getKeyStroke("J"), "plus");
-		inputMap.put(KeyStroke.getKeyStroke("F"), "minus");
-		inputMap.put(KeyStroke.getKeyStroke("H"), "splus");
-		inputMap.put(KeyStroke.getKeyStroke("G"), "sminus");
-		inputMap.put(KeyStroke.getKeyStroke("Q"), "rotAp");
-		inputMap.put(KeyStroke.getKeyStroke("A"), "rotAm");
-		inputMap.put(KeyStroke.getKeyStroke("W"), "rotBp");
-		inputMap.put(KeyStroke.getKeyStroke("S"), "rotBm");
-		inputMap.put(KeyStroke.getKeyStroke("E"), "rotCp");
-		inputMap.put(KeyStroke.getKeyStroke("D"), "rotCm");
+		// Keybindings for movement and actions
+		bindAction("left",   "LEFT",  this::moveLeft);
+		bindAction("right",  "RIGHT", this::moveRight);
+		bindAction("up",     "UP",    this::moveUp);
+		bindAction("down",   "DOWN",  this::moveDown);
 
-		// This temporary avoids too many calls to getActionMap()
-		var actionMap = getActionMap();
-		actionMap.put("left", move_left);
-		actionMap.put("right", move_right);
-		actionMap.put("up", move_up);
-		actionMap.put("down", move_down);
-		actionMap.put("plus", zoom_in);
-		actionMap.put("minus", zoom_out);
-		actionMap.put("splus", szoom_in);
-		actionMap.put("sminus", szoom_out);
-		actionMap.put("rotAp", rot_a_pos);
-		actionMap.put("rotAm", rot_a_min);
-		actionMap.put("rotBp", rot_b_pos);
-		actionMap.put("rotBm", rot_b_min);
-		actionMap.put("rotCp", rot_c_pos);
-		actionMap.put("rotCm", rot_c_min);
+		bindAction("plus",   "J", this::zoomIn);
+		bindAction("minus",  "F", this::zoomOut);
+		bindAction("splus",  "H", this::smallZoomIn);
+		bindAction("sminus", "G", this::smallZoomOut);
+
+		bindAction("rotAp",  "Q", this::rotateXPlus);
+		bindAction("rotAm",  "A", this::rotateXMinus);
+		bindAction("rotBp",  "W", this::rotateYPlus);
+		bindAction("rotBm",  "S", this::rotateYMinus);
+		bindAction("rotCp",  "E", this::rotateZPlus);
+		bindAction("rotCm",  "D", this::rotateZMinus);
 	}
 
 	@Override
@@ -164,33 +129,33 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 			}
 		}
 
-		g.drawImage(plt.getImage(), 20, 20, null);
+		g.drawImage(plt.getImage(), padding, padding, null);
 	}
 
-	private void updateCanvas() {
+	private void nextAnimationFrame() {
 		frameCounter++;
 		repaint();
 	}
 
-	/*** Get current plots ***/
+	/** Get current plot */
 	public Optional<PlotData> getCurPlot() {
 		return (plots.size() > 0) ? Optional.of(plots.lastElement()) : Optional.empty();
 	}
 
+	/** Sets current plot */
 	public void setCurPlot(PlotData data) {
 		Objects.requireNonNull(data, "(setCurPlot) : null PlotData");
 		plots.add(data);
-		fit();
 	}
 
 	/** Gets current plot type */
 	public Optional<PlotData.PlotType> getCurPlotType() {
 		Optional<PlotData> optCurPlot = getCurPlot();
-		return (optCurPlot.isPresent())
-				? Optional.of(optCurPlot.get().getPltype())
-						: Optional.empty();
+		return optCurPlot.isPresent()
+			? Optional.of(optCurPlot.get().getPltype()) : Optional.empty();
 	}
 
+	/** Sets current plot type */
 	public void setCurPlotType(PlotData.PlotType pltype) {
 		Optional<PlotData> optCurPlot = getCurPlot();
 
@@ -212,6 +177,23 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 		}
 	}
 
+	public void setPadding(int padding) {
+		this.padding = padding;
+	}
+	
+	public int getPadding() {
+		return this.padding;
+	}
+	
+	public double getScale() {
+		return plt.getScale();
+	}
+	
+	public void log(String s) {
+		logger.log(s);
+	}
+	
+	
 	/* Fit to plot size */
 	public void fit() {
 		if (getCurPlot().isPresent()) {
@@ -223,8 +205,6 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 	/* Reset canvas */
 	public void clear() {
 		plots = new Vector<PlotData>();
-		//curPlot = null;
-		//int i = 0;
 		plt.initPlot();
 		repaint();
 	}
@@ -235,144 +215,94 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 		repaint();
 	}
 
-	public void log(String s) {
-		logger.log(s);
-	}
-
-	public void setLogger(StatLogger logger) {
-		this.logger = logger;
-		//plt.setLogger(logger);
-	}
-
 	/* Actions */
-	public class ZoomInAction extends AbstractAction {
-		@Override
-		public void actionPerformed(ActionEvent arg0) {
-			plt.zoomIn(0,0);
-			repaint();
-		}
-	}
-
-	public class ZoomOutAction extends AbstractAction {
-		@Override
-		public void actionPerformed(ActionEvent arg0) {
-			plt.zoomOut(0,0);
-			repaint();
-		}
-	}
-
-	public class SmallZoomInAction extends AbstractAction {
-		@Override
-		public void actionPerformed(ActionEvent arg0) {
-			plt.rescale(plt.getScale() + 1);
-			repaint();
-		}
-	}
-
-	public class SmallZoomOutAction extends AbstractAction {
-		@Override
-		public void actionPerformed(ActionEvent arg0) {
-			if (plt.getScale() > 1) {
-				plt.rescale(plt.getScale() - 1);
+	private void bindAction(String actionName, String hotkey, Runnable action) {
+		getInputMap().put(KeyStroke.getKeyStroke(hotkey), actionName);
+		getActionMap().put(actionName, new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				action.run();
 			}
-			repaint();
-		}
+		});
+	}
+	
+	public void zoomIn() {
+		plt.zoomIn(0,0);
+		repaint();
+	}
+	
+	public void zoomOut() {
+		plt.zoomOut(0,0);
+		repaint();
+	}
+	
+	public void smallZoomIn() {
+		plt.rescale(plt.getScale() + 1);
+		repaint();
 	}
 
-	public class UpAction extends AbstractAction {
-		@Override
-		public void actionPerformed(ActionEvent arg0) {
-			//System.out.println("up");
-			plt.getCanvas().shift(0, -5);
-			repaint();
+	public void smallZoomOut() {
+		if (plt.getScale() > 1) {
+			plt.rescale(plt.getScale() - 1);
 		}
+		repaint();
 	}
 
-	public class DownAction extends AbstractAction {
-		@Override
-		public void actionPerformed(ActionEvent arg0) {
-			//System.out.println("down");
-			plt.getCanvas().shift(0, 5);
-			repaint();
-		}
+	public void moveUp() {
+		plt.getCanvas().shift(0, -5);
+		repaint();
 	}
 
-	public class LeftAction extends AbstractAction {
-		@Override
-		public void actionPerformed(ActionEvent arg0) {
-			//System.out.println("up");
-			plt.getCanvas().shift(5, 0);
-			repaint();
-		}
+	public void moveDown() {
+		plt.getCanvas().shift(0, 5);
+		repaint();
 	}
 
-	public class RightAction extends AbstractAction {
-		@Override
-		public void actionPerformed(ActionEvent arg0) {
-			//System.out.println("down");
-			plt.getCanvas().shift(-5, 0);
-			repaint();
-		}
+	public void moveLeft() {
+		plt.getCanvas().shift(5, 0);
+		repaint();
 	}
 
-	public class RotAPlusAction extends AbstractAction {
-		@Override
-		public void actionPerformed(ActionEvent arg0) {
-			//p.setView(p.a + getMoveAngle(), p.b, p.c);
-			plt.moveView(Project2D.Axis.X);
-
-			repaint();
-		}
+	public void moveRight() {
+		plt.getCanvas().shift(-5, 0);
+		repaint();
 	}
 
-	public class RotAMinusAction extends AbstractAction {
-		@Override
-		public void actionPerformed(ActionEvent arg0) {
-			plt.moveView(Project2D.Axis.NX);
-
-			repaint();
-		}
+	public void rotateXPlus() {
+		plt.moveView(Project2D.Axis.X);
+		repaint();
 	}
 
-	public class RotBPlusAction extends AbstractAction {
-		@Override
-		public void actionPerformed(ActionEvent arg0) {
-			plt.moveView(Project2D.Axis.Y);
-
-			repaint();
-		}
+	public void rotateXMinus() {
+		plt.moveView(Project2D.Axis.NX);
+		repaint();
 	}
 
-	public class RotBMinusAction extends AbstractAction {
-		@Override
-		public void actionPerformed(ActionEvent arg0) {
-			plt.moveView(Project2D.Axis.NY);
-			repaint();
-		}
+	public void rotateYPlus() {
+		plt.moveView(Project2D.Axis.Y);
+		repaint();
 	}
 
-	public class RotCPlusAction extends AbstractAction {
-		@Override
-		public void actionPerformed(ActionEvent arg0) {
-			plt.moveView(Project2D.Axis.Z);
-
-			repaint();
-		}
+	public void rotateYMinus() {
+		plt.moveView(Project2D.Axis.NY);
+		repaint();
 	}
 
-	public class RotCMinusAction extends AbstractAction {
-		@Override
-		public void actionPerformed(ActionEvent arg0) {
-			plt.moveView(Project2D.Axis.NZ);
-
-			repaint();
-		}
+	public void rotateZPlus() {
+		plt.moveView(Project2D.Axis.Z);
+		repaint();
 	}
+
+	public void rotateZMinus() {
+		plt.moveView(Project2D.Axis.NZ);
+		repaint();
+	}
+
 
 	public void toggleOverlayMode() {
 		stopAnimation();
 		overlayMode = !overlayMode;
-
+		
 		log("<b>Overlay mode :</b> " + overlayMode);
 	}
 

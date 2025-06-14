@@ -212,10 +212,6 @@ public class Canvas {
 		g.drawLine(dx+moveX, 0, dx+moveX, H);
 
 		g.setColor(curColor);
-
-		//		log(String.format("moveX : %d, moveY : %d, dx : %d, dy : %d\n", moveX, moveY, dx, dy));
-		//		log(String.format("axis x: %d, %d -> %d, %d\n", 0, dx-moveY, H, dx-moveY));
-		//		log(String.format("axis y: %d, %d -> %d, %d\n", dy+moveX, 0, dy+moveX, W));
 	}
 
 	/* Draw tics along the axes */
@@ -359,7 +355,6 @@ public class Canvas {
 
 	public void setScaleFactor(double scaleFactor) {
 		this.scaleFactor = scaleFactor;
-		//System.out.println("Zoom : " + getScaleFactor() + " x");
 		log("Zoom : " + getScaleFactor() + " x");
 	}
 

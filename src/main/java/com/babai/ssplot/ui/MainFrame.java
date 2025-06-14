@@ -42,12 +42,15 @@ import java.util.Properties;
 import javax.imageio.ImageIO;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JColorChooser;
+import javax.swing.JComboBox;
 import javax.swing.JDesktopPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -55,6 +58,8 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
@@ -77,10 +82,6 @@ public class MainFrame extends JFrame {
 	private final DataViewer dbv;
 	private final SystemInputFrame odeinput;
 	private final StatLogger logger;
-	
-	// FIXME should be a theme-independent way instead of relying on this
-	/* Valid only for default Metal look and feel. */
-	private static final int MENUBAR_WIDTH = 60;
 	
 	// Note: html string does not show up correctly in JOptionPane
 	// unless the \n -> <br/> replacement is done.
@@ -132,6 +133,7 @@ public class MainFrame extends JFrame {
 		var ifrmLogs = new JInternalFrame("Logs", true, true, true, true);
 		
 		pv = new PlotView(logger, plt);
+		pv.setPadding(10);
 		
 		odeinput = new SystemInputFrame();
 		odeinput.setResizable(true);
@@ -143,20 +145,6 @@ public class MainFrame extends JFrame {
 		dbv.setResizable(true);
 		dbv.setIconifiable(true);
 		dbv.setMaximizable(true);
-		
-		odeinput.setUpdateCallback(data -> {
-			pv.setCurPlot(data);
-			pv.setCurPlotType(data.getPltype());
-			dbv.setData(data);
-			dbv.show();
-		});
-		
-		dbv.setUpdateCallback(data -> {
-			pv.clear();
-			pv.setCurPlot(data);
-			odeinput.setSystem(data.getSystem());
-			ifrmPlot.show();
-		});
 		
 		// Create GUI
 		
@@ -214,6 +202,7 @@ public class MainFrame extends JFrame {
 		jmOpen.addActionListener(e -> {
 			if (dbv.openFile()) {
 				pv.setCurPlot(dbv.getData());
+				pv.fit();
 			}
 		});
 		jmSaveImage.addActionListener(e -> saveImage());
@@ -346,15 +335,106 @@ public class MainFrame extends JFrame {
 		var mainPane = new JDesktopPane();
 		mainPane.setDragMode(JDesktopPane.OUTLINE_DRAG_MODE);
 		
-		ifrmPlot.setSize(Plotter.DEFAULT_W + 50, Plotter.DEFAULT_H + 80);
+		ifrmPlot.setSize(Plotter.DEFAULT_W + 35, Plotter.DEFAULT_H + 100);
 		ifrmPlot.addComponentListener(new ComponentAdapter() {
 			public void componentResized(ComponentEvent ce) {
 				// FIXME more embedded magic numbers
-				pv.resize(ifrmPlot.getWidth() - 50, ifrmPlot.getHeight() - 50 - MENUBAR_WIDTH);
+				pv.resize(ifrmPlot.getWidth() - 35, ifrmPlot.getHeight() - 100);
 			}
 		});
 		
-		ifrmPlot.add(pv);
+		JToolBar toolbar = new JToolBar();
+		
+		// --- Zoom Section ---
+		JButton zoomInBtn = new JButton(new ImageIcon(getClass().getResource("/zoom-in.png")));
+		JTextField zoomField = new JTextField("1", 5);
+		JLabel zoomLabel = new JLabel(" X");
+		JButton zoomOutBtn = new JButton(new ImageIcon(getClass().getResource("/zoom-out.png")));
+		
+		// disable growing
+		zoomField.setMaximumSize(zoomField.getPreferredSize());
+		
+		zoomInBtn.setToolTipText("Zoom In (x2)");
+		zoomOutBtn.setToolTipText("Zoom In (x0.5)");
+		
+		zoomInBtn.addActionListener(e -> {
+			zoomField.setText(String.format("%3.1f", pv.getScale()));
+			pv.zoomIn();
+		});
+		zoomOutBtn.addActionListener(e -> {
+			zoomField.setText(String.format("%3.1f", pv.getScale()));
+			pv.zoomOut();
+		});
+		
+		toolbar.add(zoomInBtn);
+		toolbar.add(zoomField);
+		toolbar.add(zoomLabel);
+		toolbar.add(zoomOutBtn);
+
+		// --- Separator ---
+		toolbar.addSeparator(new Dimension(10, 0));
+
+		// --- Rotation Section ---
+		JButton rotateCWBtn = new JButton(new ImageIcon(getClass().getResource("/rotate-cw.png")));
+		JComboBox<String> axisSelector = new JComboBox<>(new String[]{"X", "Y", "Z"});
+		// disable growing
+		axisSelector.setMaximumSize(axisSelector.getPreferredSize());
+		JButton rotateCCWBtn = new JButton(new ImageIcon(getClass().getResource("/rotate-ccw.png")));
+		
+		rotateCWBtn.setToolTipText("Rotate Clockwise");
+		rotateCCWBtn.setToolTipText("Rotate Counter-clockwise");
+		
+		rotateCCWBtn.addActionListener(e -> {
+			String axis = (String) axisSelector.getSelectedItem();
+			if (axis.equals("X")) {
+				pv.rotateXPlus();
+			} else if (axis.equals("Y")) {
+				pv.rotateYPlus();
+			} else {
+				pv.rotateZPlus();
+			}
+		});
+		rotateCWBtn.addActionListener(e -> {
+			String axis = (String) axisSelector.getSelectedItem();
+			if (axis.equals("X")) {
+				pv.rotateXMinus();
+			} else if (axis.equals("Y")) {
+				pv.rotateYMinus();
+			} else {
+				pv.rotateZMinus();
+			}
+		});
+
+		toolbar.add(rotateCWBtn);
+		toolbar.add(new JLabel("Axis:"));
+		toolbar.add(axisSelector);
+		toolbar.add(rotateCCWBtn);
+		
+		toolbar.setFloatable(false);
+		toolbar.setRollover(true);
+
+		ifrmPlot.add(toolbar, BorderLayout.NORTH);
+		ifrmPlot.add(pv, BorderLayout.CENTER);
+		
+		odeinput.setUpdateCallback(data -> {
+			pv.setCurPlot(data);
+			pv.setCurPlotType(data.getPltype());
+			pv.fit();
+			zoomField.setText(String.format("%3.1f", pv.getScale()));
+			axisSelector.setEnabled(data.getColumnCount() >= 3);
+			dbv.setData(data);
+			dbv.show();
+		});
+		
+		dbv.setUpdateCallback(data -> {
+			pv.setCurPlot(data);
+			pv.fit();
+			zoomField.setText(String.format("%3.1f", pv.getScale()));
+			axisSelector.setEnabled(data.getColumnCount() >= 3);
+			odeinput.setSystem(data.getSystem());
+			ifrmPlot.show();
+		});
+		
 		ifrmLogs.add(logger.getComponent());
 		
 		// FIXME magic number
