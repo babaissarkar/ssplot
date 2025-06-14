@@ -57,6 +57,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
+import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
 
 import com.babai.ssplot.cli.SSPlotCLI;
@@ -163,7 +164,7 @@ public class MainFrame extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		// Initialize menu variables
-		var jmOpen = new JMenuItem("From File...");
+		var jmOpen = new JMenuItem("Load Data from File...");
 		var jmSetupEqn = new JMenuItem("From Equation...");
 		var jmSaveData = new JMenuItem("Save Data...");
 		var jmSaveImage = new JMenuItem("Save Image...");
@@ -474,13 +475,10 @@ public class MainFrame extends JFrame {
 		
 		try {
 			Desktop.getDesktop().browse(new URI(url));
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
+		} catch (URISyntaxException|IOException e) {
 			e.printStackTrace();
 		}
 	}
-	
 	
 	public void showAbout() {
 		logger.log(ABOUT_MSG);
@@ -528,6 +526,12 @@ public class MainFrame extends JFrame {
 		UIManager.put("TabbedPane.hoverForeground", Color.BLACK);
 		UIManager.put("Button.arc", 20);
 		UIManager.put("TextComponent.arc", 50);
+
+		// Reduce tooltip times so user gets quick feedback
+		var tooltipManager = ToolTipManager.sharedInstance();
+		tooltipManager.setInitialDelay(50);
+		tooltipManager.setDismissDelay(5000);
+		tooltipManager.setReshowDelay(100);
 		
 		new MainFrame().setVisible(true);
 	}
