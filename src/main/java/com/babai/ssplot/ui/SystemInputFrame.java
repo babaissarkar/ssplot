@@ -66,8 +66,8 @@ import com.babai.ssplot.math.system.solver.Solver;
 public class SystemInputFrame extends JInternalFrame implements ActionListener {
 
 	private JLabel[] lblsEquations;
-	private JTextField tfCounts, tfStep;
-	private JTextField[] tfsEquations, tfsRange, tfsSolnPoint;
+	private CenteredField tfCounts, tfStep;
+	private CenteredField[] tfsEquations, tfsRange, tfsSolnPoint;
 	private JButton btnOK, btnCancel, btnDF, btnCW;
 	private JButton btnPlot2D, btnPlot3D;
 	
@@ -137,9 +137,9 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 		gbc.fill = GridBagConstraints.NONE;
 
 		var lblCounts = new JLabel("Iteration count");
-		tfCounts = new JTextField("" + EquationSystem.DEFAULT_N, 6);
+		tfCounts = new CenteredField("" + EquationSystem.DEFAULT_N, 6);
 		var lblStep = new JLabel("Iteration stepsize");
-		tfStep = new JTextField("" + EquationSystem.DEFAULT_H, 6);
+		tfStep = new CenteredField("" + EquationSystem.DEFAULT_H, 6);
 
 		gbc.gridx = 0;
 		gbc.gridy = 0;
@@ -179,10 +179,10 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 				new JLabel("Equation 3")
 		};
 
-		tfsEquations = new JTextField[] {
-				new JTextField(10),
-				new JTextField(10),
-				new JTextField(10)
+		tfsEquations = new CenteredField[] {
+				new CenteredField(10),
+				new CenteredField(10),
+				new CenteredField(10)
 		};
 
 		gbc = new GridBagConstraints();
@@ -217,6 +217,7 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 		var pnlRange = new JPanel(new GridBagLayout());
 		
 		final String sub_markup = "<html><body>%s<sub>%s</sub></body></html>";
+		final String small_markup = "<html><body style='font-size:12'>%s</body></html>";
 		final String[] axes = {"X", "Y", "Z"};
 		final String[] tags = {"min", "max", "step"};
 		final double[] rangeAsArray = {
@@ -226,13 +227,11 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 		};
 
 		JLabel[] lbls2 = new JLabel[axes.length * tags.length];
-		tfsRange = new JTextField[axes.length * tags.length];
+		tfsRange = new CenteredField[axes.length * tags.length];
 
 		for (int i = 0; i < lbls2.length; i++) {
 			lbls2[i] = new JLabel(sub_markup.formatted(axes[i / 3], tags[i % 3]));
-			tfsRange[i] = new JTextField(5);
-			tfsRange[i].setHorizontalAlignment(JTextField.CENTER);
-			tfsRange[i].setFont(new Font("monospace", Font.PLAIN, 14));
+			tfsRange[i] = new CenteredField(5);
 			tfsRange[i].setText("" + rangeAsArray[i % 3]);
 		}
 
@@ -289,13 +288,11 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 		var pnlSolnInput = new JPanel();
 		pnlSolnInput.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
 		JLabel[] lbls3 = new JLabel[axes.length];
-		tfsSolnPoint = new JTextField[axes.length];
+		tfsSolnPoint = new CenteredField[axes.length];
 		for (int i = 0; i < tfsSolnPoint.length; i++) {
-			lbls3[i] = new JLabel(axes[i]);
-			tfsSolnPoint[i] = new JTextField(3);
+			lbls3[i] = new JLabel(String.format(small_markup, axes[i]));
+			tfsSolnPoint[i] = new CenteredField(3);
 			tfsSolnPoint[i].setEnabled(false);
-			tfsSolnPoint[i].setHorizontalAlignment(JTextField.CENTER);
-			tfsSolnPoint[i].setFont(new Font("monospace", Font.PLAIN, 14));
 			pnlSolnInput.add(lbls3[i]);
 			pnlSolnInput.add(tfsSolnPoint[i]);
 		}
@@ -330,16 +327,6 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 		pnlButton2.add(btnOK);
 		pnlButton2.add(btnCancel);
 
-		for (int i = 0; i < tfsEquations.length; i++) {
-			tfsEquations[i].setHorizontalAlignment(JTextField.CENTER);
-			tfsEquations[i].setFont(new Font("monospace", Font.PLAIN, 14));
-		}
-		
-		tfCounts.setHorizontalAlignment(JTextField.CENTER);
-		tfCounts.setFont(new Font("monospace", Font.PLAIN, 14));
-		tfStep.setHorizontalAlignment(JTextField.CENTER);
-		tfStep.setFont(new Font("monospace", Font.PLAIN, 14));
-
 		var tools = new JToolBar("Plot Tools");
 		tools.add(pnlButton);
 		tools.add(pnlSolnMain);
@@ -356,6 +343,23 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 			JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 			JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		add(sp);
+	}
+	
+	private class CenteredField extends JTextField {
+		private static final Font monoFont =
+			new Font("monospace", Font.PLAIN, 14);
+		
+		public CenteredField(int count) {
+			super(count);
+			setFont(monoFont);
+			setHorizontalAlignment(JTextField.CENTER);
+		}
+		
+		public CenteredField(String text, int count) {
+			super(text, count);
+			setFont(monoFont);
+			setHorizontalAlignment(JTextField.CENTER);
+		}
 	}
 
 	private void updateSystemFromUI() {
