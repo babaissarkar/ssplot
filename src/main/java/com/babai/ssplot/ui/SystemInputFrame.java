@@ -298,7 +298,7 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 		}
 		var pnlSolnMain = new JPanel();
 		pnlSolnMain.setLayout(new BorderLayout());
-		pnlSolnMain.add(new JLabel("Solution Point"), BorderLayout.NORTH);
+		pnlSolnMain.add(new JLabel("Solve At:"), BorderLayout.NORTH);
 		pnlSolnMain.add(pnlSolnInput);
 
 		btnDF = new JButton();
