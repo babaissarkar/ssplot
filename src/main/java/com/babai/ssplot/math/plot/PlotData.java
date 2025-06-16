@@ -146,7 +146,7 @@ public class PlotData implements Cloneable {
 	}
 	
 	public int getColumnCount() {
-		return data.firstElement().size();
+		return getRowCount() > 0 ? data.firstElement().size() : 0;
 	}
 	
 	public String getXLabel() {
