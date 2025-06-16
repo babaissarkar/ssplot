@@ -29,7 +29,6 @@ import java.util.Vector;
 
 import com.babai.ssplot.math.system.core.EquationSystem;
 
-
 /**
  * A data class that contains information about the plot
  * including the data, the plot properties and the system

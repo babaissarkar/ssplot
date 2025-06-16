@@ -23,6 +23,7 @@
 
 package com.babai.ssplot.ui;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -43,6 +44,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
@@ -66,8 +68,8 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 	private JLabel[] lblsEquations;
 	private JTextField tfCounts, tfStep;
 	private JTextField[] tfsEquations, tfsRange, tfsSolnPoint;
-	private JButton btnOK, btnCancel, btnDF, btnTR, btnCW;
-	private JButton btnTR2;
+	private JButton btnOK, btnCancel, btnDF, btnCW;
+	private JButton btnPlot2D, btnPlot3D;
 	
 	private Consumer<PlotData> updater;
 
@@ -270,20 +272,22 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 		// Plot Buttons
 		var pnlButton = new JPanel();
 		pnlButton.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
-		btnTR = new JButton();
-		btnTR2 = new JButton();
-		btnTR.setToolTipText("Draw 2d plot");
-		btnTR2.setToolTipText("Draw 3d plot");
-		btnTR.setIcon(new ImageIcon(getClass().getResource("/2d.png")));
-		btnTR2.setIcon(new ImageIcon(getClass().getResource("/3d.png")));
-		btnTR.setEnabled(false);
-		btnTR2.setEnabled(false);
-		btnTR.addActionListener(this);
-		btnTR2.addActionListener(this);
-		pnlButton.add(btnTR);
-		pnlButton.add(btnTR2);
+		btnPlot2D = new JButton();
+		btnPlot3D = new JButton();
+		btnPlot2D.setToolTipText("Draw 2d plot");
+		btnPlot3D.setToolTipText("Draw 3d plot");
+		btnPlot2D.setIcon(new ImageIcon(getClass().getResource("/2d.png")));
+		btnPlot3D.setIcon(new ImageIcon(getClass().getResource("/3d.png")));
+		btnPlot2D.setEnabled(false);
+		btnPlot3D.setEnabled(false);
+		btnPlot2D.addActionListener(this);
+		btnPlot3D.addActionListener(this);
+		pnlButton.add(btnPlot2D);
+		pnlButton.add(btnPlot3D);
 		
 		// Point of Solution labels and textfields
+		var pnlSolnInput = new JPanel();
+		pnlSolnInput.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
 		JLabel[] lbls3 = new JLabel[axes.length];
 		tfsSolnPoint = new JTextField[axes.length];
 		for (int i = 0; i < tfsSolnPoint.length; i++) {
@@ -292,9 +296,13 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 			tfsSolnPoint[i].setEnabled(false);
 			tfsSolnPoint[i].setHorizontalAlignment(JTextField.CENTER);
 			tfsSolnPoint[i].setFont(new Font("monospace", Font.PLAIN, 14));
-			pnlButton.add(lbls3[i]);
-			pnlButton.add(tfsSolnPoint[i]);
+			pnlSolnInput.add(lbls3[i]);
+			pnlSolnInput.add(tfsSolnPoint[i]);
 		}
+		var pnlSolnMain = new JPanel();
+		pnlSolnMain.setLayout(new BorderLayout());
+		pnlSolnMain.add(new JLabel("Solution Point"), BorderLayout.NORTH);
+		pnlSolnMain.add(pnlSolnInput);
 
 		btnDF = new JButton();
 		btnCW = new JButton();
@@ -334,6 +342,7 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 
 		var tools = new JToolBar("Plot Tools");
 		tools.add(pnlButton);
+		tools.add(pnlSolnMain);
 		tools.add(pnlButton2);
 
 		pnlMain.add(tools);
@@ -362,7 +371,12 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 				builder.setStepSize(Double.parseDouble(input));
 			}
 			
-			for (int i = 0; i < EquationSystem.DIM; i++) {
+			int noOfEqns = noOfEqns();
+			if (noOfEqns < 2) {
+				return;
+			}
+			
+			for (int i = 0; i < noOfEqns; i++) {
 				builder.addEquation(tfsEquations[i].getText());
 				builder.addRange(
 					Double.parseDouble(tfsRange[3*i].getText()),
@@ -376,12 +390,29 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 			e.printStackTrace();
 		}
 	}
+	
+	private int noOfEqns() {
+		int noOfEqns = 0;
+		// We need the first two eqns at minimum
+		boolean hasEqns =
+			!tfsEquations[0].getText().isEmpty()
+			&& !tfsEquations[1].getText().isEmpty();
+		
+		if (hasEqns) {
+			noOfEqns = 2;
+			// Optional 3rd eqn
+			if (!tfsEquations[2].getText().isEmpty()) {
+				noOfEqns = 3;
+			}
+		}
+		return noOfEqns;
+	}
 
 	private void reloadUI() {
 		var system = getSystem();
 		if (system != null) {
 			curMode = getSystem().getMode();
-			for (int i = 0; i < 3; i++) {
+			for (int i = 0; i < noOfEqns(); i++) {
 				tfsEquations[i].setText(system.get(i));
 			}
 		} else {
@@ -443,24 +474,34 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 		}
 	}
 
-	public void switchSystemMode() {
+	private void switchSystemMode() {
 		switch (curMode) {
 		default:
-			btnDF.setEnabled(true);
-			btnCW.setEnabled(false);
-			btnTR.setEnabled(true);
-			btnTR2.setEnabled(true);
-
-			tfsSolnPoint[0].setEnabled(true);
-			tfsSolnPoint[1].setEnabled(true);
-			tfsSolnPoint[2].setEnabled(true);
+			int noOfEqns = noOfEqns();
+			if (noOfEqns >= 2) {
+				if (noOfEqns == 3) {
+					btnPlot3D.setEnabled(true);
+				} else {
+					btnPlot2D.setEnabled(true);
+				}
+				btnDF.setEnabled(true);
+				btnCW.setEnabled(false);
+				tfsSolnPoint[0].setEnabled(true);
+				tfsSolnPoint[1].setEnabled(true);
+				tfsSolnPoint[2].setEnabled(true);
+				
+				tfsSolnPoint[0].requestFocusInWindow();
+			} else {
+				JOptionPane.showMessageDialog(this, "Not enough equations!", "Invalid Input", JOptionPane.ERROR_MESSAGE);
+			}
+			
 			break;
 
 		case FN1:
 			btnDF.setEnabled(false);
 			btnCW.setEnabled(false);
-			btnTR.setEnabled(true);
-			btnTR2.setEnabled(false);
+			btnPlot2D.setEnabled(true);
+			btnPlot3D.setEnabled(false);
 
 			tfsSolnPoint[0].setEnabled(false);
 			tfsSolnPoint[1].setEnabled(false);
@@ -470,8 +511,8 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 		case FN2:
 			btnDF.setEnabled(false);
 			btnCW.setEnabled(false);
-			btnTR.setEnabled(false);
-			btnTR2.setEnabled(true);
+			btnPlot2D.setEnabled(false);
+			btnPlot3D.setEnabled(true);
 
 			tfsSolnPoint[0].setEnabled(false);
 			tfsSolnPoint[1].setEnabled(false);
@@ -481,12 +522,14 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 		case DFE:
 			btnDF.setEnabled(false);
 			btnCW.setEnabled(true);
-			btnTR.setEnabled(true);
-			btnTR2.setEnabled(false);
+			btnPlot2D.setEnabled(true);
+			btnPlot3D.setEnabled(false);
 
 			tfsSolnPoint[0].setEnabled(true);
 			tfsSolnPoint[1].setEnabled(true);
 			tfsSolnPoint[2].setEnabled(false);
+			
+			tfsSolnPoint[0].requestFocusInWindow();
 			break;
 		}
 	}
@@ -553,7 +596,7 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 		setData(trjData);
 	}
 
-	public void plotFunction() {
+	public void plotFunction2D() {
 		var solver = new Solver(ParserManager.getParser(), getSystem());
 		PlotData trjData = new PlotData(solver.functionData());
 		trjData.setPltype(PlotData.PlotType.LINES);
@@ -565,7 +608,7 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 		setData(trjData);
 	}
 
-	public void plotFunction2D() {
+	public void plotFunction3D() {
 		var solver = new Solver(ParserManager.getParser(), getSystem());
 		PlotData trjData = new PlotData(solver.functionData2D());
 		trjData.setPltype(PlotData.PlotType.THREED);
@@ -589,40 +632,68 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent evt) {
 		if (evt.getSource() == btnOK) {
-			/* Just sets up the System of Equations, but doesn't plot anything */
+			// Sets up the System of Equations and validates,
+			// but doesn't plot anything
 			switchSystemMode();
 			updateSystemFromUI();
 		} else if (evt.getSource() == btnCancel) {
+			// FIXME intuitively this should clear all fields instead of hiding this frame
 			hide();
 		} else {
 			if (evt.getSource() == btnDF) {
 				plotDirectionField();
-			} else if (evt.getSource() == btnTR) {
+			} else if (evt.getSource() == btnPlot2D) {
 				switch (curMode) {
 				case FN1:
-					plotFunction();
-					break;
-				default:
-					double x = Double.parseDouble(tfsSolnPoint[0].getText());
-					double y = Double.parseDouble(tfsSolnPoint[1].getText());
-					plotTrajectory(x, y);
-					break;
-				}
-			} else if (evt.getSource() == btnTR2) {
-				switch (curMode) {
-				case FN2:
 					plotFunction2D();
 					break;
 				default:
-					double x = Double.parseDouble(tfsSolnPoint[0].getText());
-					double y = Double.parseDouble(tfsSolnPoint[1].getText());
-					double z = Double.parseDouble(tfsSolnPoint[2].getText());
-	
-					plotTrajectory3D(x, y, z);
+					boolean hasValidPoint =
+						!tfsSolnPoint[0].getText().isEmpty()
+						&& !tfsSolnPoint[1].getText().isEmpty();
+					
+					if (hasValidPoint) {
+						double x = Double.parseDouble(tfsSolnPoint[0].getText());
+						double y = Double.parseDouble(tfsSolnPoint[1].getText());
+						plotTrajectory(x, y);
+					} else {
+						JOptionPane.showMessageDialog(this, "Enter a solution point!", "Invalid Input", JOptionPane.ERROR_MESSAGE);
+						tfsSolnPoint[0].requestFocusInWindow();
+						return;
+					}
+					break;
+				}
+			} else if (evt.getSource() == btnPlot3D) {
+				switch (curMode) {
+				case FN2:
+					plotFunction3D();
+					break;
+				default:
+					boolean hasValidPoint =
+						!tfsSolnPoint[0].getText().isEmpty()
+						&& !tfsSolnPoint[1].getText().isEmpty()
+						&& !tfsSolnPoint[2].getText().isEmpty();
+					
+					if (hasValidPoint) {
+						double x = Double.parseDouble(tfsSolnPoint[0].getText());
+						double y = Double.parseDouble(tfsSolnPoint[1].getText());
+						double z = Double.parseDouble(tfsSolnPoint[2].getText());
+						plotTrajectory3D(x, y, z);
+					} else {
+						JOptionPane.showMessageDialog(this, "Enter a solution point!", "Invalid Input", JOptionPane.ERROR_MESSAGE);
+						tfsSolnPoint[0].requestFocusInWindow();
+						return;
+					}
 				}	
 			} else if (evt.getSource() == btnCW) {
-				double x = Double.parseDouble(tfsSolnPoint[0].getText());
-				plotCobweb(x);
+				if (!tfsSolnPoint[0].getText().isEmpty()) {
+					double x = Double.parseDouble(tfsSolnPoint[0].getText());
+					plotCobweb(x);
+				} else {
+					JOptionPane.showMessageDialog(this, "Enter a solution point!", "Invalid Input", JOptionPane.ERROR_MESSAGE);
+					tfsSolnPoint[0].requestFocusInWindow();
+					return;
+				}
 			}
 			
 			updater.accept(getData());
