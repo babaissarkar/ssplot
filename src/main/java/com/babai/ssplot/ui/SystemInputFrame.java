@@ -368,9 +368,9 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 			for (int i = 0; i < EquationSystem.DIM; i++) {
 				builder.addEquation(tfs[i].getText());
 				builder.addRange(
-					Double.parseDouble(tfs2[i].getText()),
-					Double.parseDouble(tfs2[i+1].getText()),
-					Double.parseDouble(tfs2[i+2].getText()));
+					Double.parseDouble(tfs2[3*i].getText()),
+					Double.parseDouble(tfs2[3*i+1].getText()),
+					Double.parseDouble(tfs2[3*i+2].getText()));
 			}
 			builder.setMode(curMode);
 			
@@ -378,23 +378,6 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-
-	private void setData(PlotData pdata) {
-		this.curData = pdata;
-	}
-
-	private PlotData getData() {
-		return this.curData;
-	}
-	
-	public EquationSystem getSystem() {
-		return this.system;
-	}
-
-	public void setSystem(EquationSystem system) {
-		this.system = system;
-		reloadUI();
 	}
 
 	private void reloadUI() {
@@ -416,7 +399,6 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 	}
 
 	private void updateInterface() {
-		
 		if (curMode == SystemMode.ODE) {
 			lbls[0].setText("dx/dt =");
 			lbls[1].setText("dy/dt =");
@@ -463,7 +445,6 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 			tfCounts.setEditable(false);
 		}
 	}
-	
 
 	public void switchSystemMode() {
 		switch (curMode) {
@@ -513,7 +494,23 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 		}
 	}
 
+	private void setData(PlotData pdata) {
+		this.curData = pdata;
+	}
+
+	private PlotData getData() {
+		return this.curData;
+	}
 	
+	public EquationSystem getSystem() {
+		return this.system;
+	}
+
+	public void setSystem(EquationSystem system) {
+		this.system = system;
+		reloadUI();
+	}
+
 	// TODO these methods sort of violate MVC, perhaps there should be some sort
 	// of controller class?
 	// Plotting functions : Calculates PlotData from EquationSystem

@@ -163,6 +163,7 @@ public class Solver {
 		// TODO dimension validation?
 		String eqn1 = system.get(0);
 		String eqn2 = system.get(1);
+		
 		Evaluator2D dx_dt = (x, y) -> parser.evaluate(eqn1, Map.of("x", x, "y", y));
 		Evaluator2D dy_dt = (x, y) -> parser.evaluate(eqn2, Map.of("x", x, "y", y));
 		
@@ -181,7 +182,6 @@ public class Solver {
 				r = Math.hypot(X2 - X1, Y2 - Y1);
 				X2 = X1 + Xdot/r;
 				Y2 = Y1 + Ydot/r;
-
 				data.add(new Vector<>(List.of(X1, Y1, X2, Y2)));
 			})
 		);
