@@ -28,7 +28,12 @@ import java.util.function.DoubleConsumer;
 
 /** Class that holds data for system of equations */
 public class EquationSystem {
-	public static final int DIM = 3; /* Max dimension (global)        */
+	public static final int DIM = 3;             /* Maximum dimension of system (global)    */
+	
+	public static final int DEFAULT_N = 1000;    /* Default number of iterations for RK4    */
+	public static final double DEFAULT_H = 0.05; /* Default stepsize for RK4                */
+	public static final Range DEFAULT_RANGE =
+			new Range(-10, 10, 0.1);             /* Default range for the variables x, y, z */
 	
 	private Vector<String> eqns;     /* The equations                 */
 	private Vector<Range> ranges;    /* Ranges for each variable      */
@@ -40,13 +45,9 @@ public class EquationSystem {
 		eqns = new Vector<>(DIM);
 		ranges = new Vector<>(DIM);
 		
-		n = 1000;
-		h = 0.05;
-
-// TODO what about default values for equations?
-//		for (int i = 0; i < dim; i++) {
-//			eqns.add(new Equation("", 10, -10, 1));
-//		}
+		// default values
+		n = DEFAULT_N;
+		h = DEFAULT_H;
 	}
 	
 	/* ***** GETTERS ******* */

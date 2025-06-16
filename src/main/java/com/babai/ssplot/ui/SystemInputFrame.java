@@ -63,9 +63,9 @@ import com.babai.ssplot.math.system.solver.Solver;
  */
 public class SystemInputFrame extends JInternalFrame implements ActionListener {
 
-	private JLabel[] lbls;
+	private JLabel[] lblsEquations;
 	private JTextField tfCounts, tfStep;
-	private JTextField[] tfs, tfs2, tfs3;
+	private JTextField[] tfsEquations, tfsRange, tfsSolnPoint;
 	private JButton btnOK, btnCancel, btnDF, btnTR, btnCW;
 	private JButton btnTR2;
 	
@@ -135,9 +135,9 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 		gbc.fill = GridBagConstraints.NONE;
 
 		var lblCounts = new JLabel("Iteration count");
-		tfCounts = new JTextField(6);
+		tfCounts = new JTextField("" + EquationSystem.DEFAULT_N, 6);
 		var lblStep = new JLabel("Iteration stepsize");
-		tfStep = new JTextField(6);
+		tfStep = new JTextField("" + EquationSystem.DEFAULT_H, 6);
 
 		gbc.gridx = 0;
 		gbc.gridy = 0;
@@ -171,13 +171,13 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 		var pnlMatrix = new JPanel();
 		pnlMatrix.setLayout(new GridBagLayout());
 
-		lbls = new JLabel[] {
+		lblsEquations = new JLabel[] {
 				new JLabel("Equation 1"),
 				new JLabel("Equation 2"),
 				new JLabel("Equation 3")
 		};
 
-		tfs = new JTextField[] {
+		tfsEquations = new JTextField[] {
 				new JTextField(10),
 				new JTextField(10),
 				new JTextField(10)
@@ -187,19 +187,19 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 		gbc.insets = new Insets(5, 5, 5, 5);
 		gbc.anchor = GridBagConstraints.WEST;
 
-		for (int i = 0; i < lbls.length; i++) {
+		for (int i = 0; i < lblsEquations.length; i++) {
 			// Add the label (column 0)
 			gbc.gridx = 0;
 			gbc.gridy = i;
 			gbc.weightx = 0;
 			gbc.fill = GridBagConstraints.NONE; // Don't stretch the label
-			pnlMatrix.add(lbls[i], gbc);
+			pnlMatrix.add(lblsEquations[i], gbc);
 
 			// Add the text field (column 1)
 			gbc.gridx = 1;
 			gbc.weightx = 1;
-			gbc.fill = GridBagConstraints.HORIZONTAL; // Make text field stretch to fill available space
-			pnlMatrix.add(tfs[i], gbc);
+			gbc.fill = GridBagConstraints.HORIZONTAL; // Grow textfield to fill available space
+			pnlMatrix.add(tfsEquations[i], gbc);
 		}
 
 		pnlMatrix.setBorder(
@@ -213,21 +213,25 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 
 		// Ranges entry
 		var pnlRange = new JPanel(new GridBagLayout());
+		
 		final String sub_markup = "<html><body>%s<sub>%s</sub></body></html>";
+		final String[] axes = {"X", "Y", "Z"};
+		final String[] tags = {"min", "max", "step"};
+		final double[] rangeAsArray = {
+			EquationSystem.DEFAULT_RANGE.min(),
+			EquationSystem.DEFAULT_RANGE.max(),
+			EquationSystem.DEFAULT_RANGE.step()
+		};
 
-		String[] axes = {"X", "Y", "Z"};
-		String[] tags = {"min", "max", "gap"};
+		JLabel[] lbls2 = new JLabel[axes.length * tags.length];
+		tfsRange = new JTextField[axes.length * tags.length];
 
-		JLabel[] lbls2 = new JLabel[9];
-		tfs2 = new JTextField[9];
-		double[] defVals = {-10, 10, 0.1, -10, 10, 0.1, -10, 10, 0.1};
-
-		for (int i = 0; i < 9; i++) {
+		for (int i = 0; i < lbls2.length; i++) {
 			lbls2[i] = new JLabel(sub_markup.formatted(axes[i / 3], tags[i % 3]));
-			tfs2[i] = new JTextField(5);
-			tfs2[i].setHorizontalAlignment(JTextField.CENTER);
-			tfs2[i].setFont(new Font("monospace", Font.PLAIN, 14));
-			tfs2[i].setText("" + defVals[i]);
+			tfsRange[i] = new JTextField(5);
+			tfsRange[i].setHorizontalAlignment(JTextField.CENTER);
+			tfsRange[i].setFont(new Font("monospace", Font.PLAIN, 14));
+			tfsRange[i].setText("" + rangeAsArray[i % 3]);
 		}
 
 		gbc = new GridBagConstraints();
@@ -235,10 +239,10 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 		gbc.anchor = GridBagConstraints.WEST;
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 
-		for (int row = 0; row < 3; row++) {
-			for (int i = 0; i < 3; i++) {
-				int idx = row * 3 + i;
-				int col = i * 3;
+		for (int row = 0; row < axes.length; row++) {
+			for (int i = 0; i < tags.length; i++) {
+				int idx = row * axes.length+ i;
+				int col = i * tags.length;
 
 				gbc.gridx = col;
 				gbc.gridy = row;
@@ -247,7 +251,7 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 
 				gbc.gridx = col + 1;
 				gbc.weightx = 1;
-				pnlRange.add(tfs2[idx], gbc);
+				pnlRange.add(tfsRange[idx], gbc);
 
 				gbc.gridx = col + 2;
 				gbc.weightx = 0;
@@ -263,30 +267,34 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 				new Font("Serif", Font.BOLD, 12),
 				new Color(24, 110, 1).darker().darker()));
 
-		var pnlButton2 = new JPanel();
-		btnOK = new JButton();
-		btnCancel = new JButton();
-		btnOK.setToolTipText("Apply changes");
-		btnCancel.setToolTipText("Cancel changes");
-		btnOK.setIcon(new ImageIcon(getClass().getResource("/check.png")));
-		btnCancel.setIcon(new ImageIcon(getClass().getResource("/cross.png")));
-
+		// Plot Buttons
 		var pnlButton = new JPanel();
+		pnlButton.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
 		btnTR = new JButton();
 		btnTR2 = new JButton();
 		btnTR.setToolTipText("Draw 2d plot");
 		btnTR2.setToolTipText("Draw 3d plot");
 		btnTR.setIcon(new ImageIcon(getClass().getResource("/2d.png")));
 		btnTR2.setIcon(new ImageIcon(getClass().getResource("/3d.png")));
-		tfs3 = new JTextField[3];
-		tfs3[0] = new JTextField(3);
-		tfs3[1] = new JTextField(3);
-		tfs3[2] = new JTextField(3);
-
-		JLabel[] lbls3 = new JLabel[3];
-		lbls3[0] = new JLabel("X");
-		lbls3[1] = new JLabel("Y");
-		lbls3[2] = new JLabel("Z");
+		btnTR.setEnabled(false);
+		btnTR2.setEnabled(false);
+		btnTR.addActionListener(this);
+		btnTR2.addActionListener(this);
+		pnlButton.add(btnTR);
+		pnlButton.add(btnTR2);
+		
+		// Point of Solution labels and textfields
+		JLabel[] lbls3 = new JLabel[axes.length];
+		tfsSolnPoint = new JTextField[axes.length];
+		for (int i = 0; i < tfsSolnPoint.length; i++) {
+			lbls3[i] = new JLabel(axes[i]);
+			tfsSolnPoint[i] = new JTextField(3);
+			tfsSolnPoint[i].setEnabled(false);
+			tfsSolnPoint[i].setHorizontalAlignment(JTextField.CENTER);
+			tfsSolnPoint[i].setFont(new Font("monospace", Font.PLAIN, 14));
+			pnlButton.add(lbls3[i]);
+			pnlButton.add(tfsSolnPoint[i]);
+		}
 
 		btnDF = new JButton();
 		btnCW = new JButton();
@@ -294,48 +302,37 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 		btnCW.setToolTipText("Draw Cobweb Plot");
 		btnDF.setIcon(new ImageIcon(getClass().getResource("/vfield.png")));
 		btnCW.setIcon(new ImageIcon(getClass().getResource("/cobweb.png")));
-
 		btnDF.setEnabled(false);
-		btnTR.setEnabled(false);
-		btnTR2.setEnabled(false);
 		btnCW.setEnabled(false);
-		tfs3[0].setEnabled(false);
-		tfs3[1].setEnabled(false);
-		tfs3[2].setEnabled(false);
+		btnDF.addActionListener(this);
+		btnCW.addActionListener(this);
+		pnlButton.add(btnCW);
+		pnlButton.add(btnDF);
+		
+		var pnlButton2 = new JPanel();
+		pnlButton2.setLayout(new FlowLayout(FlowLayout.RIGHT));
+		btnOK = new JButton();
+		btnCancel = new JButton();
+		btnOK.setToolTipText("Apply changes");
+		btnCancel.setToolTipText("Cancel changes");
+		btnOK.setIcon(new ImageIcon(getClass().getResource("/check.png")));
+		btnCancel.setIcon(new ImageIcon(getClass().getResource("/cross.png")));
+		btnOK.addActionListener(this);
+		btnCancel.addActionListener(this);
+		pnlButton2.add(btnOK);
+		pnlButton2.add(btnCancel);
 
-		for (int i = 0; i < 3; i++) {
-			tfs[i].setHorizontalAlignment(JTextField.CENTER);
-			tfs[i].setFont(new Font("monospace", Font.PLAIN, 14));
-			tfs3[i].setHorizontalAlignment(JTextField.CENTER);
-			tfs3[i].setFont(new Font("monospace", Font.PLAIN, 14));
+		for (int i = 0; i < tfsEquations.length; i++) {
+			tfsEquations[i].setHorizontalAlignment(JTextField.CENTER);
+			tfsEquations[i].setFont(new Font("monospace", Font.PLAIN, 14));
 		}
+		
 		tfCounts.setHorizontalAlignment(JTextField.CENTER);
 		tfCounts.setFont(new Font("monospace", Font.PLAIN, 14));
 		tfStep.setHorizontalAlignment(JTextField.CENTER);
 		tfStep.setFont(new Font("monospace", Font.PLAIN, 14));
 
-		pnlButton.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
-		pnlButton.add(btnTR);
-		pnlButton.add(btnTR2);
-		for (int i = 0; i < 3; i++) {
-			pnlButton.add(lbls3[i]);
-			pnlButton.add(tfs3[i]);
-		}
-		pnlButton.add(btnCW);
-		pnlButton.add(btnDF);
-
-		pnlButton2.setLayout(new FlowLayout(FlowLayout.RIGHT));
-		pnlButton2.add(btnOK);
-		pnlButton2.add(btnCancel);
-
-		btnTR.addActionListener(this);
-		btnTR2.addActionListener(this);
-		btnDF.addActionListener(this);
-		btnCW.addActionListener(this);
-		btnOK.addActionListener(this);
-		btnCancel.addActionListener(this);
-
-		JToolBar tools = new JToolBar("Plot Tools");
+		var tools = new JToolBar("Plot Tools");
 		tools.add(pnlButton);
 		tools.add(pnlButton2);
 
@@ -366,11 +363,11 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 			}
 			
 			for (int i = 0; i < EquationSystem.DIM; i++) {
-				builder.addEquation(tfs[i].getText());
+				builder.addEquation(tfsEquations[i].getText());
 				builder.addRange(
-					Double.parseDouble(tfs2[3*i].getText()),
-					Double.parseDouble(tfs2[3*i+1].getText()),
-					Double.parseDouble(tfs2[3*i+2].getText()));
+					Double.parseDouble(tfsRange[3*i].getText()),
+					Double.parseDouble(tfsRange[3*i+1].getText()),
+					Double.parseDouble(tfsRange[3*i+2].getText()));
 			}
 			builder.setMode(curMode);
 			
@@ -385,7 +382,7 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 		if (system != null) {
 			curMode = getSystem().getMode();
 			for (int i = 0; i < 3; i++) {
-				tfs[i].setText(system.get(i));
+				tfsEquations[i].setText(system.get(i));
 			}
 		} else {
 			curMode = SystemMode.ODE;
@@ -400,47 +397,47 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 
 	private void updateInterface() {
 		if (curMode == SystemMode.ODE) {
-			lbls[0].setText("dx/dt =");
-			lbls[1].setText("dy/dt =");
-			lbls[2].setText("dz/dt =");
-			tfs[1].setEditable(true);
-			tfs[2].setEditable(true);
-			tfs2[6].setEditable(true);
-			tfs2[7].setEditable(true);
-			tfs2[8].setEditable(true);
+			lblsEquations[0].setText("dx/dt =");
+			lblsEquations[1].setText("dy/dt =");
+			lblsEquations[2].setText("dz/dt =");
+			tfsEquations[1].setEditable(true);
+			tfsEquations[2].setEditable(true);
+			tfsRange[6].setEditable(true);
+			tfsRange[7].setEditable(true);
+			tfsRange[8].setEditable(true);
 			tfStep.setEditable(true);
 			tfCounts.setEditable(true);
 		} else if (curMode == SystemMode.DFE) {
-			lbls[0].setText("<html><body>x<sub>n+1</sub> =</body></html>");
-			lbls[1].setText("<html><body>y<sub>n+1</sub> =</body></html>");
-			lbls[2].setText("<html><body>z<sub>n+1</sub> =</body></html>");
-			tfs[1].setEditable(true);
-			tfs[2].setEditable(true);
-			tfs2[6].setEditable(true);
-			tfs2[7].setEditable(true);
-			tfs2[8].setEditable(true);
+			lblsEquations[0].setText("<html><body>x<sub>n+1</sub> =</body></html>");
+			lblsEquations[1].setText("<html><body>y<sub>n+1</sub> =</body></html>");
+			lblsEquations[2].setText("<html><body>z<sub>n+1</sub> =</body></html>");
+			tfsEquations[1].setEditable(true);
+			tfsEquations[2].setEditable(true);
+			tfsRange[6].setEditable(true);
+			tfsRange[7].setEditable(true);
+			tfsRange[8].setEditable(true);
 			tfStep.setEditable(true);
 			tfCounts.setEditable(true);
 		} else if (curMode == SystemMode.FN1) {
-			lbls[0].setText("y(x) =");
-			lbls[1].setText("");
-			lbls[2].setText("");
-			tfs[1].setEditable(false);
-			tfs[2].setEditable(false);
-			tfs2[6].setEditable(false);
-			tfs2[7].setEditable(false);
-			tfs2[8].setEditable(false);
+			lblsEquations[0].setText("y(x) =");
+			lblsEquations[1].setText("");
+			lblsEquations[2].setText("");
+			tfsEquations[1].setEditable(false);
+			tfsEquations[2].setEditable(false);
+			tfsRange[6].setEditable(false);
+			tfsRange[7].setEditable(false);
+			tfsRange[8].setEditable(false);
 			tfStep.setEditable(false);
 			tfCounts.setEditable(false);
 		} else if (curMode == SystemMode.FN2) {
-			lbls[0].setText("z(x, y) =");
-			lbls[1].setText("");
-			lbls[2].setText("");
-			tfs[1].setEditable(false);
-			tfs[2].setEditable(false);
-			tfs2[6].setEditable(true);
-			tfs2[7].setEditable(true);
-			tfs2[8].setEditable(true);
+			lblsEquations[0].setText("z(x, y) =");
+			lblsEquations[1].setText("");
+			lblsEquations[2].setText("");
+			tfsEquations[1].setEditable(false);
+			tfsEquations[2].setEditable(false);
+			tfsRange[6].setEditable(true);
+			tfsRange[7].setEditable(true);
+			tfsRange[8].setEditable(true);
 			tfStep.setEditable(false);
 			tfCounts.setEditable(false);
 		}
@@ -454,9 +451,9 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 			btnTR.setEnabled(true);
 			btnTR2.setEnabled(true);
 
-			tfs3[0].setEnabled(true);
-			tfs3[1].setEnabled(true);
-			tfs3[2].setEnabled(true);
+			tfsSolnPoint[0].setEnabled(true);
+			tfsSolnPoint[1].setEnabled(true);
+			tfsSolnPoint[2].setEnabled(true);
 			break;
 
 		case FN1:
@@ -465,9 +462,9 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 			btnTR.setEnabled(true);
 			btnTR2.setEnabled(false);
 
-			tfs3[0].setEnabled(false);
-			tfs3[1].setEnabled(false);
-			tfs3[2].setEnabled(false);
+			tfsSolnPoint[0].setEnabled(false);
+			tfsSolnPoint[1].setEnabled(false);
+			tfsSolnPoint[2].setEnabled(false);
 			break;
 
 		case FN2:
@@ -476,9 +473,9 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 			btnTR.setEnabled(false);
 			btnTR2.setEnabled(true);
 
-			tfs3[0].setEnabled(false);
-			tfs3[1].setEnabled(false);
-			tfs3[2].setEnabled(false);
+			tfsSolnPoint[0].setEnabled(false);
+			tfsSolnPoint[1].setEnabled(false);
+			tfsSolnPoint[2].setEnabled(false);
 			break;
 
 		case DFE:
@@ -487,9 +484,9 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 			btnTR.setEnabled(true);
 			btnTR2.setEnabled(false);
 
-			tfs3[0].setEnabled(true);
-			tfs3[1].setEnabled(true);
-			tfs3[2].setEnabled(false);
+			tfsSolnPoint[0].setEnabled(true);
+			tfsSolnPoint[1].setEnabled(true);
+			tfsSolnPoint[2].setEnabled(false);
 			break;
 		}
 	}
@@ -561,7 +558,7 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 		PlotData trjData = new PlotData(solver.functionData());
 		trjData.setPltype(PlotData.PlotType.LINES);
 		trjData.setFgColor(Color.BLACK);
-		trjData.setTitle(String.format("y = %s", tfs[0].getText()));
+		trjData.setTitle(String.format("y = %s", tfsEquations[0].getText()));
 		
 		trjData.setSystem(getSystem());
 
@@ -573,7 +570,7 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 		PlotData trjData = new PlotData(solver.functionData2D());
 		trjData.setPltype(PlotData.PlotType.THREED);
 		trjData.setFgColor(Color.BLACK);
-		trjData.setTitle(String.format("z = %s", tfs[0].getText()));
+		trjData.setTitle(String.format("z = %s", tfsEquations[0].getText()));
 		
 		trjData.setSystem(getSystem());
 
@@ -606,8 +603,8 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 					plotFunction();
 					break;
 				default:
-					double x = Double.parseDouble(tfs3[0].getText());
-					double y = Double.parseDouble(tfs3[1].getText());
+					double x = Double.parseDouble(tfsSolnPoint[0].getText());
+					double y = Double.parseDouble(tfsSolnPoint[1].getText());
 					plotTrajectory(x, y);
 					break;
 				}
@@ -617,14 +614,14 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 					plotFunction2D();
 					break;
 				default:
-					double x = Double.parseDouble(tfs3[0].getText());
-					double y = Double.parseDouble(tfs3[1].getText());
-					double z = Double.parseDouble(tfs3[2].getText());
+					double x = Double.parseDouble(tfsSolnPoint[0].getText());
+					double y = Double.parseDouble(tfsSolnPoint[1].getText());
+					double z = Double.parseDouble(tfsSolnPoint[2].getText());
 	
 					plotTrajectory3D(x, y, z);
 				}	
 			} else if (evt.getSource() == btnCW) {
-				double x = Double.parseDouble(tfs3[0].getText());
+				double x = Double.parseDouble(tfsSolnPoint[0].getText());
 				plotCobweb(x);
 			}
 			
