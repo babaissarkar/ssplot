@@ -48,7 +48,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
-import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.border.TitledBorder;
 
@@ -137,9 +136,11 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 		gbc.fill = GridBagConstraints.NONE;
 
 		var lblCounts = new JLabel("Iteration count");
-		tfCounts = new CenteredField("" + EquationSystem.DEFAULT_N, 6);
 		var lblStep = new JLabel("Iteration stepsize");
+		tfCounts = new CenteredField("" + EquationSystem.DEFAULT_N, 6);
 		tfStep = new CenteredField("" + EquationSystem.DEFAULT_H, 6);
+		tfCounts.setNumeric(true);
+		tfCounts.setNumeric(true);
 
 		gbc.gridx = 0;
 		gbc.gridy = 0;
@@ -232,6 +233,7 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 		for (int i = 0; i < lbls2.length; i++) {
 			lbls2[i] = new JLabel(sub_markup.formatted(axes[i / 3], tags[i % 3]));
 			tfsRange[i] = new CenteredField(5);
+			tfsRange[i].setNumeric(true);
 			tfsRange[i].setText("" + rangeAsArray[i % 3]);
 		}
 
@@ -242,7 +244,7 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 
 		for (int row = 0; row < axes.length; row++) {
 			for (int i = 0; i < tags.length; i++) {
-				int idx = row * axes.length+ i;
+				int idx = row * axes.length + i;
 				int col = i * tags.length;
 
 				gbc.gridx = col;
@@ -343,23 +345,6 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 			JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 			JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		add(sp);
-	}
-	
-	private class CenteredField extends JTextField {
-		private static final Font monoFont =
-			new Font("monospace", Font.PLAIN, 14);
-		
-		public CenteredField(int count) {
-			super(count);
-			setFont(monoFont);
-			setHorizontalAlignment(JTextField.CENTER);
-		}
-		
-		public CenteredField(String text, int count) {
-			super(text, count);
-			setFont(monoFont);
-			setHorizontalAlignment(JTextField.CENTER);
-		}
 	}
 
 	private void updateSystemFromUI() {

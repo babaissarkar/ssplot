@@ -58,7 +58,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
@@ -369,12 +368,13 @@ public class MainFrame extends JFrame {
 		
 		// --- Zoom Section ---
 		JButton zoomInBtn = new JButton(new ImageIcon(getClass().getResource("/zoom-in.png")));
-		JTextField zoomField = new JTextField("1", 5);
+		CenteredField zoomField = new CenteredField("1", 4);
 		JLabel zoomLabel = new JLabel(" X");
 		JButton zoomOutBtn = new JButton(new ImageIcon(getClass().getResource("/zoom-out.png")));
 		
 		// disable growing
 		zoomField.setMaximumSize(zoomField.getPreferredSize());
+		zoomField.setNumeric(true);
 		
 		zoomInBtn.setToolTipText("Zoom In (x2)");
 		zoomOutBtn.setToolTipText("Zoom In (x0.5)");
@@ -505,14 +505,14 @@ public class MainFrame extends JFrame {
 		mainPane2.setTopComponent(mainPane);
 		mainPane2.setBottomComponent(statusPane);
 		
-		getContentPane().setLayout(new BorderLayout());
-		getContentPane().add(mainPane2, BorderLayout.CENTER);
+		getContentPane().add(mainPane2);
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
 	}
 	
-	/* Actions */
+	/* Keybinding management helper */
 	private void bindAction(JComponent control, String actionName, String hotkey, Runnable action) {
-		control.getInputMap().put(KeyStroke.getKeyStroke(hotkey), actionName);
+		control.getInputMap(WHEN_IN_FOCUSED_WINDOW)
+		       .put(KeyStroke.getKeyStroke(hotkey), actionName);
 		control.getActionMap().put(actionName, new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -522,7 +522,7 @@ public class MainFrame extends JFrame {
 	}
 	
 	/* Menu Actions */
-	public void saveImage() {
+	private void saveImage() {
 		var files = new JFileChooser();
 		int stat = files.showSaveDialog(this);
 		if (stat == JFileChooser.APPROVE_OPTION) {
@@ -531,8 +531,7 @@ public class MainFrame extends JFrame {
 		}
 	}
 	
-	
-	public void setLineWidth() {
+	private void setLineWidth() {
 		String strWidth = showInputDialog("Line Width:");
 		if (strWidth != null) {
 			int width = Integer.parseInt(strWidth);
@@ -546,7 +545,7 @@ public class MainFrame extends JFrame {
 	}
 	
 	
-	public void changePlotType() {
+	private void changePlotType() {
 		PlotType type = (PlotType) showInputDialog(
 			this,
 			"Choose Plot Type :",
@@ -560,7 +559,6 @@ public class MainFrame extends JFrame {
 			pv.setCurPlotType(type);
 		}
 	}
-	
 	
 	private void openLink(String url) {
 		if (url.isBlank()) {
@@ -580,7 +578,7 @@ public class MainFrame extends JFrame {
 		}
 	}
 	
-	public void showAbout() {
+	private void showAbout() {
 		logger.log(ABOUT_MSG);
 		
 		String[] buttonStrs = {"License", "Close"};
