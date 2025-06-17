@@ -26,6 +26,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.image.BufferedImage;
@@ -38,12 +39,14 @@ import java.util.Optional;
 import java.util.Properties;
 
 import javax.imageio.ImageIO;
+import javax.swing.AbstractAction;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -343,6 +346,25 @@ public class MainFrame extends JFrame {
 			}
 		});
 		
+		// Setting Keybinding for movement
+		// Keybindings for movement and actions
+		bindAction(ifrmPlot, "left",   "LEFT",  pv::moveLeft);
+		bindAction(ifrmPlot, "right",  "RIGHT", pv::moveRight);
+		bindAction(ifrmPlot, "up",     "UP",    pv::moveUp);
+		bindAction(ifrmPlot, "down",   "DOWN",  pv::moveDown);
+
+		bindAction(ifrmPlot, "plus",   "J", pv::zoomIn);
+		bindAction(ifrmPlot, "minus",  "F", pv::zoomOut);
+		bindAction(ifrmPlot, "splus",  "H", pv::smallZoomIn);
+		bindAction(ifrmPlot, "sminus", "G", pv::smallZoomOut);
+
+		bindAction(ifrmPlot, "rotAp",  "Q", pv::rotateXPlus);
+		bindAction(ifrmPlot, "rotAm",  "A", pv::rotateXMinus);
+		bindAction(ifrmPlot, "rotBp",  "W", pv::rotateYPlus);
+		bindAction(ifrmPlot, "rotBm",  "S", pv::rotateYMinus);
+		bindAction(ifrmPlot, "rotCp",  "E", pv::rotateZPlus);
+		bindAction(ifrmPlot, "rotCm",  "D", pv::rotateZMinus);
+		
 		JToolBar toolbar = new JToolBar();
 		
 		// --- Zoom Section ---
@@ -486,6 +508,17 @@ public class MainFrame extends JFrame {
 		getContentPane().setLayout(new BorderLayout());
 		getContentPane().add(mainPane2, BorderLayout.CENTER);
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
+	}
+	
+	/* Actions */
+	private void bindAction(JComponent control, String actionName, String hotkey, Runnable action) {
+		control.getInputMap().put(KeyStroke.getKeyStroke(hotkey), actionName);
+		control.getActionMap().put(actionName, new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				action.run();
+			}
+		});
 	}
 	
 	/* Menu Actions */

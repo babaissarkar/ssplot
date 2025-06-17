@@ -27,7 +27,6 @@ package com.babai.ssplot.ui;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -36,9 +35,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Vector;
 
-import javax.swing.AbstractAction;
 import javax.swing.JLabel;
-import javax.swing.KeyStroke;
 import javax.swing.Timer;
 
 import com.babai.ssplot.math.plot.PlotData;
@@ -78,25 +75,7 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 		// Mouse Listener
 		addMouseListener(this);
 		addMouseMotionListener(this);
-
-		// Setting Keybinding for movement
-		// Keybindings for movement and actions
-		bindAction("left",   "LEFT",  this::moveLeft);
-		bindAction("right",  "RIGHT", this::moveRight);
-		bindAction("up",     "UP",    this::moveUp);
-		bindAction("down",   "DOWN",  this::moveDown);
-
-		bindAction("plus",   "J", this::zoomIn);
-		bindAction("minus",  "F", this::zoomOut);
-		bindAction("splus",  "H", this::smallZoomIn);
-		bindAction("sminus", "G", this::smallZoomOut);
-
-		bindAction("rotAp",  "Q", this::rotateXPlus);
-		bindAction("rotAm",  "A", this::rotateXMinus);
-		bindAction("rotBp",  "W", this::rotateYPlus);
-		bindAction("rotBm",  "S", this::rotateYMinus);
-		bindAction("rotCp",  "E", this::rotateZPlus);
-		bindAction("rotCm",  "D", this::rotateZMinus);
+		setFocusable(true);
 	}
 
 	@Override
@@ -213,17 +192,6 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 	public void resize(int w, int h) {
 		plt.initPlot(w, h);
 		repaint();
-	}
-
-	/* Actions */
-	private void bindAction(String actionName, String hotkey, Runnable action) {
-		getInputMap().put(KeyStroke.getKeyStroke(hotkey), actionName);
-		getActionMap().put(actionName, new AbstractAction() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				action.run();
-			}
-		});
 	}
 	
 	public void zoomIn() {
