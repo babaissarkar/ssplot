@@ -28,8 +28,6 @@ import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -57,7 +55,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
@@ -456,23 +453,8 @@ public class MainFrame extends JFrame {
 		odeinput.setVisible(true);
 		
 		var console = new ScriptConsole();
-		
-		// TODO move to separate class, say HintTextField
-		// TextArea with hint text that gets cleared as soon as user starts typing
-		var txtScratchpad = new JTextArea("You can write anything here.");
-		txtScratchpad.setForeground(Color.GRAY);
-		txtScratchpad.addKeyListener(new KeyAdapter() {
-			private boolean cleared = false;
-
-			@Override
-			public void keyPressed(KeyEvent e) {
-				if (!cleared) {
-					txtScratchpad.setText("");
-					txtScratchpad.setForeground(Color.BLACK);
-					cleared = true;
-				}
-			}
-		});
+		var txtScratchpad = new HintTextArea();
+		txtScratchpad.setHintText("You can write anything here.");
 		
 		var statusPane = new JTabbedPane();
 		statusPane.addTab("Logs", ifrmLogs.getContentPane());
