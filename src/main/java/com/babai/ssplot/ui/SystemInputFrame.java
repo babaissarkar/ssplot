@@ -30,16 +30,11 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.function.Consumer;
 
-/* A class for drawing phase plot of two simultaneous 1nd order ode. */
 import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
@@ -48,7 +43,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
-import javax.swing.JToolBar;
 import javax.swing.border.TitledBorder;
 
 import com.babai.ssplot.math.plot.PlotData;
@@ -57,17 +51,19 @@ import com.babai.ssplot.math.system.core.SystemMode;
 import com.babai.ssplot.math.system.parser.ParserManager;
 import com.babai.ssplot.math.system.solver.Solver;
 
+import static com.babai.ssplot.ui.controls.DUI.*;
+
 /** This class takes the input from user, sends data to backend,
  *  get processed data from backend, and send it back to MainFrame
  *  for plotting.
  *  @author ssarkar
  */
-public class SystemInputFrame extends JInternalFrame implements ActionListener {
+public class SystemInputFrame extends JInternalFrame {
 
 	private JLabel[] lblsEquations;
 	private CenteredField tfCounts, tfStep;
 	private CenteredField[] tfsEquations, tfsRange, tfsSolnPoint;
-	private JButton btnOK, btnCancel, btnDF, btnCW;
+	private JButton btnDF, btnCW;
 	private JButton btnPlot2D, btnPlot3D;
 	
 	private Consumer<PlotData> updater;
@@ -87,9 +83,6 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 		/* Creating Gui */
 		setTitle("System Parameters");
 		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-		var pnlMain = new JPanel();
-		pnlMain.setLayout(new BoxLayout(pnlMain, BoxLayout.PAGE_AXIS));
-		pnlMain.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
 		var pnlRB = new JPanel();
 		var rbODE = new JRadioButton("Differential Equation", true);
@@ -273,20 +266,31 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 				new Color(24, 110, 1).darker().darker()));
 
 		// Plot Buttons
-		var pnlButton = new JPanel();
-		pnlButton.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
-		btnPlot2D = new JButton();
-		btnPlot3D = new JButton();
-		btnPlot2D.setToolTipText("Draw 2d plot");
-		btnPlot3D.setToolTipText("Draw 3d plot");
-		btnPlot2D.setIcon(new ImageIcon(getClass().getResource("/2d.png")));
-		btnPlot3D.setIcon(new ImageIcon(getClass().getResource("/3d.png")));
-		btnPlot2D.setEnabled(false);
-		btnPlot3D.setEnabled(false);
-		btnPlot2D.addActionListener(this);
-		btnPlot3D.addActionListener(this);
-		pnlButton.add(btnPlot2D);
-		pnlButton.add(btnPlot3D);
+		var pnlButton = hbox(
+			btnPlot2D = button()
+				.icon("/2d.png")
+				.tooltip("Draw 2d plot")
+				.enabled(false)
+				.onClick(this::plot2D),
+				
+			btnPlot3D = button()
+				.icon("/3d.png")
+				.tooltip("Draw 3d plot")
+				.enabled(false)
+				.onClick(this::plot3D),
+				
+			btnCW = button()
+				.icon("/cobweb.png")
+				.tooltip("Draw Cobweb Plot")
+				.enabled(false)
+				.onClick(this::plotCobweb),
+				
+			btnDF = button()
+				.icon("/vfield.png")
+				.tooltip("Draw Cobweb Plot")
+				.enabled(false)
+				.onClick(this::plotDirectionField)
+		).gap(5, 5);
 		
 		// Point of Solution labels and textfields
 		var pnlSolnInput = new JPanel();
@@ -305,42 +309,33 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 		pnlSolnMain.add(new JLabel("Solve At:"), BorderLayout.NORTH);
 		pnlSolnMain.add(pnlSolnInput);
 
-		btnDF = new JButton();
-		btnCW = new JButton();
-		btnDF.setToolTipText("Draw Vector Field");
-		btnCW.setToolTipText("Draw Cobweb Plot");
-		btnDF.setIcon(new ImageIcon(getClass().getResource("/vfield.png")));
-		btnCW.setIcon(new ImageIcon(getClass().getResource("/cobweb.png")));
-		btnDF.setEnabled(false);
-		btnCW.setEnabled(false);
-		btnDF.addActionListener(this);
-		btnCW.addActionListener(this);
-		pnlButton.add(btnCW);
-		pnlButton.add(btnDF);
-		
-		var pnlButton2 = new JPanel();
-		pnlButton2.setLayout(new FlowLayout(FlowLayout.RIGHT));
-		btnOK = new JButton();
-		btnCancel = new JButton();
-		btnOK.setToolTipText("Apply changes");
-		btnCancel.setToolTipText("Cancel changes");
-		btnOK.setIcon(new ImageIcon(getClass().getResource("/check.png")));
-		btnCancel.setIcon(new ImageIcon(getClass().getResource("/cross.png")));
-		btnOK.addActionListener(this);
-		btnCancel.addActionListener(this);
-		pnlButton2.add(btnOK);
-		pnlButton2.add(btnCancel);
-
-		var tools = new JToolBar("Plot Tools");
-		tools.add(pnlButton);
-		tools.add(pnlSolnMain);
-		tools.add(pnlButton2);
-
-		pnlMain.add(tools);
-		pnlMain.add(pnlRB);
-		pnlMain.add(pnlCounts);
-		pnlMain.add(pnlMatrix);
-		pnlMain.add(pnlRange);
+		var pnlMain = vbox(
+			toolbar(
+				pnlButton,
+				pnlSolnMain,
+				hbox(
+					button()
+						.icon("/check.png")
+						.tooltip("Apply changes")
+						.onClick(() -> {
+							// Sets up the System of Equations and validates,
+							// but doesn't plot anything
+							switchSystemMode();
+							updateSystemFromUI();
+						}),
+					
+					// TODO this still hides instead of clearing input
+					button()
+						.icon("/cross.png")
+						.tooltip("Clear changes")
+						.onClick(this::hide)
+				)
+			),
+			pnlRB,
+			pnlCounts,
+			pnlMatrix,
+			pnlRange
+		).emptyBorder(10);
 
 		JScrollPane sp = new JScrollPane(
 			pnlMain,
@@ -531,6 +526,80 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 	// TODO these methods sort of violate MVC, perhaps there should be some sort
 	// of controller class?
 	// Plotting functions : Calculates PlotData from EquationSystem
+	private void plotDirectionField() {
+		var solver = new Solver(ParserManager.getParser(), getSystem());
+		PlotData pdata = new PlotData(solver.directionField());
+		pdata.setPltype(PlotData.PlotType.VECTORS);
+		pdata.setSystem(getSystem());
+		setData(pdata);
+		updater.accept(pdata);
+	}
+	
+	private void plot2D() {
+		switch (curMode) {
+		case FN1:
+			plotFunction2D();
+			break;
+		default:
+			boolean hasValidPoint =
+			!tfsSolnPoint[0].getText().isEmpty()
+			&& !tfsSolnPoint[1].getText().isEmpty();
+
+			if (hasValidPoint) {
+				double x = Double.parseDouble(tfsSolnPoint[0].getText());
+				double y = Double.parseDouble(tfsSolnPoint[1].getText());
+				plotTrajectory(x, y);
+			} else {
+				JOptionPane.showMessageDialog(this, "Enter a solution point!", "Invalid Input", JOptionPane.ERROR_MESSAGE);
+				tfsSolnPoint[0].requestFocusInWindow();
+				return;
+			}
+			break;
+		}
+		updater.accept(getData());
+	}
+	
+	private void plot3D() {
+		switch (curMode) {
+		case FN2:
+			plotFunction3D();
+			break;
+		default:
+			boolean hasValidPoint =
+			!tfsSolnPoint[0].getText().isEmpty()
+			&& !tfsSolnPoint[1].getText().isEmpty()
+			&& !tfsSolnPoint[2].getText().isEmpty();
+
+			if (hasValidPoint) {
+				double x = Double.parseDouble(tfsSolnPoint[0].getText());
+				double y = Double.parseDouble(tfsSolnPoint[1].getText());
+				double z = Double.parseDouble(tfsSolnPoint[2].getText());
+				plotODE3D(x, y, z);
+			} else {
+				JOptionPane.showMessageDialog(this, "Enter a solution point!", "Invalid Input", JOptionPane.ERROR_MESSAGE);
+				tfsSolnPoint[0].requestFocusInWindow();
+				return;
+			}
+		}
+		updater.accept(getData());
+	}
+	
+	private void plotCobweb() {
+		if (!tfsSolnPoint[0].getText().isEmpty()) {
+			double x = Double.parseDouble(tfsSolnPoint[0].getText());
+			var solver = new Solver(ParserManager.getParser(), getSystem());
+			PlotData pdata = new PlotData(solver.cobweb(x));
+			pdata.setPltype(PlotData.PlotType.LINES);
+			pdata.setFgColor(Color.BLACK);
+			pdata.setSystem(getSystem());
+			setData(pdata);
+		} else {
+			JOptionPane.showMessageDialog(this, "Enter a solution point!", "Invalid Input", JOptionPane.ERROR_MESSAGE);
+			tfsSolnPoint[0].requestFocusInWindow();
+			return;
+		}
+		updater.accept(getData());
+	}
 	
 	public void plotTrajectory(double x, double y) {
 		var solver = new Solver(ParserManager.getParser(), getSystem());
@@ -545,31 +614,16 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 		}
 		trjData.setPltype(PlotData.PlotType.LINES);
 		trjData.setFgColor(Color.BLACK);
-		
 		trjData.setSystem(getSystem());
-
 		setData(trjData);
 	}
 
-	public void plotCobweb(double x) {
-		var solver = new Solver(ParserManager.getParser(), getSystem());
-		PlotData pdata = new PlotData(solver.cobweb(x));
-		pdata.setPltype(PlotData.PlotType.LINES);
-		pdata.setFgColor(Color.BLACK);
-		
-		pdata.setSystem(getSystem());
-
-		setData(pdata);
-	}
-
-	public void plotTrajectory3D(double x, double y, double z) {
+	public void plotODE3D(double x, double y, double z) {
 		var solver = new Solver(ParserManager.getParser(), getSystem());
 		PlotData trjData = new PlotData(solver.RK4Iterate3D(x, y, z));
 		trjData.setPltype(PlotData.PlotType.THREED);
 		trjData.setFgColor(Color.BLACK);
-		
 		trjData.setSystem(getSystem());
-
 		setData(trjData);
 	}
 
@@ -579,9 +633,7 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 		trjData.setPltype(PlotData.PlotType.LINES);
 		trjData.setFgColor(Color.BLACK);
 		trjData.setTitle(String.format("y = %s", tfsEquations[0].getText()));
-		
 		trjData.setSystem(getSystem());
-
 		setData(trjData);
 	}
 
@@ -591,90 +643,8 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 		trjData.setPltype(PlotData.PlotType.THREED);
 		trjData.setFgColor(Color.BLACK);
 		trjData.setTitle(String.format("z = %s", tfsEquations[0].getText()));
-		
 		trjData.setSystem(getSystem());
-
 		setData(trjData);
-	}
-
-	public void plotDirectionField() {
-		var solver = new Solver(ParserManager.getParser(), getSystem());
-		PlotData pdata = new PlotData(solver.directionField());
-		pdata.setPltype(PlotData.PlotType.VECTORS);
-		pdata.setSystem(getSystem());
-		
-		setData(pdata);
-	}
-
-	@Override
-	public void actionPerformed(ActionEvent evt) {
-		if (evt.getSource() == btnOK) {
-			// Sets up the System of Equations and validates,
-			// but doesn't plot anything
-			switchSystemMode();
-			updateSystemFromUI();
-		} else if (evt.getSource() == btnCancel) {
-			// FIXME intuitively this should clear all fields instead of hiding this frame
-			hide();
-		} else {
-			if (evt.getSource() == btnDF) {
-				plotDirectionField();
-			} else if (evt.getSource() == btnPlot2D) {
-				switch (curMode) {
-				case FN1:
-					plotFunction2D();
-					break;
-				default:
-					boolean hasValidPoint =
-						!tfsSolnPoint[0].getText().isEmpty()
-						&& !tfsSolnPoint[1].getText().isEmpty();
-					
-					if (hasValidPoint) {
-						double x = Double.parseDouble(tfsSolnPoint[0].getText());
-						double y = Double.parseDouble(tfsSolnPoint[1].getText());
-						plotTrajectory(x, y);
-					} else {
-						JOptionPane.showMessageDialog(this, "Enter a solution point!", "Invalid Input", JOptionPane.ERROR_MESSAGE);
-						tfsSolnPoint[0].requestFocusInWindow();
-						return;
-					}
-					break;
-				}
-			} else if (evt.getSource() == btnPlot3D) {
-				switch (curMode) {
-				case FN2:
-					plotFunction3D();
-					break;
-				default:
-					boolean hasValidPoint =
-						!tfsSolnPoint[0].getText().isEmpty()
-						&& !tfsSolnPoint[1].getText().isEmpty()
-						&& !tfsSolnPoint[2].getText().isEmpty();
-					
-					if (hasValidPoint) {
-						double x = Double.parseDouble(tfsSolnPoint[0].getText());
-						double y = Double.parseDouble(tfsSolnPoint[1].getText());
-						double z = Double.parseDouble(tfsSolnPoint[2].getText());
-						plotTrajectory3D(x, y, z);
-					} else {
-						JOptionPane.showMessageDialog(this, "Enter a solution point!", "Invalid Input", JOptionPane.ERROR_MESSAGE);
-						tfsSolnPoint[0].requestFocusInWindow();
-						return;
-					}
-				}	
-			} else if (evt.getSource() == btnCW) {
-				if (!tfsSolnPoint[0].getText().isEmpty()) {
-					double x = Double.parseDouble(tfsSolnPoint[0].getText());
-					plotCobweb(x);
-				} else {
-					JOptionPane.showMessageDialog(this, "Enter a solution point!", "Invalid Input", JOptionPane.ERROR_MESSAGE);
-					tfsSolnPoint[0].requestFocusInWindow();
-					return;
-				}
-			}
-			
-			updater.accept(getData());
-		}
 	}
 
 	public void setUpdateCallback(Consumer<PlotData> update) {
