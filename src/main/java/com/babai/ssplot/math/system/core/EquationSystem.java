@@ -58,6 +58,29 @@ public class EquationSystem {
 	public int n()    { return n; }
 	public double h() { return h; }
 	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("System Details:\n");
+
+		sb.append("Equations:\n");
+		for (int i = 0; i < eqns.size(); i++) {
+			sb.append("  Equation ").append(i + 1).append(": ").append(eqns.get(i)).append("\n");
+		}
+
+		sb.append("Ranges:\n");
+		for (int i = 0; i < ranges.size(); i++) {
+			sb.append("  Range ").append(i + 1).append(": ").append(ranges.get(i)).append("\n");
+		}
+
+		sb.append("System Mode: ").append(mode).append("\n");
+		sb.append("Iteration Count (n): ").append(n).append("\n");
+		sb.append("Step Size (h): ").append(h).append("\n");
+
+		return sb.toString();
+	}
+
+	
 	/** Small record for storing range info for each independent variable */
 	public record Range(double min, double max, double step) {
 		/** Allows looping over this range */

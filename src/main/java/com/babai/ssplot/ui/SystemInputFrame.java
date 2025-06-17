@@ -363,50 +363,39 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 	}
 
 	private void updateSystemFromUI() {
-		try {
-			var builder = new EquationSystem.Builder();
-			
-			String input = tfCounts.getText();
-			if (!input.isBlank()) {
-				builder.setCount(Integer.parseInt(input));
-			}
-			input = tfStep.getText();
-			if (!input.isBlank()) {
-				builder.setStepSize(Double.parseDouble(input));
-			}
-			
-			int noOfEqns = noOfEqns();
-			if (noOfEqns < 2) {
-				return;
-			}
-			
-			for (int i = 0; i < noOfEqns; i++) {
-				builder.addEquation(tfsEquations[i].getText());
-				builder.addRange(
-					Double.parseDouble(tfsRange[3*i].getText()),
-					Double.parseDouble(tfsRange[3*i+1].getText()),
-					Double.parseDouble(tfsRange[3*i+2].getText()));
-			}
-			builder.setMode(curMode);
-			
-			setSystem(builder.build());
-		} catch (Exception e) {
-			e.printStackTrace();
+		var builder = new EquationSystem.Builder();
+		
+		String input = tfCounts.getText();
+		if (!input.isBlank()) {
+			builder.setCount(Integer.parseInt(input));
 		}
+		input = tfStep.getText();
+		if (!input.isBlank()) {
+			builder.setStepSize(Double.parseDouble(input));
+		}
+		
+		int noOfEqns = noOfEqns();
+		if (noOfEqns < 1) {
+			return;
+		}
+		
+		for (int i = 0; i < noOfEqns; i++) {
+			builder.addEquation(tfsEquations[i].getText());
+			builder.addRange(
+				Double.parseDouble(tfsRange[3*i].getText()),
+				Double.parseDouble(tfsRange[3*i+1].getText()),
+				Double.parseDouble(tfsRange[3*i+2].getText()));
+		}
+		builder.setMode(curMode);
+		
+		setSystem(builder.build());
 	}
 	
 	private int noOfEqns() {
 		int noOfEqns = 0;
-		// We need the first two eqns at minimum
-		boolean hasEqns =
-			!tfsEquations[0].getText().isEmpty()
-			&& !tfsEquations[1].getText().isEmpty();
-		
-		if (hasEqns) {
-			noOfEqns = 2;
-			// Optional 3rd eqn
-			if (!tfsEquations[2].getText().isEmpty()) {
-				noOfEqns = 3;
+		for (var tf : tfsEquations) {
+			if (!tf.getText().isEmpty()) {
+				noOfEqns++;
 			}
 		}
 		return noOfEqns;
