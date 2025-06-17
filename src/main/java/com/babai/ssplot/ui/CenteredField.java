@@ -24,9 +24,11 @@ public class CenteredField extends JTextField {
 		var keyListener = new KeyAdapter() {
 			public void keyTyped(KeyEvent e) {
 				char c = e.getKeyChar();
-				if (!Character.isDigit(c) && c != '.' && c != '-' &&
+				if (!Character.isDigit(c) && c != '-' &&
 						!Character.isISOControl(c)) {
-					e.consume();
+					if ( (c == '.' && getText().contains(".")) || c != '.' ) {
+						e.consume();
+					}
 				}
 			}
 		};
