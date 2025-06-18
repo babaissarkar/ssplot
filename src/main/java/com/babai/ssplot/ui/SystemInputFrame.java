@@ -101,6 +101,7 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 			curMode = SystemMode.ODE;
 			updateInterface();
 		});
+		
 		rbIM.addActionListener(e -> {
 			curMode = SystemMode.DFE;
 			updateInterface();
@@ -110,6 +111,7 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 			curMode = SystemMode.FN1;
 			updateInterface();
 		});
+		
 		rbFunc2.addActionListener(e -> {
 			curMode = SystemMode.FN2;
 			updateInterface();
@@ -346,6 +348,16 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 			JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		add(sp);
 	}
+	
+	private int noOfEqns() {
+		int noOfEqns = 0;
+		for (var tf : tfsEquations) {
+			if (!tf.getText().isEmpty()) {
+				noOfEqns++;
+			}
+		}
+		return noOfEqns;
+	}
 
 	private void updateSystemFromUI() {
 		var builder = new EquationSystem.Builder();
@@ -376,16 +388,6 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 		setSystem(builder.build());
 	}
 	
-	private int noOfEqns() {
-		int noOfEqns = 0;
-		for (var tf : tfsEquations) {
-			if (!tf.getText().isEmpty()) {
-				noOfEqns++;
-			}
-		}
-		return noOfEqns;
-	}
-
 	private void reloadUI() {
 		var system = getSystem();
 		if (system != null) {
@@ -457,11 +459,8 @@ public class SystemInputFrame extends JInternalFrame implements ActionListener {
 		default:
 			int noOfEqns = noOfEqns();
 			if (noOfEqns >= 2) {
-				if (noOfEqns == 3) {
-					btnPlot3D.setEnabled(true);
-				} else {
-					btnPlot2D.setEnabled(true);
-				}
+				btnPlot2D.setEnabled(noOfEqns != 3);
+				btnPlot3D.setEnabled(noOfEqns == 3);
 				btnDF.setEnabled(true);
 				btnCW.setEnabled(false);
 				tfsSolnPoint[0].setEnabled(true);
