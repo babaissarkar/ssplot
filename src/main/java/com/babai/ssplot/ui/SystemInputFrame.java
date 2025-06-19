@@ -23,15 +23,12 @@
 
 package com.babai.ssplot.ui;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.util.function.Consumer;
-
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -49,6 +46,7 @@ import com.babai.ssplot.math.system.core.SystemMode;
 import com.babai.ssplot.math.system.parser.ParserManager;
 import com.babai.ssplot.math.system.solver.Solver;
 import com.babai.ssplot.ui.controls.StateVar;
+import com.babai.ssplot.ui.controls.UIInput;
 
 import static com.babai.ssplot.ui.controls.DUI.*;
 
@@ -61,7 +59,8 @@ public class SystemInputFrame extends JInternalFrame {
 
 	private JLabel[] lblsEquations;
 	private CenteredField tfCounts, tfStep;
-	private CenteredField[] tfsEquations, tfsRange, tfsSolnPoint;
+	private CenteredField[] tfsEquations, tfsRange;
+	private UIInput[] tfsSolnPoint;
 	private JButton btnDF, btnCW;
 	private JButton btnPlot2D, btnPlot3D;
 	
@@ -256,26 +255,21 @@ public class SystemInputFrame extends JInternalFrame {
 		).gap(5, 5);
 		
 		// Point of Solution labels and textfields
-		var pnlSolnInput = new JPanel();
-		pnlSolnInput.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
-		JLabel[] lbls3 = new JLabel[axes.length];
-		tfsSolnPoint = new CenteredField[axes.length];
-		for (int i = 0; i < tfsSolnPoint.length; i++) {
-			lbls3[i] = new JLabel(String.format(small_markup, axes[i]));
-			tfsSolnPoint[i] = new CenteredField(3);
-			tfsSolnPoint[i].setEnabled(false);
-			pnlSolnInput.add(lbls3[i]);
-			pnlSolnInput.add(tfsSolnPoint[i]);
-		}
-		var pnlSolnMain = new JPanel();
-		pnlSolnMain.setLayout(new BorderLayout());
-		pnlSolnMain.add(new JLabel("Solve At:"), BorderLayout.NORTH);
-		pnlSolnMain.add(pnlSolnInput);
+		tfsSolnPoint = new UIInput[axes.length];
+		var pnlSolnInput = hbox(
+			forEach(axes, idx -> hbox(
+				label(String.format(small_markup, axes[idx])),
+				tfsSolnPoint[idx] = input().columns(3).enabled(new StateVar<Boolean>(false))
+			))
+		).gap(5, 5);
 
 		var pnlMain = vbox(
 			toolbar(
 				pnlButton,
-				pnlSolnMain,
+				borderPane()
+					.north(label("Solve At:"))
+					.center(pnlSolnInput),
+				
 				hbox(
 					button()
 						.icon("/check.png")
