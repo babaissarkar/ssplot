@@ -24,5 +24,19 @@
 package com.babai.ssplot.math.system.core;
 
 public enum SystemMode {
-	ODE, DFE, FN1, FN2
+	ODE("Differential Equation"),
+	DFE("Difference Equation"),
+	FN1("2D function"),
+	FN2("3D function");
+
+	private String name;
+	
+	SystemMode(String name) {
+		this.name = name;
+	}
+	
+	@Override
+	public String toString() {
+		return this.name;
+	}
 };

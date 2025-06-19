@@ -9,6 +9,10 @@ public class DUI {
 		return new UIButton();
 	}
 	
+	public static <E> UIRadioGroup<E> radioGroup(Class<E> clazz) {
+		return new UIRadioGroup<>();
+	}
+	
 	public static UIHBox hbox(JComponent... children) {
 		var hbox = new UIHBox();
 		for (var child : children) {
