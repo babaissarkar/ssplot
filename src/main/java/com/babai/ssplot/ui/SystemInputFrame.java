@@ -34,14 +34,12 @@ import java.util.function.Consumer;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.border.TitledBorder;
 
@@ -50,6 +48,7 @@ import com.babai.ssplot.math.system.core.EquationSystem;
 import com.babai.ssplot.math.system.core.SystemMode;
 import com.babai.ssplot.math.system.parser.ParserManager;
 import com.babai.ssplot.math.system.solver.Solver;
+import com.babai.ssplot.ui.controls.StateVar;
 
 import static com.babai.ssplot.ui.controls.DUI.*;
 
@@ -68,13 +67,14 @@ public class SystemInputFrame extends JInternalFrame {
 	
 	private Consumer<PlotData> updater;
 
-	private SystemMode curMode;
+	private StateVar<SystemMode> curMode;
 	private EquationSystem system;
 	private PlotData curData;
 
 	public SystemInputFrame() {
 		this.curData = new PlotData();
-		this.curMode = SystemMode.ODE;
+		this.curMode = new StateVar<>(SystemMode.ODE);
+		this.curMode.bind(this::updateInterface);
 		initInputDialog();
 		updateInterface();
 	}
@@ -83,43 +83,6 @@ public class SystemInputFrame extends JInternalFrame {
 		/* Creating Gui */
 		setTitle("System Parameters");
 		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-
-		var pnlRB = new JPanel();
-		var rbODE = new JRadioButton("Differential Equation", true);
-		var rbIM = new JRadioButton("Difference Equation");
-		var rbFunc = new JRadioButton("2D function");
-		var rbFunc2 = new JRadioButton("3D function");
-
-		rbODE.addActionListener(e -> {
-			curMode = SystemMode.ODE;
-			updateInterface();
-		});
-		
-		rbIM.addActionListener(e -> {
-			curMode = SystemMode.DFE;
-			updateInterface();
-		});
-
-		rbFunc.addActionListener(e -> {
-			curMode = SystemMode.FN1;
-			updateInterface();
-		});
-		
-		rbFunc2.addActionListener(e -> {
-			curMode = SystemMode.FN2;
-			updateInterface();
-		});
-
-		var bg = new ButtonGroup();
-		bg.add(rbODE);
-		bg.add(rbIM);
-		bg.add(rbFunc);
-		bg.add(rbFunc2);
-
-		pnlRB.add(rbODE);
-		pnlRB.add(rbIM);
-		pnlRB.add(rbFunc);
-		pnlRB.add(rbFunc2);
 
 		// Iteration paramters entry
 		var pnlCounts = new JPanel();
@@ -331,7 +294,11 @@ public class SystemInputFrame extends JInternalFrame {
 						.onClick(this::hide)
 				)
 			),
-			pnlRB,
+			
+			radioGroup(SystemMode.class)
+				.options(SystemMode.values(), SystemMode.ODE)
+				.bind(curMode),
+				
 			pnlCounts,
 			pnlMatrix,
 			pnlRange
@@ -378,7 +345,7 @@ public class SystemInputFrame extends JInternalFrame {
 				Double.parseDouble(tfsRange[3*i+1].getText()),
 				Double.parseDouble(tfsRange[3*i+2].getText()));
 		}
-		builder.setMode(curMode);
+		builder.setMode(curMode.get());
 		
 		setSystem(builder.build());
 	}
@@ -386,12 +353,12 @@ public class SystemInputFrame extends JInternalFrame {
 	private void reloadUI() {
 		var system = getSystem();
 		if (system != null) {
-			curMode = getSystem().getMode();
+			curMode.set(getSystem().getMode());
 			for (int i = 0; i < noOfEqns(); i++) {
 				tfsEquations[i].setText(system.get(i));
 			}
 		} else {
-			curMode = SystemMode.ODE;
+			curMode.set(SystemMode.ODE);
 		}
 
 		// TODO set other fields except Eqns
@@ -402,7 +369,7 @@ public class SystemInputFrame extends JInternalFrame {
 	}
 
 	private void updateInterface() {
-		if (curMode == SystemMode.ODE) {
+		if (curMode.get() == SystemMode.ODE) {
 			lblsEquations[0].setText("dx/dt =");
 			lblsEquations[1].setText("dy/dt =");
 			lblsEquations[2].setText("dz/dt =");
@@ -413,7 +380,7 @@ public class SystemInputFrame extends JInternalFrame {
 			tfsRange[8].setEditable(true);
 			tfStep.setEditable(true);
 			tfCounts.setEditable(true);
-		} else if (curMode == SystemMode.DFE) {
+		} else if (curMode.get() == SystemMode.DFE) {
 			lblsEquations[0].setText("<html><body>x<sub>n+1</sub> =</body></html>");
 			lblsEquations[1].setText("<html><body>y<sub>n+1</sub> =</body></html>");
 			lblsEquations[2].setText("<html><body>z<sub>n+1</sub> =</body></html>");
@@ -424,7 +391,7 @@ public class SystemInputFrame extends JInternalFrame {
 			tfsRange[8].setEditable(true);
 			tfStep.setEditable(true);
 			tfCounts.setEditable(true);
-		} else if (curMode == SystemMode.FN1) {
+		} else if (curMode.get() == SystemMode.FN1) {
 			lblsEquations[0].setText("y(x) =");
 			lblsEquations[1].setText("");
 			lblsEquations[2].setText("");
@@ -435,7 +402,7 @@ public class SystemInputFrame extends JInternalFrame {
 			tfsRange[8].setEditable(false);
 			tfStep.setEditable(false);
 			tfCounts.setEditable(false);
-		} else if (curMode == SystemMode.FN2) {
+		} else if (curMode.get() == SystemMode.FN2) {
 			lblsEquations[0].setText("z(x, y) =");
 			lblsEquations[1].setText("");
 			lblsEquations[2].setText("");
@@ -450,7 +417,7 @@ public class SystemInputFrame extends JInternalFrame {
 	}
 
 	private void switchSystemMode() {
-		switch (curMode) {
+		switch (curMode.get()) {
 		default:
 			int noOfEqns = noOfEqns();
 			if (noOfEqns >= 2) {
@@ -536,7 +503,7 @@ public class SystemInputFrame extends JInternalFrame {
 	}
 	
 	private void plot2D() {
-		switch (curMode) {
+		switch (curMode.get()) {
 		case FN1:
 			plotFunction2D();
 			break;
@@ -560,7 +527,7 @@ public class SystemInputFrame extends JInternalFrame {
 	}
 	
 	private void plot3D() {
-		switch (curMode) {
+		switch (curMode.get()) {
 		case FN2:
 			plotFunction3D();
 			break;
@@ -604,7 +571,7 @@ public class SystemInputFrame extends JInternalFrame {
 	public void plotTrajectory(double x, double y) {
 		var solver = new Solver(ParserManager.getParser(), getSystem());
 		PlotData trjData;		
-		switch (curMode) {
+		switch (curMode.get()) {
 		case DFE:
 			trjData = new PlotData(solver.iterateMap(x, x));
 			break;
