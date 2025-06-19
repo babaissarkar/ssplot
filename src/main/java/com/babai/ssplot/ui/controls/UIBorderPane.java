@@ -1,0 +1,41 @@
+package com.babai.ssplot.ui.controls;
+
+import java.awt.BorderLayout;
+
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+
+public class UIBorderPane extends JPanel {
+	private BorderLayout layout;
+	
+	public UIBorderPane() {
+		layout = new BorderLayout();
+		setLayout(layout);
+	}
+	
+	public UIBorderPane north(JComponent c) {
+		add(c, BorderLayout.NORTH);
+		return this;
+	}
+	
+	public UIBorderPane south(JComponent c) {
+		add(c, BorderLayout.SOUTH);
+		return this;
+	}
+	
+	public UIBorderPane east(JComponent c) {
+		add(c, BorderLayout.EAST);
+		return this;
+	}
+	
+	public UIBorderPane west(JComponent c) {
+		add(c, BorderLayout.WEST);
+		return this;
+	}
+	
+	public UIBorderPane center(JComponent c) {
+		add(c, BorderLayout.CENTER);
+		return this;
+	}
+
+}
