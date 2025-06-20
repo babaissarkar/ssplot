@@ -32,6 +32,11 @@ public class UIInput extends JTextField {
 		return this;
 	}
 	
+	public UIInput enabled(boolean enabled) {
+		setEnabled(enabled);
+		return this;
+	}
+	
 	public UIInput numeric(boolean numeric) {
 		var keyListener = new KeyAdapter() {
 			public void keyTyped(KeyEvent e) {

@@ -1,10 +1,11 @@
 package com.babai.ssplot.ui.controls;
 
+import java.util.Vector;
 import java.util.function.Function;
 
 public class StateVar<T> {
 	T value;
-	Runnable onChange = null;
+	Vector<Runnable> runners = new Vector<>();
 	
 	public StateVar(T value) {
 		this.value = value;
@@ -16,16 +17,20 @@ public class StateVar<T> {
 	
 	public void set(T value) {
 		this.value = value;
-		if (onChange != null) {
-			onChange.run();
+		for (var runner : runners) {
+			runner.run();
 		}
 	}
 	
 	public void bind(Runnable r) {
-		this.onChange = r;
+		this.runners.add(r);
 	}
 	
-	public <U> StateVar<U> derive(Function<T, U> mapper) {
+	public void unbindAll() {
+		this.runners.clear();
+	}
+	
+	public <U> StateVar<U> when(Function<T, U> mapper) {
 		StateVar<U> derived = new StateVar<>(mapper.apply(this.get()));
 		bind(() -> derived.set(mapper.apply(get())));
 		return derived;
