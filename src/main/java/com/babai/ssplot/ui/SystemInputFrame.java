@@ -28,6 +28,7 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.util.ArrayList;
 import java.util.function.Consumer;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -61,7 +62,6 @@ public class SystemInputFrame extends JInternalFrame {
 	private CenteredField tfCounts, tfStep;
 	private CenteredField[] tfsEquations, tfsRange;
 	private UIInput[] tfsSolnPoint;
-	private JButton btnDF, btnCW;
 	private JButton btnPlot2D, btnPlot3D;
 	
 	private Consumer<PlotData> updater;
@@ -226,49 +226,68 @@ public class SystemInputFrame extends JInternalFrame {
 				TitledBorder.TOP,
 				new Font("Serif", Font.BOLD, 12),
 				new Color(24, 110, 1).darker().darker()));
-
+		
+		// Enable conditions for various input fields
+		var conditions = new ArrayList<StateVar<Boolean>>();
+		conditions.add(curMode.when(
+			mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE)));
+		conditions.add(curMode.when(
+			mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE)));
+		conditions.add(curMode.when(mode -> (mode == SystemMode.ODE)));
+		
+		var plot2dCondition = curMode.when(
+			mode -> (
+				mode == SystemMode.ODE
+				|| mode == SystemMode.FN1
+				|| mode == SystemMode.DFE
+			)
+		);
+		
 		// Plot Buttons
 		var pnlButton = hbox(
 			btnPlot2D = button()
 				.icon("/2d.png")
 				.tooltip("Draw 2d plot")
-				.enabled(false)
+				.enabled(plot2dCondition)
 				.onClick(this::plot2D),
 				
 			btnPlot3D = button()
 				.icon("/3d.png")
 				.tooltip("Draw 3d plot")
-				.enabled(false)
+				.enabled(plot2dCondition.when(cond -> !cond))
 				.onClick(this::plot3D),
 				
-			btnCW = button()
+			button()
 				.icon("/cobweb.png")
 				.tooltip("Draw Cobweb Plot")
-				.enabled(false)
+				.enabled(curMode.when(mode -> (mode == SystemMode.DFE)))
 				.onClick(this::plotCobweb),
 				
-			btnDF = button()
+			button()
 				.icon("/vfield.png")
-				.tooltip("Draw Cobweb Plot")
-				.enabled(false)
+				.tooltip("Draw Direction Field")
+				.enabled(curMode.when(mode -> (mode == SystemMode.ODE)))
 				.onClick(this::plotDirectionField)
 		).gap(5, 5);
 		
-		// Point of Solution labels and textfields
 		tfsSolnPoint = new UIInput[axes.length];
-		var pnlSolnInput = hbox(
-			forEach(axes, idx -> hbox(
-				label(String.format(small_markup, axes[idx])),
-				tfsSolnPoint[idx] = input().columns(3).enabled(new StateVar<Boolean>(false))
-			))
-		).gap(5, 5);
 
 		var pnlMain = vbox(
 			toolbar(
 				pnlButton,
+				
+				// Entry area for the point where the system is to be solved (X,Y,Z)
+				// Which of these will be enabled depends on the system of equation's type
 				borderPane()
 					.north(label("Solve At:"))
-					.center(pnlSolnInput),
+					.center(
+						hbox(
+							forEach(axes, idx -> hbox(
+								label(String.format(small_markup, axes[idx])),
+								tfsSolnPoint[idx] = input().columns(3).enabled(conditions.get(idx))
+							))
+						).gap(5, 5)
+					),
 				
 				hbox(
 					button()
@@ -314,6 +333,7 @@ public class SystemInputFrame extends JInternalFrame {
 		}
 		return noOfEqns;
 	}
+		
 
 	private void updateSystemFromUI() {
 		var builder = new EquationSystem.Builder();
@@ -417,12 +437,6 @@ public class SystemInputFrame extends JInternalFrame {
 			if (noOfEqns >= 2) {
 				btnPlot2D.setEnabled(noOfEqns != 3);
 				btnPlot3D.setEnabled(noOfEqns == 3);
-				btnDF.setEnabled(true);
-				btnCW.setEnabled(false);
-				tfsSolnPoint[0].setEnabled(true);
-				tfsSolnPoint[1].setEnabled(true);
-				tfsSolnPoint[2].setEnabled(true);
-				
 				tfsSolnPoint[0].requestFocusInWindow();
 			} else {
 				JOptionPane.showMessageDialog(this, "Not enough equations!", "Invalid Input", JOptionPane.ERROR_MESSAGE);
@@ -431,36 +445,18 @@ public class SystemInputFrame extends JInternalFrame {
 			break;
 
 		case FN1:
-			btnDF.setEnabled(false);
-			btnCW.setEnabled(false);
 			btnPlot2D.setEnabled(true);
 			btnPlot3D.setEnabled(false);
-
-			tfsSolnPoint[0].setEnabled(false);
-			tfsSolnPoint[1].setEnabled(false);
-			tfsSolnPoint[2].setEnabled(false);
 			break;
 
 		case FN2:
-			btnDF.setEnabled(false);
-			btnCW.setEnabled(false);
 			btnPlot2D.setEnabled(false);
 			btnPlot3D.setEnabled(true);
-
-			tfsSolnPoint[0].setEnabled(false);
-			tfsSolnPoint[1].setEnabled(false);
-			tfsSolnPoint[2].setEnabled(false);
 			break;
 
 		case DFE:
-			btnDF.setEnabled(false);
-			btnCW.setEnabled(true);
 			btnPlot2D.setEnabled(true);
 			btnPlot3D.setEnabled(false);
-
-			tfsSolnPoint[0].setEnabled(true);
-			tfsSolnPoint[1].setEnabled(true);
-			tfsSolnPoint[2].setEnabled(false);
 			
 			tfsSolnPoint[0].requestFocusInWindow();
 			break;
@@ -495,6 +491,7 @@ public class SystemInputFrame extends JInternalFrame {
 		setData(pdata);
 		updater.accept(pdata);
 	}
+	
 	
 	private void plot2D() {
 		switch (curMode.get()) {
@@ -562,7 +559,7 @@ public class SystemInputFrame extends JInternalFrame {
 		updater.accept(getData());
 	}
 	
-	public void plotTrajectory(double x, double y) {
+	private void plotTrajectory(double x, double y) {
 		var solver = new Solver(ParserManager.getParser(), getSystem());
 		PlotData trjData;		
 		switch (curMode.get()) {
@@ -578,8 +575,9 @@ public class SystemInputFrame extends JInternalFrame {
 		trjData.setSystem(getSystem());
 		setData(trjData);
 	}
+	
 
-	public void plotODE3D(double x, double y, double z) {
+	private void plotODE3D(double x, double y, double z) {
 		var solver = new Solver(ParserManager.getParser(), getSystem());
 		PlotData trjData = new PlotData(solver.RK4Iterate3D(x, y, z));
 		trjData.setPltype(PlotData.PlotType.THREED);
@@ -587,6 +585,7 @@ public class SystemInputFrame extends JInternalFrame {
 		trjData.setSystem(getSystem());
 		setData(trjData);
 	}
+	
 
 	public void plotFunction2D() {
 		var solver = new Solver(ParserManager.getParser(), getSystem());
