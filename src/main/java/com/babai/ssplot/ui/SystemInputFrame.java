@@ -32,7 +32,6 @@ import java.util.ArrayList;
 import java.util.function.Consumer;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
@@ -62,7 +61,6 @@ public class SystemInputFrame extends JInternalFrame {
 	private CenteredField tfCounts, tfStep;
 	private CenteredField[] tfsEquations, tfsRange;
 	private UIInput[] tfsSolnPoint;
-	private JButton btnPlot2D, btnPlot3D;
 	
 	private Consumer<PlotData> updater;
 
@@ -245,13 +243,13 @@ public class SystemInputFrame extends JInternalFrame {
 		
 		// Plot Buttons
 		var pnlButton = hbox(
-			btnPlot2D = button()
+			button()
 				.icon("/2d.png")
 				.tooltip("Draw 2d plot")
 				.enabled(plot2dCondition)
 				.onClick(this::plot2D),
 				
-			btnPlot3D = button()
+			button()
 				.icon("/3d.png")
 				.tooltip("Draw 3d plot")
 				.enabled(plot2dCondition.when(cond -> !cond))
@@ -435,8 +433,6 @@ public class SystemInputFrame extends JInternalFrame {
 		default:
 			int noOfEqns = noOfEqns();
 			if (noOfEqns >= 2) {
-				btnPlot2D.setEnabled(noOfEqns != 3);
-				btnPlot3D.setEnabled(noOfEqns == 3);
 				tfsSolnPoint[0].requestFocusInWindow();
 			} else {
 				JOptionPane.showMessageDialog(this, "Not enough equations!", "Invalid Input", JOptionPane.ERROR_MESSAGE);
@@ -445,18 +441,12 @@ public class SystemInputFrame extends JInternalFrame {
 			break;
 
 		case FN1:
-			btnPlot2D.setEnabled(true);
-			btnPlot3D.setEnabled(false);
 			break;
 
 		case FN2:
-			btnPlot2D.setEnabled(false);
-			btnPlot3D.setEnabled(true);
 			break;
 
 		case DFE:
-			btnPlot2D.setEnabled(true);
-			btnPlot3D.setEnabled(false);
 			
 			tfsSolnPoint[0].requestFocusInWindow();
 			break;
