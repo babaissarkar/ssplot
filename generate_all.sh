@@ -6,8 +6,10 @@
 VERSION=2.2.6
 echo "Running Maven: Compile and generate DEB"
 mvn clean package -X -f pom.xml
+
 echo "Generating Docs"
 markdown README.md > README.html
+
 echo "Creating AppImage"
 cp -v "jar/ssplot.jar" "SSPlot.AppDir/usr/share/ssplot/ssplot.jar"
 # download appimagetool
@@ -17,3 +19,8 @@ chmod +x appimagetool-x86_64.AppImage
 mv squashfs-root appimagetool-dir
 # run appimagetool
 ARCH=x86_64 appimagetool-dir/AppRun "SSPlot.AppDir"
+
+echo "Creating Docker container"
+cp -v "jar/ssplot.jar" "packaging/docker/ssplot.jar"
+cd packaging/docker
+docker build -t ssplot .
