@@ -6,6 +6,7 @@ import java.util.stream.IntStream;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 
 public class DUI {
@@ -32,6 +33,13 @@ public class DUI {
 	
 	public static <E> UIRadioGroup<E> radioGroup(Class<E> clazz) {
 		return new UIRadioGroup<>();
+	}
+	
+	public static JScrollPane scrollPane(JComponent child) {
+		return new JScrollPane(
+				child,
+				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 	}
 	
 	public static UIBorderPane borderPane() {

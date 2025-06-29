@@ -28,7 +28,7 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -37,7 +37,6 @@ import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.border.TitledBorder;
 
 import com.babai.ssplot.math.plot.PlotData;
@@ -58,8 +57,8 @@ import static com.babai.ssplot.ui.controls.DUI.*;
 public class SystemInputFrame extends JInternalFrame {
 
 	private JLabel[] lblsEquations;
-	private CenteredField tfCounts, tfStep;
-	private CenteredField[] tfsEquations, tfsRange;
+	private UIInput tfCounts, tfStep;
+	private UIInput[] tfsEquations, tfsRange;
 	private UIInput[] tfsSolnPoint;
 	
 	private Consumer<PlotData> updater;
@@ -90,30 +89,35 @@ public class SystemInputFrame extends JInternalFrame {
 		gbc.insets = new Insets(5, 5, 5, 5);
 		gbc.fill = GridBagConstraints.NONE;
 
-		var lblCounts = new JLabel("Iteration count");
-		var lblStep = new JLabel("Iteration stepsize");
-		tfCounts = new CenteredField("" + EquationSystem.DEFAULT_N, 6);
-		tfStep = new CenteredField("" + EquationSystem.DEFAULT_H, 6);
-		tfCounts.setNumeric(true);
-		tfCounts.setNumeric(true);
-
 		gbc.gridx = 0;
 		gbc.gridy = 0;
 		gbc.weightx = 0;
-		pnlCounts.add(lblCounts, gbc);
+		pnlCounts.add(label("Iteration count"), gbc);
 
 		gbc.gridx = 1;
 		gbc.weightx = 1;
-		pnlCounts.add(tfCounts, gbc);
+		pnlCounts.add(
+			tfCounts = input()
+				.columns(6)
+				.text("" + EquationSystem.DEFAULT_N)
+				.numeric(true),
+			gbc
+		);
 
 		gbc.gridx = 0;
 		gbc.gridy = 1;
 		gbc.weightx = 0;
-		pnlCounts.add(lblStep, gbc);
+		pnlCounts.add(label("Iteration stepsize"), gbc);
 
 		gbc.gridx = 1;
 		gbc.weightx = 1;
-		pnlCounts.add(tfStep, gbc);
+		pnlCounts.add(
+			tfStep = input()
+				.columns(6)
+				.text("" + EquationSystem.DEFAULT_H)
+				.numeric(true),
+			gbc
+		);
 
 		pnlCounts.setBorder(
 				BorderFactory.createTitledBorder(
@@ -135,10 +139,10 @@ public class SystemInputFrame extends JInternalFrame {
 				new JLabel("Equation 3")
 		};
 
-		tfsEquations = new CenteredField[] {
-				new CenteredField(10),
-				new CenteredField(10),
-				new CenteredField(10)
+		tfsEquations = new UIInput[] {
+				input().columns(10),
+				input().columns(10),
+				input().columns(10)
 		};
 
 		gbc = new GridBagConstraints();
@@ -169,9 +173,7 @@ public class SystemInputFrame extends JInternalFrame {
 						new Font("Serif", Font.BOLD, 12),
 						new Color(255, 90, 38).darker().darker()));
 
-		// Ranges entry
-		var pnlRange = new JPanel(new GridBagLayout());
-		
+		// Ranges entry		
 		final String sub_markup = "<html><body>%s<sub>%s</sub></body></html>";
 		final String small_markup = "<html><body style='font-size:12'>%s</body></html>";
 		final String[] axes = {"X", "Y", "Z"};
@@ -182,14 +184,13 @@ public class SystemInputFrame extends JInternalFrame {
 			EquationSystem.DEFAULT_RANGE.step()
 		};
 
+		var pnlRange = new JPanel(new GridBagLayout());
 		JLabel[] lbls2 = new JLabel[axes.length * tags.length];
-		tfsRange = new CenteredField[axes.length * tags.length];
+		tfsRange = new UIInput[axes.length * tags.length];
 
 		for (int i = 0; i < lbls2.length; i++) {
-			lbls2[i] = new JLabel(sub_markup.formatted(axes[i / 3], tags[i % 3]));
-			tfsRange[i] = new CenteredField(5);
-			tfsRange[i].setNumeric(true);
-			tfsRange[i].setText("" + rangeAsArray[i % 3]);
+			lbls2[i] = label(sub_markup.formatted(axes[i / 3], tags[i % 3]));
+			tfsRange[i] = input().columns(5).numeric(true).text("" + rangeAsArray[i % 3]);
 		}
 
 		gbc = new GridBagConstraints();
@@ -225,13 +226,13 @@ public class SystemInputFrame extends JInternalFrame {
 				new Font("Serif", Font.BOLD, 12),
 				new Color(24, 110, 1).darker().darker()));
 		
+		// TODO noOfEqns not added to conditions yet
 		// Enable conditions for various input fields
-		var conditions = new ArrayList<StateVar<Boolean>>();
-		conditions.add(curMode.when(
-			mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE)));
-		conditions.add(curMode.when(
-			mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE)));
-		conditions.add(curMode.when(mode -> (mode == SystemMode.ODE)));
+		List<StateVar<Boolean>> conditions = List.of(
+			curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE)),
+			curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE)),
+			curMode.when(mode -> (mode == SystemMode.ODE))
+		);
 		
 		var plot2dCondition = curMode.when(
 			mode -> (
@@ -270,56 +271,52 @@ public class SystemInputFrame extends JInternalFrame {
 		
 		tfsSolnPoint = new UIInput[axes.length];
 
-		var pnlMain = vbox(
-			toolbar(
-				pnlButton,
-				
-				// Entry area for the point where the system is to be solved (X,Y,Z)
-				// Which of these will be enabled depends on the system of equation's type
-				borderPane()
-					.north(label("Solve At:"))
-					.center(
-						hbox(
-							forEach(axes, idx -> hbox(
-								label(String.format(small_markup, axes[idx])),
-								tfsSolnPoint[idx] = input().columns(3).enabled(conditions.get(idx))
-							))
-						).gap(5, 5)
-					),
-				
-				hbox(
-					button()
-						.icon("/check.png")
-						.tooltip("Apply changes")
-						.onClick(() -> {
-							// Sets up the System of Equations and validates,
-							// but doesn't plot anything
-							switchSystemMode();
-							updateSystemFromUI();
-						}),
+		add(
+			vbox(
+				toolbar(
+					pnlButton,
 					
-					// TODO this still hides instead of clearing input
-					button()
-						.icon("/cross.png")
-						.tooltip("Clear changes")
-						.onClick(this::hide)
-				)
-			),
-			
-			radioGroup(SystemMode.class)
-				.options(SystemMode.values(), SystemMode.ODE)
-				.bind(curMode),
+					// Entry area for the point where the system is to be solved (X,Y,Z)
+					// Which of these will be enabled depends on the system of equation's type
+					borderPane()
+						.north(label("Solve At:"))
+						.center(
+							hbox(
+								forEach(axes, idx -> hbox(
+									label(String.format(small_markup, axes[idx])),
+									tfsSolnPoint[idx] = input().columns(3).enabled(conditions.get(idx))
+								))
+							).gap(5, 5)
+						),
+					
+					hbox(
+						button()
+							.icon("/check.png")
+							.tooltip("Apply changes")
+							.onClick(() -> {
+								// Sets up the System of Equations and validates,
+								// but doesn't plot anything
+								switchSystemMode();
+								updateSystemFromUI();
+							}),
+						
+						// TODO this still hides instead of clearing input
+						button()
+							.icon("/cross.png")
+							.tooltip("Clear changes")
+							.onClick(this::hide)
+					)
+				),
 				
-			pnlCounts,
-			pnlMatrix,
-			pnlRange
-		).emptyBorder(10);
-
-		JScrollPane sp = new JScrollPane(
-			pnlMain,
-			JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-			JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		add(sp);
+				radioGroup(SystemMode.class)
+					.options(SystemMode.values(), SystemMode.ODE)
+					.bind(curMode),
+					
+				pnlCounts,
+				pnlMatrix,
+				pnlRange
+			).emptyBorder(10)
+		);
 	}
 	
 	private int noOfEqns() {
@@ -353,9 +350,10 @@ public class SystemInputFrame extends JInternalFrame {
 		for (int i = 0; i < noOfEqns; i++) {
 			builder.addEquation(tfsEquations[i].getText());
 			builder.addRange(
-				Double.parseDouble(tfsRange[3*i].getText()),
-				Double.parseDouble(tfsRange[3*i+1].getText()),
-				Double.parseDouble(tfsRange[3*i+2].getText()));
+				tfsRange[3*i  ].value(),
+				tfsRange[3*i+1].value(),
+				tfsRange[3*i+2].value()
+			);
 		}
 		builder.setMode(curMode.get());
 		
@@ -489,14 +487,12 @@ public class SystemInputFrame extends JInternalFrame {
 			plotFunction2D();
 			break;
 		default:
-			boolean hasValidPoint =
-			!tfsSolnPoint[0].getText().isEmpty()
-			&& !tfsSolnPoint[1].getText().isEmpty();
-
-			if (hasValidPoint) {
-				double x = Double.parseDouble(tfsSolnPoint[0].getText());
-				double y = Double.parseDouble(tfsSolnPoint[1].getText());
-				plotTrajectory(x, y);
+			if (!tfsSolnPoint[0].empty() && !tfsSolnPoint[1].empty())
+			{
+				plotTrajectory(
+					tfsSolnPoint[0].value(),
+					tfsSolnPoint[1].value()
+				);
 			} else {
 				JOptionPane.showMessageDialog(this, "Enter a solution point!", "Invalid Input", JOptionPane.ERROR_MESSAGE);
 				tfsSolnPoint[0].requestFocusInWindow();
@@ -513,16 +509,13 @@ public class SystemInputFrame extends JInternalFrame {
 			plotFunction3D();
 			break;
 		default:
-			boolean hasValidPoint =
-			!tfsSolnPoint[0].getText().isEmpty()
-			&& !tfsSolnPoint[1].getText().isEmpty()
-			&& !tfsSolnPoint[2].getText().isEmpty();
-
-			if (hasValidPoint) {
-				double x = Double.parseDouble(tfsSolnPoint[0].getText());
-				double y = Double.parseDouble(tfsSolnPoint[1].getText());
-				double z = Double.parseDouble(tfsSolnPoint[2].getText());
-				plotODE3D(x, y, z);
+			if (!tfsSolnPoint[0].empty() && !tfsSolnPoint[1].empty() && !tfsSolnPoint[2].empty())
+			{
+				plotODE3D(
+					tfsSolnPoint[0].value(),
+					tfsSolnPoint[1].value(),
+					tfsSolnPoint[2].value()
+				);
 			} else {
 				JOptionPane.showMessageDialog(this, "Enter a solution point!", "Invalid Input", JOptionPane.ERROR_MESSAGE);
 				tfsSolnPoint[0].requestFocusInWindow();
