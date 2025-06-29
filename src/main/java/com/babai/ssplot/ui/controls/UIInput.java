@@ -58,4 +58,12 @@ public class UIInput extends JTextField {
 		
 		return this;
 	}
+	
+	public Double value() {
+		return Double.parseDouble(getText());
+	}
+	
+	public boolean empty() {
+		return getText().isEmpty();
+	}
 }
