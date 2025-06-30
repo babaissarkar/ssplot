@@ -5,6 +5,8 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
 import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 public class UIInput extends JTextField {
 	private static final Font monoFont =
@@ -69,5 +71,25 @@ public class UIInput extends JTextField {
 	
 	public boolean empty() {
 		return getText().isEmpty();
+	}
+	
+	public UIInput onChange(Runnable action) {
+		getDocument().addDocumentListener(new DocumentListener() {
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				action.run();
+			}
+
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				action.run();
+			}
+
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				action.run();
+			}
+		});
+		return this;
 	}
 }
