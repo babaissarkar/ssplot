@@ -226,21 +226,23 @@ public class SystemInputFrame extends JInternalFrame {
 				new Font("Serif", Font.BOLD, 12),
 				new Color(24, 110, 1).darker().darker()));
 		
-		// TODO noOfEqns not added to conditions yet
 		// Enable conditions for various input fields
-		List<StateVar<Boolean>> conditions = List.of(
-			curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE)),
-			curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE)),
-			curMode.when(mode -> (mode == SystemMode.ODE))
+		List<StateVar<Boolean>> inputConditions = List.of(
+			curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE) && noOfEqns() >= 2),
+			curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE) && noOfEqns() >= 2),
+			curMode.when(mode -> (mode == SystemMode.ODE && noOfEqns() == 3))
 		);
 		
-		var plot2dCondition = curMode.when(
-			mode -> (
-				mode == SystemMode.ODE
-				|| mode == SystemMode.FN1
-				|| mode == SystemMode.DFE
-			)
-		);
+		var plot2dCondition = curMode.when(mode -> (
+			(mode == SystemMode.ODE && noOfEqns() == 2)
+			|| mode == SystemMode.FN1
+			|| mode == SystemMode.DFE
+		));
+		
+		var plot3dCondition = curMode.when(mode -> (
+			(mode == SystemMode.ODE && noOfEqns() == 3)
+			|| mode == SystemMode.FN2
+		));
 		
 		// Plot Buttons
 		var pnlButton = hbox(
@@ -253,19 +255,19 @@ public class SystemInputFrame extends JInternalFrame {
 			button()
 				.icon("/3d.png")
 				.tooltip("Draw 3d plot")
-				.enabled(plot2dCondition.when(cond -> !cond))
+				.enabled(plot3dCondition)
 				.onClick(this::plot3D),
 				
 			button()
 				.icon("/cobweb.png")
 				.tooltip("Draw Cobweb Plot")
-				.enabled(curMode.when(mode -> (mode == SystemMode.DFE)))
+				.enabled(curMode.when(mode -> (mode == SystemMode.DFE && noOfEqns() >= 1)))
 				.onClick(this::plotCobweb),
 				
 			button()
 				.icon("/vfield.png")
 				.tooltip("Draw Direction Field")
-				.enabled(curMode.when(mode -> (mode == SystemMode.ODE)))
+				.enabled(curMode.when(mode -> (mode == SystemMode.ODE && noOfEqns() == 2)))
 				.onClick(this::plotDirectionField)
 		).gap(5, 5);
 		
@@ -284,7 +286,7 @@ public class SystemInputFrame extends JInternalFrame {
 							hbox(
 								forEach(axes, idx -> hbox(
 									label(String.format(small_markup, axes[idx])),
-									tfsSolnPoint[idx] = input().columns(3).enabled(conditions.get(idx))
+									tfsSolnPoint[idx] = input().columns(3).enabled(inputConditions.get(idx))
 								))
 							).gap(5, 5)
 						),
@@ -329,7 +331,6 @@ public class SystemInputFrame extends JInternalFrame {
 		return noOfEqns;
 	}
 		
-
 	private void updateSystemFromUI() {
 		var builder = new EquationSystem.Builder();
 		
@@ -339,7 +340,7 @@ public class SystemInputFrame extends JInternalFrame {
 		}
 		input = tfStep.getText();
 		if (!input.isBlank()) {
-			builder.setStepSize(Double.parseDouble(input));
+			builder.setStepSize(tfStep.value());
 		}
 		
 		int noOfEqns = noOfEqns();
@@ -509,8 +510,7 @@ public class SystemInputFrame extends JInternalFrame {
 			plotFunction3D();
 			break;
 		default:
-			if (!tfsSolnPoint[0].empty() && !tfsSolnPoint[1].empty() && !tfsSolnPoint[2].empty())
-			{
+			if (noOfEqns() == 3) {
 				plotODE3D(
 					tfsSolnPoint[0].value(),
 					tfsSolnPoint[1].value(),
@@ -526,8 +526,8 @@ public class SystemInputFrame extends JInternalFrame {
 	}
 	
 	private void plotCobweb() {
-		if (!tfsSolnPoint[0].getText().isEmpty()) {
-			double x = Double.parseDouble(tfsSolnPoint[0].getText());
+		if (noOfEqns() >= 1) {
+			double x = tfsSolnPoint[0].value();
 			var solver = new Solver(ParserManager.getParser(), getSystem());
 			PlotData pdata = new PlotData(solver.cobweb(x));
 			pdata.setPltype(PlotData.PlotType.LINES);
