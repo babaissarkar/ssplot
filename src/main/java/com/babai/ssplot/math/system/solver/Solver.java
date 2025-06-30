@@ -232,7 +232,7 @@ public class Solver {
 		return soln;
 	}
 
-	// TODO rest of the two eqn entry fields are not being used!
+	// TODO eqn entry textfields 2 and 3 are not being used despite them being indicated as such in UI.
 	public Vector<Vector<Double>> cobweb(double x0) {
 		/* Works for 1D maps only */
 		var soln = new Vector<Vector<Double>>();
