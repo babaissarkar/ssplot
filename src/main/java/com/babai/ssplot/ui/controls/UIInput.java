@@ -63,6 +63,10 @@ public class UIInput extends JTextField {
 		return Double.parseDouble(getText());
 	}
 	
+	public Integer intValue() {
+		return Integer.parseInt(getText());
+	}
+	
 	public boolean empty() {
 		return getText().isEmpty();
 	}
