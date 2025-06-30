@@ -7,7 +7,7 @@ import java.awt.event.KeyEvent;
 import javax.swing.JTextArea;
 
 /** JTextArea with hint text that gets cleared as soon as user starts typing */
-public class HintTextArea extends JTextArea {	
+public class HintTextArea extends JTextArea {
 	public void setHintText(String hint) {
 		if (!hint.isEmpty()) {
 			setForeground(Color.GRAY);

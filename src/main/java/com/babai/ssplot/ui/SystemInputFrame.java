@@ -162,6 +162,11 @@ public class SystemInputFrame extends JInternalFrame {
 			gbc.weightx = 1;
 			gbc.fill = GridBagConstraints.HORIZONTAL; // Grow textfield to fill available space
 			pnlMatrix.add(tfsEquations[i], gbc);
+			tfsEquations[i].onChange(() -> {
+				// force triggers a curMode update
+				// FIXME find a better way
+				curMode.set(curMode.get());
+			});
 		}
 
 		pnlMatrix.setBorder(
@@ -298,7 +303,6 @@ public class SystemInputFrame extends JInternalFrame {
 							.onClick(() -> {
 								// Sets up the System of Equations and validates,
 								// but doesn't plot anything
-								switchSystemMode();
 								updateSystemFromUI();
 							}),
 						
@@ -336,7 +340,7 @@ public class SystemInputFrame extends JInternalFrame {
 		
 		String input = tfCounts.getText();
 		if (!input.isBlank()) {
-			builder.setCount(Integer.parseInt(input));
+			builder.setCount(tfCounts.intValue());
 		}
 		input = tfStep.getText();
 		if (!input.isBlank()) {
@@ -374,7 +378,6 @@ public class SystemInputFrame extends JInternalFrame {
 
 		// TODO set other fields except Eqns
 		if (curMode != null) {
-			switchSystemMode();
 			updateInterface();
 		}
 	}
@@ -424,31 +427,6 @@ public class SystemInputFrame extends JInternalFrame {
 			tfsRange[8].setEditable(true);
 			tfStep.setEditable(false);
 			tfCounts.setEditable(false);
-		}
-	}
-
-	private void switchSystemMode() {
-		switch (curMode.get()) {
-		default:
-			int noOfEqns = noOfEqns();
-			if (noOfEqns >= 2) {
-				tfsSolnPoint[0].requestFocusInWindow();
-			} else {
-				JOptionPane.showMessageDialog(this, "Not enough equations!", "Invalid Input", JOptionPane.ERROR_MESSAGE);
-			}
-			
-			break;
-
-		case FN1:
-			break;
-
-		case FN2:
-			break;
-
-		case DFE:
-			
-			tfsSolnPoint[0].requestFocusInWindow();
-			break;
 		}
 	}
 
