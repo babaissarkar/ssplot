@@ -49,11 +49,16 @@ import com.babai.ssplot.ui.controls.UIInput;
 
 import static com.babai.ssplot.ui.controls.DUI.*;
 
-/** This class takes the input from user, sends data to backend,
- *  get processed data from backend, and send it back to MainFrame
- *  for plotting.
- *  @author ssarkar
+/** 
+ * This class takes the input from user, sends data to backend,
+ * gets processed data from backend, and send it back to MainFrame
+ * for plotting.
+ * @author ssarkar
  */
+
+// TODO remove updateInterface necessity using declarative paradigms
+// TODO noOfEqns() is not a correct check, it triggers for any N eqns
+// instead of only the first N
 public class SystemInputFrame extends JInternalFrame {
 
 	private JLabel[] lblsEquations;
