@@ -232,17 +232,16 @@ public class Solver {
 		return soln;
 	}
 
+	// TODO rest of the two eqn entry fields are not being used!
 	public Vector<Vector<Double>> cobweb(double x0) {
 		/* Works for 1D maps only */
 		var soln = new Vector<Vector<Double>>();
-		DoubleUnaryOperator x2 = x -> parser.evaluate(system.get(0), Map.of("x", x));
+		DoubleUnaryOperator f = x -> parser.evaluate(system.get(0), Map.of("x", x));
 		
-		int n = system.n();
 		double x = x0, y = 0;
-
-		for (int i = 0; i < n; i++) {
+		for (int i = 0; i < system.n(); i++) {
 			soln.add(new Vector<>(List.of(x, y)));
-			y = x2.applyAsDouble(x);
+			y = f.applyAsDouble(x);
 			soln.add(new Vector<>(List.of(x, y)));
 			x = y;
 			soln.add(new Vector<>(List.of(x, y)));
