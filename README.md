@@ -40,12 +40,12 @@ Note 2. Make sure you can access the `java` command from the JRE on the terminal
 ![Main Screen of SSPlot, version 2.2.4](https://babaissarkar.github.io/images/ssplot_screenshot.png)
 
 # Documentation
-A manual is available inside the `docs/manual` directory (or its link, the `doc` directory at the root) in pdf and odt formats. You can generate the pdf from the odt using LibreOffice Writer or any other tool you prefer.
+* Please use [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/babaissarkar/ssplot). (Note: may contain very slight inaccuracies)
+* A old manual is available inside the `docs/manual` directory (or its link, the `doc` directory at the root) in pdf and odt formats. You can generate the pdf from the odt using LibreOffice Writer or any other tool you prefer. (Note: slightly outdated, but still useful)
 
 # Dependency libraries (included)
 1. FlatLAF
 2. FlatLAF Intellij Themes
-3. Mozilla Rhino
 
 # Compilation
 You will require Java JDK and Apache Maven. You will also require Markdown if you want to generate a html version of this Readme.
