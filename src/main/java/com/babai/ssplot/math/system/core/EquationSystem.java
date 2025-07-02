@@ -44,8 +44,6 @@ public class EquationSystem {
 	private EquationSystem() {
 		eqns = new Vector<>(DIM);
 		ranges = new Vector<>(DIM);
-		
-		// default values
 		n = DEFAULT_N;
 		h = DEFAULT_H;
 	}
@@ -54,9 +52,15 @@ public class EquationSystem {
 	public String get(int index)     { return eqns.get(index); }
 	public Range getRange(int index) { return ranges.get(index); }
 	public SystemMode getMode()      { return mode; }
-	public int numberOfEqns()  { return eqns.size(); }
-	public int n()    { return n; }
-	public double h() { return h; }
+	public int numberOfEqns()        { return eqns.size(); }
+	public int n()                   { return n; }
+	public double h()                { return h; }
+	
+	/* ***** SETTERS ******* */
+	public void set(int index, String eqn)       { eqns.set(index, eqn); }
+	public void setRange(int index, Range range) { ranges.set(index, range); }
+	public void setN(int n)                      { this.n = n; }
+	public void setH(double h)                   { this.h = h; }
 	
 	@Override
 	public String toString() {
@@ -93,6 +97,7 @@ public class EquationSystem {
 		}
 	}
 	
+	// FIXME This will be removed soon.
 	/** Builder class for the EquationSystem */
  	public static class Builder {
 		private EquationSystem system;
