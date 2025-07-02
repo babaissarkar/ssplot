@@ -1,30 +1,41 @@
 package com.babai.ssplot.ui.controls;
 
-import java.awt.Component;
 import java.util.function.IntFunction;
 import java.util.stream.IntStream;
 
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 
 public class DUI {
-	public static <T> JComponent[] forEach(T[] items, IntFunction<? extends JComponent> mapper) {
+	public static <T, U> U[] forEach(
+		T[] items,
+		IntFunction<? extends U> mapper,
+		IntFunction<U[]> arrayCtor)
+	{
 		return IntStream.range(0, items.length)
 		                .mapToObj(mapper)
-		                .toArray(JComponent[]::new);
-	}
-
-	public static UIInput input() {
-		return new UIInput();
+		                .toArray(arrayCtor);
 	}
 	
-	public static JLabel label(String text) {
-		var label = new JLabel(text);
-		// for now, labels are left aligned inside layout manager by default
-		label.setAlignmentX(Component.LEFT_ALIGNMENT);
-		return label;
+	public static <T> JComponent[] forEach(T[] items, IntFunction<? extends JComponent> mapper) {
+		return forEach(items, mapper, JComponent[]::new);
+	}
+
+	public static UILabel label() {
+		return new UILabel();
+	}
+	
+	public static UILabel label(String text) {
+		return new UILabel().text(text);
+	}
+	
+	public static UILabel label(StateVar<String> text) {
+		return new UILabel().text(text);
+	}
+	
+	public static UIInput input() {
+		return new UIInput();
 	}
 	
  	public static UIButton button() {
