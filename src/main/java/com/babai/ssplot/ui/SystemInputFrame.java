@@ -28,6 +28,7 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.util.HashMap;
 import java.util.List;
 import java.util.function.Consumer;
 import javax.swing.BorderFactory;
@@ -46,6 +47,7 @@ import com.babai.ssplot.math.system.parser.ParserManager;
 import com.babai.ssplot.math.system.solver.Solver;
 import com.babai.ssplot.ui.controls.StateVar;
 import com.babai.ssplot.ui.controls.UIInput;
+import com.babai.ssplot.ui.controls.UILabel;
 
 import static com.babai.ssplot.ui.controls.DUI.*;
 
@@ -56,32 +58,59 @@ import static com.babai.ssplot.ui.controls.DUI.*;
  * @author ssarkar
  */
 
-// TODO remove updateInterface necessity using declarative paradigms
+// TODO WIP: remove globals using declarative paradigms
 // TODO noOfEqns() is not a correct check, it triggers for any N eqns
 // instead of only the first N
 public class SystemInputFrame extends JInternalFrame {
-
-	private JLabel[] lblsEquations;
-	private UIInput tfCounts, tfStep;
+	// Data global vars
+	private StateVar<SystemMode> curMode;
+	private EquationSystem system;
+	private PlotData curData;
+	
+	// UI global vars
+	private HashMap<SystemMode, String[]> eqnFieldLabels;
 	private UIInput[] tfsEquations, tfsRange;
 	private UIInput[] tfsSolnPoint;
 	
 	private Consumer<PlotData> updater;
 
-	private StateVar<SystemMode> curMode;
-	private EquationSystem system;
-	private PlotData curData;
-
 	public SystemInputFrame() {
 		this.curData = new PlotData();
 		this.curMode = new StateVar<>(SystemMode.ODE);
-		this.curMode.bind(this::updateInterface);
 		initInputDialog();
-		updateInterface();
 	}
 
 	private void initInputDialog() {
-		/* Creating Gui */
+		// UI Data
+		final String sub_markup = "<html><body>%s<sub>%s</sub>%s</body></html>";
+		final String small_markup = "<html><body style='font-size:12'>%s</body></html>";
+		final String[] axes = {"X", "Y", "Z"};
+		final String[] tags = {"min", "max", "step"};
+		final double[] rangeAsArray = {
+			EquationSystem.DEFAULT_RANGE.min(),
+			EquationSystem.DEFAULT_RANGE.max(),
+			EquationSystem.DEFAULT_RANGE.step()
+		};
+		
+		eqnFieldLabels = new HashMap<SystemMode, String[]>();
+		eqnFieldLabels.put(
+			SystemMode.ODE,
+			forEach(axes, i -> "d%s/dt =".formatted(axes[i].toLowerCase()), String[]::new)
+		);
+		eqnFieldLabels.put(
+			SystemMode.DFE,
+			forEach(axes, i -> sub_markup.formatted(axes[i].toLowerCase(), "n+1", " ="), String[]::new)
+		);
+		eqnFieldLabels.put(
+			SystemMode.FN1,
+			new String[] { "y(x) =", "", "" }
+		);
+		eqnFieldLabels.put(
+			SystemMode.FN2,
+			new String[] { "z(x, y) =", "", "" }
+		);
+		
+		// Creating Gui
 		setTitle("System Parameters");
 		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 
@@ -102,10 +131,12 @@ public class SystemInputFrame extends JInternalFrame {
 		gbc.gridx = 1;
 		gbc.weightx = 1;
 		pnlCounts.add(
-			tfCounts = input()
+			input()
 				.columns(6)
 				.text("" + EquationSystem.DEFAULT_N)
-				.numeric(true),
+				.enabled(curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE)))
+				.numeric(true)
+				.onChange(text -> this.system.setN(Integer.parseInt(text))),
 			gbc
 		);
 
@@ -117,10 +148,12 @@ public class SystemInputFrame extends JInternalFrame {
 		gbc.gridx = 1;
 		gbc.weightx = 1;
 		pnlCounts.add(
-			tfStep = input()
+			input()
 				.columns(6)
 				.text("" + EquationSystem.DEFAULT_H)
-				.numeric(true),
+				.enabled(curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE)))
+				.numeric(true)
+				.onChange(text -> this.system.setH(Double.parseDouble(text))),
 			gbc
 		);
 
@@ -137,22 +170,23 @@ public class SystemInputFrame extends JInternalFrame {
 		// Equations Entry
 		var pnlMatrix = new JPanel();
 		pnlMatrix.setLayout(new GridBagLayout());
-
-		lblsEquations = new JLabel[] {
-				new JLabel("Equation 1"),
-				new JLabel("Equation 2"),
-				new JLabel("Equation 3")
-		};
-
-		tfsEquations = new UIInput[] {
-				input().columns(10),
-				input().columns(10),
-				input().columns(10)
-		};
+		
+		var lblsEquations = forEach(
+			axes,
+			idx -> label(curMode.when(mode -> eqnFieldLabels.get(mode)[idx])),
+			UILabel[]::new
+		);
+		tfsEquations  = forEach(axes, idx -> input().columns(10), UIInput[]::new);
 
 		gbc = new GridBagConstraints();
 		gbc.insets = new Insets(5, 5, 5, 5);
 		gbc.anchor = GridBagConstraints.WEST;
+		
+		List<StateVar<Boolean>> eqnCondition = List.of(
+			new StateVar<Boolean>(true),
+			curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE)),
+			curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE))
+		);
 
 		for (int i = 0; i < lblsEquations.length; i++) {
 			// Add the label (column 0)
@@ -167,11 +201,13 @@ public class SystemInputFrame extends JInternalFrame {
 			gbc.weightx = 1;
 			gbc.fill = GridBagConstraints.HORIZONTAL; // Grow textfield to fill available space
 			pnlMatrix.add(tfsEquations[i], gbc);
-			tfsEquations[i].onChange(() -> {
-				// force triggers a curMode update
-				// FIXME find a better way
-				curMode.set(curMode.get());
-			});
+			tfsEquations[i]
+				.enabled(eqnCondition.get(i))
+				.onChange(() -> {
+					// force triggers a curMode update
+					// FIXME find a better way than a forced update
+					curMode.set(curMode.get());
+				});
 		}
 
 		pnlMatrix.setBorder(
@@ -183,24 +219,24 @@ public class SystemInputFrame extends JInternalFrame {
 						new Font("Serif", Font.BOLD, 12),
 						new Color(255, 90, 38).darker().darker()));
 
-		// Ranges entry		
-		final String sub_markup = "<html><body>%s<sub>%s</sub></body></html>";
-		final String small_markup = "<html><body style='font-size:12'>%s</body></html>";
-		final String[] axes = {"X", "Y", "Z"};
-		final String[] tags = {"min", "max", "step"};
-		final double[] rangeAsArray = {
-			EquationSystem.DEFAULT_RANGE.min(),
-			EquationSystem.DEFAULT_RANGE.max(),
-			EquationSystem.DEFAULT_RANGE.step()
-		};
-
+		// Ranges entry
 		var pnlRange = new JPanel(new GridBagLayout());
 		JLabel[] lbls2 = new JLabel[axes.length * tags.length];
 		tfsRange = new UIInput[axes.length * tags.length];
+		
+		List<StateVar<Boolean>> rangeConditions = List.of(
+			new StateVar<Boolean>(true),
+			curMode.when(mode -> (mode != SystemMode.FN1)),
+			curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE))
+		);
 
 		for (int i = 0; i < lbls2.length; i++) {
-			lbls2[i] = label(sub_markup.formatted(axes[i / 3], tags[i % 3]));
-			tfsRange[i] = input().columns(5).numeric(true).text("" + rangeAsArray[i % 3]);
+			lbls2[i] = label(sub_markup.formatted(axes[i / 3], tags[i % 3], ""));
+			tfsRange[i] = input()
+				.columns(5)
+				.numeric(true)
+				.text("" + rangeAsArray[i % 3])
+				.enabled(rangeConditions.get(i / 3));
 		}
 
 		gbc = new GridBagConstraints();
@@ -343,15 +379,6 @@ public class SystemInputFrame extends JInternalFrame {
 	private void updateSystemFromUI() {
 		var builder = new EquationSystem.Builder();
 		
-		String input = tfCounts.getText();
-		if (!input.isBlank()) {
-			builder.setCount(tfCounts.intValue());
-		}
-		input = tfStep.getText();
-		if (!input.isBlank()) {
-			builder.setStepSize(tfStep.value());
-		}
-		
 		int noOfEqns = noOfEqns();
 		if (noOfEqns < 1) {
 			return;
@@ -379,59 +406,6 @@ public class SystemInputFrame extends JInternalFrame {
 			}
 		} else {
 			curMode.set(SystemMode.ODE);
-		}
-
-		// TODO set other fields except Eqns
-		if (curMode != null) {
-			updateInterface();
-		}
-	}
-
-	private void updateInterface() {
-		if (curMode.get() == SystemMode.ODE) {
-			lblsEquations[0].setText("dx/dt =");
-			lblsEquations[1].setText("dy/dt =");
-			lblsEquations[2].setText("dz/dt =");
-			tfsEquations[1].setEditable(true);
-			tfsEquations[2].setEditable(true);
-			tfsRange[6].setEditable(true);
-			tfsRange[7].setEditable(true);
-			tfsRange[8].setEditable(true);
-			tfStep.setEditable(true);
-			tfCounts.setEditable(true);
-		} else if (curMode.get() == SystemMode.DFE) {
-			lblsEquations[0].setText("<html><body>x<sub>n+1</sub> =</body></html>");
-			lblsEquations[1].setText("<html><body>y<sub>n+1</sub> =</body></html>");
-			lblsEquations[2].setText("<html><body>z<sub>n+1</sub> =</body></html>");
-			tfsEquations[1].setEditable(true);
-			tfsEquations[2].setEditable(true);
-			tfsRange[6].setEditable(true);
-			tfsRange[7].setEditable(true);
-			tfsRange[8].setEditable(true);
-			tfStep.setEditable(true);
-			tfCounts.setEditable(true);
-		} else if (curMode.get() == SystemMode.FN1) {
-			lblsEquations[0].setText("y(x) =");
-			lblsEquations[1].setText("");
-			lblsEquations[2].setText("");
-			tfsEquations[1].setEditable(false);
-			tfsEquations[2].setEditable(false);
-			tfsRange[6].setEditable(false);
-			tfsRange[7].setEditable(false);
-			tfsRange[8].setEditable(false);
-			tfStep.setEditable(false);
-			tfCounts.setEditable(false);
-		} else if (curMode.get() == SystemMode.FN2) {
-			lblsEquations[0].setText("z(x, y) =");
-			lblsEquations[1].setText("");
-			lblsEquations[2].setText("");
-			tfsEquations[1].setEditable(false);
-			tfsEquations[2].setEditable(false);
-			tfsRange[6].setEditable(true);
-			tfsRange[7].setEditable(true);
-			tfsRange[8].setEditable(true);
-			tfStep.setEditable(false);
-			tfCounts.setEditable(false);
 		}
 	}
 
