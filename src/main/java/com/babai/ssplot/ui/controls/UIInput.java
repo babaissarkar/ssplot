@@ -3,6 +3,7 @@ package com.babai.ssplot.ui.controls;
 import java.awt.Font;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.function.Consumer;
 
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
@@ -88,6 +89,26 @@ public class UIInput extends JTextField {
 			@Override
 			public void changedUpdate(DocumentEvent e) {
 				action.run();
+			}
+		});
+		return this;
+	}
+	
+	public UIInput onChange(Consumer<String> textAction) {
+		getDocument().addDocumentListener(new DocumentListener() {
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				textAction.accept(getText());
+			}
+
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				textAction.accept(getText());
+			}
+
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				textAction.accept(getText());
 			}
 		});
 		return this;
