@@ -68,7 +68,6 @@ public class SystemInputFrame extends JInternalFrame {
 	private PlotData curData;
 	
 	// UI global vars
-	private HashMap<SystemMode, String[]> eqnFieldLabels;
 	private UIInput[] tfsEquations, tfsRange;
 	private UIInput[] tfsSolnPoint;
 	
@@ -92,7 +91,7 @@ public class SystemInputFrame extends JInternalFrame {
 			EquationSystem.DEFAULT_RANGE.step()
 		};
 		
-		eqnFieldLabels = new HashMap<SystemMode, String[]>();
+		var eqnFieldLabels = new HashMap<SystemMode, String[]>();
 		eqnFieldLabels.put(
 			SystemMode.ODE,
 			forEach(axes, i -> "d%s/dt =".formatted(axes[i].toLowerCase()), String[]::new)
