@@ -7,6 +7,7 @@ import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 
+//TODO this does not mentions what property of this class gets bound
 public class DUI {
 	public static <T, U> U[] forEach(
 		T[] items,
@@ -27,10 +28,6 @@ public class DUI {
 	}
 	
 	public static UILabel label(String text) {
-		return new UILabel().text(text);
-	}
-	
-	public static UILabel label(StateVar<String> text) {
 		return new UILabel().text(text);
 	}
 	

@@ -10,8 +10,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 public class UIInput extends JTextField {
-	private static final Font monoFont =
-			new Font("monospace", Font.PLAIN, 14);
+	private static final Font monoFont = new Font("monospace", Font.PLAIN, 14);
 	
 	public UIInput() {
 		setFont(monoFont);

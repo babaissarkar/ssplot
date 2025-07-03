@@ -173,7 +173,7 @@ public class SystemInputFrame extends JInternalFrame {
 		
 		var lblsEquations = forEach(
 			axes,
-			idx -> label(curMode.when(mode -> eqnFieldLabels.get(mode)[idx])),
+			idx -> label().bind(curMode.when(mode -> eqnFieldLabels.get(mode)[idx])),
 			UILabel[]::new
 		);
 		tfsEquations  = forEach(axes, idx -> input().columns(10), UIInput[]::new);
