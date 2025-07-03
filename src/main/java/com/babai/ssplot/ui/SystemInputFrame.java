@@ -59,6 +59,7 @@ import static com.babai.ssplot.ui.controls.DUI.*;
  */
 
 // TODO WIP: remove globals using declarative paradigms
+// TODO Plot 2d/3d buttons are active even when equation fields are empty
 // TODO noOfEqns() is not a correct check, it triggers for any N eqns
 // instead of only the first N
 public class SystemInputFrame extends JInternalFrame {
