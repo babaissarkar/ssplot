@@ -28,6 +28,7 @@ import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Scanner;
 
+import com.babai.ssplot.cli.CLILogger;
 import com.babai.ssplot.math.io.NumParse;
 import com.babai.ssplot.math.plot.PlotData;
 import com.babai.ssplot.math.plot.Plotter;
