@@ -63,6 +63,8 @@ import static com.babai.ssplot.ui.controls.DUI.*;
 public class SystemInputFrame extends JInternalFrame {
 	// Data global vars
 	private StateVar<SystemMode> curMode;
+	// TODO perhaps system should be a StateVar too?
+	// But how to handle system's internal fields?
 	private EquationSystem system;
 	private PlotData curData;
 	
@@ -389,10 +391,6 @@ public class SystemInputFrame extends JInternalFrame {
 		system.mode = curMode.get();
 		
 	}
-	
-	private void reloadUI() {
-		curMode.set(system.mode);
-	}
 
 	private void setData(PlotData pdata) {
 		this.curData = pdata;
@@ -408,7 +406,7 @@ public class SystemInputFrame extends JInternalFrame {
 
 	public void setSystem(EquationSystem system) {
 		this.system = system;
-		reloadUI();
+		curMode.set(system.mode);
 	}
 
 	// TODO these methods sort of violate MVC, perhaps there should be some sort
