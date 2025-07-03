@@ -23,44 +23,35 @@
 
 package com.babai.ssplot.math.system.core;
 
-import java.util.Vector;
+import java.util.Arrays;
 import java.util.function.DoubleConsumer;
 
-/** Class that holds data for system of equations */
+/**
+ * Class that holds data for system of equations.
+ * Do not add Getter/Setters, use public field access. Causes bloat.
+ * (until some sort of automatic lang support for that exists)
+ **/
 public class EquationSystem {
 	public static final int DIM = 3;             /* Maximum dimension of system (global)    */
-	
 	public static final int DEFAULT_N = 1000;    /* Default number of iterations for RK4    */
 	public static final double DEFAULT_H = 0.05; /* Default stepsize for RK4                */
 	public static final Range DEFAULT_RANGE =
 			new Range(-10, 10, 0.1);             /* Default range for the variables x, y, z */
 	
-	private Vector<String> eqns;     /* The equations                 */
-	private Vector<Range> ranges;    /* Ranges for each variable      */
-	private SystemMode mode;         /* Identifies the type of system */
-	private int n;                   /* iteration count (ODE/DE)      */
-	private double h;                /* stepsize (ODE)                */
+	public String[] eqns = new String[DIM];      /* The equations                 */
+	public Range[] ranges = new Range[DIM];      /* Ranges for each variable      */
+	public SystemMode mode = SystemMode.ODE;     /* Identifies the type of system */
+	public int n = DEFAULT_N;                    /* iteration count (ODE/DE)      */
+	public double h = DEFAULT_H;                 /* stepsize (ODE)                */
 	
-	private EquationSystem() {
-		eqns = new Vector<>(DIM);
-		ranges = new Vector<>(DIM);
-		n = DEFAULT_N;
-		h = DEFAULT_H;
+	public EquationSystem() {
+		Arrays.fill(eqns, "");
+		Arrays.fill(ranges, new Range(-10, 10, 0.1));
 	}
 	
-	/* ***** GETTERS ******* */
-	public String get(int index)     { return eqns.get(index); }
-	public Range getRange(int index) { return ranges.get(index); }
-	public SystemMode getMode()      { return mode; }
-	public int numberOfEqns()        { return eqns.size(); }
-	public int n()                   { return n; }
-	public double h()                { return h; }
-	
-	/* ***** SETTERS ******* */
-	public void set(int index, String eqn)       { eqns.set(index, eqn); }
-	public void setRange(int index, Range range) { ranges.set(index, range); }
-	public void setN(int n)                      { this.n = n; }
-	public void setH(double h)                   { this.h = h; }
+	public int numberOfEqns() {
+		return (int) Arrays.stream(eqns).filter(eqn -> !eqn.isEmpty() && !eqn.isBlank()).count();
+	}
 	
 	@Override
 	public String toString() {
@@ -68,13 +59,17 @@ public class EquationSystem {
 		sb.append("System Details:\n");
 
 		sb.append("Equations:\n");
-		for (int i = 0; i < eqns.size(); i++) {
-			sb.append("  Equation ").append(i + 1).append(": ").append(eqns.get(i)).append("\n");
+		for (int i = 0; i < numberOfEqns(); i++) {
+			sb.append("  Equation ").append(i + 1).append(": ").append(eqns[i]).append("\n");
 		}
 
+		// NOTE no of eqns == number of ranges
+		// TODO perhaps should be programmatically enforced?
+		// like a variable object?
+		// EqnVar x = new EqnVar("x", new Range(min, max, step));
 		sb.append("Ranges:\n");
-		for (int i = 0; i < ranges.size(); i++) {
-			sb.append("  Range ").append(i + 1).append(": ").append(ranges.get(i)).append("\n");
+		for (int i = 0; i < numberOfEqns(); i++) {
+			sb.append("  Range ").append(i + 1).append(": ").append(ranges[i]).append("\n");
 		}
 
 		sb.append("System Mode: ").append(mode).append("\n");
@@ -96,38 +91,5 @@ public class EquationSystem {
 			}
 		}
 	}
-	
-	// FIXME This will be removed soon.
-	/** Builder class for the EquationSystem */
- 	public static class Builder {
-		private EquationSystem system;
-		
-		public Builder() {
-			system = new EquationSystem();
-		}
-		
-		public void addEquation(String eqn) {
-			system.eqns.add(eqn);
-		}
-		
-		public void addRange(double min, double max, double step) {
-			system.ranges.add(new Range(min, max, step));
-		}
-		
-		public void setMode(SystemMode mode) {
-			system.mode = mode;
-		}
-		
- 		public void setCount(int n) {
-			system.n = n;
-		}
-		
-		public void setStepSize(double h) {
-			system.h = h;
-		}
-		
-		public EquationSystem build() {
-			return system;
-		}
-	}
+
 }
