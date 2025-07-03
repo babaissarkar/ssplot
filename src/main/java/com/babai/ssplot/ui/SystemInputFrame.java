@@ -52,14 +52,12 @@ import com.babai.ssplot.ui.controls.UILabel;
 import static com.babai.ssplot.ui.controls.DUI.*;
 
 /** 
- * This class takes the input from user, sends data to backend,
- * gets processed data from backend, and send it back to MainFrame
- * for plotting.
- * @author ssarkar
+ * This class takes the input from user, sends data to Solver backend,
+ * gets processed data from backend, and send it back to MainFrame for plotting.
+ * @author babaissarkar
  */
 
 // TODO WIP: remove globals using declarative paradigms
-// TODO Plot 2d/3d buttons are active even when equation fields are empty
 // TODO noOfEqns() is not a correct check, it triggers for any N eqns
 // instead of only the first N
 public class SystemInputFrame extends JInternalFrame {
@@ -69,12 +67,13 @@ public class SystemInputFrame extends JInternalFrame {
 	private PlotData curData;
 	
 	// UI global vars
-	private UIInput[] tfsEquations, tfsRange;
+	private UIInput[] tfsRange;
 	private UIInput[] tfsSolnPoint;
 	
 	private Consumer<PlotData> updater;
 
 	public SystemInputFrame() {
+		this.system = new EquationSystem();
 		this.curData = new PlotData();
 		this.curMode = new StateVar<>(SystemMode.ODE);
 		initInputDialog();
@@ -136,7 +135,7 @@ public class SystemInputFrame extends JInternalFrame {
 				.text("" + EquationSystem.DEFAULT_N)
 				.enabled(curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE)))
 				.numeric(true)
-				.onChange(text -> this.system.setN(Integer.parseInt(text))),
+				.onChange(text -> system.n = Integer.parseInt(text)),
 			gbc
 		);
 
@@ -153,7 +152,7 @@ public class SystemInputFrame extends JInternalFrame {
 				.text("" + EquationSystem.DEFAULT_H)
 				.enabled(curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE)))
 				.numeric(true)
-				.onChange(text -> this.system.setH(Double.parseDouble(text))),
+				.onChange(text -> system.h = Double.parseDouble(text)),
 			gbc
 		);
 
@@ -176,7 +175,6 @@ public class SystemInputFrame extends JInternalFrame {
 			idx -> label().bind(curMode.when(mode -> eqnFieldLabels.get(mode)[idx])),
 			UILabel[]::new
 		);
-		tfsEquations  = forEach(axes, idx -> input().columns(10), UIInput[]::new);
 
 		gbc = new GridBagConstraints();
 		gbc.insets = new Insets(5, 5, 5, 5);
@@ -188,7 +186,7 @@ public class SystemInputFrame extends JInternalFrame {
 			curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE))
 		);
 
-		for (int i = 0; i < lblsEquations.length; i++) {
+		for (int i = 0; i < axes.length; i++) {
 			// Add the label (column 0)
 			gbc.gridx = 0;
 			gbc.gridy = i;
@@ -200,14 +198,19 @@ public class SystemInputFrame extends JInternalFrame {
 			gbc.gridx = 1;
 			gbc.weightx = 1;
 			gbc.fill = GridBagConstraints.HORIZONTAL; // Grow textfield to fill available space
-			pnlMatrix.add(tfsEquations[i], gbc);
-			tfsEquations[i]
-				.enabled(eqnCondition.get(i))
-				.onChange(() -> {
+			final int idx = i;
+			pnlMatrix.add(
+				input()
+					.columns(10)
+					.enabled(eqnCondition.get(i))
 					// force triggers a curMode update
 					// FIXME find a better way than a forced update
-					curMode.set(curMode.get());
-				});
+					.onChange(text -> {
+						system.eqns[idx] = text; 
+						curMode.set(curMode.get());
+					}),
+				gbc
+			);
 		}
 
 		pnlMatrix.setBorder(
@@ -279,16 +282,16 @@ public class SystemInputFrame extends JInternalFrame {
 			curMode.when(mode -> (mode == SystemMode.ODE && noOfEqns() == 3))
 		);
 		
-		var plot2dCondition = curMode.when(mode -> (
+		var plot2dCondition = curMode.when(mode ->
 			(mode == SystemMode.ODE && noOfEqns() == 2)
-			|| mode == SystemMode.FN1
-			|| mode == SystemMode.DFE
-		));
+			|| (mode == SystemMode.DFE && noOfEqns() >= 1)
+			|| mode == SystemMode.FN1 
+		);
 		
-		var plot3dCondition = curMode.when(mode -> (
+		var plot3dCondition = curMode.when(mode ->
 			(mode == SystemMode.ODE && noOfEqns() == 3)
 			|| mode == SystemMode.FN2
-		));
+		);
 		
 		// Plot Buttons
 		var pnlButton = hbox(
@@ -367,46 +370,28 @@ public class SystemInputFrame extends JInternalFrame {
 	}
 	
 	private int noOfEqns() {
-		int noOfEqns = 0;
-		for (var tf : tfsEquations) {
-			if (!tf.getText().isEmpty()) {
-				noOfEqns++;
-			}
-		}
-		return noOfEqns;
+		return system.numberOfEqns();
 	}
 		
-	private void updateSystemFromUI() {
-		var builder = new EquationSystem.Builder();
-		
+	private void updateSystemFromUI() {		
 		int noOfEqns = noOfEqns();
 		if (noOfEqns < 1) {
 			return;
 		}
 		
 		for (int i = 0; i < noOfEqns; i++) {
-			builder.addEquation(tfsEquations[i].getText());
-			builder.addRange(
+			system.ranges[i] = new EquationSystem.Range(
 				tfsRange[3*i  ].value(),
 				tfsRange[3*i+1].value(),
 				tfsRange[3*i+2].value()
 			);
 		}
-		builder.setMode(curMode.get());
+		system.mode = curMode.get();
 		
-		setSystem(builder.build());
 	}
 	
 	private void reloadUI() {
-		var system = getSystem();
-		if (system != null) {
-			curMode.set(getSystem().getMode());
-			for (int i = 0; i < noOfEqns(); i++) {
-				tfsEquations[i].setText(system.get(i));
-			}
-		} else {
-			curMode.set(SystemMode.ODE);
-		}
+		curMode.set(system.mode);
 	}
 
 	private void setData(PlotData pdata) {
@@ -532,7 +517,7 @@ public class SystemInputFrame extends JInternalFrame {
 		PlotData trjData = new PlotData(solver.functionData());
 		trjData.setPltype(PlotData.PlotType.LINES);
 		trjData.setFgColor(Color.BLACK);
-		trjData.setTitle(String.format("y = %s", tfsEquations[0].getText()));
+		trjData.setTitle(String.format("y = %s", system.eqns[0]));
 		trjData.setSystem(getSystem());
 		setData(trjData);
 	}
@@ -542,7 +527,7 @@ public class SystemInputFrame extends JInternalFrame {
 		PlotData trjData = new PlotData(solver.functionData2D());
 		trjData.setPltype(PlotData.PlotType.THREED);
 		trjData.setFgColor(Color.BLACK);
-		trjData.setTitle(String.format("z = %s", tfsEquations[0].getText()));
+		trjData.setTitle(String.format("z = %s", system.eqns[0]));
 		trjData.setSystem(getSystem());
 		setData(trjData);
 	}
