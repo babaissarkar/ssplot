@@ -69,15 +69,15 @@ public class SystemInputFrame extends JInternalFrame {
 	private PlotData curData;
 	
 	// UI global vars
-	private UIInput[] tfsRange;
 	private UIInput[] tfsSolnPoint;
 	
 	private Consumer<PlotData> updater;
 
 	public SystemInputFrame() {
-		this.system = new EquationSystem();
-		this.curData = new PlotData();
-		this.curMode = new StateVar<>(SystemMode.ODE);
+		system = new EquationSystem();
+		curData = new PlotData();
+		curMode = new StateVar<>(SystemMode.ODE);
+		curMode.bind(() -> system.mode = curMode.get());
 		initInputDialog();
 	}
 
@@ -226,22 +226,28 @@ public class SystemInputFrame extends JInternalFrame {
 
 		// Ranges entry
 		var pnlRange = new JPanel(new GridBagLayout());
-		JLabel[] lbls2 = new JLabel[axes.length * tags.length];
-		tfsRange = new UIInput[axes.length * tags.length];
+		var lbls2 = new JLabel[axes.length * tags.length];
+		var tfsRange = new UIInput[axes.length * tags.length];
 		
 		List<StateVar<Boolean>> rangeConditions = List.of(
-			new StateVar<Boolean>(true),
-			curMode.when(mode -> (mode != SystemMode.FN1)),
-			curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE))
+			curMode.when(mode -> noOfEqns() > 0),
+			curMode.when(mode -> (mode != SystemMode.FN1) && noOfEqns() >= 2),
+			curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE) && noOfEqns() == 3)
 		);
 
 		for (int i = 0; i < lbls2.length; i++) {
-			lbls2[i] = label(sub_markup.formatted(axes[i / 3], tags[i % 3], ""));
+			final int idx = i / 3;
+			lbls2[i] = label(sub_markup.formatted(axes[idx], tags[i % 3], ""));
 			tfsRange[i] = input()
 				.columns(5)
 				.numeric(true)
 				.text("" + rangeAsArray[i % 3])
-				.enabled(rangeConditions.get(i / 3));
+				.enabled(rangeConditions.get(idx))
+				.onChange(() -> system.ranges[idx] = new EquationSystem.Range(
+					tfsRange[3*idx  ].value(),
+					tfsRange[3*idx+1].value(),
+					tfsRange[3*idx+2].value()
+				));
 		}
 
 		gbc = new GridBagConstraints();
@@ -344,16 +350,6 @@ public class SystemInputFrame extends JInternalFrame {
 					
 					hbox(
 						button()
-							.icon("/check.png")
-							.tooltip("Apply changes")
-							.onClick(() -> {
-								// Sets up the System of Equations and validates,
-								// but doesn't plot anything
-								updateSystemFromUI();
-							}),
-						
-						// TODO this still hides instead of clearing input
-						button()
 							.icon("/cross.png")
 							.tooltip("Clear changes")
 							.onClick(this::hide)
@@ -373,23 +369,6 @@ public class SystemInputFrame extends JInternalFrame {
 	
 	private int noOfEqns() {
 		return system.numberOfEqns();
-	}
-		
-	private void updateSystemFromUI() {		
-		int noOfEqns = noOfEqns();
-		if (noOfEqns < 1) {
-			return;
-		}
-		
-		for (int i = 0; i < noOfEqns; i++) {
-			system.ranges[i] = new EquationSystem.Range(
-				tfsRange[3*i  ].value(),
-				tfsRange[3*i+1].value(),
-				tfsRange[3*i+2].value()
-			);
-		}
-		system.mode = curMode.get();
-		
 	}
 
 	private void setData(PlotData pdata) {

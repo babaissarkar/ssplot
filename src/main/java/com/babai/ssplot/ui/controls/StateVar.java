@@ -31,7 +31,7 @@ public class StateVar<T> {
 	}
 	
 	public <U> StateVar<U> when(Function<T, U> mapper) {
-		StateVar<U> derived = new StateVar<>(mapper.apply(this.get()));
+		StateVar<U> derived = new StateVar<>(mapper.apply(get()));
 		bind(() -> derived.set(mapper.apply(get())));
 		return derived;
 	}
