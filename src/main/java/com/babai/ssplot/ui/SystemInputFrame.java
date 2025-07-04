@@ -45,7 +45,6 @@ import com.babai.ssplot.math.system.parser.ParserManager;
 import com.babai.ssplot.math.system.solver.Solver;
 import com.babai.ssplot.ui.controls.StateVar;
 import com.babai.ssplot.ui.controls.UIInput;
-import com.babai.ssplot.ui.controls.UILabel;
 
 import static com.babai.ssplot.ui.controls.DUI.*;
 
@@ -62,6 +61,8 @@ public class SystemInputFrame extends JInternalFrame {
 	private StateVar<SystemMode> curMode;
 	// TODO perhaps system should be a StateVar too?
 	// But how to handle system's internal fields?
+	// Regression: setting this from outside doesn't cause the fields to
+	// update.
 	private EquationSystem system;
 	private PlotData curData;
 	
@@ -165,12 +166,6 @@ public class SystemInputFrame extends JInternalFrame {
 		// Equations Entry
 		var pnlMatrix = new JPanel();
 		pnlMatrix.setLayout(new GridBagLayout());
-		
-		var lblsEquations = forEach(
-			axes,
-			idx -> label().bind(curMode.when(mode -> eqnFieldLabels.get(mode)[idx])),
-			UILabel[]::new
-		);
 
 		gbc = new GridBagConstraints();
 		gbc.insets = new Insets(5, 5, 5, 5);
@@ -183,22 +178,22 @@ public class SystemInputFrame extends JInternalFrame {
 		);
 
 		for (int i = 0; i < axes.length; i++) {
+			final int idx = i;
 			// Add the label (column 0)
 			gbc.gridx = 0;
 			gbc.gridy = i;
 			gbc.weightx = 0;
 			gbc.fill = GridBagConstraints.NONE; // Don't stretch the label
-			pnlMatrix.add(lblsEquations[i], gbc);
+			pnlMatrix.add(label().bind(curMode.when(mode -> eqnFieldLabels.get(mode)[idx])), gbc);
 
 			// Add the text field (column 1)
 			gbc.gridx = 1;
 			gbc.weightx = 1;
 			gbc.fill = GridBagConstraints.HORIZONTAL; // Grow textfield to fill available space
-			final int idx = i;
 			pnlMatrix.add(
 				input()
 					.columns(10)
-					.enabled(eqnCondition.get(i))
+					.enabled(eqnCondition.get(idx))
 					// force triggers a curMode update
 					// FIXME find a better way than a forced update
 					.onChange(text -> {
