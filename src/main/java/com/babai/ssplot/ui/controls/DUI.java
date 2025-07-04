@@ -70,6 +70,10 @@ public class DUI {
 		return vbox;
 	}
 	
+	public static UIGrid grid() {
+		return new UIGrid();
+	}
+	
 	public static JToolBar toolbar(JComponent... children) {
 		var toolbar = new JToolBar();
 		for (var child : children) {
