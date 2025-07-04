@@ -41,8 +41,9 @@ public class EquationSystem {
 	public String[] eqns = new String[DIM];      /* The equations                 */
 	public Range[] ranges = new Range[DIM];      /* Ranges for each variable      */
 	public SystemMode mode = SystemMode.ODE;     /* Identifies the type of system */
-	public int n = DEFAULT_N;                    /* iteration count (ODE/DE)      */
-	public double h = DEFAULT_H;                 /* stepsize (ODE)                */
+	public int n = DEFAULT_N;                    /* Iteration count (ODE/DE)      */
+	public double h = DEFAULT_H;                 /* Step Size (ODE)               */
+	public double[] solnPoint = {0.0, 0.0, 0.0}; /* Point where the system is to be solved */
 	
 	public EquationSystem() {
 		Arrays.fill(eqns, "");
@@ -82,7 +83,7 @@ public class EquationSystem {
 	
 	/** Small record for storing range info for each independent variable */
 	public record Range(double min, double max, double step) {
-		/** Allows looping over this range */
+		// Allows looping over this range
 		public void forEach(DoubleConsumer consumer) {
 			double i = min;
 			while (i <= max) {

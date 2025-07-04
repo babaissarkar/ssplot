@@ -36,7 +36,6 @@ import javax.swing.Box;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
@@ -57,7 +56,6 @@ import static com.babai.ssplot.ui.controls.DUI.*;
  * @author babaissarkar
  */
 
-// TODO WIP: remove globals using declarative paradigms
 // TODO noOfEqns() is not a correct check, it triggers for any N eqns
 // instead of only the first N
 public class SystemInputFrame extends JInternalFrame {
@@ -67,9 +65,6 @@ public class SystemInputFrame extends JInternalFrame {
 	// But how to handle system's internal fields?
 	private EquationSystem system;
 	private PlotData curData;
-	
-	// UI global vars
-	private UIInput[] tfsSolnPoint;
 	
 	private Consumer<PlotData> updater;
 
@@ -327,8 +322,6 @@ public class SystemInputFrame extends JInternalFrame {
 				.enabled(curMode.when(mode -> (mode == SystemMode.ODE && noOfEqns() == 2)))
 				.onClick(this::plotDirectionField)
 		).gap(5, 5);
-		
-		tfsSolnPoint = new UIInput[axes.length];
 
 		add(
 			vbox(
@@ -343,7 +336,10 @@ public class SystemInputFrame extends JInternalFrame {
 							hbox(
 								forEach(axes, idx -> hbox(
 									label(String.format(small_markup, axes[idx])),
-									tfsSolnPoint[idx] = input().columns(3).enabled(inputConditions.get(idx))
+									input()
+										.columns(3)
+										.enabled(inputConditions.get(idx))
+										.onChange(text -> system.solnPoint[idx] = Double.parseDouble(text))
 								))
 							).gap(5, 5)
 						),
@@ -352,7 +348,7 @@ public class SystemInputFrame extends JInternalFrame {
 						button()
 							.icon("/cross.png")
 							.tooltip("Clear changes")
-							.onClick(this::hide)
+							.onClick(this::hide) // TODO this should reset everything to default vals
 					)
 				),
 				
@@ -392,14 +388,13 @@ public class SystemInputFrame extends JInternalFrame {
 	// of controller class?
 	// Plotting functions : Calculates PlotData from EquationSystem
 	private void plotDirectionField() {
-		var solver = new Solver(ParserManager.getParser(), getSystem());
+		var solver = new Solver(ParserManager.getParser(), system);
 		PlotData pdata = new PlotData(solver.directionField());
 		pdata.setPltype(PlotData.PlotType.VECTORS);
-		pdata.setSystem(getSystem());
+		pdata.setSystem(system);
 		setData(pdata);
 		updater.accept(pdata);
 	}
-	
 	
 	private void plot2D() {
 		switch (curMode.get()) {
@@ -407,18 +402,7 @@ public class SystemInputFrame extends JInternalFrame {
 			plotFunction2D();
 			break;
 		default:
-			if (!tfsSolnPoint[0].empty() && !tfsSolnPoint[1].empty())
-			{
-				plotTrajectory(
-					tfsSolnPoint[0].value(),
-					tfsSolnPoint[1].value()
-				);
-			} else {
-				JOptionPane.showMessageDialog(this, "Enter a solution point!", "Invalid Input", JOptionPane.ERROR_MESSAGE);
-				tfsSolnPoint[0].requestFocusInWindow();
-				return;
-			}
-			break;
+			plotTrajectory(system.solnPoint[0], system.solnPoint[1]);
 		}
 		updater.accept(getData());
 	}
@@ -429,40 +413,25 @@ public class SystemInputFrame extends JInternalFrame {
 			plotFunction3D();
 			break;
 		default:
-			if (noOfEqns() == 3) {
-				plotODE3D(
-					tfsSolnPoint[0].value(),
-					tfsSolnPoint[1].value(),
-					tfsSolnPoint[2].value()
-				);
-			} else {
-				JOptionPane.showMessageDialog(this, "Enter a solution point!", "Invalid Input", JOptionPane.ERROR_MESSAGE);
-				tfsSolnPoint[0].requestFocusInWindow();
-				return;
-			}
+			plotODE3D(system.solnPoint[0], system.solnPoint[1], system.solnPoint[2]);
 		}
 		updater.accept(getData());
 	}
 	
 	private void plotCobweb() {
 		if (noOfEqns() >= 1) {
-			double x = tfsSolnPoint[0].value();
-			var solver = new Solver(ParserManager.getParser(), getSystem());
-			PlotData pdata = new PlotData(solver.cobweb(x));
+			var solver = new Solver(ParserManager.getParser(), system);
+			PlotData pdata = new PlotData(solver.cobweb(system.solnPoint[0]));
 			pdata.setPltype(PlotData.PlotType.LINES);
 			pdata.setFgColor(Color.BLACK);
-			pdata.setSystem(getSystem());
+			pdata.setSystem(system);
 			setData(pdata);
-		} else {
-			JOptionPane.showMessageDialog(this, "Enter a solution point!", "Invalid Input", JOptionPane.ERROR_MESSAGE);
-			tfsSolnPoint[0].requestFocusInWindow();
-			return;
 		}
 		updater.accept(getData());
 	}
 	
 	private void plotTrajectory(double x, double y) {
-		var solver = new Solver(ParserManager.getParser(), getSystem());
+		var solver = new Solver(ParserManager.getParser(), system);
 		PlotData trjData;		
 		switch (curMode.get()) {
 		case DFE:
@@ -474,38 +443,37 @@ public class SystemInputFrame extends JInternalFrame {
 		}
 		trjData.setPltype(PlotData.PlotType.LINES);
 		trjData.setFgColor(Color.BLACK);
-		trjData.setSystem(getSystem());
+		trjData.setSystem(system);
 		setData(trjData);
 	}
 	
 
 	private void plotODE3D(double x, double y, double z) {
-		var solver = new Solver(ParserManager.getParser(), getSystem());
+		var solver = new Solver(ParserManager.getParser(), system);
 		PlotData trjData = new PlotData(solver.RK4Iterate3D(x, y, z));
 		trjData.setPltype(PlotData.PlotType.THREED);
 		trjData.setFgColor(Color.BLACK);
-		trjData.setSystem(getSystem());
+		trjData.setSystem(system);
 		setData(trjData);
 	}
 	
-
 	public void plotFunction2D() {
-		var solver = new Solver(ParserManager.getParser(), getSystem());
+		var solver = new Solver(ParserManager.getParser(), system);
 		PlotData trjData = new PlotData(solver.functionData());
 		trjData.setPltype(PlotData.PlotType.LINES);
 		trjData.setFgColor(Color.BLACK);
 		trjData.setTitle(String.format("y = %s", system.eqns[0]));
-		trjData.setSystem(getSystem());
+		trjData.setSystem(system);
 		setData(trjData);
 	}
 
 	public void plotFunction3D() {
-		var solver = new Solver(ParserManager.getParser(), getSystem());
+		var solver = new Solver(ParserManager.getParser(), system);
 		PlotData trjData = new PlotData(solver.functionData2D());
 		trjData.setPltype(PlotData.PlotType.THREED);
 		trjData.setFgColor(Color.BLACK);
 		trjData.setTitle(String.format("z = %s", system.eqns[0]));
-		trjData.setSystem(getSystem());
+		trjData.setSystem(system);
 		setData(trjData);
 	}
 
