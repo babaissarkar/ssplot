@@ -35,7 +35,6 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
@@ -221,7 +220,6 @@ public class SystemInputFrame extends JInternalFrame {
 
 		// Ranges entry
 		var pnlRange = new JPanel(new GridBagLayout());
-		var lbls2 = new JLabel[axes.length * tags.length];
 		var tfsRange = new UIInput[axes.length * tags.length];
 		
 		List<StateVar<Boolean>> rangeConditions = List.of(
@@ -230,21 +228,6 @@ public class SystemInputFrame extends JInternalFrame {
 			curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE) && noOfEqns() == 3)
 		);
 
-		for (int i = 0; i < lbls2.length; i++) {
-			final int idx = i / 3;
-			lbls2[i] = label(sub_markup.formatted(axes[idx], tags[i % 3], ""));
-			tfsRange[i] = input()
-				.columns(5)
-				.numeric(true)
-				.text("" + rangeAsArray[i % 3])
-				.enabled(rangeConditions.get(idx))
-				.onChange(() -> system.ranges[idx] = new EquationSystem.Range(
-					tfsRange[3*idx  ].value(),
-					tfsRange[3*idx+1].value(),
-					tfsRange[3*idx+2].value()
-				));
-		}
-
 		gbc = new GridBagConstraints();
 		gbc.insets = new Insets(5, 5, 5, 5);
 		gbc.anchor = GridBagConstraints.WEST;
@@ -252,17 +235,31 @@ public class SystemInputFrame extends JInternalFrame {
 
 		for (int row = 0; row < axes.length; row++) {
 			for (int i = 0; i < tags.length; i++) {
-				int idx = row * axes.length + i;
 				int col = i * tags.length;
 
 				gbc.gridx = col;
 				gbc.gridy = row;
 				gbc.weightx = 0;
-				pnlRange.add(lbls2[idx], gbc);
+				pnlRange.add(label(sub_markup.formatted(axes[row], tags[i], "")), gbc);
 
 				gbc.gridx = col + 1;
 				gbc.weightx = 1;
-				pnlRange.add(tfsRange[idx], gbc);
+				final int row_idx = row;
+				pnlRange.add(
+					tfsRange[i] = input()
+						.columns(5)
+						.numeric(true)
+						.text("" + rangeAsArray[i])
+						.enabled(rangeConditions.get(row))
+						.onChange(() -> {
+							system.ranges[row_idx] = new EquationSystem.Range(
+								tfsRange[3*row_idx  ].value(),
+								tfsRange[3*row_idx+1].value(),
+								tfsRange[3*row_idx+2].value()
+							);
+						}),
+					gbc
+				);
 
 				gbc.gridx = col + 2;
 				gbc.weightx = 0;
