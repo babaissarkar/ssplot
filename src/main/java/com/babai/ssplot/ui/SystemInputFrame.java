@@ -26,7 +26,6 @@ package com.babai.ssplot.ui;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.util.HashMap;
 import java.util.List;
@@ -35,7 +34,6 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
-import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
 import com.babai.ssplot.math.plot.PlotData;
@@ -54,6 +52,7 @@ import static com.babai.ssplot.ui.controls.DUI.*;
  * @author babaissarkar
  */
 
+// TODO enable conditions need more edge case handling
 // TODO noOfEqns() is not a correct check, it triggers for any N eqns
 // instead of only the first N
 public class SystemInputFrame extends JInternalFrame {
@@ -111,47 +110,32 @@ public class SystemInputFrame extends JInternalFrame {
 		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 
 		// Iteration paramters entry
-		var pnlCounts = new JPanel();
-		pnlCounts.setLayout(new GridBagLayout());
-
-		var gbc = new GridBagConstraints();
-		gbc.anchor = GridBagConstraints.WEST;
-		gbc.insets = new Insets(5, 5, 5, 5);
-		gbc.fill = GridBagConstraints.NONE;
-
-		gbc.gridx = 0;
-		gbc.gridy = 0;
-		gbc.weightx = 0;
-		pnlCounts.add(label("Iteration count"), gbc);
-
-		gbc.gridx = 1;
-		gbc.weightx = 1;
-		pnlCounts.add(
-			input()
-				.columns(6)
-				.text("" + EquationSystem.DEFAULT_N)
-				.enabled(curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE)))
-				.numeric(true)
-				.onChange(text -> system.n = Integer.parseInt(text)),
-			gbc
-		);
-
-		gbc.gridx = 0;
-		gbc.gridy = 1;
-		gbc.weightx = 0;
-		pnlCounts.add(label("Iteration stepsize"), gbc);
-
-		gbc.gridx = 1;
-		gbc.weightx = 1;
-		pnlCounts.add(
-			input()
-				.columns(6)
-				.text("" + EquationSystem.DEFAULT_H)
-				.enabled(curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE)))
-				.numeric(true)
-				.onChange(text -> system.h = Double.parseDouble(text)),
-			gbc
-		);
+		var pnlCounts = grid()
+			.anchor(GridBagConstraints.WEST)
+			.insets(new Insets(5, 5, 5, 5))
+			.fill(GridBagConstraints.NONE)
+			.row()
+				.column(label("Iteration count"))
+				.weightx(1.0)
+				.column(
+					input()
+						.columns(6)
+						.text("" + EquationSystem.DEFAULT_N)
+						.enabled(curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE)))
+						.numeric(true)
+						.onChange(text -> system.n = Integer.parseInt(text))
+				)
+			.row()
+				.column(label("Iteration stepsize"))
+				.weightx(1.0)
+				.column(
+					input()
+						.columns(6)
+						.text("" + EquationSystem.DEFAULT_H)
+						.enabled(curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE)))
+						.numeric(true)
+						.onChange(text -> system.h = Double.parseDouble(text))
+				);
 
 		pnlCounts.setBorder(
 				BorderFactory.createTitledBorder(
@@ -162,46 +146,32 @@ public class SystemInputFrame extends JInternalFrame {
 						new Font("Serif", Font.BOLD, 12),
 						new Color(127, 0, 140).darker().darker()));
 
-
 		// Equations Entry
-		var pnlMatrix = new JPanel();
-		pnlMatrix.setLayout(new GridBagLayout());
-
-		gbc = new GridBagConstraints();
-		gbc.insets = new Insets(5, 5, 5, 5);
-		gbc.anchor = GridBagConstraints.WEST;
-		
 		List<StateVar<Boolean>> eqnCondition = List.of(
 			new StateVar<Boolean>(true),
 			curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE)),
 			curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE))
 		);
-
+		var pnlMatrix = grid()
+			.anchor(GridBagConstraints.WEST)
+			.insets(new Insets(5, 5, 5, 5));
+		
 		for (int i = 0; i < axes.length; i++) {
 			final int idx = i;
-			// Add the label (column 0)
-			gbc.gridx = 0;
-			gbc.gridy = i;
-			gbc.weightx = 0;
-			gbc.fill = GridBagConstraints.NONE; // Don't stretch the label
-			pnlMatrix.add(label().bind(curMode.when(mode -> eqnFieldLabels.get(mode)[idx])), gbc);
-
-			// Add the text field (column 1)
-			gbc.gridx = 1;
-			gbc.weightx = 1;
-			gbc.fill = GridBagConstraints.HORIZONTAL; // Grow textfield to fill available space
-			pnlMatrix.add(
-				input()
-					.columns(10)
-					.enabled(eqnCondition.get(idx))
-					// force triggers a curMode update
-					// FIXME find a better way than a forced update
-					.onChange(text -> {
-						system.eqns[idx] = text; 
-						curMode.set(curMode.get());
-					}),
-				gbc
-			);
+			pnlMatrix
+				.row()
+					.column(label().bind(curMode.when(mode -> eqnFieldLabels.get(mode)[idx])))
+					.weightx(1)
+					.fill(GridBagConstraints.HORIZONTAL)
+					.column(
+						input()
+							.columns(10)
+							.enabled(eqnCondition.get(idx))
+							.onChange(text -> {
+								system.eqns[idx] = text; 
+								curMode.set(curMode.get()); // FIXME find a better way than this to update UI
+							})
+					);
 		}
 
 		pnlMatrix.setBorder(
@@ -213,52 +183,40 @@ public class SystemInputFrame extends JInternalFrame {
 						new Font("Serif", Font.BOLD, 12),
 						new Color(255, 90, 38).darker().darker()));
 
-		// Ranges entry
-		var pnlRange = new JPanel(new GridBagLayout());
-		var tfsRange = new UIInput[axes.length * tags.length];
-		
+		// Ranges entry		
 		List<StateVar<Boolean>> rangeConditions = List.of(
 			curMode.when(mode -> noOfEqns() > 0),
 			curMode.when(mode -> (mode != SystemMode.FN1) && noOfEqns() >= 2),
 			curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE) && noOfEqns() == 3)
 		);
-
-		gbc = new GridBagConstraints();
-		gbc.insets = new Insets(5, 5, 5, 5);
-		gbc.anchor = GridBagConstraints.WEST;
-		gbc.fill = GridBagConstraints.HORIZONTAL;
+		
+		var tfsRange = new UIInput[axes.length * tags.length];
+		var pnlRange = grid()
+			.anchor(GridBagConstraints.WEST)
+			.insets(new Insets(5, 5, 5, 5));
 
 		for (int row = 0; row < axes.length; row++) {
+			final int row_idx = row;
+			pnlRange.row();
 			for (int i = 0; i < tags.length; i++) {
-				int col = i * tags.length;
-
-				gbc.gridx = col;
-				gbc.gridy = row;
-				gbc.weightx = 0;
-				pnlRange.add(label(sub_markup.formatted(axes[row], tags[i], "")), gbc);
-
-				gbc.gridx = col + 1;
-				gbc.weightx = 1;
-				final int row_idx = row;
-				pnlRange.add(
-					tfsRange[i] = input()
-						.columns(5)
-						.numeric(true)
-						.text("" + rangeAsArray[i])
-						.enabled(rangeConditions.get(row))
-						.onChange(() -> {
-							system.ranges[row_idx] = new EquationSystem.Range(
-								tfsRange[3*row_idx  ].value(),
-								tfsRange[3*row_idx+1].value(),
-								tfsRange[3*row_idx+2].value()
-							);
-						}),
-					gbc
-				);
-
-				gbc.gridx = col + 2;
-				gbc.weightx = 0;
-				pnlRange.add(Box.createHorizontalStrut(10), gbc);
+				pnlRange
+					.column(label(sub_markup.formatted(axes[row], tags[i], "")))
+					.weightx(1)
+					.column(
+						tfsRange[i] = input()
+							.columns(5)
+							.numeric(true)
+							.text("" + rangeAsArray[i])
+							.enabled(rangeConditions.get(row))
+							.onChange(() -> {
+								system.ranges[row_idx] = new EquationSystem.Range(
+									tfsRange[3*row_idx  ].value(),
+									tfsRange[3*row_idx+1].value(),
+									tfsRange[3*row_idx+2].value()
+								);
+							})
+					)
+					.column(Box.createHorizontalStrut(10));
 			}
 		}
 
