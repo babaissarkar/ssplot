@@ -1,24 +1,24 @@
 /*
  * SystemInputFrame.java
- * 
+ *
  * Copyright 2021-2025 Subhraman Sarkar <suvrax@gmail.com>
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation; either version 2.1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
- * 
- * 
+ *
+ *
  */
 
 package com.babai.ssplot.ui;
@@ -46,7 +46,7 @@ import com.babai.ssplot.ui.controls.UIInput;
 
 import static com.babai.ssplot.ui.controls.DUI.*;
 
-/** 
+/**
  * This class takes the input from user, sends data to Solver backend,
  * gets processed data from backend, and send it back to MainFrame for plotting.
  * @author babaissarkar
@@ -64,7 +64,7 @@ public class SystemInputFrame extends JInternalFrame {
 	// update.
 	private EquationSystem system;
 	private PlotData curData;
-	
+
 	private Consumer<PlotData> updater;
 
 	public SystemInputFrame() {
@@ -86,7 +86,7 @@ public class SystemInputFrame extends JInternalFrame {
 			EquationSystem.DEFAULT_RANGE.max(),
 			EquationSystem.DEFAULT_RANGE.step()
 		};
-		
+
 		var eqnFieldLabels = new HashMap<SystemMode, String[]>();
 		eqnFieldLabels.put(
 			SystemMode.ODE,
@@ -104,7 +104,7 @@ public class SystemInputFrame extends JInternalFrame {
 			SystemMode.FN2,
 			new String[] { "z(x, y) =", "", "" }
 		);
-		
+
 		// Creating Gui
 		setTitle("System Parameters");
 		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
@@ -155,7 +155,7 @@ public class SystemInputFrame extends JInternalFrame {
 		var pnlMatrix = grid()
 			.anchor(GridBagConstraints.WEST)
 			.insets(new Insets(5, 5, 5, 5));
-		
+
 		for (int i = 0; i < axes.length; i++) {
 			final int idx = i;
 			pnlMatrix
@@ -168,7 +168,7 @@ public class SystemInputFrame extends JInternalFrame {
 							.columns(10)
 							.enabled(eqnCondition.get(idx))
 							.onChange(text -> {
-								system.eqns[idx] = text; 
+								system.eqns[idx] = text;
 								curMode.set(curMode.get()); // FIXME find a better way than this to update UI
 							})
 					);
@@ -183,13 +183,13 @@ public class SystemInputFrame extends JInternalFrame {
 						new Font("Serif", Font.BOLD, 12),
 						new Color(255, 90, 38).darker().darker()));
 
-		// Ranges entry		
+		// Ranges entry
 		List<StateVar<Boolean>> rangeConditions = List.of(
 			curMode.when(mode -> noOfEqns() > 0),
 			curMode.when(mode -> (mode != SystemMode.FN1) && noOfEqns() >= 2),
 			curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE) && noOfEqns() == 3)
 		);
-		
+
 		var tfsRange = new UIInput[axes.length * tags.length];
 		var pnlRange = grid()
 			.anchor(GridBagConstraints.WEST)
@@ -227,25 +227,25 @@ public class SystemInputFrame extends JInternalFrame {
 				TitledBorder.TOP,
 				new Font("Serif", Font.BOLD, 12),
 				new Color(24, 110, 1).darker().darker()));
-		
+
 		// Enable conditions for various input fields
 		List<StateVar<Boolean>> inputConditions = List.of(
 			curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE) && noOfEqns() >= 2),
 			curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE) && noOfEqns() >= 2),
 			curMode.when(mode -> (mode == SystemMode.ODE && noOfEqns() == 3))
 		);
-		
+
 		var plot2dCondition = curMode.when(mode ->
 			(mode == SystemMode.ODE && noOfEqns() == 2)
 			|| (mode == SystemMode.DFE && noOfEqns() >= 1)
-			|| mode == SystemMode.FN1 
+			|| mode == SystemMode.FN1
 		);
-		
+
 		var plot3dCondition = curMode.when(mode ->
 			(mode == SystemMode.ODE && noOfEqns() == 3)
 			|| mode == SystemMode.FN2
 		);
-		
+
 		// Plot Buttons
 		var pnlButton = hbox(
 			button()
@@ -253,19 +253,19 @@ public class SystemInputFrame extends JInternalFrame {
 				.tooltip("Draw 2d plot")
 				.enabled(plot2dCondition)
 				.onClick(this::plot2D),
-				
+
 			button()
 				.icon("/3d.png")
 				.tooltip("Draw 3d plot")
 				.enabled(plot3dCondition)
 				.onClick(this::plot3D),
-				
+
 			button()
 				.icon("/cobweb.png")
 				.tooltip("Draw Cobweb Plot")
 				.enabled(curMode.when(mode -> (mode == SystemMode.DFE && noOfEqns() >= 1)))
 				.onClick(this::plotCobweb),
-				
+
 			button()
 				.icon("/vfield.png")
 				.tooltip("Draw Direction Field")
@@ -277,7 +277,7 @@ public class SystemInputFrame extends JInternalFrame {
 			vbox(
 				toolbar(
 					pnlButton,
-					
+
 					// Entry area for the point where the system is to be solved (X,Y,Z)
 					// Which of these will be enabled depends on the system of equation's type
 					borderPane()
@@ -293,7 +293,7 @@ public class SystemInputFrame extends JInternalFrame {
 								))
 							).gap(5, 5)
 						),
-					
+
 					hbox(
 						button()
 							.icon("/cross.png")
@@ -301,30 +301,22 @@ public class SystemInputFrame extends JInternalFrame {
 							.onClick(this::hide) // TODO this should reset everything to default vals
 					)
 				),
-				
+
 				radioGroup(SystemMode.class)
 					.options(SystemMode.values(), SystemMode.ODE)
 					.bind(curMode),
-					
+
 				pnlCounts,
 				pnlMatrix,
 				pnlRange
 			).emptyBorder(10)
 		);
 	}
-	
+
 	private int noOfEqns() {
 		return system.numberOfEqns();
 	}
 
-	private void setData(PlotData pdata) {
-		this.curData = pdata;
-	}
-
-	private PlotData getData() {
-		return this.curData;
-	}
-	
 	public EquationSystem getSystem() {
 		return this.system;
 	}
@@ -339,13 +331,12 @@ public class SystemInputFrame extends JInternalFrame {
 	// Plotting functions : Calculates PlotData from EquationSystem
 	private void plotDirectionField() {
 		var solver = new Solver(ParserManager.getParser(), system);
-		PlotData pdata = new PlotData(solver.directionField());
-		pdata.setPltype(PlotData.PlotType.VECTORS);
-		pdata.setSystem(system);
-		setData(pdata);
-		updater.accept(pdata);
+		curData = new PlotData(solver.directionField());
+		curData.setPltype(PlotData.PlotType.VECTORS);
+		curData.setSystem(system);
+		updater.accept(curData);
 	}
-	
+
 	private void plot2D() {
 		switch (curMode.get()) {
 		case FN1:
@@ -354,9 +345,9 @@ public class SystemInputFrame extends JInternalFrame {
 		default:
 			plotTrajectory(system.solnPoint[0], system.solnPoint[1]);
 		}
-		updater.accept(getData());
+		updater.accept(curData);
 	}
-	
+
 	private void plot3D() {
 		switch (curMode.get()) {
 		case FN2:
@@ -365,66 +356,60 @@ public class SystemInputFrame extends JInternalFrame {
 		default:
 			plotODE3D(system.solnPoint[0], system.solnPoint[1], system.solnPoint[2]);
 		}
-		updater.accept(getData());
+		updater.accept(curData);
 	}
-	
+
 	private void plotCobweb() {
 		if (noOfEqns() >= 1) {
 			var solver = new Solver(ParserManager.getParser(), system);
-			PlotData pdata = new PlotData(solver.cobweb(system.solnPoint[0]));
-			pdata.setPltype(PlotData.PlotType.LINES);
-			pdata.setFgColor(Color.BLACK);
-			pdata.setSystem(system);
-			setData(pdata);
+			curData = new PlotData(solver.cobweb(system.solnPoint[0]));
+			curData.setPltype(PlotData.PlotType.LINES);
+			curData.setFgColor(Color.BLACK);
+			curData.setSystem(system);
 		}
-		updater.accept(getData());
+		updater.accept(curData);
 	}
-	
+
 	private void plotTrajectory(double x, double y) {
 		var solver = new Solver(ParserManager.getParser(), system);
-		PlotData trjData;		
 		switch (curMode.get()) {
 		case DFE:
-			trjData = new PlotData(solver.iterateMap(x, x));
+			curData = new PlotData(solver.iterateMap(x, x));
 			break;
 		default:
-			trjData = new PlotData(solver.RK4Iterate(x, y));
+			curData = new PlotData(solver.RK4Iterate(x, y));
 			break;
 		}
-		trjData.setPltype(PlotData.PlotType.LINES);
-		trjData.setFgColor(Color.BLACK);
-		trjData.setSystem(system);
-		setData(trjData);
+		curData.setPltype(PlotData.PlotType.LINES);
+		curData.setFgColor(Color.BLACK);
+		curData.setSystem(system);
 	}
-	
+
 
 	private void plotODE3D(double x, double y, double z) {
 		var solver = new Solver(ParserManager.getParser(), system);
-		PlotData trjData = new PlotData(solver.RK4Iterate3D(x, y, z));
-		trjData.setPltype(PlotData.PlotType.THREED);
-		trjData.setFgColor(Color.BLACK);
-		trjData.setSystem(system);
-		setData(trjData);
+		curData = new PlotData(solver.RK4Iterate3D(x, y, z));
+		curData.setPltype(PlotData.PlotType.THREED);
+		curData.setFgColor(Color.BLACK);
+		curData.setSystem(system);
 	}
-	
+
 	public void plotFunction2D() {
 		var solver = new Solver(ParserManager.getParser(), system);
-		PlotData trjData = new PlotData(solver.functionData());
-		trjData.setPltype(PlotData.PlotType.LINES);
-		trjData.setFgColor(Color.BLACK);
-		trjData.setTitle(String.format("y = %s", system.eqns[0]));
-		trjData.setSystem(system);
-		setData(trjData);
+		curData = new PlotData(solver.functionData());
+		curData.setPltype(PlotData.PlotType.LINES);
+		curData.setFgColor(Color.BLACK);
+		curData.setTitle(String.format("y = %s", system.eqns[0]));
+		curData.setSystem(system);
 	}
 
 	public void plotFunction3D() {
 		var solver = new Solver(ParserManager.getParser(), system);
-		PlotData trjData = new PlotData(solver.functionData2D());
-		trjData.setPltype(PlotData.PlotType.THREED);
-		trjData.setFgColor(Color.BLACK);
-		trjData.setTitle(String.format("z = %s", system.eqns[0]));
-		trjData.setSystem(system);
-		setData(trjData);
+		curData = new PlotData(solver.functionData2D());
+		curData.setPltype(PlotData.PlotType.THREED);
+		curData.setFgColor(Color.BLACK);
+		curData.setTitle(String.format("z = %s", system.eqns[0]));
+		curData.setSystem(system);
 	}
 
 	public void setUpdateCallback(Consumer<PlotData> update) {
