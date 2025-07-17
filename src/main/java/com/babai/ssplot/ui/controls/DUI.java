@@ -22,7 +22,7 @@ public class DUI {
 	public static <T> JComponent[] forEach(T[] items, IntFunction<? extends JComponent> mapper) {
 		return forEach(items, mapper, JComponent[]::new);
 	}
-
+	
 	public static UILabel label() {
 		return new UILabel();
 	}
@@ -80,5 +80,9 @@ public class DUI {
 			toolbar.add(child);
 		}
 		return toolbar;
+	}
+
+	public static UIFrame iframe() {
+		return new UIFrame();
 	}
 }
