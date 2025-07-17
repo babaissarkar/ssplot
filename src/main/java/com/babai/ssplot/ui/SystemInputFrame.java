@@ -42,7 +42,6 @@ import com.babai.ssplot.math.system.core.SystemMode;
 import com.babai.ssplot.math.system.parser.ParserManager;
 import com.babai.ssplot.math.system.solver.Solver;
 import com.babai.ssplot.ui.controls.StateVar;
-import com.babai.ssplot.ui.controls.UIInput;
 
 import static com.babai.ssplot.ui.controls.DUI.*;
 
@@ -81,11 +80,7 @@ public class SystemInputFrame extends JInternalFrame {
 		final String small_markup = "<html><body style='font-size:12'>%s</body></html>";
 		final String[] axes = {"X", "Y", "Z"};
 		final String[] tags = {"min", "max", "step"};
-		final double[] rangeAsArray = {
-			EquationSystem.DEFAULT_RANGE.start(),
-			EquationSystem.DEFAULT_RANGE.end(),
-			EquationSystem.DEFAULT_RANGE.step()
-		};
+		final double[] rangeAsArray = EquationSystem.DEFAULT_RANGE.toArray();
 
 		var eqnFieldLabels = new HashMap<SystemMode, String[]>();
 		eqnFieldLabels.put(
@@ -190,7 +185,6 @@ public class SystemInputFrame extends JInternalFrame {
 			curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE) && noOfEqns() == 3)
 		);
 
-		var tfsRange = new UIInput[axes.length * tags.length];
 		var pnlRange = grid()
 			.anchor(GridBagConstraints.WEST)
 			.insets(new Insets(5, 5, 5, 5));
@@ -198,22 +192,27 @@ public class SystemInputFrame extends JInternalFrame {
 		for (int row = 0; row < axes.length; row++) {
 			final int row_idx = row;
 			pnlRange.row();
-			for (int i = 0; i < tags.length; i++) {
+			for (int col = 0; col < tags.length; col++) {
+				final int col_idx = col; 
 				pnlRange
-					.column(label(sub_markup.formatted(axes[row], tags[i], "")))
+					.column(label(sub_markup.formatted(axes[row], tags[col], "")))
 					.weightx(1)
 					.column(
-						tfsRange[i] = input()
+						input()
 							.columns(5)
 							.numeric(true)
-							.text("" + rangeAsArray[i])
+							.text("" + rangeAsArray[col])
 							.enabled(rangeConditions.get(row))
-							.onChange(() -> {
-								system.ranges[row_idx] = new EquationSystem.Range(
-									tfsRange[3*row_idx  ].value(),
-									tfsRange[3*row_idx+1].value(),
-									tfsRange[3*row_idx+2].value()
-								);
+							.onChange(text -> {
+								var range = system.ranges[row_idx];
+								system.ranges[row_idx] = switch(col_idx % 3) {
+								case 0 -> new EquationSystem.Range(
+									Double.parseDouble(text), range.end(), range.step());
+								case 1 -> new EquationSystem.Range(
+									range.start(), Double.parseDouble(text), range.step());
+								default -> new EquationSystem.Range(
+									range.start(), range.end(), Double.parseDouble(text));
+								};
 							})
 					)
 					.column(Box.createHorizontalStrut(10));
