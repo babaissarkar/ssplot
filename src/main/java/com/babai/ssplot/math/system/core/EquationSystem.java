@@ -117,6 +117,11 @@ public class EquationSystem {
 			return (int) Math.floor((end - start) / step);
 		}
 		
+		public double[] toArray() {
+			return new double[] { start(), end(), step() };
+		}
+		
+		
 		public void printAllPoints() {
 			for (double d : this) {
 				System.out.println(d);
