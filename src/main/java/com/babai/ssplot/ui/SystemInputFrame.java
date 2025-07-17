@@ -33,7 +33,7 @@ import java.util.function.Consumer;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JFrame;
-import javax.swing.JInternalFrame;
+import javax.swing.JToolBar;
 import javax.swing.border.TitledBorder;
 
 import com.babai.ssplot.math.plot.PlotData;
@@ -42,6 +42,8 @@ import com.babai.ssplot.math.system.core.SystemMode;
 import com.babai.ssplot.math.system.parser.ParserManager;
 import com.babai.ssplot.math.system.solver.Solver;
 import com.babai.ssplot.ui.controls.StateVar;
+import com.babai.ssplot.ui.controls.UIFrame;
+import com.babai.ssplot.ui.controls.UIGrid;
 
 import static com.babai.ssplot.ui.controls.DUI.*;
 
@@ -54,7 +56,7 @@ import static com.babai.ssplot.ui.controls.DUI.*;
 // TODO enable conditions need more edge case handling
 // TODO noOfEqns() is not a correct check, it triggers for any N eqns
 // instead of only the first N
-public class SystemInputFrame extends JInternalFrame {
+public class SystemInputFrame extends UIFrame {
 	// Data global vars
 	private StateVar<SystemMode> curMode;
 	// TODO perhaps system should be a StateVar too?
@@ -76,34 +78,99 @@ public class SystemInputFrame extends JInternalFrame {
 
 	private void initInputDialog() {
 		// UI Data
-		final String sub_markup = "<html><body>%s<sub>%s</sub>%s</body></html>";
-		final String small_markup = "<html><body style='font-size:12'>%s</body></html>";
 		final String[] axes = {"X", "Y", "Z"};
-		final String[] tags = {"min", "max", "step"};
-		final double[] rangeAsArray = EquationSystem.DEFAULT_RANGE.toArray();
-
-		var eqnFieldLabels = new HashMap<SystemMode, String[]>();
-		eqnFieldLabels.put(
-			SystemMode.ODE,
-			forEach(axes, i -> "d%s/dt =".formatted(axes[i].toLowerCase()), String[]::new)
-		);
-		eqnFieldLabels.put(
-			SystemMode.DFE,
-			forEach(axes, i -> sub_markup.formatted(axes[i].toLowerCase(), "n+1", " ="), String[]::new)
-		);
-		eqnFieldLabels.put(
-			SystemMode.FN1,
-			new String[] { "y(x) =", "", "" }
-		);
-		eqnFieldLabels.put(
-			SystemMode.FN2,
-			new String[] { "z(x, y) =", "", "" }
-		);
 
 		// Creating Gui
-		setTitle("System Parameters");
-		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+		title("System Parameters")
+		.closeOperation(JFrame.HIDE_ON_CLOSE)
+		.content(
+			vbox(
+				createToolbarUI(axes),
+				radioGroup(SystemMode.class)
+					.options(SystemMode.values(), SystemMode.ODE)
+					.bind(curMode),
+				createIterationParamUIPanel(),
+				createEqnInputUIPanel(axes),
+				createRangesUIPanel(axes)
+			).emptyBorder(10)
+		);
+	}
+	
+	private JToolBar createToolbarUI(final String[] axes) {
+		final String small_markup = "<html><body style='font-size:12'>%s</body></html>";
+		
+		// Enable conditions for various input fields
+		List<StateVar<Boolean>> inputConditions = List.of(
+			curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE) && noOfEqns() >= 2),
+			curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE) && noOfEqns() >= 2),
+			curMode.when(mode -> (mode == SystemMode.ODE && noOfEqns() == 3))
+		);
 
+		var plot2dCondition = curMode.when(mode ->
+			(mode == SystemMode.ODE && noOfEqns() == 2)
+			|| (mode == SystemMode.DFE && noOfEqns() >= 1)
+			|| mode == SystemMode.FN1
+		);
+
+		var plot3dCondition = curMode.when(mode ->
+			(mode == SystemMode.ODE && noOfEqns() == 3)
+			|| mode == SystemMode.FN2
+		);
+		
+		return toolbar(
+			hbox(
+				// Plot Buttons
+				button()
+					.icon("/2d.png")
+					.tooltip("Draw 2d plot")
+					.enabled(plot2dCondition)
+					.onClick(this::plot2D),
+
+				button()
+					.icon("/3d.png")
+					.tooltip("Draw 3d plot")
+					.enabled(plot3dCondition)
+					.onClick(this::plot3D),
+
+				button()
+					.icon("/cobweb.png")
+					.tooltip("Draw Cobweb Plot")
+					.enabled(curMode.when(mode -> (mode == SystemMode.DFE && noOfEqns() >= 1)))
+					.onClick(this::plotCobweb),
+
+				button()
+					.icon("/vfield.png")
+					.tooltip("Draw Direction Field")
+					.enabled(curMode.when(mode -> (mode == SystemMode.ODE && noOfEqns() == 2)))
+					.onClick(this::plotDirectionField)
+			).gap(5, 5),
+
+			// Entry area for the point where the system is to be solved (X,Y,Z)
+			// Which of these will be enabled depends on the system of equation's type
+			borderPane()
+				.north(label("Solve At:"))
+				.center(
+					hbox(
+						forEach(axes, idx -> hbox(
+							label(String.format(small_markup, axes[idx])),
+							input()
+								.columns(3)
+								.enabled(inputConditions.get(idx))
+								.onChange(text -> system.solnPoint[idx] = Double.parseDouble(text))
+						))
+					).gap(5, 5)
+				),
+
+			hbox(
+				button()
+					.icon("/cross.png")
+					.tooltip("Clear changes")
+					.onClick(this::hide) // TODO this should reset everything to default vals
+			)
+		);
+	}
+
+	private UIGrid createIterationParamUIPanel() {
 		// Iteration paramters entry
 		var pnlCounts = grid()
 			.anchor(GridBagConstraints.WEST)
@@ -131,16 +198,41 @@ public class SystemInputFrame extends JInternalFrame {
 						.numeric(true)
 						.onChange(text -> system.h = Double.parseDouble(text))
 				);
-
+		
 		pnlCounts.setBorder(
-				BorderFactory.createTitledBorder(
-						BorderFactory.createLineBorder(new Color(127, 0, 140), 3),
-						"Iteration Parameters",
-						TitledBorder.LEFT,
-						TitledBorder.TOP,
-						new Font("Serif", Font.BOLD, 12),
-						new Color(127, 0, 140).darker().darker()));
+			BorderFactory.createTitledBorder(
+				BorderFactory.createLineBorder(new Color(127, 0, 140), 3),
+				"Iteration Parameters",
+				TitledBorder.LEFT,
+				TitledBorder.TOP,
+				new Font("Serif", Font.BOLD, 12),
+				new Color(127, 0, 140).darker().darker()));
+		
+		return pnlCounts;
+	}
 
+	
+	private UIGrid createEqnInputUIPanel(final String[] axes) {
+		final String sub_markup = "<html><body>%s<sub>%s</sub>%s</body></html>";
+		var eqnFieldLabels = new HashMap<SystemMode, String[]>();
+		
+		eqnFieldLabels.put(
+			SystemMode.ODE,
+			forEach(axes, i -> "d%s/dt =".formatted(axes[i].toLowerCase()), String[]::new)
+		);
+		eqnFieldLabels.put(
+			SystemMode.DFE,
+			forEach(axes, i -> sub_markup.formatted(axes[i].toLowerCase(), "n+1", " ="), String[]::new)
+		);
+		eqnFieldLabels.put(
+			SystemMode.FN1,
+			new String[] { "y(x) =", "", "" }
+		);
+		eqnFieldLabels.put(
+			SystemMode.FN2,
+			new String[] { "z(x, y) =", "", "" }
+		);
+		
 		// Equations Entry
 		List<StateVar<Boolean>> eqnCondition = List.of(
 			new StateVar<Boolean>(true),
@@ -177,17 +269,24 @@ public class SystemInputFrame extends JInternalFrame {
 						TitledBorder.TOP,
 						new Font("Serif", Font.BOLD, 12),
 						new Color(255, 90, 38).darker().darker()));
-
+		return pnlMatrix;
+	}
+	
+	private UIGrid createRangesUIPanel(final String[] axes) {
+		final String sub_markup = "<html><body>%s<sub>%s</sub>%s</body></html>";
+		final String[] tags = {"min", "max", "step"};
+		final double[] rangeAsArray = EquationSystem.DEFAULT_RANGE.toArray();
+		
 		// Ranges entry
 		List<StateVar<Boolean>> rangeConditions = List.of(
-			curMode.when(mode -> noOfEqns() > 0),
-			curMode.when(mode -> (mode != SystemMode.FN1) && noOfEqns() >= 2),
-			curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE) && noOfEqns() == 3)
-		);
+				curMode.when(mode -> noOfEqns() > 0),
+				curMode.when(mode -> (mode != SystemMode.FN1) && noOfEqns() >= 2),
+				curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE) && noOfEqns() == 3)
+				);
 
 		var pnlRange = grid()
-			.anchor(GridBagConstraints.WEST)
-			.insets(new Insets(5, 5, 5, 5));
+				.anchor(GridBagConstraints.WEST)
+				.insets(new Insets(5, 5, 5, 5));
 
 		for (int row = 0; row < axes.length; row++) {
 			final int row_idx = row;
@@ -195,27 +294,27 @@ public class SystemInputFrame extends JInternalFrame {
 			for (int col = 0; col < tags.length; col++) {
 				final int col_idx = col; 
 				pnlRange
-					.column(label(sub_markup.formatted(axes[row], tags[col], "")))
-					.weightx(1)
-					.column(
+				.column(label(sub_markup.formatted(axes[row], tags[col], "")))
+				.weightx(1)
+				.column(
 						input()
-							.columns(5)
-							.numeric(true)
-							.text("" + rangeAsArray[col])
-							.enabled(rangeConditions.get(row))
-							.onChange(text -> {
-								var range = system.ranges[row_idx];
-								system.ranges[row_idx] = switch(col_idx % 3) {
-								case 0 -> new EquationSystem.Range(
+						.columns(5)
+						.numeric(true)
+						.text("" + rangeAsArray[col])
+						.enabled(rangeConditions.get(row))
+						.onChange(text -> {
+							var range = system.ranges[row_idx];
+							system.ranges[row_idx] = switch(col_idx % 3) {
+							case 0 -> new EquationSystem.Range(
 									Double.parseDouble(text), range.end(), range.step());
-								case 1 -> new EquationSystem.Range(
+							case 1 -> new EquationSystem.Range(
 									range.start(), Double.parseDouble(text), range.step());
-								default -> new EquationSystem.Range(
+							default -> new EquationSystem.Range(
 									range.start(), range.end(), Double.parseDouble(text));
-								};
-							})
-					)
-					.column(Box.createHorizontalStrut(10));
+							};
+						})
+						)
+				.column(Box.createHorizontalStrut(10));
 			}
 		}
 
@@ -227,89 +326,7 @@ public class SystemInputFrame extends JInternalFrame {
 				new Font("Serif", Font.BOLD, 12),
 				new Color(24, 110, 1).darker().darker()));
 
-		// Enable conditions for various input fields
-		List<StateVar<Boolean>> inputConditions = List.of(
-			curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE) && noOfEqns() >= 2),
-			curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE) && noOfEqns() >= 2),
-			curMode.when(mode -> (mode == SystemMode.ODE && noOfEqns() == 3))
-		);
-
-		var plot2dCondition = curMode.when(mode ->
-			(mode == SystemMode.ODE && noOfEqns() == 2)
-			|| (mode == SystemMode.DFE && noOfEqns() >= 1)
-			|| mode == SystemMode.FN1
-		);
-
-		var plot3dCondition = curMode.when(mode ->
-			(mode == SystemMode.ODE && noOfEqns() == 3)
-			|| mode == SystemMode.FN2
-		);
-
-		// Plot Buttons
-		var pnlButton = hbox(
-			button()
-				.icon("/2d.png")
-				.tooltip("Draw 2d plot")
-				.enabled(plot2dCondition)
-				.onClick(this::plot2D),
-
-			button()
-				.icon("/3d.png")
-				.tooltip("Draw 3d plot")
-				.enabled(plot3dCondition)
-				.onClick(this::plot3D),
-
-			button()
-				.icon("/cobweb.png")
-				.tooltip("Draw Cobweb Plot")
-				.enabled(curMode.when(mode -> (mode == SystemMode.DFE && noOfEqns() >= 1)))
-				.onClick(this::plotCobweb),
-
-			button()
-				.icon("/vfield.png")
-				.tooltip("Draw Direction Field")
-				.enabled(curMode.when(mode -> (mode == SystemMode.ODE && noOfEqns() == 2)))
-				.onClick(this::plotDirectionField)
-		).gap(5, 5);
-
-		add(
-			vbox(
-				toolbar(
-					pnlButton,
-
-					// Entry area for the point where the system is to be solved (X,Y,Z)
-					// Which of these will be enabled depends on the system of equation's type
-					borderPane()
-						.north(label("Solve At:"))
-						.center(
-							hbox(
-								forEach(axes, idx -> hbox(
-									label(String.format(small_markup, axes[idx])),
-									input()
-										.columns(3)
-										.enabled(inputConditions.get(idx))
-										.onChange(text -> system.solnPoint[idx] = Double.parseDouble(text))
-								))
-							).gap(5, 5)
-						),
-
-					hbox(
-						button()
-							.icon("/cross.png")
-							.tooltip("Clear changes")
-							.onClick(this::hide) // TODO this should reset everything to default vals
-					)
-				),
-
-				radioGroup(SystemMode.class)
-					.options(SystemMode.values(), SystemMode.ODE)
-					.bind(curMode),
-
-				pnlCounts,
-				pnlMatrix,
-				pnlRange
-			).emptyBorder(10)
-		);
+		return pnlRange;
 	}
 
 	private int noOfEqns() {
@@ -392,7 +409,7 @@ public class SystemInputFrame extends JInternalFrame {
 		curData.setSystem(system);
 	}
 
-	public void plotFunction2D() {
+	private void plotFunction2D() {
 		var solver = new Solver(ParserManager.getParser(), system);
 		curData = new PlotData(solver.functionData());
 		curData.setPltype(PlotData.PlotType.LINES);
@@ -401,7 +418,7 @@ public class SystemInputFrame extends JInternalFrame {
 		curData.setSystem(system);
 	}
 
-	public void plotFunction3D() {
+	private void plotFunction3D() {
 		var solver = new Solver(ParserManager.getParser(), system);
 		curData = new PlotData(solver.functionData2D());
 		curData.setPltype(PlotData.PlotType.THREED);
