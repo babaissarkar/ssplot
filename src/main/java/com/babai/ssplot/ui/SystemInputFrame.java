@@ -82,8 +82,8 @@ public class SystemInputFrame extends JInternalFrame {
 		final String[] axes = {"X", "Y", "Z"};
 		final String[] tags = {"min", "max", "step"};
 		final double[] rangeAsArray = {
-			EquationSystem.DEFAULT_RANGE.min(),
-			EquationSystem.DEFAULT_RANGE.max(),
+			EquationSystem.DEFAULT_RANGE.start(),
+			EquationSystem.DEFAULT_RANGE.end(),
 			EquationSystem.DEFAULT_RANGE.step()
 		};
 
@@ -384,7 +384,6 @@ public class SystemInputFrame extends JInternalFrame {
 		curData.setFgColor(Color.BLACK);
 		curData.setSystem(system);
 	}
-
 
 	private void plotODE3D(double x, double y, double z) {
 		var solver = new Solver(ParserManager.getParser(), system);

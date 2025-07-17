@@ -24,7 +24,7 @@
 package com.babai.ssplot.math.system.core;
 
 import java.util.Arrays;
-import java.util.function.DoubleConsumer;
+import java.util.Iterator;
 
 /**
  * Class that holds data for system of equations.
@@ -82,13 +82,44 @@ public class EquationSystem {
 
 	
 	/** Small record for storing range info for each independent variable */
-	public record Range(double min, double max, double step) {
-		// Allows looping over this range
-		public void forEach(DoubleConsumer consumer) {
-			double i = min;
-			while (i <= max) {
-				consumer.accept(i);
-				i += step;
+	public record Range(double start, double end, double step) implements Iterable<Double> {
+		
+		public Range(double start, double end) {
+			this(start, end, start < end ? 1 : -1);
+		}
+		
+		public Range(double end) {
+			this(0, end, end > 0 ? 1 : -1);
+		}
+		
+		@Override
+		public Iterator<Double> iterator() {
+			return new Iterator<Double>() {
+				Double current = start;
+				
+				@Override
+				public boolean hasNext() {
+					if (step == 0) throw new IllegalArgumentException("Step cannot be zero!");
+					return step > 0 ? current < end : current > end;
+				}
+
+				@Override
+				public Double next() {
+					current += step;
+					return current;
+				}
+				
+			};
+		}
+		
+		/** NOTE: does not include endpoint */
+		public int count() {
+			return (int) Math.floor((end - start) / step);
+		}
+		
+		public void printAllPoints() {
+			for (double d : this) {
+				System.out.println(d);
 			}
 		}
 	}
