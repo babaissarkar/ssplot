@@ -40,10 +40,11 @@ public class Solver {
 		this.system = sys;
 	};
 	
+	// TODO might need fixing. recheck. is it being consistently used?
 	private boolean validate(int dim) {
 		return parser != null
-			&& system != null
-			&& system.numberOfEqns() == dim;
+		    && system != null
+		    && system.numberOfEqns() == dim;
 	}
 	
 	@FunctionalInterface
@@ -70,17 +71,15 @@ public class Solver {
 		Evaluator2D dx_dt = (x, y) -> parser.evaluate(system.eqns[0], Map.of("x", x, "y", y));		
 		Evaluator2D dy_dt = (x, y) -> parser.evaluate(system.eqns[1], Map.of("x", x, "y", y));
 		
-		int n;
-		double x, y, h;
+		double x, y;
 		double k1, k2, k3, k4;
 		double p1, p2, p3, p4;
+		double h = system.h;
 
 		x = x0;
 		y = y0;
-		h = system.h;
-		n = system.n;
 
-		for (int i = 0; i < n; i++) {
+		for (int i = 0; i < system.n; i++) {
 			k1 = h * dx_dt.of(x, y);
 			p1 = h * dy_dt.of(x, y);
 			k2 = h * dx_dt.of(x + 0.5 * k1, y + 0.5 * p1);
@@ -110,19 +109,17 @@ public class Solver {
 		Evaluator3D dy_dt = (x, y, z) -> parser.evaluate(system.eqns[1], Map.of("x", x, "y", y, "z", z));
 		Evaluator3D dz_dt = (x, y, z) -> parser.evaluate(system.eqns[2], Map.of("x", x, "y", y, "z", z));
 		
-		int n;
-		double x, y, z, h;
+		double x, y, z;
 		double k1, k2, k3, k4;
 		double p1, p2, p3, p4;
 		double q1, q2, q3, q4;
+		double h = system.h;
 
 		x = x0;
 		y = y0;
 		z = z0;
-		h = system.h;
-		n = system.n;
 
-		for (int i = 0; i < n; i++) {
+		for (int i = 0; i < system.n; i++) {
 			k1 = h * dx_dt.of(x, y, z);
 			p1 = h * dy_dt.of(x, y, z);
 			q1 = h * dz_dt.of(x, y, z);
@@ -157,7 +154,6 @@ public class Solver {
 		return soln;
 	}
 
-
 	/** Gets the data for the direction field. */
 	public Vector<Vector<Double>> directionField() {
 		var data = new Vector<Vector<Double>>();
@@ -165,11 +161,12 @@ public class Solver {
 		Evaluator2D dx_dt = (x, y) -> parser.evaluate(system.eqns[0], Map.of("x", x, "y", y));
 		Evaluator2D dy_dt = (x, y) -> parser.evaluate(system.eqns[1], Map.of("x", x, "y", y));
 		
-		system.ranges[0].forEach(i ->
-			system.ranges[1].forEach(j -> {
+		for (double i : system.ranges[0]) {
+			for (double j : system.ranges[1]) {
 				double Xdot, Ydot;
 				double X1, Y1, X2, Y2;
 				double r;
+				
 				Xdot = dx_dt.of(i, j);
 				Ydot = dy_dt.of(i, j);
 				X1 = i;
@@ -181,8 +178,8 @@ public class Solver {
 				X2 = X1 + Xdot/r;
 				Y2 = Y1 + Ydot/r;
 				data.add(new Vector<>(List.of(X1, Y1, X2, Y2)));
-			})
-		);
+			}
+		};
 		return data;
 	}
 
@@ -193,9 +190,8 @@ public class Solver {
 		
 		double x = x0;
 		double y = y0;
-		int n = system.n;
 
-		for (int i = 0; i < n; i++) {
+		for (int i = 0; i < system.n; i++) {
 			soln.add(new Vector<>(List.of(x, y)));
 
 			double tempX = x2.of(x, y);
@@ -209,22 +205,22 @@ public class Solver {
 
 	public Vector<Vector<Double>> functionData() {
 		var soln = new Vector<Vector<Double>>();
-		String eqn = system.eqns[0];
-		DoubleUnaryOperator x2 = x -> parser.evaluate(eqn, Map.of("x", x));
-		system.ranges[0].forEach(i -> soln.add(new Vector<>(List.of(i, x2.applyAsDouble(i)))));
+		DoubleUnaryOperator x2 = x -> parser.evaluate(system.eqns[0], Map.of("x", x));
+		for (double i : system.ranges[0]) {
+			soln.add(new Vector<>(List.of(i, x2.applyAsDouble(i))));
+		}
 		return soln;
 	}
 
 	public Vector<Vector<Double>> functionData2D() {
 		var soln = new Vector<Vector<Double>>();
-		String eqn1 = system.eqns[0];		
-		Evaluator2D f = (x, y) -> parser.evaluate(eqn1, Map.of("x", x, "y", y));
+		Evaluator2D f = (x, y) -> parser.evaluate(system.eqns[0], Map.of("x", x, "y", y));
 
-		system.ranges[0].forEach(i ->
-			system.ranges[1].forEach(j ->
-				soln.add(new Vector<>(List.of(i, j, f.of(i, j))))
-			)
-		);
+		for (double i : system.ranges[0]) {
+			for (double j : system.ranges[1]) {
+				soln.add(new Vector<>(List.of(i, j, f.of(i, j))));
+			}
+		}
 
 		return soln;
 	}
