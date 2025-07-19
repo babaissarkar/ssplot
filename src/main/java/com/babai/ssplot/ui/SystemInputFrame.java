@@ -81,19 +81,20 @@ public class SystemInputFrame extends UIFrame {
 		final String[] axes = {"X", "Y", "Z"};
 
 		// Creating Gui
-		title("System Parameters")
-		.closeOperation(JFrame.HIDE_ON_CLOSE)
-		.content(
-			vbox(
-				createToolbarUI(axes),
-				radioGroup(SystemMode.class)
-					.options(SystemMode.values(), SystemMode.ODE)
-					.bind(curMode),
-				createIterationParamUIPanel(),
-				createEqnInputUIPanel(axes),
-				createRangesUIPanel(axes)
-			).emptyBorder(10)
-		);
+		this
+			.title("System Parameters")
+			.closeOperation(JFrame.HIDE_ON_CLOSE)
+			.content(
+				vbox(
+					createToolbarUI(axes),
+					radioGroup(SystemMode.class)
+						.options(SystemMode.values(), SystemMode.ODE)
+						.bind(curMode),
+					createIterationParamUIPanel(),
+					createEqnInputUIPanel(axes),
+					createRangesUIPanel(axes)
+				).emptyBorder(10)
+			);
 	}
 	
 	private JToolBar createToolbarUI(final String[] axes) {
@@ -109,12 +110,12 @@ public class SystemInputFrame extends UIFrame {
 		var plot2dCondition = curMode.when(mode ->
 			(mode == SystemMode.ODE && noOfEqns() == 2)
 			|| (mode == SystemMode.DFE && noOfEqns() >= 1)
-			|| mode == SystemMode.FN1
+			|| (mode == SystemMode.FN1 && noOfEqns() == 1)
 		);
 
 		var plot3dCondition = curMode.when(mode ->
 			(mode == SystemMode.ODE && noOfEqns() == 3)
-			|| mode == SystemMode.FN2
+			|| (mode == SystemMode.FN2 && noOfEqns() == 1)
 		);
 		
 		return toolbar(
@@ -279,10 +280,10 @@ public class SystemInputFrame extends UIFrame {
 		
 		// Ranges entry
 		List<StateVar<Boolean>> rangeConditions = List.of(
-				curMode.when(mode -> noOfEqns() > 0),
-				curMode.when(mode -> (mode != SystemMode.FN1) && noOfEqns() >= 2),
-				curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE) && noOfEqns() == 3)
-				);
+			curMode.when(mode -> noOfEqns() > 0),
+			curMode.when(mode -> (mode != SystemMode.FN1) && noOfEqns() >= 2),
+			curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE) && noOfEqns() == 3)
+		);
 
 		var pnlRange = grid()
 				.anchor(GridBagConstraints.WEST)
@@ -297,23 +298,23 @@ public class SystemInputFrame extends UIFrame {
 				.column(label(sub_markup.formatted(axes[row], tags[col], "")))
 				.weightx(1)
 				.column(
-						input()
-						.columns(5)
-						.numeric(true)
-						.text("" + rangeAsArray[col])
-						.enabled(rangeConditions.get(row))
-						.onChange(text -> {
-							var range = system.ranges[row_idx];
-							system.ranges[row_idx] = switch(col_idx % 3) {
-							case 0 -> new EquationSystem.Range(
-									Double.parseDouble(text), range.end(), range.step());
-							case 1 -> new EquationSystem.Range(
-									range.start(), Double.parseDouble(text), range.step());
-							default -> new EquationSystem.Range(
-									range.start(), range.end(), Double.parseDouble(text));
-							};
-						})
-						)
+					input()
+					.columns(5)
+					.numeric(true)
+					.text("" + rangeAsArray[col])
+					.enabled(rangeConditions.get(row))
+					.onChange(text -> {
+						var range = system.ranges[row_idx];
+						system.ranges[row_idx] = switch(col_idx % 3) {
+						case 0 -> new EquationSystem.Range(
+								Double.parseDouble(text), range.end(), range.step());
+						case 1 -> new EquationSystem.Range(
+								range.start(), Double.parseDouble(text), range.step());
+						default -> new EquationSystem.Range(
+								range.start(), range.end(), Double.parseDouble(text));
+						};
+					})
+				)
 				.column(Box.createHorizontalStrut(10));
 			}
 		}
