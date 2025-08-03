@@ -4,8 +4,8 @@ import java.util.Vector;
 import java.util.function.Function;
 
 public class StateVar<T> {
-	T value;
-	Vector<Runnable> runners = new Vector<>();
+	private T value;
+	private Vector<Runnable> runners = new Vector<>();
 	
 	public StateVar(T value) {
 		this.value = value;
