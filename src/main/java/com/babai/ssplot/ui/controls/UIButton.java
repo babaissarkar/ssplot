@@ -10,6 +10,11 @@ public class UIButton extends JButton {
 		return this;
 	}
 	
+	public UIButton text(String text) {
+		setText(text);
+		return this;
+	}
+	
 	public UIButton tooltip(String tip) {
 		setToolTipText(tip);
 		return this;

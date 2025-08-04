@@ -24,7 +24,6 @@
 package com.babai.ssplot.ui;
 
 import java.awt.Color;
-import java.awt.FlowLayout;
 import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -42,16 +41,12 @@ import java.util.function.Consumer;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.KeyStroke;
@@ -62,7 +57,10 @@ import com.babai.ssplot.math.io.NumParse;
 import com.babai.ssplot.math.plot.PlotData;
 import com.babai.ssplot.util.InfoLogger;
 
-public class DataViewer extends JInternalFrame implements ActionListener {
+import com.babai.ssplot.ui.controls.UIFrame;
+import static com.babai.ssplot.ui.controls.DUI.*;
+
+public class DataViewer extends UIFrame implements ActionListener {
 	private Vector<PlotData> plotlist;
 	private JComboBox<String> jcbPlotlist;
 	public Vector<Vector<Double>> dataset;
@@ -85,15 +83,6 @@ public class DataViewer extends JInternalFrame implements ActionListener {
 		this.logger = logger;
 		plotlist = new Vector<PlotData>();
 
-		/* GUI */
-		setTitle("Dataset Viewer");
-		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-		
-		JPanel mainPanel = new JPanel();
-		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-
-		JPanel pnlPlots = new JPanel();
-		pnlPlots.setLayout(new FlowLayout(FlowLayout.LEADING));
 		jcbPlotlist = new JComboBox<String>();
 		jcbPlotlist.setEditable(false);
 		jcbPlotlist.addActionListener(evt -> {
@@ -107,47 +96,48 @@ public class DataViewer extends JInternalFrame implements ActionListener {
 			}
 		});
 
-		JLabel lblPlots = new JLabel("<html><body><b>Plots:</b></body></html>");
-		btnEditProp = new JButton("Edit Properties...");
-		btnEditProp.setToolTipText("Edit the properties of the current plot");
-		btnEditProp.addActionListener(evt -> {
-			int id = jcbPlotlist.getSelectedIndex();
-			String title = JOptionPane.showInputDialog("Title :");
-			if (title == null) {
-				return;
-			}
-			
-			if (id != -1) {
+		btnEditProp = button()
+			.text("Edit Properties...")
+			.tooltip("Edit the properties of the current plot")
+			.onClick(() -> {
+				int id = jcbPlotlist.getSelectedIndex();
+				String title = JOptionPane.showInputDialog("Title :");
+				if (title == null || id == -1) return;
+				
 				PlotData curData = plotlist.get(id);
 				curData.setTitle(title);
 				updatePlotList();
 				setDataOnly(curData);
 				updateView();
-			}
-		});
+			});
 
-		pnlPlots.add(lblPlots);
-		pnlPlots.add(jcbPlotlist);
-		pnlPlots.add(btnEditProp);
+		var pnlPlots = hbox(
+			label("<html><body><b>Plots:</b></body></html>"),
+			jcbPlotlist,
+			button()
+				.text("View System")
+				.onClick(() -> {
+					int id = jcbPlotlist.getSelectedIndex();
+					if (id == -1) return;
+					JOptionPane.showMessageDialog(this,
+						plotlist.get(id).getSystem().toString()
+					);
+				}),
+			btnEditProp
+		);
 
-		JPanel pnlPrefs = new JPanel();
-		pnlPrefs.setLayout(new FlowLayout(FlowLayout.LEADING));
-		JLabel lblXData = new JLabel("X → Col");
-		JLabel lblYData = new JLabel("Y → Col");
-		lblZData = new JLabel("Z → Col");
-		jcbXData = new JComboBox<>();
-		jcbYData = new JComboBox<>();
-		jcbZData = new JComboBox<>();
-		btnPlot = new JButton("Replot");
-		btnPlot.addActionListener(this);
-		pnlPrefs.add(new JLabel("<html><body><b>Axes:</b></body></html>"));
-		pnlPrefs.add(lblXData);
-		pnlPrefs.add(jcbXData);
-		pnlPrefs.add(lblYData);
-		pnlPrefs.add(jcbYData);
-		pnlPrefs.add(lblZData);
-		pnlPrefs.add(jcbZData);
-		pnlPrefs.add(btnPlot);
+		var pnlPrefs = hbox(
+			label("<html><body><b>Axes:</b></body></html>"),
+			
+			label("X → Col"),
+			jcbXData = new JComboBox<>(),
+			label("Y → Col"),
+			jcbYData = new JComboBox<>(),
+			lblZData = label("Z → Col"),
+			jcbZData = new JComboBox<>(),
+			
+			btnPlot = button().text("Replot").onClick(this::updateView)
+		);
 
 		table = new JTable();
 		table.setBorder(BorderFactory.createLineBorder(Color.GRAY));
@@ -166,60 +156,43 @@ public class DataViewer extends JInternalFrame implements ActionListener {
 			}
 		});
 
-		JScrollPane scroll = new JScrollPane(table,
-				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		var scroll = scrollPane(table);
 		scroll.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		
+		btnNew    = button().icon("/new_data.png").tooltip("New Data").onClick(this::updateView);
+		btnLoad   = button().icon("/open.jpg").tooltip("Load Data from File");
+		btnSave   = button().icon("/save.jpg").tooltip("Save Data");
+		btnRow    = button().icon("/insert_row.png").tooltip("Add Row");
+		btnColumn = button().icon("/insert_col.png").tooltip("Add Column");
+		btnPrint  = button().icon("/printer.png").tooltip("Print Data");
 
-		JPanel pnlEdit = new JPanel();
-		pnlEdit.setLayout(new FlowLayout(FlowLayout.LEADING));
-
-		btnNew = new JButton();
-		btnLoad = new JButton();
-		btnSave = new JButton();
-		btnRow = new JButton();
-		btnColumn = new JButton();
-		btnPrint = new JButton();
-
-		btnNew.setToolTipText("New Data");
-		btnLoad.setToolTipText("Load Data from File");
-		btnSave.setToolTipText("Save Data");
-		btnRow.setToolTipText("Add Row");
-		btnColumn.setToolTipText("Add Column");
-		btnPrint.setToolTipText("Print Data");
-
-		btnNew.setIcon(new ImageIcon(getClass().getResource("/new_data.png")));
-		btnRow.setIcon(new ImageIcon(getClass().getResource("/insert_row.png")));
-		btnColumn.setIcon(new ImageIcon(getClass().getResource("/insert_col.png")));
-		btnPrint.setIcon(new ImageIcon(getClass().getResource("/printer.png")));
-		btnLoad.setIcon(new ImageIcon(getClass().getResource("/open.jpg")));
-		btnSave.setIcon(new ImageIcon(getClass().getResource("/save.jpg")));
-
-		btnNew.addActionListener(this);
 		btnLoad.addActionListener(this);
 		btnSave.addActionListener(this);
 		btnRow.addActionListener(this);
 		btnColumn.addActionListener(this);
 		btnPrint.addActionListener(this);
 
-		pnlEdit.add(btnNew);
-		pnlEdit.add(btnLoad);
-		pnlEdit.add(btnSave);
-		pnlEdit.add(btnColumn);
-		pnlEdit.add(btnRow);
-		pnlEdit.add(btnPrint);
+		var pnlEdit = hbox(
+			btnNew,
+			btnLoad,
+			btnSave,
+			btnColumn,
+			btnRow,
+			btnPrint);
 		
 		pnlPlots.setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 5));
 		pnlPrefs.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 		pnlEdit.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-		mainPanel.add(pnlPlots);
-		mainPanel.add(pnlPrefs);
-		mainPanel.add(pnlEdit);
-		mainPanel.add(scroll);
-
-		setContentPane(mainPanel);
-		pack();
+		this.title("Dataset Viewer")
+			.closeOperation(JFrame.HIDE_ON_CLOSE)
+			.content(
+				vbox(
+					pnlPlots,
+					pnlPrefs,
+					pnlEdit,
+					scroll))
+			.packFrame();
 	}
 
 	public DataViewer(PlotData data, InfoLogger logger) {
@@ -513,8 +486,6 @@ public class DataViewer extends JInternalFrame implements ActionListener {
 				e.printStackTrace();
 			}
 
-		} else if (evt.getSource() == btnPlot) {
-			updateView();
 		}
 	}
 	
