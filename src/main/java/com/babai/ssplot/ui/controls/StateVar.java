@@ -22,7 +22,7 @@ public class StateVar<T> {
 		}
 	}
 	
-	public void bind(Runnable r) {
+	public void onChange(Runnable r) {
 		this.runners.add(r);
 	}
 	
@@ -32,7 +32,7 @@ public class StateVar<T> {
 	
 	public <U> StateVar<U> when(Function<T, U> mapper) {
 		StateVar<U> derived = new StateVar<>(mapper.apply(get()));
-		bind(() -> derived.set(mapper.apply(get())));
+		onChange(() -> derived.set(mapper.apply(get())));
 		return derived;
 	}
 

@@ -18,7 +18,7 @@ public class UILabel extends JLabel {
 	
 	public UILabel bind(StateVar<String> text) {
 		setText(text.get());
-		text.bind(() -> setText(text.get()));
+		text.onChange(() -> setText(text.get()));
 		return this;
 	}
 }

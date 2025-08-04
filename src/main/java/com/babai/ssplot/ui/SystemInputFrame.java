@@ -72,7 +72,7 @@ public class SystemInputFrame extends UIFrame {
 		system = new EquationSystem();
 		curData = new PlotData();
 		curMode = new StateVar<>(SystemMode.ODE);
-		curMode.bind(() -> system.mode = curMode.get());
+		curMode.onChange(() -> system.mode = curMode.get());
 		initInputDialog();
 	}
 

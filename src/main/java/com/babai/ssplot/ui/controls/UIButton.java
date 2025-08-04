@@ -18,7 +18,7 @@ public class UIButton extends JButton {
 	// statevar change -> enabled property change
 	public UIButton enabled(StateVar<Boolean> enabled) {
 		setEnabled(enabled.get());
-		enabled.bind(() -> setEnabled(enabled.get()));
+		enabled.onChange(() -> setEnabled(enabled.get()));
 		return this;
 	}
 	

@@ -30,7 +30,7 @@ public class UIInput extends JTextField {
 	// statevar change -> enabled property change
 	public UIInput enabled(StateVar<Boolean> enabled) {
 		setEnabled(enabled.get());
-		enabled.bind(() -> setEnabled(enabled.get()));
+		enabled.onChange(() -> setEnabled(enabled.get()));
 		return this;
 	}
 	
