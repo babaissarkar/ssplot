@@ -200,8 +200,11 @@ public class MainFrame extends JFrame {
 		// Add Listener
 		jmOpen.addActionListener(e -> {
 			if (dbv.openFile()) {
-				pv.setCurPlot(dbv.getData());
-				pv.fit();
+				Optional<PlotData> pdata = dbv.getData();
+				if (pdata.isPresent()) {
+					pv.setCurPlot(pdata.get());
+					pv.fit();
+				}
 			}
 		});
 		jmSaveImage.addActionListener(e -> saveImage());
@@ -436,6 +439,7 @@ public class MainFrame extends JFrame {
 		ifrmPlot.add(pv, BorderLayout.CENTER);
 		
 		odeinput.setUpdateCallback(data -> {
+			if (data == null) return;
 			pv.setCurPlot(data);
 			pv.setCurPlotType(data.getPltype());
 			pv.fit();
@@ -446,6 +450,7 @@ public class MainFrame extends JFrame {
 		});
 		
 		dbv.setUpdateCallback(data -> {
+			if (data == null) return;
 			pv.setCurPlot(data);
 			pv.fit();
 			zoomField.setText(String.format("%3.1f", pv.getScale()));
