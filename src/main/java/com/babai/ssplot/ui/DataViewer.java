@@ -36,7 +36,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.Vector;
 import java.util.function.Consumer;
 
@@ -80,6 +79,8 @@ public class DataViewer extends JInternalFrame implements ActionListener {
 	
 	private InfoLogger logger;
 	private Consumer<PlotData> updater;
+
+	private static final PlotData zeroData = new PlotData();
 	
 	public DataViewer(InfoLogger logger) {
 		this.logger = logger;
@@ -224,32 +225,51 @@ public class DataViewer extends JInternalFrame implements ActionListener {
 
 	public DataViewer(PlotData data, InfoLogger logger) {
 		this(logger);
-		setData(data);
+		if (data != null) {
+			setData(data);
+		}
 	}
 	
 	public void setData(PlotData pdata) {
-		if (pdata == null) return;
-		
 		plotlist.add(pdata);
 		updatePlotList();
-		populateAxisSelectors(pdata);
 		setDataOnly(pdata);
 	}
 	
-	public void clear() {
-		plotlist.clear();
-		updatePlotList();
-		populateAxisSelectors(null);
-		table.setModel(new DefaultTableModel());
+	private static void pasteFromClipboard(JTable table) {
+		try {
+			String clipboardText = (String) Toolkit.getDefaultToolkit()
+					.getSystemClipboard()
+					.getData(DataFlavor.stringFlavor);
+
+			int startRow = table.getSelectedRow();
+			int startCol = table.getSelectedColumn();
+
+			String[] rows = clipboardText.split("\n");
+
+			for (int i = 0; i < rows.length; i++) {
+				String[] cells = rows[i].split("\\s+");
+				for (int j = 0; j < cells.length; j++) {
+					int row = startRow + i;
+					int col = startCol + j;
+					if (row < table.getRowCount() && col < table.getColumnCount()) {
+						table.setValueAt(cells[j].trim(), row, col);
+					}
+				}
+			}
+		} catch (UnsupportedFlavorException | IOException ex) {
+			ex.printStackTrace();
+		}
 	}
-	
-	
+
+	/** Show the given plot data in the table */
 	private void setDataOnly(PlotData pdata) {
-		if (pdata == null) return;
-		
+		DefaultTableModel model;
 		dataset = pdata.getData();
 		colNo = pdata.getColumnCount();
 		rowNo = pdata.getRowCount();
+
+		populateAxisSelectors(pdata);
 		
 		/* Update the table */
 		var headers = new Vector<String>();
@@ -276,31 +296,11 @@ public class DataViewer extends JInternalFrame implements ActionListener {
 			columns.getColumn(i).setPreferredWidth(10);
 		}
 	}
-	
-	private void updatePlotList() {
-		jcbPlotlist.removeAllItems();
-		for (PlotData pdata : plotlist) {
-			if (pdata != null) {
-				jcbPlotlist.addItem(pdata.getTitle());
-			}
-		}
-		jcbPlotlist.setSelectedIndex(jcbPlotlist.getItemCount()-1);
-	}
 
 	private void populateAxisSelectors(PlotData pdata) {
 		jcbXData.removeAllItems();
 		jcbYData.removeAllItems();
 		jcbZData.removeAllItems();
-		
-		jcbXData.setEnabled(pdata != null);
-		jcbYData.setEnabled(pdata != null);
-		jcbZData.setEnabled(pdata != null);
-		
-		jcbPlotlist.setEnabled(pdata != null);
-		btnPlot.setEnabled(pdata != null);
-		btnEditProp.setEnabled(pdata != null);
-		
-		if (pdata == null) return;
 		
 		for (int i = 1; i <= pdata.getColumnCount(); i++) {
 			jcbXData.addItem(i);
@@ -312,19 +312,10 @@ public class DataViewer extends JInternalFrame implements ActionListener {
 		jcbYData.setSelectedItem(pdata.getDataCol2());
 		jcbZData.setSelectedItem(pdata.getDataCol3());
 	}
-	
-	private void updateView() {
-		var pdata = getData();
-		if (pdata.isPresent()) {
-			logger.log(String.format("Plotting col %d (y axis) vs col %d (x axis)", this.getCol2(), this.getCol1()));
-			updater.accept(pdata.get());
-		}
-	}
-	
 
 	// TODO this should return an Optional
 	/** @return the dataset */
-	public Optional<PlotData> getData() {
+	public PlotData getData() {
 		var newdataset = new Vector<Vector<Double>>();
 		var model = (DefaultTableModel) table.getModel();
 
@@ -333,7 +324,7 @@ public class DataViewer extends JInternalFrame implements ActionListener {
 			for (int j = 0; j < model.getColumnCount(); j++) {
 				Object o = model.getValueAt(i, j);
 				if (o instanceof Double) {
-					row.add((Double) model.getValueAt(i, j));
+					row.add( (Double) model.getValueAt(i, j) );
 				} else if (o instanceof String) {
 					row.add(Double.parseDouble((String) model.getValueAt(i, j)));
 				} else {
@@ -343,16 +334,17 @@ public class DataViewer extends JInternalFrame implements ActionListener {
 			newdataset.add(row);
 		}
 
-		if (!plotlist.isEmpty()) {
-			int id = jcbPlotlist.getSelectedIndex();
+		int id = jcbPlotlist.getSelectedIndex();
+		if (id != -1) {
 			PlotData curData = plotlist.get(id);
 			curData.setData(newdataset);
-			populateAxisSelectors(curData);
 			curData.setDataCols(getCol1(), getCol2());
+			updatePlotList();
 			jcbPlotlist.setSelectedIndex(id);
-			return Optional.of(curData);
+			return curData;
 		} else {
-			return Optional.empty();
+			System.err.println("No data found!");
+			return zeroData;
 		}
 	}
 
@@ -366,32 +358,6 @@ public class DataViewer extends JInternalFrame implements ActionListener {
 		return colNo;
 	}
 
-	private static void pasteFromClipboard(JTable table) {
-		try {
-			String clipboardText = (String) Toolkit.getDefaultToolkit()
-					.getSystemClipboard()
-					.getData(DataFlavor.stringFlavor);
-
-			int startRow = table.getSelectedRow();
-			int startCol = table.getSelectedColumn();
-
-			String[] rows = clipboardText.split("\n");
-
-			for (int i = 0; i < rows.length; i++) {
-				String[] cells = rows[i].split("\\s+");
-				for (int j = 0; j < cells.length; j++) {
-					int row = startRow + i;
-					int col = startCol + j;
-					if (row < table.getRowCount() && col < table.getColumnCount()) {
-						table.setValueAt(cells[j].trim(), row, col);
-					}
-				}
-			}
-		} catch (UnsupportedFlavorException | IOException ex) {
-			ex.printStackTrace();
-		}
-	}
-	
 	public int getCol1() {
 		return (Integer) jcbXData.getSelectedItem();
 	}
@@ -527,6 +493,26 @@ public class DataViewer extends JInternalFrame implements ActionListener {
 		} else if (evt.getSource() == btnPlot) {
 			updateView();
 		}
+	}
+	
+	private void updateView() {
+		logger.log(String.format("Plotting col %d (y axis) vs col %d (x axis)", this.getCol2(), this.getCol1()));
+		updater.accept(getData());
+	}
+
+	private void updatePlotList() {
+		jcbPlotlist.removeAllItems();
+		for (PlotData pdata : plotlist) {
+			if (pdata != null) {
+				jcbPlotlist.addItem(pdata.getTitle());
+			}
+		}
+		jcbPlotlist.setSelectedIndex(jcbPlotlist.getItemCount()-1);
+	}
+
+	public void clear() {
+		plotlist.clear();
+		this.setData(zeroData);
 	}
 	
 	public void setUpdateCallback(Consumer<PlotData> update) {
