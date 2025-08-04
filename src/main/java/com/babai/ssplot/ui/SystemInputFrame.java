@@ -89,7 +89,7 @@ public class SystemInputFrame extends UIFrame {
 					createToolbarUI(axes),
 					radioGroup(SystemMode.class)
 						.options(SystemMode.values(), SystemMode.ODE)
-						.bind(curMode),
+						.bindOneWay(curMode),
 					createIterationParamUIPanel(),
 					createEqnInputUIPanel(axes),
 					createRangesUIPanel(axes)

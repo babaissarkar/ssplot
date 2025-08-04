@@ -37,7 +37,7 @@ public class UIRadioGroup<E> extends UIHBox {
 		return this;
 	}
 	
-	public UIRadioGroup<E> bind(StateVar<E> selection) {
+	public UIRadioGroup<E> bindOneWay(StateVar<E> selection) {
 		if (selection != null) {
 			this.selected = selection;
 		}
