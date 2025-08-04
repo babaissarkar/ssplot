@@ -485,10 +485,10 @@ public class Canvas {
 	/********************* Nodes *******************************/
 	public void drawNode(Node n) {
 		Color fgc = getFGColor();
-		setFGColor(n.col);
-		drawPoint(n.pNode, PlotData.PointType.CIRCLE, 3, 3);
-		Point2D.Double pText = new Point2D.Double(n.pNode.getX()+2, n.pNode.getY()+2);
-		drawText(n.lbl, pText);
+		setFGColor(n.c());
+		drawPoint(n.p(), PlotData.PointType.CIRCLE, 3, 3);
+		Point2D.Double pText = new Point2D.Double(n.p().getX()+2, n.p().getY()+2);
+		drawText(n.str(), pText);
 		setFGColor(fgc);
 	}
 
