@@ -44,6 +44,7 @@ import com.babai.ssplot.math.system.solver.Solver;
 import com.babai.ssplot.ui.controls.StateVar;
 import com.babai.ssplot.ui.controls.UIFrame;
 import com.babai.ssplot.ui.controls.UIGrid;
+import com.babai.ssplot.ui.controls.UIInput;
 
 import static com.babai.ssplot.ui.controls.DUI.*;
 
@@ -67,8 +68,10 @@ public class SystemInputFrame extends UIFrame {
 	private PlotData curData;
 
 	private Consumer<PlotData> updater;
+	private UIInput[] inputEqns;
 
 	public SystemInputFrame() {
+		inputEqns = new UIInput[EquationSystem.DIM];
 		builder = new EquationSystem.Builder();
 		curData = new PlotData();
 		curMode = new StateVar<>(SystemMode.ODE);
@@ -252,7 +255,7 @@ public class SystemInputFrame extends UIFrame {
 					.weightx(1)
 					.fill(GridBagConstraints.HORIZONTAL)
 					.column(
-						input()
+						inputEqns[i] = input()
 							.columns(10)
 							.enabled(eqnCondition.get(idx))
 							.onChange(text -> {
@@ -341,7 +344,10 @@ public class SystemInputFrame extends UIFrame {
 	}
 
 	public void setSystem(EquationSystem system) {
-//		this.system = system;
+		String[] eqns = system.eqns();
+		for (int i = 0; i < inputEqns.length; i++) {
+			inputEqns[i].text(eqns[i]);
+		}
 		builder.fromSystem(system);
 		curMode.set(system.mode());
 	}
