@@ -63,16 +63,16 @@ public class SystemInputFrame extends UIFrame {
 	// But how to handle system's internal fields?
 	// Regression: setting this from outside doesn't cause the fields to
 	// update.
-	private EquationSystem system;
+	private EquationSystem.Builder builder;
 	private PlotData curData;
 
 	private Consumer<PlotData> updater;
 
 	public SystemInputFrame() {
-		system = new EquationSystem();
+		builder = new EquationSystem.Builder();
 		curData = new PlotData();
 		curMode = new StateVar<>(SystemMode.ODE);
-		curMode.onChange(() -> system.mode = curMode.get());
+		curMode.onChange(() -> builder.mode(curMode.get()));
 		initInputDialog();
 	}
 
@@ -157,7 +157,7 @@ public class SystemInputFrame extends UIFrame {
 							input()
 								.columns(3)
 								.enabled(inputConditions.get(idx))
-								.onChange(text -> system.solnPoint[idx] = Double.parseDouble(text))
+								.onChange(text -> builder.solnPoint(idx, Double.parseDouble(text)))
 						))
 					).gap(5, 5)
 				),
@@ -186,7 +186,7 @@ public class SystemInputFrame extends UIFrame {
 						.text("" + EquationSystem.DEFAULT_N)
 						.enabled(curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE)))
 						.numeric(true)
-						.onChange(text -> system.n = Integer.parseInt(text))
+						.onChange(text -> builder.n(Integer.parseInt(text)))
 				)
 			.row()
 				.column(label("Iteration stepsize"))
@@ -197,7 +197,7 @@ public class SystemInputFrame extends UIFrame {
 						.text("" + EquationSystem.DEFAULT_H)
 						.enabled(curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE)))
 						.numeric(true)
-						.onChange(text -> system.h = Double.parseDouble(text))
+						.onChange(text -> builder.h(Double.parseDouble(text)))
 				);
 		
 		pnlCounts.setBorder(
@@ -256,7 +256,7 @@ public class SystemInputFrame extends UIFrame {
 							.columns(10)
 							.enabled(eqnCondition.get(idx))
 							.onChange(text -> {
-								system.eqns[idx] = text;
+								builder.eqn(idx, text);
 								curMode.set(curMode.get()); // FIXME find a better way than this to update UI
 							})
 					);
@@ -304,15 +304,17 @@ public class SystemInputFrame extends UIFrame {
 					.text("" + rangeAsArray[col])
 					.enabled(rangeConditions.get(row))
 					.onChange(text -> {
-						var range = system.ranges[row_idx];
-						system.ranges[row_idx] = switch(col_idx % 3) {
-						case 0 -> new EquationSystem.Range(
-								Double.parseDouble(text), range.end(), range.step());
-						case 1 -> new EquationSystem.Range(
-								range.start(), Double.parseDouble(text), range.step());
-						default -> new EquationSystem.Range(
-								range.start(), range.end(), Double.parseDouble(text));
-						};
+						var range = builder.ranges()[row_idx];
+						builder.range(row_idx,
+							switch(col_idx % 3) {
+							case 0 -> new EquationSystem.Range(
+									Double.parseDouble(text), range.end(), range.step());
+							case 1 -> new EquationSystem.Range(
+									range.start(), Double.parseDouble(text), range.step());
+							default -> new EquationSystem.Range(
+									range.start(), range.end(), Double.parseDouble(text));
+							}
+						);
 					})
 				)
 				.column(Box.createHorizontalStrut(10));
@@ -331,22 +333,24 @@ public class SystemInputFrame extends UIFrame {
 	}
 
 	private int noOfEqns() {
-		return system.numberOfEqns();
+		return builder.numberOfEqns();
 	}
 
 	public EquationSystem getSystem() {
-		return this.system;
+		return this.builder.build();
 	}
 
 	public void setSystem(EquationSystem system) {
-		this.system = system;
-		curMode.set(system.mode);
+//		this.system = system;
+		builder.fromSystem(system);
+		curMode.set(system.mode());
 	}
 
 	// TODO these methods sort of violate MVC, perhaps there should be some sort
 	// of controller class?
 	// Plotting functions : Calculates PlotData from EquationSystem
 	private void plotDirectionField() {
+		var system = getSystem();
 		var solver = new Solver(ParserManager.getParser(), system);
 		curData = new PlotData(solver.directionField());
 		curData.setPltype(PlotData.PlotType.VECTORS);
@@ -355,31 +359,34 @@ public class SystemInputFrame extends UIFrame {
 	}
 
 	private void plot2D() {
+		var system = getSystem();
 		switch (curMode.get()) {
 		case FN1:
 			plotFunction2D();
 			break;
 		default:
-			plotTrajectory(system.solnPoint[0], system.solnPoint[1]);
+			plotTrajectory(system.solnPoint()[0], system.solnPoint()[1]);
 		}
 		updater.accept(curData);
 	}
 
 	private void plot3D() {
+		var system = getSystem();
 		switch (curMode.get()) {
 		case FN2:
 			plotFunction3D();
 			break;
 		default:
-			plotODE3D(system.solnPoint[0], system.solnPoint[1], system.solnPoint[2]);
+			plotODE3D(system.solnPoint());
 		}
 		updater.accept(curData);
 	}
 
 	private void plotCobweb() {
+		var system = getSystem();
 		if (noOfEqns() >= 1) {
 			var solver = new Solver(ParserManager.getParser(), system);
-			curData = new PlotData(solver.cobweb(system.solnPoint[0]));
+			curData = new PlotData(solver.cobweb(system.solnPoint()[0]));
 			curData.setPltype(PlotData.PlotType.LINES);
 			curData.setFgColor(Color.BLACK);
 			curData.setSystem(system);
@@ -388,6 +395,7 @@ public class SystemInputFrame extends UIFrame {
 	}
 
 	private void plotTrajectory(double x, double y) {
+		var system = getSystem();
 		var solver = new Solver(ParserManager.getParser(), system);
 		switch (curMode.get()) {
 		case DFE:
@@ -402,29 +410,32 @@ public class SystemInputFrame extends UIFrame {
 		curData.setSystem(system);
 	}
 
-	private void plotODE3D(double x, double y, double z) {
+	private void plotODE3D(double[] solnPoint) {
+		var system = getSystem();
 		var solver = new Solver(ParserManager.getParser(), system);
-		curData = new PlotData(solver.RK4Iterate3D(x, y, z));
+		curData = new PlotData(solver.RK4Iterate3D(solnPoint[0], solnPoint[1], solnPoint[2]));
 		curData.setPltype(PlotData.PlotType.THREED);
 		curData.setFgColor(Color.BLACK);
 		curData.setSystem(system);
 	}
 
 	private void plotFunction2D() {
+		var system = getSystem();
 		var solver = new Solver(ParserManager.getParser(), system);
 		curData = new PlotData(solver.functionData());
 		curData.setPltype(PlotData.PlotType.LINES);
 		curData.setFgColor(Color.BLACK);
-		curData.setTitle(String.format("y = %s", system.eqns[0]));
+		curData.setTitle(String.format("y = %s", system.eqns()[0]));
 		curData.setSystem(system);
 	}
 
 	private void plotFunction3D() {
+		var system = getSystem();
 		var solver = new Solver(ParserManager.getParser(), system);
 		curData = new PlotData(solver.functionData2D());
 		curData.setPltype(PlotData.PlotType.THREED);
 		curData.setFgColor(Color.BLACK);
-		curData.setTitle(String.format("z = %s", system.eqns[0]));
+		curData.setTitle(String.format("z = %s", system.eqns()[0]));
 		curData.setSystem(system);
 	}
 

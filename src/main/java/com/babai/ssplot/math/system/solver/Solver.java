@@ -68,18 +68,18 @@ public class Solver {
 			return soln;
 		}
 		
-		Evaluator2D dx_dt = (x, y) -> parser.evaluate(system.eqns[0], Map.of("x", x, "y", y));		
-		Evaluator2D dy_dt = (x, y) -> parser.evaluate(system.eqns[1], Map.of("x", x, "y", y));
+		Evaluator2D dx_dt = (x, y) -> parser.evaluate(system.eqns()[0], Map.of("x", x, "y", y));		
+		Evaluator2D dy_dt = (x, y) -> parser.evaluate(system.eqns()[1], Map.of("x", x, "y", y));
 		
 		double x, y;
 		double k1, k2, k3, k4;
 		double p1, p2, p3, p4;
-		double h = system.h;
+		double h = system.h();
 
 		x = x0;
 		y = y0;
 
-		for (int i = 0; i < system.n; i++) {
+		for (int i = 0; i < system.n(); i++) {
 			k1 = h * dx_dt.of(x, y);
 			p1 = h * dy_dt.of(x, y);
 			k2 = h * dx_dt.of(x + 0.5 * k1, y + 0.5 * p1);
@@ -105,21 +105,21 @@ public class Solver {
 			return soln;
 		}
 		
-		Evaluator3D dx_dt = (x, y, z) -> parser.evaluate(system.eqns[0], Map.of("x", x, "y", y, "z", z));
-		Evaluator3D dy_dt = (x, y, z) -> parser.evaluate(system.eqns[1], Map.of("x", x, "y", y, "z", z));
-		Evaluator3D dz_dt = (x, y, z) -> parser.evaluate(system.eqns[2], Map.of("x", x, "y", y, "z", z));
+		Evaluator3D dx_dt = (x, y, z) -> parser.evaluate(system.eqns()[0], Map.of("x", x, "y", y, "z", z));
+		Evaluator3D dy_dt = (x, y, z) -> parser.evaluate(system.eqns()[1], Map.of("x", x, "y", y, "z", z));
+		Evaluator3D dz_dt = (x, y, z) -> parser.evaluate(system.eqns()[2], Map.of("x", x, "y", y, "z", z));
 		
 		double x, y, z;
 		double k1, k2, k3, k4;
 		double p1, p2, p3, p4;
 		double q1, q2, q3, q4;
-		double h = system.h;
+		double h = system.h();
 
 		x = x0;
 		y = y0;
 		z = z0;
 
-		for (int i = 0; i < system.n; i++) {
+		for (int i = 0; i < system.n(); i++) {
 			k1 = h * dx_dt.of(x, y, z);
 			p1 = h * dy_dt.of(x, y, z);
 			q1 = h * dz_dt.of(x, y, z);
@@ -158,11 +158,11 @@ public class Solver {
 	public Vector<Vector<Double>> directionField() {
 		var data = new Vector<Vector<Double>>();
 		// TODO dimension validation?		
-		Evaluator2D dx_dt = (x, y) -> parser.evaluate(system.eqns[0], Map.of("x", x, "y", y));
-		Evaluator2D dy_dt = (x, y) -> parser.evaluate(system.eqns[1], Map.of("x", x, "y", y));
+		Evaluator2D dx_dt = (x, y) -> parser.evaluate(system.eqns()[0], Map.of("x", x, "y", y));
+		Evaluator2D dy_dt = (x, y) -> parser.evaluate(system.eqns()[1], Map.of("x", x, "y", y));
 		
-		for (double i : system.ranges[0]) {
-			for (double j : system.ranges[1]) {
+		for (double i : system.ranges()[0]) {
+			for (double j : system.ranges()[1]) {
 				double Xdot, Ydot;
 				double X1, Y1, X2, Y2;
 				double r;
@@ -185,13 +185,13 @@ public class Solver {
 
 	public Vector<Vector<Double>> iterateMap(double x0, double y0) {
 		var soln = new Vector<Vector<Double>>();
-		Evaluator2D x2 = (x, y) -> parser.evaluate(system.eqns[0], Map.of("x", x, "y", y));
-		Evaluator2D y2 = (x, y) -> parser.evaluate(system.eqns[1], Map.of("x", x, "y", y));
+		Evaluator2D x2 = (x, y) -> parser.evaluate(system.eqns()[0], Map.of("x", x, "y", y));
+		Evaluator2D y2 = (x, y) -> parser.evaluate(system.eqns()[1], Map.of("x", x, "y", y));
 		
 		double x = x0;
 		double y = y0;
 
-		for (int i = 0; i < system.n; i++) {
+		for (int i = 0; i < system.n(); i++) {
 			soln.add(new Vector<>(List.of(x, y)));
 
 			double tempX = x2.of(x, y);
@@ -205,8 +205,8 @@ public class Solver {
 
 	public Vector<Vector<Double>> functionData() {
 		var soln = new Vector<Vector<Double>>();
-		DoubleUnaryOperator x2 = x -> parser.evaluate(system.eqns[0], Map.of("x", x));
-		for (double i : system.ranges[0]) {
+		DoubleUnaryOperator x2 = x -> parser.evaluate(system.eqns()[0], Map.of("x", x));
+		for (double i : system.ranges()[0]) {
 			soln.add(new Vector<>(List.of(i, x2.applyAsDouble(i))));
 		}
 		return soln;
@@ -214,10 +214,10 @@ public class Solver {
 
 	public Vector<Vector<Double>> functionData2D() {
 		var soln = new Vector<Vector<Double>>();
-		Evaluator2D f = (x, y) -> parser.evaluate(system.eqns[0], Map.of("x", x, "y", y));
+		Evaluator2D f = (x, y) -> parser.evaluate(system.eqns()[0], Map.of("x", x, "y", y));
 
-		for (double i : system.ranges[0]) {
-			for (double j : system.ranges[1]) {
+		for (double i : system.ranges()[0]) {
+			for (double j : system.ranges()[1]) {
 				soln.add(new Vector<>(List.of(i, j, f.of(i, j))));
 			}
 		}
@@ -229,10 +229,10 @@ public class Solver {
 	public Vector<Vector<Double>> cobweb(double x0) {
 		/* Works for 1D maps only */
 		var soln = new Vector<Vector<Double>>();
-		DoubleUnaryOperator f = x -> parser.evaluate(system.eqns[0], Map.of("x", x));
+		DoubleUnaryOperator f = x -> parser.evaluate(system.eqns()[0], Map.of("x", x));
 		
 		double x = x0, y = 0;
-		for (int i = 0; i < system.n; i++) {
+		for (int i = 0; i < system.n(); i++) {
 			soln.add(new Vector<>(List.of(x, y)));
 			y = f.applyAsDouble(x);
 			soln.add(new Vector<>(List.of(x, y)));
