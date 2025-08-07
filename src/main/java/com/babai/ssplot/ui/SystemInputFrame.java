@@ -92,7 +92,7 @@ public class SystemInputFrame extends UIFrame {
 					createToolbarUI(axes),
 					radioGroup(SystemMode.class)
 						.options(SystemMode.values(), SystemMode.ODE)
-						.bindOneWay(curMode),
+						.bindFromUI(curMode),
 					createIterationParamUIPanel(),
 					createEqnInputUIPanel(axes),
 					createRangesUIPanel(axes)
@@ -251,7 +251,9 @@ public class SystemInputFrame extends UIFrame {
 			final int idx = i;
 			pnlMatrix
 				.row()
-					.column(label().bind(curMode.when(mode -> eqnFieldLabels.get(mode)[idx])))
+					.column(
+						label()
+						.bindToUI(curMode.when(mode -> eqnFieldLabels.get(mode)[idx])))
 					.weightx(1)
 					.fill(GridBagConstraints.HORIZONTAL)
 					.column(
