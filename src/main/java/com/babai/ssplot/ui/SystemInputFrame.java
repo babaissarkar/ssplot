@@ -30,7 +30,6 @@ import java.awt.Insets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.function.Consumer;
-import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JFrame;
 import javax.swing.JToolBar;
@@ -41,6 +40,7 @@ import com.babai.ssplot.math.system.core.EquationSystem;
 import com.babai.ssplot.math.system.core.SystemMode;
 import com.babai.ssplot.math.system.parser.ParserManager;
 import com.babai.ssplot.math.system.solver.Solver;
+
 import com.babai.ssplot.ui.controls.StateVar;
 import com.babai.ssplot.ui.controls.UIFrame;
 import com.babai.ssplot.ui.controls.UIGrid;
@@ -54,19 +54,15 @@ import static com.babai.ssplot.ui.controls.DUI.*;
  * @author babaissarkar
  */
 
+// TODO split class into UI and Controller
 // TODO enable conditions need more edge case handling
 // TODO noOfEqns() is not a correct check, it triggers for any N eqns
 // instead of only the first N
 public class SystemInputFrame extends UIFrame {
-	// Data global vars
 	private StateVar<SystemMode> curMode;
-	// TODO perhaps system should be a StateVar too?
-	// But how to handle system's internal fields?
-	// Regression: setting this from outside doesn't cause the fields to
-	// update.
 	private EquationSystem.Builder builder;
 	private PlotData curData;
-
+	
 	private Consumer<PlotData> updater;
 	private UIInput[] inputEqns;
 
@@ -80,7 +76,6 @@ public class SystemInputFrame extends UIFrame {
 	}
 
 	private void initInputDialog() {
-		// UI Data
 		final String[] axes = {"X", "Y", "Z"};
 
 		// Creating Gui
