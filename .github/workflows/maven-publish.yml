@@ -24,7 +24,7 @@ jobs:
         settings-path: ${{ github.workspace }} # location for the settings.xml file
 
     - name: Install dependencies
-      run: apt install markdown
+      run: sudo apt-get -y install markdown
 
     - name: Build everything
       run: ./generate_all.sh
