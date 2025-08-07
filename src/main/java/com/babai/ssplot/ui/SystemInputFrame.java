@@ -158,7 +158,7 @@ public class SystemInputFrame extends UIFrame {
 						forEach(axes, idx -> hbox(
 							label(String.format(small_markup, axes[idx])),
 							input()
-								.columns(3)
+								.chars(3)
 								.enabled(inputConditions.get(idx))
 								.onChange(text -> builder.solnPoint(idx, Double.parseDouble(text)))
 						))
@@ -185,7 +185,7 @@ public class SystemInputFrame extends UIFrame {
 				.weightx(1.0)
 				.column(
 					input()
-						.columns(6)
+						.chars(6)
 						.text("" + EquationSystem.DEFAULT_N)
 						.enabled(curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE)))
 						.numeric(true)
@@ -196,7 +196,7 @@ public class SystemInputFrame extends UIFrame {
 				.weightx(1.0)
 				.column(
 					input()
-						.columns(6)
+						.chars(6)
 						.text("" + EquationSystem.DEFAULT_H)
 						.enabled(curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE)))
 						.numeric(true)
@@ -256,7 +256,7 @@ public class SystemInputFrame extends UIFrame {
 					.fill(GridBagConstraints.HORIZONTAL)
 					.column(
 						inputEqns[i] = input()
-							.columns(10)
+							.chars(10)
 							.enabled(eqnCondition.get(idx))
 							.onChange(text -> {
 								builder.eqn(idx, text);
@@ -298,28 +298,28 @@ public class SystemInputFrame extends UIFrame {
 			for (int col = 0; col < tags.length; col++) {
 				final int col_idx = col; 
 				pnlRange
-				.column(label(sub_markup.formatted(axes[row], tags[col], "")))
-				.weightx(1)
-				.column(
-					input()
-					.columns(5)
-					.numeric(true)
-					.text("" + rangeAsArray[col])
-					.enabled(rangeConditions.get(row))
-					.onChange(text -> {
-						var range = builder.ranges()[row_idx];
-						builder.range(row_idx,
-							switch(col_idx % 3) {
-							case 0 -> new EquationSystem.Range(
-									Double.parseDouble(text), range.end(), range.step());
-							case 1 -> new EquationSystem.Range(
-									range.start(), Double.parseDouble(text), range.step());
-							default -> new EquationSystem.Range(
-									range.start(), range.end(), Double.parseDouble(text));
-							}
-						);
-					})
-				)
+					.column(label(sub_markup.formatted(axes[row], tags[col], "")))
+					.weightx(1)
+					.column(
+						input()
+							.chars(5)
+							.numeric(true)
+							.text("" + rangeAsArray[col])
+							.enabled(rangeConditions.get(row))
+							.onChange(text -> {
+								var range = builder.ranges()[row_idx];
+								builder.range(row_idx,
+									switch(col_idx % 3) {
+									case 0 -> new EquationSystem.Range(
+											Double.parseDouble(text), range.end(), range.step());
+									case 1 -> new EquationSystem.Range(
+											range.start(), Double.parseDouble(text), range.step());
+									default -> new EquationSystem.Range(
+											range.start(), range.end(), Double.parseDouble(text));
+									}
+								);
+							})
+					)
 				.column(Box.createHorizontalStrut(10));
 			}
 		}

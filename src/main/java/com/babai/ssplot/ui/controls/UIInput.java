@@ -17,7 +17,7 @@ public class UIInput extends JTextField {
 		setHorizontalAlignment(JTextField.CENTER);
 	}
 	
-	public UIInput columns(int columns) {
+	public UIInput chars(int columns) {
 		setColumns(columns);
 		return this;
 	}
