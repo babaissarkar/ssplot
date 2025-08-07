@@ -5,7 +5,7 @@ import java.awt.Component;
 
 import javax.swing.JPanel;
 
-public class UIBorderPane extends JPanel {
+public class UIBorderPane extends JPanel implements UIBordered<UIBorderPane> {
 	private BorderLayout layout;
 	
 	public UIBorderPane() {

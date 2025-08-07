@@ -1,13 +1,10 @@
 package com.babai.ssplot.ui.controls;
 
 import java.awt.FlowLayout;
-
-import javax.swing.BorderFactory;
 import javax.swing.JPanel;
-import javax.swing.border.Border;
 
 /** specialization of JPanel that acts like a horizontal box */
-public class UIHBox extends JPanel {
+public class UIHBox extends JPanel implements UIBordered<UIHBox> {
 	private FlowLayout layout;
 	
 	public UIHBox() {
@@ -26,14 +23,5 @@ public class UIHBox extends JPanel {
 		layout.setVgap(vgap);
 		setLayout(layout);
 		return this;
-	}
-	
-	public UIHBox border(Border b) {
-		setBorder(b);
-		return this;
-	}
-	
-	public UIHBox emptyBorder(int gap) {
-		return border(BorderFactory.createEmptyBorder(gap, gap, gap, gap));
 	}
 }

@@ -174,9 +174,9 @@ public class SystemInputFrame extends UIFrame {
 		);
 	}
 
+	// Iteration paramters entry panel
 	private UIGrid createIterationParamUIPanel() {
-		// Iteration paramters entry
-		var pnlCounts = grid()
+		return grid()
 			.anchor(GridBagConstraints.WEST)
 			.insets(new Insets(5, 5, 5, 5))
 			.fill(GridBagConstraints.NONE)
@@ -187,7 +187,8 @@ public class SystemInputFrame extends UIFrame {
 					input()
 						.chars(6)
 						.text("" + EquationSystem.DEFAULT_N)
-						.enabled(curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE)))
+						.enabled(curMode.when(mode ->
+							(mode == SystemMode.DFE || mode == SystemMode.ODE)))
 						.numeric(true)
 						.onChange(text -> builder.n(Integer.parseInt(text)))
 				)
@@ -198,21 +199,19 @@ public class SystemInputFrame extends UIFrame {
 					input()
 						.chars(6)
 						.text("" + EquationSystem.DEFAULT_H)
-						.enabled(curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE)))
+						.enabled(curMode.when(mode ->
+							(mode == SystemMode.DFE || mode == SystemMode.ODE)))
 						.numeric(true)
 						.onChange(text -> builder.h(Double.parseDouble(text)))
-				);
-		
-		pnlCounts.setBorder(
-			BorderFactory.createTitledBorder(
-				BorderFactory.createLineBorder(new Color(127, 0, 140), 3),
-				"Iteration Parameters",
-				TitledBorder.LEFT,
-				TitledBorder.TOP,
-				new Font("Serif", Font.BOLD, 12),
-				new Color(127, 0, 140).darker().darker()));
-		
-		return pnlCounts;
+				)
+			.titledBorder()
+				.lineBorder(new Color(127, 0, 140), 3)
+				.title("Iteration Parameters")
+					.justify(TitledBorder.LEFT)
+					.position(TitledBorder.TOP)
+					.font(new Font("Serif", Font.BOLD, 12))
+					.color(new Color(127, 0, 140).darker().darker())
+				.apply();
 	}
 
 	
@@ -252,8 +251,7 @@ public class SystemInputFrame extends UIFrame {
 			pnlMatrix
 				.row()
 					.column(
-						label()
-						.bindToUI(curMode.when(mode -> eqnFieldLabels.get(mode)[idx])))
+						label().bindToUI(curMode.when(mode -> eqnFieldLabels.get(mode)[idx])))
 					.weightx(1)
 					.fill(GridBagConstraints.HORIZONTAL)
 					.column(
@@ -266,15 +264,15 @@ public class SystemInputFrame extends UIFrame {
 							})
 					);
 		}
-
-		pnlMatrix.setBorder(
-				BorderFactory.createTitledBorder(
-						BorderFactory.createLineBorder(new Color(255, 90, 38), 3),
-						"Equations",
-						TitledBorder.LEFT,
-						TitledBorder.TOP,
-						new Font("Serif", Font.BOLD, 12),
-						new Color(255, 90, 38).darker().darker()));
+		
+		pnlMatrix.titledBorder()
+			.lineBorder(new Color(255, 90, 38), 3)
+			.title("Equations")
+				.justify(TitledBorder.LEFT)
+				.position(TitledBorder.TOP)
+				.font(new Font("Serif", Font.BOLD, 12))
+				.color(new Color(255, 90, 38).darker().darker())
+			.apply();
 		return pnlMatrix;
 	}
 	
@@ -302,37 +300,37 @@ public class SystemInputFrame extends UIFrame {
 				pnlRange
 					.column(label(sub_markup.formatted(axes[row], tags[col], "")))
 					.weightx(1)
-					.column(
-						input()
-							.chars(5)
-							.numeric(true)
-							.text("" + rangeAsArray[col])
-							.enabled(rangeConditions.get(row))
-							.onChange(text -> {
-								var range = builder.ranges()[row_idx];
-								builder.range(row_idx,
-									switch(col_idx % 3) {
-									case 0 -> new EquationSystem.Range(
-											Double.parseDouble(text), range.end(), range.step());
-									case 1 -> new EquationSystem.Range(
-											range.start(), Double.parseDouble(text), range.step());
-									default -> new EquationSystem.Range(
-											range.start(), range.end(), Double.parseDouble(text));
-									}
-								);
-							})
+					.column(input()
+						.chars(5)
+						.numeric(true)
+						.text("" + rangeAsArray[col])
+						.enabled(rangeConditions.get(row))
+						.onChange(text -> {
+							var range = builder.ranges()[row_idx];
+							builder.range(row_idx,
+								switch (col_idx % 3) {
+								case 0 -> new EquationSystem.Range(
+										Double.parseDouble(text), range.end(), range.step());
+								case 1 -> new EquationSystem.Range(
+										range.start(), Double.parseDouble(text), range.step());
+								default -> new EquationSystem.Range(
+										range.start(), range.end(), Double.parseDouble(text));
+								}
+							);
+						})
 					)
-				.column(Box.createHorizontalStrut(10));
+					.column(Box.createHorizontalStrut(10));
 			}
 		}
-
-		pnlRange.setBorder(BorderFactory.createTitledBorder(
-				BorderFactory.createLineBorder(new Color(24, 110, 1), 3),
-				"Ranges",
-				TitledBorder.LEFT,
-				TitledBorder.TOP,
-				new Font("Serif", Font.BOLD, 12),
-				new Color(24, 110, 1).darker().darker()));
+		
+		pnlRange.titledBorder()
+			.lineBorder(new Color(24, 110, 1), 3)
+			.title("Ranges")
+				.justify(TitledBorder.LEFT)
+				.position(TitledBorder.TOP)
+				.font(new Font("Serif", Font.BOLD, 12))
+				.color(new Color(24, 110, 1).darker().darker())
+			.apply();
 
 		return pnlRange;
 	}
