@@ -11,7 +11,7 @@ markdown README.md > README.html
 echo "Creating AppImage"
 cp -v "jar/ssplot.jar" "SSPlot.AppDir/usr/share/ssplot/ssplot.jar"
 # download appimagetool
-wget -nc https://github.com/AppImage/AppImageKit/releases/latest/download/appimagetool-x86_64.AppImage
+wget -nc https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage
 chmod +x appimagetool-x86_64.AppImage
 ./appimagetool-x86_64.AppImage --appimage-extract
 mv squashfs-root appimagetool-dir
