@@ -544,7 +544,6 @@ public class MainFrame extends JFrame {
 		}
 	}
 	
-	
 	private void changePlotType() {
 		PlotType type = (PlotType) showInputDialog(
 			this,
@@ -622,8 +621,8 @@ public class MainFrame extends JFrame {
 		UIManager.put("MenuItem.acceleratorSelectionForeground", Color.BLACK);
 		UIManager.put("TabbedPane.hoverColor", sspOrange);
 		UIManager.put("TabbedPane.hoverForeground", Color.BLACK);
-		UIManager.put("Button.arc", 20);
-		UIManager.put("TextComponent.arc", 50);
+		UIManager.put("Button.arc", 15);
+		UIManager.put("TextComponent.arc", 15);
 
 		// Reduce tooltip times so user gets quick feedback
 		var tooltipManager = ToolTipManager.sharedInstance();

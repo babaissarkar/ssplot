@@ -117,6 +117,22 @@ public class SystemInputFrame extends UIFrame {
 		);
 		
 		return toolbar(
+			// Entry area for the point where the system is to be solved (X,Y,Z)
+			// Which of these will be enabled depends on the system of equation's type
+			borderPane()
+				.north(hbox(label("Solve At:")))
+				.center(
+					hbox(
+						forEach(axes, idx -> hbox(
+							label(String.format(small_markup, axes[idx])),
+							input()
+								.chars(3)
+								.enabled(inputConditions.get(idx))
+								.onChange(text -> builder.solnPoint(idx, Double.parseDouble(text)))
+						))
+					)
+				),
+				
 			hbox(
 				// Plot Buttons
 				button()
@@ -141,31 +157,13 @@ public class SystemInputFrame extends UIFrame {
 					.icon("/vfield.png")
 					.tooltip("Draw Direction Field")
 					.enabled(curMode.when(mode -> (mode == SystemMode.ODE && noOfEqns() == 2)))
-					.onClick(this::plotDirectionField)
-			).gap(5, 5),
-
-			// Entry area for the point where the system is to be solved (X,Y,Z)
-			// Which of these will be enabled depends on the system of equation's type
-			borderPane()
-				.north(label("Solve At:"))
-				.center(
-					hbox(
-						forEach(axes, idx -> hbox(
-							label(String.format(small_markup, axes[idx])),
-							input()
-								.chars(3)
-								.enabled(inputConditions.get(idx))
-								.onChange(text -> builder.solnPoint(idx, Double.parseDouble(text)))
-						))
-					).gap(5, 5)
-				),
-
-			hbox(
+					.onClick(this::plotDirectionField),
+					
 				button()
 					.icon("/cross.png")
 					.tooltip("Clear changes")
 					.onClick(this::hide) // TODO this should reset everything to default vals
-			)
+			).gap(2, 2)
 		);
 	}
 
