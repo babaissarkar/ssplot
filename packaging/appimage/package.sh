@@ -12,10 +12,12 @@ cp ssplot.png SSPlot.AppDir/
 cp ssplot.desktop SSPlot.AppDir/
 
 # download appimagetool
-wget -O appimagetool-x86_64.AppImage https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage
 pwd && ls -lh
-chmod +x appimagetool-x86_64.AppImage
-./appimagetool-x86_64.AppImage --appimage-extract
+wget --verbose -O /tmp/appimagetool-x86_64.AppImage https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage
+file /tmp/appimagetool-x86_64.AppImage
+pwd && ls -lh /tmp
+chmod +x /tmp/appimagetool-x86_64.AppImage
+/tmp/appimagetool-x86_64.AppImage --appimage-extract
 
 # run appimagetool
 ARCH=x86_64 squashfs-root/AppRun "SSPlot.AppDir"
