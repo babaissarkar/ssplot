@@ -45,7 +45,7 @@ jobs:
     - uses: actions/upload-artifact@v4
       with:
         name: SSPlot-x86_64.AppImage
-        path: "./SSPlot-x86_64.AppImage"
+        path: "./packaging/appimage/SSPlot-x86_64.AppImage"
 
   build-windows:
 
