@@ -39,7 +39,6 @@
 		</license>
 	</licenses>
 
-
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>17</maven.compiler.source>
@@ -64,17 +63,6 @@
 			<artifactId>flatlaf-intellij-themes</artifactId>
 			<version>3.2</version>
 		</dependency>
-<!--		<dependency>-->
-<!--			<groupId>org.mozilla</groupId>-->
-<!--			<artifactId>rhino</artifactId>-->
-<!--			<version>1.7.14</version>-->
-<!--		</dependency>-->
-<!--		<dependency>-->
-<!--			<groupId>org.mozilla</groupId>-->
-<!--			<artifactId>rhino-engine</artifactId>-->
-<!--			<version>1.7.14</version>-->
-<!--		</dependency>-->
-		<!-- JUnit 5 -->
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter</artifactId>
@@ -128,14 +116,12 @@
 						<includes>
 							<include>com.formdev:flatlaf</include>
 							<include>com.formdev:flatlaf-intellij-themes</include>
-<!--							<include>org.mozilla:rhino</include>-->
-<!--							<include>org.mozilla:rhino-engine</include>-->
 						</includes>
 					</artifactSet>
 					<transformers>
 						<transformer
 							implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-							<mainClass>ui.MainFrame</mainClass>
+							<mainClass>com.babai.ssplot.ui.MainFrame</mainClass>
 						</transformer>
 					</transformers>
 				</configuration>
@@ -179,7 +165,7 @@
 						<argument>--install-dir</argument>
 						<argument>/usr</argument>
 						<argument>--main-class</argument>
-						<argument>ui.MainFrame</argument>
+						<argument>com.babai.ssplot.ui.MainFrame</argument>
 						<argument>--icon</argument>
 						<argument>src/main/resources/${project.artifactId}.png</argument>
 					</arguments>
