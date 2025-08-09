@@ -82,35 +82,19 @@ public class MainFrame extends JFrame {
 	private final SystemInputFrame odeinput;
 	private final StatLogger logger;
 	
-	// Note: html string does not show up correctly in JOptionPane
-	// unless the \n -> <br/> replacement is done.
-	private static String VERSION;
+	private static String ABOUT_MSG;
+	private static String KEY_HELP_MSG;
 	static {
 		final Properties prop = new Properties();
 		try (InputStream is = MainFrame.class.getResourceAsStream("/project.properties")) {
 			prop.load(is);
-			VERSION = prop.getProperty("version");
+			ABOUT_MSG = prop.getProperty("about_msg")
+				.formatted(prop.getProperty("version"));
+			KEY_HELP_MSG = prop.getProperty("key_help_msg");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-	
-	private static final String ABOUT_MSG ="""
-	<h1>SSPlot %s</h1>
-	Copyright 2021-2025 Subhraman Sarkar
-	Available under the LGPL 2.1 license or, (at your choice) any later version.
-	<b>Homepage :</b> https://github.com/babaissarkar/ssplot
-	""".replace("\n", "<br/>").formatted(VERSION);
-	
-	private static final String KEY_HELP_MSG = """
-	<h1>Key bindings</h1>
-	<p>(Can be used when the plot window is selected.)</p>
-	<b>Arrow keys :</b> translate graph,
-	<b>j</b> and <b>f</b> : zoom in and out (2x or 0.5x)
-	<b>g</b> and <b>h</b> : fine zoom adjustment
-	<b>q, a; w, s; e, d</b> : 3d rotation keys
-	""".replace("\n", "<br/>");
-	
 	
 	public MainFrame() {
 		// Set icon
