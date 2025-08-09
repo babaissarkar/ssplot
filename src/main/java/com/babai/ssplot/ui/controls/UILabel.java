@@ -1,6 +1,7 @@
 package com.babai.ssplot.ui.controls;
 
 import java.awt.Component;
+import java.awt.Font;
 
 import javax.swing.JLabel;
 
@@ -20,6 +21,11 @@ public class UILabel extends JLabel {
 	public UILabel bindToUI(StateVar<String> text) {
 		setText(text.get());
 		text.onChange(() -> setText(text.get()));
+		return this;
+	}
+
+	public UILabel font(Font font) {
+		setFont(font);
 		return this;
 	}
 }

@@ -32,6 +32,11 @@ public class UIGrid extends JPanel implements UIStylizable<UIGrid> {
 		return this;
 	}
 	
+	public UIGrid insets(int gap) {
+		gbc.insets = new Insets(gap, gap, gap, gap);
+		return this;
+	}
+	
 	public UIGrid weightx(double weightx) {
 		gbc.weightx = weightx;
 		return this;
@@ -39,6 +44,16 @@ public class UIGrid extends JPanel implements UIStylizable<UIGrid> {
 	
 	public UIGrid weighty(double weighty) {
 		gbc.weighty = weighty;
+		return this;
+	}
+	
+	public UIGrid spanx(int span) {
+		gbc.gridwidth = span;
+		return this;
+	}
+	
+	public UIGrid spany(int span) {
+		gbc.gridheight = span;
 		return this;
 	}
 	
