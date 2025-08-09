@@ -611,18 +611,25 @@ public class MainFrame extends JFrame {
 			UIHelper.setLightLF();
 		}
 		
-		// TODO should be loaded from file?
-		final var sspOrange = new Color(255,156,95);
-		UIManager.put("Menu.selectionBackground", sspOrange);
-		UIManager.put("Menu.selectionForeground", Color.BLACK);
-		UIManager.put("MenuItem.selectionBackground", sspOrange);
-		UIManager.put("MenuItem.selectionForeground", Color.BLACK);
-		UIManager.put("MenuItem.checkBackground", new Color(153, 204, 255));
-		UIManager.put("MenuItem.acceleratorSelectionForeground", Color.BLACK);
-		UIManager.put("TabbedPane.hoverColor", sspOrange);
-		UIManager.put("TabbedPane.hoverForeground", Color.BLACK);
-		UIManager.put("Button.arc", 15);
-		UIManager.put("TextComponent.arc", 15);
+		Properties prop = new Properties();
+		try {
+			prop.load(MainFrame.class.getResourceAsStream("/com/babai/ssplot/ui/FlatLaf.properties"));
+			// After loading properties (customProps)
+			prop.forEach((key, value) -> { 
+				String val = value.toString();
+				if (val.startsWith("#")) {
+					UIManager.put(key, Color.decode(val));
+				} else {
+					try {
+						UIManager.put(key, Integer.parseInt(val));
+					} catch (Exception e) {
+						UIManager.put(key, val);
+					}
+				}
+			});
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
 		// Reduce tooltip times so user gets quick feedback
 		var tooltipManager = ToolTipManager.sharedInstance();
