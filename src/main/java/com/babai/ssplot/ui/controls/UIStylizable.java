@@ -37,7 +37,19 @@ import javax.swing.border.TitledBorder;
  *
  * @param <T> the concrete type of the component extending {@link JComponent}
  */
-public interface UIBordered<T extends JComponent> {
+public interface UIStylizable<T extends JComponent> {
+	
+	@SuppressWarnings("unchecked")
+	default T bg(Color c) {
+		((JComponent) this).setBackground(c);
+		return (T) this;
+	}
+	
+	@SuppressWarnings("unchecked")
+	default T fg(Color c) {
+		((JComponent) this).setForeground(c);
+		return (T) this;
+	}
 
 	@SuppressWarnings("unchecked")
 	default T border(Border b) {

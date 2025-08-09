@@ -7,7 +7,7 @@ import java.awt.Insets;
 
 import javax.swing.JPanel;
 
-public class UIGrid extends JPanel implements UIBordered<UIGrid> {
+public class UIGrid extends JPanel implements UIStylizable<UIGrid> {
 	private GridBagConstraints gbc;
 	
 	public UIGrid() {

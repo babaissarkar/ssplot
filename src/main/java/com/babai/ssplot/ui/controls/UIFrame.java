@@ -8,7 +8,7 @@ import javax.swing.SwingUtilities;
 
 import static com.babai.ssplot.ui.controls.DUI.borderPane;
 
-public class UIFrame extends JInternalFrame {
+public class UIFrame extends JInternalFrame implements UIStylizable<UIFrame> {
 
 	public UIFrame() {
 		super();

@@ -4,7 +4,7 @@ import java.awt.FlowLayout;
 import javax.swing.JPanel;
 
 /** specialization of JPanel that acts like a horizontal box */
-public class UIHBox extends JPanel implements UIBordered<UIHBox> {
+public class UIHBox extends JPanel implements UIStylizable<UIHBox> {
 	private FlowLayout layout;
 	
 	public UIHBox() {
