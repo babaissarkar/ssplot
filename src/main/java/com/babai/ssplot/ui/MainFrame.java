@@ -511,7 +511,7 @@ public class MainFrame extends JFrame {
 	
 	/* Keybinding management helper */
 	private void bindAction(JComponent control, String actionName, String hotkey, Runnable action) {
-		control.getInputMap(WHEN_IN_FOCUSED_WINDOW)
+		control.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)
 		       .put(KeyStroke.getKeyStroke(hotkey), actionName);
 		control.getActionMap().put(actionName, new AbstractAction() {
 			@Override
