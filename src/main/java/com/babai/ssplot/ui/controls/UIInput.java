@@ -1,6 +1,7 @@
 package com.babai.ssplot.ui.controls;
 
 import java.awt.Font;
+import java.awt.Insets;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.function.Consumer;
@@ -14,6 +15,7 @@ public class UIInput extends JTextField {
 	
 	public UIInput() {
 		setFont(monoFont);
+		setMargin(new Insets(5, 5, 5, 5));
 		setHorizontalAlignment(JTextField.CENTER);
 	}
 	
