@@ -1,9 +1,9 @@
 # SSPlot
 A simple plotting utility for plotting CSV datafiles, equations and dynamical systems (differential and difference equations).
 
-[![License: LGPL v2.1](https://img.shields.io/badge/License-LGPL%20v2.1-orange.svg)](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html) [![CI](https://github.com/babaissarkar/ssplot/actions/workflows/maven-publish.yml/badge.svg)](https://github.com/babaissarkar/ssplot/actions/workflows/maven-publish.yml?query=branch%3Amaster) [![GitHub Release](https://img.shields.io/github/v/release/babaissarkar/ssplot?display_name=release&labelColor=orange&color=black)](https://github.com/babaissarkar/ssplot/releases/tag/v2.3) ![Ask DeepWiki](https://deepwiki.com/badge.svg)
+[![License: LGPL v2.1](https://img.shields.io/badge/License-LGPL%20v2.1-orange.svg)](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html) [![CI](https://github.com/babaissarkar/ssplot/actions/workflows/maven-publish.yml/badge.svg)](https://github.com/babaissarkar/ssplot/actions/workflows/maven-publish.yml?query=branch%3Amaster) [![GitHub Release](https://img.shields.io/github/v/release/babaissarkar/ssplot?display_name=release&labelColor=orange&color=black)](https://github.com/babaissarkar/ssplot/releases/tag/v2.3.1) ![Ask DeepWiki](https://deepwiki.com/badge.svg)
 
-![Main Screen of SSPlot, version 2.3](https://babaissarkar.github.io/images/ssplot_screenshot.png)
+![Main Screen of SSPlot, version 2.3.1](https://babaissarkar.github.io/images/ssplot_screenshot.png)
 
 # Requirements
 Any Java version >= 17. (Use latest version if possible)
