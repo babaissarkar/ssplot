@@ -1,5 +1,6 @@
 package com.babai.ssplot.ui.controls;
 
+import java.awt.Component;
 import java.util.function.IntFunction;
 import java.util.stream.IntStream;
 
@@ -54,7 +55,7 @@ public class DUI {
 		return new UIBorderPane();
 	}
 	
-	public static UIHBox hbox(JComponent... children) {
+	public static UIHBox hbox(Component... children) {
 		var hbox = new UIHBox();
 		for (var child : children) {
 			hbox.add(child);
@@ -62,7 +63,7 @@ public class DUI {
 		return hbox;
 	}
 	
-	public static UIVBox vbox(JComponent... children) {
+	public static UIVBox vbox(Component... children) {
 		var vbox = new UIVBox();
 		for (var child : children) {
 			vbox.add(child);

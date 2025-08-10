@@ -58,6 +58,7 @@ public class UIGrid extends JPanel implements UIStylizable<UIGrid> {
 	}
 	
 	public UIGrid row() {
+		gbc.gridwidth = 1;
 		gbc.gridx = 0;
 		gbc.weightx = 0;
 		gbc.fill = GridBagConstraints.NONE;

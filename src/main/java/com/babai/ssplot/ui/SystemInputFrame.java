@@ -26,14 +26,12 @@ package com.babai.ssplot.ui;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
-import java.awt.Insets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.function.Consumer;
 import javax.swing.Box;
 import javax.swing.JFrame;
 import javax.swing.JToolBar;
-import javax.swing.border.TitledBorder;
 
 import com.babai.ssplot.math.plot.PlotData;
 import com.babai.ssplot.math.system.core.EquationSystem;
@@ -59,6 +57,7 @@ import static com.babai.ssplot.ui.controls.DUI.*;
 // TODO noOfEqns() is not a correct check, it triggers for any N eqns
 // instead of only the first N
 public class SystemInputFrame extends UIFrame {
+	private static final Font HEADER_FONT = new Font("Cantarell", Font.BOLD, 20);
 	private StateVar<SystemMode> curMode;
 	private EquationSystem.Builder builder;
 	private PlotData curData;
@@ -85,25 +84,24 @@ public class SystemInputFrame extends UIFrame {
 			.content(
 				vbox(
 					createToolbarUI(axes),
+					Box.createVerticalStrut(10),
 					radioGroup(SystemMode.class)
 						.options(SystemMode.values(), SystemMode.ODE)
 						.bindFromUI(curMode),
-					createIterationParamUIPanel(),
+					Box.createVerticalStrut(10),
 					createEqnInputUIPanel(axes),
-					createRangesUIPanel(axes)
-				).emptyBorder(10)
+					Box.createVerticalStrut(10),
+					createRangesUIPanel(axes),
+					Box.createVerticalStrut(10),
+					createIterationParamUIPanel()
+				)
+				.bg(Color.WHITE)
+				.emptyBorder(15)
 			);
 	}
 	
 	private JToolBar createToolbarUI(final String[] axes) {
-		final String small_markup = "<html><body style='font-size:12'>%s</body></html>";
-		
-		// Enable conditions for various input fields
-		List<StateVar<Boolean>> inputConditions = List.of(
-			curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE) && noOfEqns() >= 2),
-			curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE) && noOfEqns() >= 2),
-			curMode.when(mode -> (mode == SystemMode.ODE && noOfEqns() == 3))
-		);
+//		final String small_markup = "<html><body style='font-size:12'>%s</body></html>";
 
 		var plot2dCondition = curMode.when(mode ->
 			(mode == SystemMode.ODE && noOfEqns() == 2)
@@ -116,23 +114,7 @@ public class SystemInputFrame extends UIFrame {
 			|| (mode == SystemMode.FN2 && noOfEqns() == 1)
 		);
 		
-		return toolbar(
-			// Entry area for the point where the system is to be solved (X,Y,Z)
-			// Which of these will be enabled depends on the system of equation's type
-			borderPane()
-				.north(hbox(label("Solve At:")))
-				.center(
-					hbox(
-						forEach(axes, idx -> hbox(
-							label(String.format(small_markup, axes[idx])),
-							input()
-								.chars(3)
-								.enabled(inputConditions.get(idx))
-								.onChange(text -> builder.solnPoint(idx, Double.parseDouble(text)))
-						))
-					)
-				),
-				
+		var bar = toolbar(
 			hbox(
 				// Plot Buttons
 				button()
@@ -163,16 +145,24 @@ public class SystemInputFrame extends UIFrame {
 					.icon("/cross.png")
 					.tooltip("Clear changes")
 					.onClick(this::hide) // TODO this should reset everything to default vals
-			).gap(2, 2)
+			)
+			.gap(0, 0)
+			.bg(Color.WHITE)
 		);
+		
+		bar.setBackground(Color.WHITE);
+		return bar;
 	}
 
 	// Iteration paramters entry panel
 	private UIGrid createIterationParamUIPanel() {
 		return grid()
 			.anchor(GridBagConstraints.WEST)
-			.insets(new Insets(5, 5, 5, 5))
+			.insets(3)
 			.fill(GridBagConstraints.NONE)
+			.row()
+				.spanx(4)
+				.column(label("Iteration Parameters").font(HEADER_FONT))
 			.row()
 				.column(label("Iteration count"))
 				.weightx(1.0)
@@ -185,7 +175,7 @@ public class SystemInputFrame extends UIFrame {
 						.numeric(true)
 						.onChange(text -> builder.n(Integer.parseInt(text)))
 				)
-			.row()
+				.weightx(0)
 				.column(label("Iteration stepsize"))
 				.weightx(1.0)
 				.column(
@@ -197,19 +187,13 @@ public class SystemInputFrame extends UIFrame {
 						.numeric(true)
 						.onChange(text -> builder.h(Double.parseDouble(text)))
 				)
-			.titledBorder()
-				.lineBorder(new Color(127, 0, 140), 3)
-				.title("Iteration Parameters")
-					.justify(TitledBorder.LEFT)
-					.position(TitledBorder.TOP)
-					.font(new Font("Serif", Font.BOLD, 12))
-					.color(new Color(127, 0, 140).darker().darker())
-				.apply();
+			.emptyBorder(5);
 	}
 
-	
 	private UIGrid createEqnInputUIPanel(final String[] axes) {
 		final String sub_markup = "<html><body>%s<sub>%s</sub>%s</body></html>";
+		final String small_markup = "<html><body style='font-size:12'>%s</body></html>";
+		
 		var eqnFieldLabels = new HashMap<SystemMode, String[]>();
 		
 		eqnFieldLabels.put(
@@ -229,43 +213,60 @@ public class SystemInputFrame extends UIFrame {
 			new String[] { "z(x, y) =", "", "" }
 		);
 		
-		// Equations Entry
+		// Equations entry enable conditions
 		List<StateVar<Boolean>> eqnCondition = List.of(
 			new StateVar<Boolean>(true),
 			curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE)),
 			curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE))
 		);
+		
+		// Solution point entry enable conditions
+		List<StateVar<Boolean>> inputConditions = List.of(
+			curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE) && noOfEqns() >= 2),
+			curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE) && noOfEqns() >= 2),
+			curMode.when(mode -> (mode == SystemMode.ODE && noOfEqns() == 3))
+		);
+		
 		var pnlMatrix = grid()
 			.anchor(GridBagConstraints.WEST)
-			.insets(new Insets(5, 5, 5, 5));
+			.insets(3)
+			.row()
+				.spanx(4)
+				.column(label("Equations").font(HEADER_FONT));
 
 		for (int i = 0; i < axes.length; i++) {
 			final int idx = i;
-			pnlMatrix
-				.row()
-					.column(
-						label().bindToUI(curMode.when(mode -> eqnFieldLabels.get(mode)[idx])))
-					.weightx(1)
-					.fill(GridBagConstraints.HORIZONTAL)
-					.column(
-						inputEqns[i] = input()
-							.chars(10)
-							.enabled(eqnCondition.get(idx))
-							.onChange(text -> {
-								builder.eqn(idx, text);
-								curMode.set(curMode.get()); // FIXME find a better way than this to update UI
-							})
-					);
+			pnlMatrix.row()
+				.column(label().bindToUI(curMode.when(mode -> eqnFieldLabels.get(mode)[idx])))
+				.weightx(1)
+				.fill(GridBagConstraints.HORIZONTAL)
+				.column(
+					inputEqns[i] = input()
+						.chars(10)
+						.enabled(eqnCondition.get(idx))
+						.onChange(text -> {
+							builder.eqn(idx, text);
+							curMode.set(curMode.get()); // FIXME find a better way than this to update UI
+						})
+				);
 		}
 		
-		pnlMatrix.titledBorder()
-			.lineBorder(new Color(255, 90, 38), 3)
-			.title("Equations")
-				.justify(TitledBorder.LEFT)
-				.position(TitledBorder.TOP)
-				.font(new Font("Serif", Font.BOLD, 12))
-				.color(new Color(255, 90, 38).darker().darker())
-			.apply();
+		pnlMatrix.row()
+			.column(label("Solve At:"))
+			.fill(GridBagConstraints.HORIZONTAL)
+			.column(
+				// Entry area for the point where the system is to be solved (X,Y,Z)
+				hbox(
+					forEach(axes, idx -> hbox(
+						label(String.format(small_markup, axes[idx])),
+						input()
+							.chars(3)
+							.enabled(inputConditions.get(idx))
+							.onChange(text -> builder.solnPoint(idx, Double.parseDouble(text)))
+					))
+				)
+			)
+			.emptyBorder(5);
 		return pnlMatrix;
 	}
 	
@@ -282,8 +283,13 @@ public class SystemInputFrame extends UIFrame {
 		);
 
 		var pnlRange = grid()
-				.anchor(GridBagConstraints.WEST)
-				.insets(new Insets(5, 5, 5, 5));
+//				.anchor(GridBagConstraints.WEST)
+				.anchor(GridBagConstraints.CENTER)
+				.insets(3)
+//				.row()
+//					.spanx(9)
+//					.column(label("Ranges").font(HEADER_FONT))
+				;
 
 		for (int row = 0; row < axes.length; row++) {
 			final int row_idx = row;
@@ -291,6 +297,7 @@ public class SystemInputFrame extends UIFrame {
 			for (int col = 0; col < tags.length; col++) {
 				final int col_idx = col; 
 				pnlRange
+					.weightx(0)
 					.column(label(sub_markup.formatted(axes[row], tags[col], "")))
 					.weightx(1)
 					.column(input()
@@ -312,19 +319,12 @@ public class SystemInputFrame extends UIFrame {
 							);
 						})
 					)
+					.weightx(0)
 					.column(Box.createHorizontalStrut(10));
 			}
 		}
-		
-		pnlRange.titledBorder()
-			.lineBorder(new Color(24, 110, 1), 3)
-			.title("Ranges")
-				.justify(TitledBorder.LEFT)
-				.position(TitledBorder.TOP)
-				.font(new Font("Serif", Font.BOLD, 12))
-				.color(new Color(24, 110, 1).darker().darker())
-			.apply();
 
+		pnlRange.emptyBorder(5);
 		return pnlRange;
 	}
 

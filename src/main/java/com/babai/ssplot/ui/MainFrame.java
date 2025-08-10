@@ -26,10 +26,11 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.Dimension;
+import java.awt.GraphicsEnvironment;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -97,10 +98,8 @@ public class MainFrame extends JFrame {
 	}
 	
 	public MainFrame() {
-		// Set icon
 		try {
-			BufferedImage img = ImageIO.read(getClass().getResource("/ssplot.png"));
-			setIconImage(img);
+			setIconImage(ImageIO.read(getClass().getResource("/ssplot.png")));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -445,16 +444,24 @@ public class MainFrame extends JFrame {
 		
 		ifrmLogs.add(logger.getComponent());
 		
-		// FIXME magic number
-		odeinput.setLocation(Plotter.DEFAULT_W + 50, 0);
-		odeinput.pack();
-		odeinput.setSize(new Dimension(odeinput.getWidth(), ifrmPlot.getHeight()));
+		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		Rectangle screenBounds = ge.getMaximumWindowBounds();
 		
 		// FIXME magic number
-		int dbvX = odeinput.getLocation().x + odeinput.getWidth()/2;
-		dbv.setLocation(dbvX, 0);
+		odeinput.setLocation(Plotter.DEFAULT_W + 35, 0);
+		odeinput.pack();
+		
+		ifrmPlot.setSize(ifrmPlot.getWidth(), odeinput.getHeight());
+		
 		dbv.pack();
-		dbv.setSize(new Dimension(dbv.getWidth(), ifrmPlot.getHeight()));
+		int dbvWidth = Math.min(dbv.getWidth(), screenBounds.width - odeinput.getWidth() - ifrmPlot.getWidth());
+		if (dbvWidth > Plotter.DEFAULT_W/2) {
+			dbv.setSize(new Dimension(dbvWidth, odeinput.getHeight()));
+			dbv.setLocation(screenBounds.width - dbvWidth, 0);
+			dbv.setVisible(true);
+		} else {
+			dbv.setVisible(false);
+		}
 		
 		mainPane.add(ifrmPlot);
 		mainPane.add(odeinput);
@@ -463,6 +470,7 @@ public class MainFrame extends JFrame {
 		ifrmPlot.setVisible(true);
 		odeinput.setVisible(true);
 		
+		// Bottom pane
 		var console = new ScriptConsole();
 		var txtScratchpad = new HintTextArea();
 		txtScratchpad.setHintText("You can write anything here.");
@@ -485,9 +493,10 @@ public class MainFrame extends JFrame {
 		});
 		
 		var mainPane2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-		mainPane2.setDividerLocation(550);
 		mainPane2.setTopComponent(mainPane);
 		mainPane2.setBottomComponent(statusPane);
+		int pos = (int) (screenBounds.height * 0.7);
+		mainPane2.setDividerLocation(pos);
 		
 		getContentPane().add(mainPane2);
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
