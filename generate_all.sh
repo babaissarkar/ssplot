@@ -5,7 +5,7 @@
 # build-deps : maven, markdown
 VERSION=2.3
 echo "Running Maven: Compile and generate DEB"
-mvn clean package -X -f pom.xml
+mvn -B -X clean package jpackage:jpackage@linux
 echo "Generating Docs"
 markdown README.md > README.html
 echo "Creating AppImage"

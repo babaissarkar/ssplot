@@ -43,6 +43,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>17</maven.compiler.source>
 		<maven.compiler.target>17</maven.compiler.target>
+		<skip.jpackage>false</skip.jpackage>
 	</properties>
 
 	<repositories>
@@ -135,46 +136,50 @@
 				</executions>
 			</plugin>
 			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>exec-maven-plugin</artifactId>
-				<version>3.0.0</version>
+				<groupId>org.panteleyev</groupId>
+				<artifactId>jpackage-maven-plugin</artifactId>
+				<version>1.5.0</version>
+				
+				<configuration>
+					<name>${project.name}</name>
+					<description>${project.description}</description>
+					<input>${project.basedir}${file.separator}jar</input>
+					<destination>${project.basedir}</destination>
+					<appVersion>${project.version}</appVersion>
+					<arguments>${jpackage.args}</arguments>
+					<mainClass>com.babai.ssplot.ui.MainFrame</mainClass>
+					<mainJar>${project.artifactId}.jar</mainJar>
+				</configuration>
+				
 				<executions>
 					<execution>
-						<id>run-jpackage</id>
-						<phase>package</phase>
-						<goals>
-							<goal>exec</goal>
-						</goals>
+						<id>win</id>
+						<configuration>
+							<type>MSI</type>
+							<icon>${project.artifactId}.ico</icon>
+							<winMenu>true</winMenu>
+							<winMenuGroup>${project.name}</winMenuGroup>
+							<winShortcut>true</winShortcut>
+							<winPerUserInstall>true</winPerUserInstall>
+							<winDirChooser>true</winDirChooser>
+						</configuration>
+					</execution>
+					<execution>
+						<id>linux</id>
+						<configuration>
+							<type>DEB</type>
+							<icon>src/main/resources/${project.artifactId}.png</icon>
+							<installDir>/usr</installDir>
+							<linuxAppCategory>Science</linuxAppCategory>
+						</configuration>
 					</execution>
 				</executions>
-				<configuration>
-					<executable>jpackage</executable>
-					<arguments>
-						<argument>--type</argument>
-						<argument>deb</argument>
-						<argument>--input</argument>
-						<argument>${project.basedir}/jar</argument>
-						<argument>--main-jar</argument>
-						<argument>${project.artifactId}.jar</argument>
-						<argument>--name</argument>
-						<argument>${project.name}</argument>
-						<argument>--app-version</argument>
-						<argument>${project.version}</argument>
-						<argument>--description</argument>
-						<argument>${project.description}</argument>
-						<argument>--install-dir</argument>
-						<argument>/usr</argument>
-						<argument>--main-class</argument>
-						<argument>com.babai.ssplot.ui.MainFrame</argument>
-						<argument>--icon</argument>
-						<argument>src/main/resources/${project.artifactId}.png</argument>
-					</arguments>
-				</configuration>
 			</plugin>
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>3.2.0</version> <!-- Make sure to use the latest version -->
+				<version>3.2.0</version>
 				<executions>
 					<execution>
 						<id>checkstyle</id>

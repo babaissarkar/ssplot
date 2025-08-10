@@ -65,7 +65,7 @@ jobs:
         settings-path: ${{ github.workspace }} # location for the settings.xml file
 
     - name: Build with Maven
-      run: mvn -B -X package --file pom-windows.xml
+      run: mvn -B -X clean package jpackage:jpackage@win
       
     - name: Show Directory Contents
       run: dir
