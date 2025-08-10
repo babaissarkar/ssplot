@@ -24,6 +24,7 @@
 package com.babai.ssplot.ui;
 
 import java.awt.Color;
+import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -41,6 +42,7 @@ import java.util.function.Consumer;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
@@ -134,9 +136,7 @@ public class DataViewer extends UIFrame implements ActionListener {
 			label("Y → Col"),
 			jcbYData = new JComboBox<>(),
 			lblZData = label("Z → Col"),
-			jcbZData = new JComboBox<>(),
-			
-			btnPlot = button().text("Replot").onClick(this::updateView)
+			jcbZData = new JComboBox<>()
 		);
 
 		table = new JTable();
@@ -165,6 +165,9 @@ public class DataViewer extends UIFrame implements ActionListener {
 		btnRow    = button().icon("/insert_row.png").tooltip("Add Row");
 		btnColumn = button().icon("/insert_col.png").tooltip("Add Column");
 		btnPrint  = button().icon("/printer.png").tooltip("Print Data");
+		btnPlot   = button().text("Replot").onClick(this::updateView);
+		// FIXME to be converted to DUI style later
+		btnPlot.setMargin(new Insets(10, 15, 10, 15));
 
 		btnLoad.addActionListener(this);
 		btnSave.addActionListener(this);
@@ -178,7 +181,10 @@ public class DataViewer extends UIFrame implements ActionListener {
 			btnSave,
 			btnColumn,
 			btnRow,
-			btnPrint);
+			btnPrint,
+			Box.createHorizontalStrut(30),
+			btnPlot
+		);
 		
 		pnlPlots.setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 5));
 		pnlPrefs.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));

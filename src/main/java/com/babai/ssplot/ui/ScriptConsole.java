@@ -117,7 +117,7 @@ public class ScriptConsole extends JPanel {
 		
 		btnRun = new JButton("Run");
 		btnRun.setIcon(new ImageIcon(getClass().getResource("/run.png")));
-		btnRun.setBackground(Color.GREEN);
+		btnRun.setMargin(new Insets(10, 15, 10, 15));
 		btnRun.addActionListener(e -> lblOut.setText(txtIn.getText()));
 		
 		setLayout(new BorderLayout());
