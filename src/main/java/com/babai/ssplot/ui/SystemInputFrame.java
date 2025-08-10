@@ -101,8 +101,6 @@ public class SystemInputFrame extends UIFrame {
 	}
 	
 	private JToolBar createToolbarUI(final String[] axes) {
-//		final String small_markup = "<html><body style='font-size:12'>%s</body></html>";
-
 		var plot2dCondition = curMode.when(mode ->
 			(mode == SystemMode.ODE && noOfEqns() == 2)
 			|| (mode == SystemMode.DFE && noOfEqns() >= 1)
@@ -283,13 +281,11 @@ public class SystemInputFrame extends UIFrame {
 		);
 
 		var pnlRange = grid()
-//				.anchor(GridBagConstraints.WEST)
-				.anchor(GridBagConstraints.CENTER)
+				.anchor(GridBagConstraints.WEST)
 				.insets(3)
-//				.row()
-//					.spanx(9)
-//					.column(label("Ranges").font(HEADER_FONT))
-				;
+				.row()
+					.spanx(9)
+					.column(label("Ranges").font(HEADER_FONT));
 
 		for (int row = 0; row < axes.length; row++) {
 			final int row_idx = row;
