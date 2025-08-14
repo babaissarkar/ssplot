@@ -238,6 +238,9 @@ public class DataViewer extends UIFrame implements ActionListener {
 			} else if (i == pdata.getDataCol2()) {
 				headers.add("Y Data");
 				logger.log(String.format("Y Max : %f, Min : %f", pdata.getMax(i-1), pdata.getMin(i-1)));
+			} else if (i == pdata.getDataCol3()) {
+				headers.add("Z Data");
+				logger.log(String.format("Z Max : %f, Min : %f", pdata.getMax(i-1), pdata.getMin(i-1)));
 			} else {
 				headers.add("Column " + i);
 				logger.log(String.format("Col %d Max : %f, Min : %f", i, pdata.getMax(i-1), pdata.getMin(i-1)));
