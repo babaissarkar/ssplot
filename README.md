@@ -17,7 +17,7 @@ Use the generated MSI from the latest workflow run from the Actions tab.
 A `DEB` package (Actions tab), a flatpak from flathub and an `AppImage` with bundled AdoptOpenJDK java runtime is available.
 
 <a href='https://flathub.org/apps/io.github.babaissarkar.ssplot'><img width='240' alt='Download on Flathub' src='https://flathub.org/api/badge?locale=en'/></a>
-<a href='https://github.com/babaissarkar/ssplot/releases/download/v2.2.1/SSPlot-x86_64.AppImage'><img width='240' alt='Download as AppImage' src='https://docs.appimage.org/_images/download-appimage-banner.svg'/></a>
+<a href='https://github.com/babaissarkar/ssplot/releases/download/v2.3.1/SSPlot-x86_64.AppImage'><img width='240' alt='Download as AppImage' src='https://docs.appimage.org/_images/download-appimage-banner.svg'/></a>
 
 ## Manual Installation
 1. Install Java runtime (JRE).
