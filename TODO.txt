@@ -1,11 +1,18 @@
-1. Draw Z axis. Move the axes as the object is rotated.
 2. Draw polar plots
 3. Draw grids.
-4. Autoscale and zoom by mouse. (DONE)
-5. Function plot (DONE, 2D still needed)
 6. Fixed points and nullclines support
 7. Bad ticks when zoom is reduced below 1.0.
-
-8. plotting in 1d, y(x) = x doesn't work because of Long != Double, but y(x) = parseFloat(x) works.
 9. Assign properties correctly to plots after selection from data viewer window. Properties overhaul.
 
+## Bugs
+
+List in DataViewer not cleared after Clear Plot
+Plotting area shrinks in 3d mode. Hardcoded plot area size?
+setting plot color does not work on 3d ODE
+ticks disapper after resizing plot window + incorrect axis length makes it look cutoff
+setting title via menubar causes it to be not updated in data viewer (see also Bug #1 above)
+
+## Enhancements
+dataset viewer needs more padding. table is flush with window
+FR: Showing angles on top + snapping to a particular angle might be a nice idea
+X/Y/Z duplication in DataViewer
