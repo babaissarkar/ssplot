@@ -11,6 +11,7 @@ Plotting area shrinks in 3d mode. Hardcoded plot area size?
 setting plot color does not work on 3d ODE
 ticks disapper after resizing plot window + incorrect axis length makes it look cutoff
 setting title via menubar causes it to be not updated in data viewer (see also Bug #1 above)
+changing plot type (i.e. 2d -> 3d) causes the zoom level to reset/autozoom does not work.
 
 ## Enhancements
 dataset viewer needs more padding. table is flush with window
