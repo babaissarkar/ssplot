@@ -27,7 +27,6 @@ import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.GraphicsEnvironment;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -41,10 +40,9 @@ import java.util.Properties;
 
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
+import javax.swing.Box;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -52,14 +50,8 @@ import javax.swing.JDesktopPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
 import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
@@ -68,12 +60,14 @@ import javax.swing.UIManager;
 import com.babai.ssplot.cli.SSPlotCLI;
 import com.babai.ssplot.math.plot.*;
 import com.babai.ssplot.math.plot.PlotData.PlotType;
+import com.babai.ssplot.ui.controls.UIRadioItem;
 import com.babai.ssplot.ui.help.HelpFrame;
 import com.babai.ssplot.util.UIHelper;
 
 import static javax.swing.JOptionPane.*;
-import static com.babai.ssplot.cli.ArgParse.hasArg;
-import static com.babai.ssplot.cli.ArgParse.removeArg;
+
+import static com.babai.ssplot.cli.ArgParse.*;
+import static com.babai.ssplot.ui.controls.DUI.*;
 
 public class MainFrame extends JFrame {
 	
@@ -111,9 +105,6 @@ public class MainFrame extends JFrame {
 		plt = new Plotter(logger);
 		plt.initPlot();
 		
-		var ifrmPlot = new JInternalFrame("Plot", true, false, true, true);
-		var ifrmLogs = new JInternalFrame("Logs", true, true, true, true);
-		
 		pv = new PlotView(logger, plt);
 		pv.setPadding(10);
 		
@@ -129,197 +120,11 @@ public class MainFrame extends JFrame {
 		dbv.setMaximizable(true);
 		
 		// Create GUI
-		
 		setTitle("SSPlot");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setJMenuBar(createMenu());
 		
-		// Initialize menu variables
-		var jmOpen = new JMenuItem("Load Data from File...");
-		var jmSetupEqn = new JMenuItem("From Equation...");
-		var jmSaveData = new JMenuItem("Save Data...");
-		var jmSaveImage = new JMenuItem("Save Image...");
-		var jmShowData = new JMenuItem("View/Edit Plot Data");
-		var jmQuit = new JMenuItem("Quit");
-		
-		var jcmNormal = new JRadioButtonMenuItem("Normal mode", true);
-		var jcmOverlay = new JRadioButtonMenuItem("Overlay mode");
-		var jcmAnimate = new JRadioButtonMenuItem("Animate");
-		var bg = new ButtonGroup();
-		bg.add(jcmNormal);
-		bg.add(jcmAnimate);
-		bg.add(jcmOverlay);
-		
-		var jmClearLogs = new JMenuItem("Clear Logs");
-		var jmTitle = new JMenuItem("Add title");
-		var jmXLabel = new JMenuItem("Add X axis label");
-		var jmYLabel = new JMenuItem("Add Y axis label");
-		var jmAxes = new JCheckBoxMenuItem("Toggle axes", true);
-		var jmLineWidth = new JMenuItem("Set Line Width");
-		var jmCol = new JMenuItem("Set Plot Color");
-		var jmPlotType = new JMenuItem("Set Plot Type");
-		var jmClear = new JMenuItem("Clear plot");
-		var jmFit = new JMenuItem("Autoscale");
-		
-		var jmShowDBV = new JMenuItem("Data Editor...");
-		var jmShowEqn = new JMenuItem("Equation Editor...");	
-		var jmShowHelp = new JMenuItem("Help...");
-		var jmKeyHelp = new JMenuItem("Keymaps Help");
-		var jmHomepage = new JMenuItem("Homepage...");
-		var jmIssues = new JMenuItem("Report An Issue...");
-		var jmContribute = new JMenuItem("Contribute code...");
-		var jmDonate = new JMenuItem("Donate...");
-		var jmAbout = new JMenuItem("About");
-		
-		// Add keybindings
-		jmOpen.setAccelerator(KeyStroke.getKeyStroke("ctrl O"));
-		jmSaveImage.setAccelerator(KeyStroke.getKeyStroke("ctrl S"));
-		jmSaveData.setAccelerator(KeyStroke.getKeyStroke("ctrl shift S"));
-		jmShowData.setAccelerator(KeyStroke.getKeyStroke("ctrl D"));
-		jmQuit.setAccelerator(KeyStroke.getKeyStroke("ctrl Q"));
-		jmSetupEqn.setAccelerator(KeyStroke.getKeyStroke("ctrl M"));
-		jmFit.setAccelerator(KeyStroke.getKeyStroke("ctrl F"));
-		jmClear.setAccelerator(KeyStroke.getKeyStroke("ctrl X"));
-		
-		// Add Listener
-		jmOpen.addActionListener(e -> {
-			if (dbv.openFile()) {
-				Optional<PlotData> pdata = dbv.getData();
-				if (pdata.isPresent()) {
-					pv.setCurPlot(pdata.get());
-					pv.fit();
-				}
-			}
-		});
-		jmSaveImage.addActionListener(e -> saveImage());
-		jmShowData.addActionListener(e -> dbv.setVisible(true));
-		jmQuit.addActionListener(e -> System.exit(0));
-		jmSaveData.addActionListener(e -> dbv.saveFile());
-		jmClear.addActionListener(e -> {
-			pv.clear();
-			dbv.clear();
-		});
-		jmClearLogs.addActionListener(e -> logger.clear());
-		jmTitle.addActionListener(e -> {
-			Optional<PlotData> pdata = pv.getCurPlot();
-			if (pdata.isPresent()) {
-				pdata.get().setTitle(showInputDialog("Title:"));
-				pv.repaint();
-			}
-		});
-		jmXLabel.addActionListener(e -> {
-			plt.getCanvas().setXLabel(showInputDialog("X Label:"));
-			pv.repaint();
-		});
-		jmYLabel.addActionListener(e -> {
-			plt.getCanvas().setYLabel(showInputDialog("Y Label:"));
-			pv.repaint();
-		});
-		jmCol.addActionListener(e -> pv.setColor(JColorChooser.showDialog(this, "Plot Color 1", Color.RED)));
-		jmLineWidth.addActionListener(e -> setLineWidth());
-		jmAxes.addActionListener(e -> {
-			plt.toggleAxes();
-			pv.repaint();
-		});
-		jmSetupEqn.addActionListener(e -> {
-			odeinput.setVisible(true);
-			odeinput.requestFocusInWindow(); // TODO should focus on the first element in tab order
-		});
-		jmPlotType.addActionListener(e -> changePlotType());
-		jmFit.addActionListener(e -> pv.fit());
-		
-		jmHomepage.addActionListener(e -> openLink("https://github.com/babaissarkar/ssplot"));
-		jmIssues.addActionListener(e -> openLink("https://github.com/babaissarkar/ssplot/issues"));
-		jmContribute.addActionListener(e -> openLink("https://github.com/babaissarkar/ssplot/pulls"));
-		jmDonate.addActionListener(e -> openLink("https://ko-fi.com/lumiouse"));
-		jmShowHelp.addActionListener(e -> new HelpFrame("Parser Reference", "/docs/parser_guide.html").setVisible(true));
-		jmAbout.addActionListener(e -> showAbout());
-		jmKeyHelp.addActionListener(e -> {
-			// Shows help message
-			logger.log(KEY_HELP_MSG);
-			showMessageDialog(this, "<html>" + KEY_HELP_MSG + "</html>");
-		});
-		
-		jmShowDBV.addActionListener(e -> {
-			dbv.setVisible(true);
-			dbv.requestFocusInWindow();
-		});
-		
-		jmShowEqn.addActionListener(e -> {
-			odeinput.setVisible(true);
-			odeinput.requestFocusInWindow();
-		});
-
-		jcmNormal.addActionListener(e -> {
-			pv.setNormal();
-			pv.repaint();
-		});
-		jcmOverlay.addActionListener(e -> {
-			pv.toggleOverlayMode();
-			pv.repaint();
-		});
-		jcmAnimate.addActionListener(e -> {
-			pv.toggleAnimate();
-			pv.repaint();
-		});
-		
-		// Setup menu
-		var sbmnNew = new JMenu("New Plot");
-		sbmnNew.add(jmOpen);
-		sbmnNew.add(jmSetupEqn);
-		
-		var mnuFile = new JMenu("File");
-		mnuFile.add(sbmnNew);
-		mnuFile.add(jmSaveImage);
-		mnuFile.add(jmSaveData);
-		mnuFile.addSeparator();
-		mnuFile.add(jmClearLogs);
-		mnuFile.add(jmQuit);
-		
-		var sbmnMode = new JMenu("Plot Mode");
-		sbmnMode.add(jcmNormal);
-		sbmnMode.add(jcmOverlay);
-		sbmnMode.add(jcmAnimate);
-		
-		var mnuPlot = new JMenu("Plot");
-		mnuPlot.add(jmAxes);
-		mnuPlot.add(sbmnMode);
-		mnuPlot.add(jmFit);
-		mnuPlot.add(jmClear);
-		
-		var mnuProp = new JMenu("Plot Properties");
-		mnuProp.add(jmTitle);
-		mnuProp.add(jmXLabel);
-		mnuProp.add(jmYLabel);
-		mnuProp.add(jmPlotType);
-		mnuProp.add(jmLineWidth);
-		mnuProp.add(jmCol);
-		mnuPlot.add(mnuProp);
-		
-		var mnuWindow = new JMenu("Window");
-		mnuWindow.add(jmShowDBV);
-		mnuWindow.add(jmShowEqn);
-		
-		var mnuHelp = new JMenu("Help");
-		mnuHelp.add(jmShowHelp);
-		mnuHelp.add(jmKeyHelp);
-		mnuHelp.add(jmHomepage);
-		mnuHelp.add(jmIssues);
-		mnuHelp.add(jmContribute);
-		mnuHelp.add(jmDonate);
-		mnuHelp.add(jmAbout);
-		
-		var jmb = new JMenuBar();
-		jmb.add(mnuFile);
-		jmb.add(mnuPlot);
-		jmb.add(mnuWindow);
-		jmb.add(mnuHelp);
-		
-		setJMenuBar(jmb);
-		
-		// Main layouting
-		var mainPane = new JDesktopPane();
-		mainPane.setDragMode(JDesktopPane.OUTLINE_DRAG_MODE);
-		
+		var ifrmPlot = new JInternalFrame("Plot", true, false, true, true);
 		ifrmPlot.setSize(Plotter.DEFAULT_W + 35, Plotter.DEFAULT_H + 100);
 		ifrmPlot.addComponentListener(new ComponentAdapter() {
 			public void componentResized(ComponentEvent ce) {
@@ -328,8 +133,7 @@ public class MainFrame extends JFrame {
 			}
 		});
 		
-		// Setting Keybinding for movement
-		// Keybindings for movement and actions
+		// Plow View window: Keybindings for movement and actions
 		bindAction(ifrmPlot, "left",   "LEFT",  pv::moveLeft);
 		bindAction(ifrmPlot, "right",  "RIGHT", pv::moveRight);
 		bindAction(ifrmPlot, "up",     "UP",    pv::moveUp);
@@ -347,73 +151,72 @@ public class MainFrame extends JFrame {
 		bindAction(ifrmPlot, "rotCp",  "E", pv::rotateZPlus);
 		bindAction(ifrmPlot, "rotCm",  "D", pv::rotateZMinus);
 		
-		JToolBar toolbar = new JToolBar();
-		
 		// --- Zoom Section ---
-		JButton zoomInBtn = new JButton(new ImageIcon(getClass().getResource("/zoom-in.png")));
-		CenteredField zoomField = new CenteredField("1", 4);
-		JLabel zoomLabel = new JLabel(" X");
-		JButton zoomOutBtn = new JButton(new ImageIcon(getClass().getResource("/zoom-out.png")));
+		var zoomField = input().text("1").chars(4).numeric(true);
+		var zoomLabel = label(" X");
+		var zoomInBtn = button()
+			.icon("/zoom-in.png")
+			.tooltip("Zoom In (x2)")
+			.onClick(() -> {
+				zoomField.setText(String.format("%3.1f", pv.getScale()));
+				pv.zoomIn();
+			});
+		var zoomOutBtn = button()
+			.icon("/zoom-out.png")
+			.tooltip("Zoom In (x0.5)")
+			.onClick(() -> {
+				zoomField.setText(String.format("%3.1f", pv.getScale()));
+				pv.zoomOut();
+			});
 		
 		// disable growing
 		zoomField.setMaximumSize(zoomField.getPreferredSize());
-		zoomField.setNumeric(true);
-		
-		zoomInBtn.setToolTipText("Zoom In (x2)");
-		zoomOutBtn.setToolTipText("Zoom In (x0.5)");
-		
-		zoomInBtn.addActionListener(e -> {
-			zoomField.setText(String.format("%3.1f", pv.getScale()));
-			pv.zoomIn();
-		});
-		zoomOutBtn.addActionListener(e -> {
-			zoomField.setText(String.format("%3.1f", pv.getScale()));
-			pv.zoomOut();
-		});
-		
-		toolbar.add(zoomInBtn);
-		toolbar.add(zoomField);
-		toolbar.add(zoomLabel);
-		toolbar.add(zoomOutBtn);
-
-		// --- Separator ---
-		toolbar.addSeparator(new Dimension(10, 0));
 
 		// --- Rotation Section ---
-		JButton rotateCWBtn = new JButton(new ImageIcon(getClass().getResource("/rotate-cw.png")));
 		JComboBox<String> axisSelector = new JComboBox<>(new String[]{"X", "Y", "Z"});
 		// disable growing
 		axisSelector.setMaximumSize(axisSelector.getPreferredSize());
-		JButton rotateCCWBtn = new JButton(new ImageIcon(getClass().getResource("/rotate-ccw.png")));
-		
-		rotateCWBtn.setToolTipText("Rotate Clockwise");
-		rotateCCWBtn.setToolTipText("Rotate Counter-clockwise");
-		
-		rotateCCWBtn.addActionListener(e -> {
-			String axis = (String) axisSelector.getSelectedItem();
-			if (axis.equals("X")) {
-				pv.rotateXPlus();
-			} else if (axis.equals("Y")) {
-				pv.rotateYPlus();
-			} else {
-				pv.rotateZPlus();
-			}
-		});
-		rotateCWBtn.addActionListener(e -> {
-			String axis = (String) axisSelector.getSelectedItem();
-			if (axis.equals("X")) {
-				pv.rotateXMinus();
-			} else if (axis.equals("Y")) {
-				pv.rotateYMinus();
-			} else {
-				pv.rotateZMinus();
-			}
-		});
+		var rotateCWBtn = button()
+			.icon("/rotate-cw.png")
+			.tooltip("Rotate Clockwise")
+			.onClick(() -> {
+				String axis = (String) axisSelector.getSelectedItem();
+				if (axis.equals("X")) {
+					pv.rotateXPlus();
+				} else if (axis.equals("Y")) {
+					pv.rotateYPlus();
+				} else {
+					pv.rotateZPlus();
+				}
+			});
+		var rotateCCWBtn = button()
+			.icon("/rotate-ccw.png")
+			.tooltip("Rotate Counter-clockwise")
+			.onClick(() -> {
+				String axis = (String) axisSelector.getSelectedItem();
+				if (axis.equals("X")) {
+					pv.rotateXMinus();
+				} else if (axis.equals("Y")) {
+					pv.rotateYMinus();
+				} else {
+					pv.rotateZMinus();
+				}
+			});
 
-		toolbar.add(rotateCWBtn);
-		toolbar.add(new JLabel("Axis:"));
-		toolbar.add(axisSelector);
-		toolbar.add(rotateCCWBtn);
+		var toolbar = toolbar(
+			zoomInBtn,
+			zoomField,
+			zoomLabel,
+			zoomOutBtn,
+			
+			// --- Separator ---
+			Box.createRigidArea(new Dimension(10, 0)),
+			
+			rotateCWBtn,
+			label("Axis:"),
+			axisSelector,
+			rotateCCWBtn
+		);
 		
 		toolbar.setFloatable(false);
 		toolbar.setRollover(true);
@@ -421,6 +224,8 @@ public class MainFrame extends JFrame {
 		ifrmPlot.add(toolbar, BorderLayout.NORTH);
 		ifrmPlot.add(pv, BorderLayout.CENTER);
 		
+		// Update callbacks: these are called to replace Plow View
+		// when data in SystemInputFrame or DataViewer changes.
 		odeinput.setUpdateCallback(data -> {
 			if (data == null) return;
 			pv.setCurPlot(data);
@@ -442,10 +247,9 @@ public class MainFrame extends JFrame {
 			ifrmPlot.show();
 		});
 		
-		ifrmLogs.add(logger.getComponent());
-		
-		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-		Rectangle screenBounds = ge.getMaximumWindowBounds();
+		// Sizing calculations for internal frames
+		var ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		var screenBounds = ge.getMaximumWindowBounds();
 		
 		// FIXME magic number
 		odeinput.setLocation(Plotter.DEFAULT_W + 35, 0);
@@ -463,6 +267,9 @@ public class MainFrame extends JFrame {
 			dbv.setVisible(false);
 		}
 		
+		// Main panel
+		var mainPane = new JDesktopPane();
+		mainPane.setDragMode(JDesktopPane.OUTLINE_DRAG_MODE);
 		mainPane.add(ifrmPlot);
 		mainPane.add(odeinput);
 		mainPane.add(dbv);
@@ -470,36 +277,189 @@ public class MainFrame extends JFrame {
 		ifrmPlot.setVisible(true);
 		odeinput.setVisible(true);
 		
+		var ifrmLogs = new JInternalFrame("Logs", true, true, true, true);
+		ifrmLogs.add(logger.getComponent());
+		
 		// Bottom pane
 		var console = new ScriptConsole();
 		var txtScratchpad = new HintTextArea();
 		txtScratchpad.setHintText("You can write anything here.");
 		
-		var statusPane = new JTabbedPane();
-		statusPane.addTab("Logs", ifrmLogs.getContentPane());
-		statusPane.addTab("Console", console);
-		statusPane.addTab("Notes", txtScratchpad);
-		statusPane.addChangeListener(e -> {
-			switch(statusPane.getSelectedIndex()) {
-			case 1:
-				SwingUtilities.invokeLater(console::focusInput);
-				break;
-			case 2:
-				SwingUtilities.invokeLater(txtScratchpad::requestFocusInWindow);
-				break;
-			default:
-				// Nothing
-			}
-		});
+		var statusPane = tabPane()
+			.tab("Logs", ifrmLogs.getContentPane())
+			.tab("Console", console)
+			.tab("Notes", txtScratchpad)
+			.onChange(tabIdx -> {
+				switch(tabIdx) {
+				case 1:
+					SwingUtilities.invokeLater(console::focusInput);
+					break;
+				case 2:
+					SwingUtilities.invokeLater(txtScratchpad::requestFocusInWindow);
+					break;
+				default:
+					// Nothing
+				}
+			});
 		
-		var mainPane2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-		mainPane2.setTopComponent(mainPane);
-		mainPane2.setBottomComponent(statusPane);
-		int pos = (int) (screenBounds.height * 0.7);
-		mainPane2.setDividerLocation(pos);
-		
-		getContentPane().add(mainPane2);
+		getContentPane().add(splitPane()
+			.type(JSplitPane.VERTICAL_SPLIT)
+			.dividerLoc((int) (screenBounds.height * 0.7))
+			.top(mainPane)
+			.bottom(statusPane)
+		);
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
+	}
+	
+	private JMenuBar createMenu() {
+		var radioGroup = new ButtonGroup();
+		UIRadioItem modeNormal, modeAnimate, modeOverlay;
+		
+		var bar =menuBar(
+			menu("File").content(
+					menu("New Plot").content(
+						item("Load Data from File...")
+							.hotkey("ctrl O")
+							.onClick(() -> {
+								if (dbv.openFile()) {
+									Optional<PlotData> pdata = dbv.getData();
+									if (pdata.isPresent()) {
+										pv.setCurPlot(pdata.get());
+										pv.fit();
+									}
+								}
+							}),
+							
+						item("From Equation...")
+							.hotkey("ctrl M")
+							.onClick(() -> {
+								odeinput.setVisible(true);
+								odeinput.requestFocusInWindow();
+							})
+					),
+					
+					item("Save Image...")
+						.hotkey("ctrl S")
+						.onClick(this::saveImage),
+						
+					item("Save Data...")
+						.hotkey("ctrl shift S")
+						.onClick(dbv::saveFile),
+						
+//								separator(),
+						
+					item("Clear Logs")
+						.onClick(logger::clear),
+						
+					item("Quit")
+						.hotkey("ctrl Q")
+						.onClick(() -> System.exit(0))
+				),
+
+				menu("Plot").content(
+					item("Toggle Axes")
+						.onClick(() -> {
+							plt.toggleAxes();
+							pv.repaint();
+						}),
+						
+					menu("Plot Mode").content(
+						modeNormal = radioItem("Normal")
+							.selected(true)
+							.onClick(() -> {
+								pv.setNormal();
+								pv.repaint();
+							}),
+						modeOverlay = radioItem("Overlay")
+							.onClick(() -> {
+								pv.toggleOverlayMode();
+								pv.repaint();
+							}),
+						modeAnimate = radioItem("Animate")
+							.onClick(() -> {
+								pv.toggleAnimate();
+								pv.repaint();
+							})
+					),
+					
+					item("Autoscale")
+						.hotkey("ctrl F")
+						.onClick(() -> pv.fit()),
+						
+					item("Clear plot")
+						.hotkey("ctrl X")
+						.onClick(() -> {
+							pv.clear();
+							dbv.clear();
+						}),
+						
+					menu("Plot Properties").content(
+						item("Add title")
+							.onClick(() -> {
+								Optional<PlotData> pdata = pv.getCurPlot();
+								if (pdata.isPresent()) {
+									pdata.get().setTitle(showInputDialog("Title:"));
+									pv.repaint();
+								}
+							}),
+						item("Add X axis label")
+							.onClick(() -> {
+								plt.getCanvas().setXLabel(showInputDialog("X Label:"));
+								pv.repaint();
+							}),
+						item("Add Y axis label")
+							.onClick(() -> {
+								plt.getCanvas().setYLabel(showInputDialog("Y Label:"));
+								pv.repaint();
+							}),
+						item("Set Plot Type")
+							.onClick(() -> changePlotType()),
+						item("Set Line Width")
+							.onClick(() -> setLineWidth()),
+						item("Set Plot Color")
+							.onClick(() -> pv.setColor(JColorChooser.showDialog(this, "Plot Color 1", Color.RED)))
+					)
+				),
+
+				menu("Window").content(
+					item("Data Editor...")
+						.onClick(() -> {
+							dbv.setVisible(true);
+							dbv.requestFocusInWindow();
+						}),
+					item("Equation Editor...")
+						.onClick(() -> {
+							odeinput.setVisible(true);
+							odeinput.requestFocusInWindow();
+						})
+				),
+
+				menu("Help").content(
+					item("Help...")
+						.onClick(() -> new HelpFrame("Parser Reference", "/docs/parser_guide.html").setVisible(true)),
+					item("Keymaps Help")
+						.onClick(() -> {
+							logger.log(KEY_HELP_MSG);
+							showMessageDialog(this, "<html>" + KEY_HELP_MSG + "</html>");
+						}),
+					item("Homepage...")
+						.onClick(() -> openLink("https://github.com/babaissarkar/ssplot")),
+					item("Report An Issue...")
+						.onClick(() -> openLink("https://github.com/babaissarkar/ssplot/issues")),
+					item("Contribute code...")
+						.onClick(() -> openLink("https://github.com/babaissarkar/ssplot/pulls")),
+					item("Donate...")
+						.onClick(() -> openLink("https://ko-fi.com/lumiouse")),
+					item("About")
+						.onClick(() -> showAbout())
+				)
+		);
+		
+		radioGroup.add(modeNormal);
+		radioGroup.add(modeOverlay);
+		radioGroup.add(modeAnimate);
+		
+		return bar;
 	}
 	
 	/* Keybinding management helper */

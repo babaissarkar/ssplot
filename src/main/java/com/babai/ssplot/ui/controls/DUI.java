@@ -28,56 +28,78 @@ import java.util.function.IntFunction;
 import java.util.stream.IntStream;
 
 import javax.swing.JComponent;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 
 //TODO this does not mentions what property of this class gets bound
 public class DUI {
 	public static <T, U> U[] forEach(
-		T[] items,
-		IntFunction<? extends U> mapper,
-		IntFunction<U[]> arrayCtor)
+			T[] items,
+			IntFunction<? extends U> mapper,
+			IntFunction<U[]> arrayCtor)
 	{
 		return IntStream.range(0, items.length)
-		                .mapToObj(mapper)
-		                .toArray(arrayCtor);
+				.mapToObj(mapper)
+				.toArray(arrayCtor);
 	}
-	
+
 	public static <T> JComponent[] forEach(T[] items, IntFunction<? extends JComponent> mapper) {
 		return forEach(items, mapper, JComponent[]::new);
 	}
-	
+
 	public static UILabel label() {
 		return new UILabel();
 	}
-	
+
 	public static UILabel label(String text) {
 		return new UILabel().text(text);
 	}
-	
+
 	public static UIInput input() {
 		return new UIInput();
 	}
-	
- 	public static UIButton button() {
+
+	public static UIButton button() {
 		return new UIButton();
 	}
 	
+	public static JMenuBar menuBar(Component... children) {
+		var bar = new JMenuBar();
+		for (var child : children) {
+			bar.add(child);
+		}
+		return bar;
+	}
+
+	public static UIMenu menu(String text) {
+		return new UIMenu().text(text);
+	}
+	
+	public static UIMenuItem item(String text) {
+		return new UIMenuItem().text(text);
+	}
+	
+	public static UIRadioItem radioItem(String text) {
+		return new UIRadioItem().text(text);
+	}
+
 	public static <E> UIRadioGroup<E> radioGroup(Class<E> clazz) {
 		return new UIRadioGroup<>();
 	}
-	
+
 	public static JScrollPane scrollPane(JComponent child) {
 		return new JScrollPane(
 				child,
 				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 	}
-	
+
 	public static UIBorderPane borderPane() {
 		return new UIBorderPane();
 	}
-	
+
 	public static UIHBox hbox(Component... children) {
 		var hbox = new UIHBox();
 		for (var child : children) {
@@ -85,7 +107,7 @@ public class DUI {
 		}
 		return hbox;
 	}
-	
+
 	public static UIVBox vbox(Component... children) {
 		var vbox = new UIVBox();
 		for (var child : children) {
@@ -93,12 +115,20 @@ public class DUI {
 		}
 		return vbox;
 	}
-	
+
 	public static UIGrid grid() {
 		return new UIGrid();
 	}
 	
-	public static JToolBar toolbar(JComponent... children) {
+	public static UITabPane tabPane() {
+		return new UITabPane();
+	}
+	
+	public static UISplitPane splitPane() {
+		return new UISplitPane();
+	}
+
+	public static JToolBar toolbar(Component... children) {
 		var toolbar = new JToolBar();
 		for (var child : children) {
 			toolbar.add(child);
