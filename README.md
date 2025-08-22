@@ -18,6 +18,7 @@ A `DEB` package (Actions tab), a flatpak from flathub and an `AppImage` with bun
 
 <a href='https://flathub.org/apps/io.github.babaissarkar.ssplot'><img width='240' alt='Download on Flathub' src='https://flathub.org/api/badge?locale=en'/></a>
 <a href='https://github.com/babaissarkar/ssplot/releases/download/v2.3.1/SSPlot-x86_64.AppImage'><img width='240' alt='Download as AppImage' src='https://docs.appimage.org/_images/download-appimage-banner.svg'/></a>
+<a href='https://github.com/babaissarkar/ssplot/releases/download/v2.3.1/SSPlot-2.3.1.msi'><img width='240' alt='Download as MSI Installer' src='src/main/resources/download_msi.svg'/></a>
 
 ## Manual Installation
 1. Install Java runtime (JRE).

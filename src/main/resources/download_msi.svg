@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="182" height="56" role="img" aria-label="Download as MSI Installer">
+  <title>Download as MSI Installer</title>
+  <rect width="182" height="56" fill="#2d2d2d" rx="4"/>
+  <!-- Icon background -->
+  <rect x="4" y="4" width="48" height="48" rx="4" fill="url(#grad1)"/>
+  <!-- Icon: box/installer -->
+  <path d="M20 18h12l2 6h-16l2-6zm-2 8h16v12h-16v-12z" fill="#fff"/>
+  
+  <!-- Text -->
+  <text x="60" y="24" font-family="Segoe UI, Ubuntu, Sans-serif" font-size="12" fill="#ffffff">
+    Download as
+  </text>
+  <text x="60" y="42" font-family="Segoe UI, Ubuntu, Sans-serif" font-weight="bold" font-size="16" fill="#ffffff">
+    MSI Installer
+  </text>
+
+  <!-- Gradient for icon -->
+  <defs>
+    <linearGradient id="grad1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#5a9bd5"/>
+      <stop offset="100%" stop-color="#2d5a9d"/>
+    </linearGradient>
+  </defs>
+</svg>
