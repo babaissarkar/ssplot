@@ -24,12 +24,10 @@
 package com.babai.ssplot.ui;
 
 import java.awt.Color;
-import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.print.PrinterException;
 import java.io.File;
@@ -49,7 +47,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.KeyStroke;
 import javax.swing.table.DefaultTableModel;
@@ -62,7 +59,7 @@ import com.babai.ssplot.util.InfoLogger;
 import com.babai.ssplot.ui.controls.UIFrame;
 import static com.babai.ssplot.ui.controls.DUI.*;
 
-public class DataViewer extends UIFrame implements ActionListener {
+public class DataViewer extends UIFrame {
 	private Vector<PlotData> plotlist;
 	private JComboBox<String> jcbPlotlist;
 	public Vector<Vector<Double>> dataset;
@@ -71,10 +68,7 @@ public class DataViewer extends UIFrame implements ActionListener {
 	private int rowNo = 0;
 
 	private JTable table;
-	private JButton btnPlot;
-
-	private JButton btnNew, btnLoad, btnSave, btnRow, btnColumn, btnPrint;
-	private JButton btnEditProp;
+	private JButton btnPlot, btnEditProp;
 	private JLabel lblZData;
 	private JComboBox<Integer> jcbXData, jcbYData, jcbZData;
 	
@@ -130,7 +124,6 @@ public class DataViewer extends UIFrame implements ActionListener {
 
 		var pnlPrefs = hbox(
 			label("<html><body><b>Axes:</b></body></html>"),
-			
 			label("X → Col"),
 			jcbXData = new JComboBox<>(),
 			label("Y → Col"),
@@ -159,21 +152,35 @@ public class DataViewer extends UIFrame implements ActionListener {
 		var scroll = scrollPane(table);
 		scroll.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		
-		btnNew    = button().icon("/new_data.png").tooltip("New Data").onClick(this::updateView);
-		btnLoad   = button().icon("/open.jpg").tooltip("Load Data from File");
-		btnSave   = button().icon("/save.jpg").tooltip("Save Data");
-		btnRow    = button().icon("/insert_row.png").tooltip("Add Row");
-		btnColumn = button().icon("/insert_col.png").tooltip("Add Column");
-		btnPrint  = button().icon("/printer.png").tooltip("Print Data");
-		btnPlot   = button().text("Replot").onClick(this::updateView);
-		// FIXME to be converted to DUI style later
-		btnPlot.setMargin(new Insets(10, 15, 10, 15));
-
-		btnLoad.addActionListener(this);
-		btnSave.addActionListener(this);
-		btnRow.addActionListener(this);
-		btnColumn.addActionListener(this);
-		btnPrint.addActionListener(this);
+		var btnNew    = button()
+			.icon("/new_data.png")
+			.tooltip("New Data")
+			.onClick(this::newData);
+		var btnLoad   = button()
+			.icon("/open.jpg")
+			.tooltip("Load Data from File")
+			.onClick(this::openFile);
+		var btnSave   = button()
+			.icon("/save.jpg")
+			.tooltip("Save Data")
+			.onClick(this::saveFile);
+		var btnRow    = button()
+			.icon("/insert_row.png")
+			.tooltip("Add Row")
+			.onClick(this::addRow);
+		var btnColumn = button()
+			.icon("/insert_col.png")
+			.tooltip("Add Column")
+			.onClick(this::addColumn);
+		var btnPrint  = button()
+			.icon("/printer.png")
+			.tooltip("Print Data")
+			.onClick(this::printData);
+		btnPlot = button()
+			.text("Replot")
+			.tooltip("Replot Data")
+			.margin(10, 15, 10, 15)
+			.onClick(this::updateView);
 
 		var pnlEdit = hbox(
 			btnNew,
@@ -382,6 +389,38 @@ public class DataViewer extends UIFrame implements ActionListener {
 		jcbYData.setEnabled(!jcbYData.isEnabled());
 		btnPlot.setEnabled(!btnPlot.isEnabled());
 	}
+	
+	public void newData() {
+		String colString = JOptionPane.showInputDialog("No. of columns :");
+		String rowString = JOptionPane.showInputDialog("No. of rows :");
+		String filler    = JOptionPane.showInputDialog("Fill with :");
+		
+		if (colString == null || rowString == null) {
+			return;
+		}
+		
+		Double fillWith = filler == null ? 0 : Double.parseDouble(filler);
+		
+		colNo = Integer.parseInt(colString);
+		rowNo = Integer.parseInt(rowString);
+		
+		var dataset = new Vector<Vector<Double>>();
+		for (int i = 0; i < rowNo; i++) {
+			var row = new Vector<Double>();
+			for (int j = 0; j < colNo; j++) {
+				row.add(fillWith);
+			}
+			dataset.add(row);
+		}
+		setData(new PlotData(dataset));
+
+//		Vector<String> headers = new Vector<String>();
+//		for (int i = 1; i <= colNo; i++) {
+//			headers.add("Column " + i);
+//		}
+//
+//		table.setModel(new DefaultTableModel(headers, rowNo));
+	}
 
 	public boolean openFile() {
 		var files = new JFileChooser();
@@ -422,81 +461,40 @@ public class DataViewer extends UIFrame implements ActionListener {
 			}
 		}
 	}
-
-	@Override
-	public void actionPerformed(ActionEvent evt) {	
-		if (evt.getSource() == btnNew) {
-
-			String colString = JOptionPane.showInputDialog("No. of columns :");
-			String rowString = JOptionPane.showInputDialog("No. of rows :");
-			String filler    = JOptionPane.showInputDialog("Fill with :");
-			
-			if (colString == null || rowString == null) {
-				return;
+	
+	private void addRow() {
+		DefaultTableModel model = (DefaultTableModel) table.getModel();
+		if (model != null) {
+			int cols = model.getColumnCount();
+			String[] row = new String[cols];
+			Arrays.fill(row, "");
+			model.addRow(row);
+			table.setModel(model);
+		}
+	}
+	
+	private void addColumn() {
+		String colName = JOptionPane.showInputDialog("Column Name?");
+		DefaultTableModel model = (DefaultTableModel) table.getModel();
+		if (model != null) {
+			int rows = model.getRowCount();
+			String[] col = new String[rows];
+			Arrays.fill(col, "");
+			if (colName == "") {
+				model.addColumn(colName, col);
+			} else {
+				model.addColumn("Column " + (model.getColumnCount()+1), col);
 			}
-			
-			Double fillWith = filler == null ? 0 : Double.parseDouble(filler);
-			
-			colNo = Integer.parseInt(colString);
-			rowNo = Integer.parseInt(rowString);
-			
-			var dataset = new Vector<Vector<Double>>();
-			for (int i = 0; i < rowNo; i++) {
-				var row = new Vector<Double>();
-				for (int j = 0; j < colNo; j++) {
-					row.add(fillWith);
-				}
-				dataset.add(row);
-			}
-			setData(new PlotData(dataset));
-
-//			Vector<String> headers = new Vector<String>();
-//			for (int i = 1; i <= colNo; i++) {
-//				headers.add("Column " + i);
-//			}
-//
-//			table.setModel(new DefaultTableModel(headers, rowNo));
-
-		} else if (evt.getSource() == btnLoad) {
-			openFile();
-		} else if (evt.getSource() == btnSave) {
-			saveFile();
-		} else if (evt.getSource() == btnRow) {
-
-			DefaultTableModel model = (DefaultTableModel) table.getModel();
-			if (model != null) {
-				int cols = model.getColumnCount();
-				String[] row = new String[cols];
-				Arrays.fill(row, "");
-				model.addRow(row);
-				table.setModel(model);
-			}
-
-		} else if (evt.getSource() == btnColumn) {
-
-			String colName = JOptionPane.showInputDialog("Column Name?");
-			DefaultTableModel model = (DefaultTableModel) table.getModel();
-			if (model != null) {
-				int rows = model.getRowCount();
-				String[] col = new String[rows];
-				Arrays.fill(col, "");
-				if (colName == "") {
-					model.addColumn(colName, col);
-				} else {
-					model.addColumn("Column " + (model.getColumnCount()+1), col);
-				}
-				table.setModel(model);
-			}
-
-		} else if (evt.getSource() == btnPrint) {
-
-			try {
-				table.print();
-			} catch (PrinterException e) {
-				System.err.println("Can't print!");
-				e.printStackTrace();
-			}
-
+			table.setModel(model);
+		}
+	}
+	
+	private void printData() {
+		try {
+			table.print();
+		} catch (PrinterException e) {
+			System.err.println("Can't print!");
+			e.printStackTrace();
 		}
 	}
 	

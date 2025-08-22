@@ -23,6 +23,8 @@
 
 package com.babai.ssplot.ui.controls;
 
+import java.awt.Insets;
+
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 
@@ -41,6 +43,15 @@ public class UIButton extends JButton {
 	public UIButton tooltip(String tip) {
 		setToolTipText(tip);
 		return this;
+	}
+	
+	public UIButton margin(int top, int left, int bottom, int right) {
+		setMargin(new Insets(top, left, bottom, right));
+		return this;
+	}
+	
+	public UIButton margin(int gap) {
+		return margin(gap, gap, gap, gap);
 	}
 	
 	// statevar change -> enabled property change
