@@ -11,14 +11,17 @@ Any Java version >= 17. (Use latest version if possible)
 # Installation
 
 ## Windows
-Use the generated MSI from the latest workflow run from the Actions tab.
+An `MSI` installer is available (has bundled java runtime).
+
+<a href='https://github.com/babaissarkar/ssplot/releases/download/v2.3.1/SSPlot-2.3.1.msi'><img width='240' alt='Download as MSI Installer' src='src/main/resources/download_msi.svg'/></a>
+
+For latest dev version, use the generated MSI from the latest workflow run from the Actions tab.
 
 ## Linux
 A `DEB` package (Actions tab), a flatpak from flathub and an `AppImage` with bundled AdoptOpenJDK java runtime is available.
 
 <a href='https://flathub.org/apps/io.github.babaissarkar.ssplot'><img width='240' alt='Download on Flathub' src='https://flathub.org/api/badge?locale=en'/></a>
 <a href='https://github.com/babaissarkar/ssplot/releases/download/v2.3.1/SSPlot-x86_64.AppImage'><img width='240' alt='Download as AppImage' src='https://docs.appimage.org/_images/download-appimage-banner.svg'/></a>
-<a href='https://github.com/babaissarkar/ssplot/releases/download/v2.3.1/SSPlot-2.3.1.msi'><img width='240' alt='Download as MSI Installer' src='src/main/resources/download_msi.svg'/></a>
 
 ## Manual Installation
 1. Install Java runtime (JRE).
