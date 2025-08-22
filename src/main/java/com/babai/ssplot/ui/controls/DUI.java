@@ -139,4 +139,8 @@ public class DUI {
 	public static UIFrame iframe() {
 		return new UIFrame();
 	}
+	
+	public static UIFrame iframe(String title) {
+		return iframe().title(title);
+	}
 }

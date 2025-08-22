@@ -23,17 +23,63 @@
 
 package com.babai.ssplot.util;
 
+import static javax.swing.JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT;
+
+import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.io.IOException;
+import java.util.Properties;
+
+import javax.swing.AbstractAction;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.UIManager.LookAndFeelInfo;
 
+import com.babai.ssplot.ui.MainFrame;
 import com.formdev.flatlaf.intellijthemes.FlatArcDarkOrangeIJTheme;
 import com.formdev.flatlaf.intellijthemes.FlatArcOrangeIJTheme;
 import com.formdev.flatlaf.util.SystemInfo;
 
 public interface UIHelper {
+	
+	/* Load FlatLaf UI properties */
+	public static void loadUIProperties() {
+		Properties prop = new Properties();
+		try {
+			prop.load(MainFrame.class.getResourceAsStream("/com/babai/ssplot/ui/FlatLaf.properties"));
+			// After loading properties (customProps)
+			prop.forEach((key, value) -> { 
+				String val = value.toString();
+				if (val.startsWith("#")) {
+					UIManager.put(key, Color.decode(val));
+				} else {
+					try {
+						UIManager.put(key, Integer.parseInt(val));
+					} catch (Exception e) {
+						UIManager.put(key, val);
+					}
+				}
+			});
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/* Keybinding management helper */
+	public static void bindAction(JComponent control, String actionName, String hotkey, Runnable action) {
+		control.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)
+		       .put(KeyStroke.getKeyStroke(hotkey), actionName);
+		control.getActionMap().put(actionName, new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				action.run();
+			}
+		});
+	}
 	
 	public static void setNimbusLF() {
 		for (LookAndFeelInfo lafinf : UIManager.getInstalledLookAndFeels()) {

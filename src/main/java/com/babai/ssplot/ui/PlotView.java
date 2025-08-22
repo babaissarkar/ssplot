@@ -266,7 +266,6 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 		repaint();
 	}
 
-
 	public void toggleOverlayMode() {
 		stopAnimation();
 		overlayMode = !overlayMode;

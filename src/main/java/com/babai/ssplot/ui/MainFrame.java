@@ -27,7 +27,6 @@ import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.GraphicsEnvironment;
-import java.awt.event.ActionEvent;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.io.File;
@@ -39,20 +38,17 @@ import java.util.Optional;
 import java.util.Properties;
 
 import javax.imageio.ImageIO;
-import javax.swing.AbstractAction;
 import javax.swing.Box;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JSplitPane;
-import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
@@ -60,6 +56,8 @@ import javax.swing.UIManager;
 import com.babai.ssplot.cli.SSPlotCLI;
 import com.babai.ssplot.math.plot.*;
 import com.babai.ssplot.math.plot.PlotData.PlotType;
+import com.babai.ssplot.ui.controls.UIFrame;
+import com.babai.ssplot.ui.controls.UIInput;
 import com.babai.ssplot.ui.controls.UIRadioItem;
 import com.babai.ssplot.ui.help.HelpFrame;
 import com.babai.ssplot.util.UIHelper;
@@ -68,6 +66,7 @@ import static javax.swing.JOptionPane.*;
 
 import static com.babai.ssplot.cli.ArgParse.*;
 import static com.babai.ssplot.ui.controls.DUI.*;
+import static com.babai.ssplot.util.UIHelper.*;
 
 public class MainFrame extends JFrame {
 	
@@ -124,125 +123,26 @@ public class MainFrame extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setJMenuBar(createMenu());
 		
-		var ifrmPlot = new JInternalFrame("Plot", true, false, true, true);
-		ifrmPlot.setSize(Plotter.DEFAULT_W + 35, Plotter.DEFAULT_H + 100);
-		ifrmPlot.addComponentListener(new ComponentAdapter() {
-			public void componentResized(ComponentEvent ce) {
-				// FIXME more embedded magic numbers
-				pv.resize(ifrmPlot.getWidth() - 35, ifrmPlot.getHeight() - 100);
-			}
-		});
+		var ifrmPlot = new PlotFrame(pv);
+		ifrmPlot
+			.title("Plot")
+			.resizable(true)
+			.closable(false)
+			.maximizable(true)
+			.iconifiable(true);
 		
-		// Plow View window: Keybindings for movement and actions
-		bindAction(ifrmPlot, "left",   "LEFT",  pv::moveLeft);
-		bindAction(ifrmPlot, "right",  "RIGHT", pv::moveRight);
-		bindAction(ifrmPlot, "up",     "UP",    pv::moveUp);
-		bindAction(ifrmPlot, "down",   "DOWN",  pv::moveDown);
-
-		bindAction(ifrmPlot, "plus",   "J", pv::zoomIn);
-		bindAction(ifrmPlot, "minus",  "F", pv::zoomOut);
-		bindAction(ifrmPlot, "splus",  "H", pv::smallZoomIn);
-		bindAction(ifrmPlot, "sminus", "G", pv::smallZoomOut);
-
-		bindAction(ifrmPlot, "rotAp",  "Q", pv::rotateXPlus);
-		bindAction(ifrmPlot, "rotAm",  "A", pv::rotateXMinus);
-		bindAction(ifrmPlot, "rotBp",  "W", pv::rotateYPlus);
-		bindAction(ifrmPlot, "rotBm",  "S", pv::rotateYMinus);
-		bindAction(ifrmPlot, "rotCp",  "E", pv::rotateZPlus);
-		bindAction(ifrmPlot, "rotCm",  "D", pv::rotateZMinus);
-		
-		// --- Zoom Section ---
-		var zoomField = input().text("1").chars(4).numeric(true);
-		var zoomLabel = label(" X");
-		var zoomInBtn = button()
-			.icon("/zoom-in.png")
-			.tooltip("Zoom In (x2)")
-			.onClick(() -> {
-				zoomField.setText(String.format("%3.1f", pv.getScale()));
-				pv.zoomIn();
-			});
-		var zoomOutBtn = button()
-			.icon("/zoom-out.png")
-			.tooltip("Zoom In (x0.5)")
-			.onClick(() -> {
-				zoomField.setText(String.format("%3.1f", pv.getScale()));
-				pv.zoomOut();
-			});
-		
-		// disable growing
-		zoomField.setMaximumSize(zoomField.getPreferredSize());
-
-		// --- Rotation Section ---
-		JComboBox<String> axisSelector = new JComboBox<>(new String[]{"X", "Y", "Z"});
-		// disable growing
-		axisSelector.setMaximumSize(axisSelector.getPreferredSize());
-		var rotateCWBtn = button()
-			.icon("/rotate-cw.png")
-			.tooltip("Rotate Clockwise")
-			.onClick(() -> {
-				String axis = (String) axisSelector.getSelectedItem();
-				if (axis.equals("X")) {
-					pv.rotateXPlus();
-				} else if (axis.equals("Y")) {
-					pv.rotateYPlus();
-				} else {
-					pv.rotateZPlus();
-				}
-			});
-		var rotateCCWBtn = button()
-			.icon("/rotate-ccw.png")
-			.tooltip("Rotate Counter-clockwise")
-			.onClick(() -> {
-				String axis = (String) axisSelector.getSelectedItem();
-				if (axis.equals("X")) {
-					pv.rotateXMinus();
-				} else if (axis.equals("Y")) {
-					pv.rotateYMinus();
-				} else {
-					pv.rotateZMinus();
-				}
-			});
-
-		var toolbar = toolbar(
-			zoomInBtn,
-			zoomField,
-			zoomLabel,
-			zoomOutBtn,
-			
-			// --- Separator ---
-			Box.createRigidArea(new Dimension(10, 0)),
-			
-			rotateCWBtn,
-			label("Axis:"),
-			axisSelector,
-			rotateCCWBtn
-		);
-		
-		toolbar.setFloatable(false);
-		toolbar.setRollover(true);
-
-		ifrmPlot.add(toolbar, BorderLayout.NORTH);
-		ifrmPlot.add(pv, BorderLayout.CENTER);
-		
-		// Update callbacks: these are called to replace Plow View
+		// Update callbacks: these are called to update PlotView
 		// when data in SystemInputFrame or DataViewer changes.
 		odeinput.setUpdateCallback(data -> {
 			if (data == null) return;
-			pv.setCurPlot(data);
-			pv.setCurPlotType(data.getPltype());
-			pv.fit();
-			zoomField.setText(String.format("%3.1f", pv.getScale()));
-			axisSelector.setEnabled(data.getColumnCount() >= 3);
+			ifrmPlot.updateView(data);
 			dbv.setData(data);
 			dbv.show();
 		});
 		
 		dbv.setUpdateCallback(data -> {
 			if (data == null) return;
-			pv.setCurPlot(data);
-			pv.fit();
-			zoomField.setText(String.format("%3.1f", pv.getScale()));
-			axisSelector.setEnabled(data.getColumnCount() >= 3);
+			ifrmPlot.updateView(data);
 			odeinput.setSystem(data.getSystem());
 			ifrmPlot.show();
 		});
@@ -285,28 +185,28 @@ public class MainFrame extends JFrame {
 		var txtScratchpad = new HintTextArea();
 		txtScratchpad.setHintText("You can write anything here.");
 		
-		var statusPane = tabPane()
-			.tab("Logs", ifrmLogs.getContentPane())
-			.tab("Console", console)
-			.tab("Notes", txtScratchpad)
-			.onChange(tabIdx -> {
-				switch(tabIdx) {
-				case 1:
-					SwingUtilities.invokeLater(console::focusInput);
-					break;
-				case 2:
-					SwingUtilities.invokeLater(txtScratchpad::requestFocusInWindow);
-					break;
-				default:
-					// Nothing
-				}
-			});
-		
 		getContentPane().add(splitPane()
 			.type(JSplitPane.VERTICAL_SPLIT)
 			.dividerLoc((int) (screenBounds.height * 0.7))
 			.top(mainPane)
-			.bottom(statusPane)
+			.bottom(
+				tabPane()
+					.tab("Logs", ifrmLogs.getContentPane())
+					.tab("Console", console)
+					.tab("Notes", txtScratchpad)
+					.onChange(tabIdx -> {
+						switch(tabIdx) {
+						case 1:
+							SwingUtilities.invokeLater(console::focusInput);
+							break;
+						case 2:
+							SwingUtilities.invokeLater(txtScratchpad::requestFocusInWindow);
+							break;
+						default:
+							// Nothing
+						}
+					})
+			)
 		);
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
 	}
@@ -462,16 +362,122 @@ public class MainFrame extends JFrame {
 		return bar;
 	}
 	
-	/* Keybinding management helper */
-	private void bindAction(JComponent control, String actionName, String hotkey, Runnable action) {
-		control.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)
-		       .put(KeyStroke.getKeyStroke(hotkey), actionName);
-		control.getActionMap().put(actionName, new AbstractAction() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				action.run();
-			}
-		});
+	private class PlotFrame extends UIFrame {
+		private UIInput zoomField;
+		private JComboBox<String> axisSelector;
+		
+		public PlotFrame(PlotView pv) {
+			setSize(Plotter.DEFAULT_W + 35, Plotter.DEFAULT_H + 100);
+			addComponentListener(new ComponentAdapter() {
+				public void componentResized(ComponentEvent ce) {
+					// FIXME more embedded magic numbers
+					pv.resize(getWidth() - 35, getHeight() - 100);
+				}
+			});
+			
+			// Plow View window: Keybindings for movement and actions
+			bindAction(this, "left",   "LEFT",  pv::moveLeft);
+			bindAction(this, "right",  "RIGHT", pv::moveRight);
+			bindAction(this, "up",     "UP",    pv::moveUp);
+			bindAction(this, "down",   "DOWN",  pv::moveDown);
+
+			bindAction(this, "plus",   "J", pv::zoomIn);
+			bindAction(this, "minus",  "F", pv::zoomOut);
+			bindAction(this, "splus",  "H", pv::smallZoomIn);
+			bindAction(this, "sminus", "G", pv::smallZoomOut);
+
+			bindAction(this, "rotAp",  "Q", pv::rotateXPlus);
+			bindAction(this, "rotAm",  "A", pv::rotateXMinus);
+			bindAction(this, "rotBp",  "W", pv::rotateYPlus);
+			bindAction(this, "rotBm",  "S", pv::rotateYMinus);
+			bindAction(this, "rotCp",  "E", pv::rotateZPlus);
+			bindAction(this, "rotCm",  "D", pv::rotateZMinus);
+			
+			// --- Zoom Section ---
+			zoomField = input().text("1").chars(4).numeric(true);
+			var zoomLabel = label(" X");
+			var zoomInBtn = button()
+				.icon("/zoom-in.png")
+				.tooltip("Zoom In (x2)")
+				.onClick(() -> {
+					displayScale();
+					pv.zoomIn();
+				});
+			var zoomOutBtn = button()
+				.icon("/zoom-out.png")
+				.tooltip("Zoom In (x0.5)")
+				.onClick(() -> {
+					displayScale();
+					pv.zoomOut();
+				});
+			
+			// disable growing
+			zoomField.setMaximumSize(zoomField.getPreferredSize());
+
+			// --- Rotation Section ---
+			axisSelector = new JComboBox<>(new String[]{"X", "Y", "Z"});
+			// disable growing
+			axisSelector.setMaximumSize(axisSelector.getPreferredSize());
+			var rotateCWBtn = button()
+				.icon("/rotate-cw.png")
+				.tooltip("Rotate Clockwise")
+				.onClick(() -> {
+					String axis = (String) axisSelector.getSelectedItem();
+					if (axis.equals("X")) {
+						pv.rotateXPlus();
+					} else if (axis.equals("Y")) {
+						pv.rotateYPlus();
+					} else {
+						pv.rotateZPlus();
+					}
+				});
+			var rotateCCWBtn = button()
+				.icon("/rotate-ccw.png")
+				.tooltip("Rotate Counter-clockwise")
+				.onClick(() -> {
+					String axis = (String) axisSelector.getSelectedItem();
+					if (axis.equals("X")) {
+						pv.rotateXMinus();
+					} else if (axis.equals("Y")) {
+						pv.rotateYMinus();
+					} else {
+						pv.rotateZMinus();
+					}
+				});
+
+			var toolbar = toolbar(
+				zoomInBtn,
+				zoomField,
+				zoomLabel,
+				zoomOutBtn,
+				
+				// --- Separator ---
+				Box.createRigidArea(new Dimension(10, 0)),
+				
+				rotateCWBtn,
+				label("Axis:"),
+				axisSelector,
+				rotateCCWBtn
+			);
+			
+			toolbar.setFloatable(false);
+			toolbar.setRollover(true);
+
+			add(toolbar, BorderLayout.NORTH);
+			add(pv, BorderLayout.CENTER);
+		}
+		
+		private void displayScale() {
+			zoomField.setText(String.format("%3.1f", pv.getScale()));
+		}
+		
+		public void updateView(PlotData data) {
+			pv.setCurPlot(data);
+			pv.setCurPlotType(data.getPltype());
+			pv.fit();
+			displayScale();
+			axisSelector.setEnabled(data.getColumnCount() >= 3);
+		}
 	}
 	
 	/* Menu Actions */
@@ -555,34 +561,16 @@ public class MainFrame extends JFrame {
 			return;
 		}
 		
-		// Global UI Theme Configuration
+		// Global UI Configuration
 		if (hasArg("dark", args)) {
-			UIHelper.setDarkLF();
+			setDarkLF();
 		} else if(hasArg("nimbus", args)) {
-			UIHelper.setNimbusLF();
+			setNimbusLF();
 		} else if (!hasArg("metal", args)) {
-			UIHelper.setLightLF();
+			setLightLF();
 		}
 		
-		Properties prop = new Properties();
-		try {
-			prop.load(MainFrame.class.getResourceAsStream("/com/babai/ssplot/ui/FlatLaf.properties"));
-			// After loading properties (customProps)
-			prop.forEach((key, value) -> { 
-				String val = value.toString();
-				if (val.startsWith("#")) {
-					UIManager.put(key, Color.decode(val));
-				} else {
-					try {
-						UIManager.put(key, Integer.parseInt(val));
-					} catch (Exception e) {
-						UIManager.put(key, val);
-					}
-				}
-			});
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		loadUIProperties();
 
 		// Reduce tooltip times so user gets quick feedback
 		var tooltipManager = ToolTipManager.sharedInstance();
