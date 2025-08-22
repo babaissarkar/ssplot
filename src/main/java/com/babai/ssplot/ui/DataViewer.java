@@ -197,7 +197,9 @@ public class DataViewer extends UIFrame implements ActionListener {
 					pnlPlots,
 					pnlPrefs,
 					pnlEdit,
-					scroll))
+					scroll)
+				.emptyBorder(10)
+			)
 			.packFrame();
 	}
 
