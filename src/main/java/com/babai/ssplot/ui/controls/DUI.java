@@ -24,17 +24,27 @@
 package com.babai.ssplot.ui.controls;
 
 import java.awt.Component;
+import java.util.Collection;
 import java.util.function.IntFunction;
 import java.util.stream.IntStream;
 
 import javax.swing.JComponent;
-import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 
 //TODO this does not mentions what property of this class gets bound
 public class DUI {
+	public static <T, U> U[] forEach(
+			Collection<T> items,
+			IntFunction<? extends U> mapper,
+			IntFunction<U[]> arrayCtor)
+	{
+		return IntStream.range(0, items.size())
+				.mapToObj(mapper)
+				.toArray(arrayCtor);
+	}
+	
 	public static <T, U> U[] forEach(
 			T[] items,
 			IntFunction<? extends U> mapper,
@@ -43,6 +53,10 @@ public class DUI {
 		return IntStream.range(0, items.length)
 				.mapToObj(mapper)
 				.toArray(arrayCtor);
+	}
+	
+	public static <T> JComponent[] forEach(Collection<T> items, IntFunction<? extends JComponent> mapper) {
+		return forEach(items, mapper, JComponent[]::new);
 	}
 
 	public static <T> JComponent[] forEach(T[] items, IntFunction<? extends JComponent> mapper) {
