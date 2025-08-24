@@ -277,8 +277,13 @@ public class SystemInputFrame extends UIFrame {
 		// Ranges entry
 		List<StateVar<Boolean>> rangeConditions = List.of(
 			curMode.when(mode -> noOfEqns() > 0),
-			curMode.when(mode -> (mode != SystemMode.FN1) && noOfEqns() >= 2),
-			curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE) && noOfEqns() == 3)
+			curMode.when(mode ->
+				((mode != SystemMode.FN1) && noOfEqns() >= 2)
+				|| mode == SystemMode.FN1
+				|| mode == SystemMode.FN2),
+			curMode.when(mode ->
+				((mode == SystemMode.DFE || mode == SystemMode.ODE) && noOfEqns() == 3)
+				|| mode == SystemMode.FN2)
 		);
 
 		var pnlRange = grid()
