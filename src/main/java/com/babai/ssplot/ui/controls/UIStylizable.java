@@ -84,6 +84,10 @@ public interface UIStylizable<T extends JComponent> {
 		return border(BorderFactory.createEmptyBorder(gap, gap, gap, gap));
 	}
 	
+	default T emptyBorder(int top, int left, int bottom, int right) {
+		return border(BorderFactory.createEmptyBorder(top, left, bottom, right));
+	}
+	
 	@SuppressWarnings("unchecked")
 	default TitledBorderBuilder<T> titledBorder() {
 		return new TitledBorderBuilder<>((T) this);
