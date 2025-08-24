@@ -113,13 +113,12 @@ public class DataViewer extends UIFrame {
 			label("<html><body><b>Plots:</b></body></html>"),
 			jcbPlotlist,
 			button()
-				.text("View System")
+				.text("Info")
 				.onClick(() -> {
 					int id = jcbPlotlist.getSelectedIndex();
-					if (id == -1) return;
-					JOptionPane.showMessageDialog(this,
-						plotlist.get(id).getSystem().toString()
-					);
+					var pdataOpt = getData();
+					if (id == -1 || pdataOpt.isEmpty()) return;
+					JOptionPane.showMessageDialog(this, pdataOpt.get().info(), "Dataset Information", JOptionPane.INFORMATION_MESSAGE);
 				}),
 			btnEditProp
 		);
@@ -247,8 +246,6 @@ public class DataViewer extends UIFrame {
 			for (var entry : mappings.entrySet()) {
 				if (entry.getValue() == i) {
 					headers.add(entry.getKey() + " Data");
-					logger.log(String.format("%s Max : %f, Min : %f",
-						entry.getKey(), pdata.getMax(i), pdata.getMin(i)));
 					isKnownColumn = true;
 					break;
 				}
@@ -256,10 +253,10 @@ public class DataViewer extends UIFrame {
 			
 			if (!isKnownColumn) {
 				headers.add("Column " + (i+1));
-				logger.log(String.format("Col %d Max : %f, Min : %f",
-					i, pdata.getMax(i), pdata.getMin(i)));
 			}
 		}
+		
+		logger.log("<html>" + pdata.info().replace("\n", "<br/>") + "</html>");
 		
 		jcbColMapper.lastElement().setEnabled(colNo > 2);
 

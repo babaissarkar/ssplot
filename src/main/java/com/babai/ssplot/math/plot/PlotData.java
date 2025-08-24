@@ -337,4 +337,28 @@ public class PlotData implements Cloneable {
 	public void setSystem(EquationSystem system) {
 		this.system = system;
 	}
+
+	public String info() {
+		var buff = new StringBuilder();
+		buff.append(getSystem().toString())
+			.append("\n");
+		var mappings = getDataColMapping();
+		for (int i = 0; i < getColumnCount(); i++) {
+			boolean isKnownColumn = false;
+			for (var entry : mappings.entrySet()) {
+				if (entry.getValue() == i) {
+					buff.append(String.format("%s Max : %f, Min : %f\n",
+						entry.getKey(), getMax(i), getMin(i)));
+					isKnownColumn = true;
+					break;
+				}
+			}
+			
+			if (!isKnownColumn) {
+				buff.append(String.format("Col %d Max : %f, Min : %f\n",
+					i, getMax(i), getMin(i)));
+			}
+		}
+		return buff.toString();
+	}
 }
