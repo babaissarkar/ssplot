@@ -26,6 +26,7 @@ package com.babai.ssplot.math.plot;
 import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Vector;
 
@@ -245,19 +246,7 @@ public class PlotData implements Cloneable {
 	 * @return            maximum value among all data in the given column
 	 */
 	public double getMax(int dataCol) {
-		if (this.data.isEmpty()) {
-			return 0.0;
-		}
-		
-		if (this.data.get(0).isEmpty()) {
-			return 0.0;
-		}
-		
-		double max = this.data.get(0).get(dataCol);
-		for (var row : this.data) {
-			max = row.get(dataCol) > max ? row.get(dataCol) : max; 
-		}
-		return max;
+		return Collections.max(getColumn(dataCol));
 	}
 
 	/**
@@ -266,19 +255,7 @@ public class PlotData implements Cloneable {
 	 * @return            min value among all data in the given column
 	 */
 	public double getMin(int dataCol) {
-		if (this.data.isEmpty()) {
-			return 0.0;
-		}
-		
-		if (this.data.get(0).isEmpty()) {
-			return 0.0;
-		}
-		
-		double min = this.data.get(0).get(dataCol);
-		for (var row : this.data) {
-			min = row.get(dataCol) < min ? row.get(dataCol) : min; 
-		}
-		return min;
+		return Collections.min(getColumn(dataCol));
 	}
 
 	/**
@@ -337,28 +314,57 @@ public class PlotData implements Cloneable {
 	public void setSystem(EquationSystem system) {
 		this.system = system;
 	}
+	
+	public Vector<Double> getColumn(int i) {
+		Vector<Double> colData = new Vector<>();
+		for (var row : data) { // assuming `data` is your Vector<Vector<Double>>
+			if (i < row.size()) colData.add(row.get(i));
+		}
+		return colData;
+	}
 
 	public String info() {
 		var buff = new StringBuilder();
-		buff.append(getSystem().toString())
-			.append("\n");
+		buff.append(getSystem().toString()).append("\n");
 		var mappings = getDataColMapping();
 		for (int i = 0; i < getColumnCount(); i++) {
 			boolean isKnownColumn = false;
 			for (var entry : mappings.entrySet()) {
 				if (entry.getValue() == i) {
-					buff.append(String.format("%s Max : %f, Min : %f\n",
-						entry.getKey(), getMax(i), getMin(i)));
+					buff.append(formatStats(entry.getKey(), i));
 					isKnownColumn = true;
 					break;
 				}
 			}
-			
 			if (!isKnownColumn) {
-				buff.append(String.format("Col %d Max : %f, Min : %f\n",
-					i, getMax(i), getMin(i)));
+				buff.append(formatStats("Col " + i, i));
 			}
 		}
 		return buff.toString();
 	}
+
+	private String formatStats(String colName, int i) {
+		Vector<Double> colData = getColumn(i);
+		return String.format(
+				"""
+				%s Data:
+					Count=%d, Min=%.4f, Max=%.4f,
+					Mean=%.4f, Var=%.4f, SD=%.4f,
+					Skew=%.4f, Kurt=%.4f,
+					Q1=%.4f, Median=%.4f, Q3=%.4f
+				""",
+				colName,
+				colData.size(),
+				Collections.min(colData),
+				Collections.max(colData),
+				Stats.mean(colData),
+				Stats.variance(colData),
+				Stats.stdDev(colData),
+				Stats.skewness(colData),
+				Stats.kurtosis(colData),
+				Stats.quartile(colData, 0.25),
+				Stats.quartile(colData, 0.5),
+				Stats.quartile(colData, 0.75));
+	}
+
 }
