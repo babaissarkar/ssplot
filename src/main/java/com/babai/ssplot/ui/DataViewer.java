@@ -314,13 +314,13 @@ public class DataViewer extends UIFrame {
 			var row = new Vector<Double>();
 			for (int j = 0; j < model.getColumnCount(); j++) {
 				Object o = model.getValueAt(i, j);
-				if (o instanceof Double) {
-					row.add((Double) model.getValueAt(i, j));
-				} else if (o instanceof String) {
-					row.add(Double.parseDouble((String) model.getValueAt(i, j)));
-				} else {
-					row.add(-1.0); // FIXME why -1.0?
+				double val = -1.0; // placeholder for unsupported type
+				if (o instanceof Double d) {
+					val = d;
+				} else if (o instanceof String s) {
+					val = Double.parseDouble(s);
 				}
+				row.add(val);
 			}
 			newdataset.add(row);
 		}
