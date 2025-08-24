@@ -71,8 +71,8 @@ public final class Plotter {
 			initPlot();
 		}
 		
-		c1 = pdata.getDataCol1();
-		c2 = pdata.getDataCol2();
+		c1 = pdata.getDataCol("X");
+		c2 = pdata.getDataCol("Y");
 		plotData(canv, pdata);
 	}
 	
@@ -159,7 +159,8 @@ public final class Plotter {
 				}
 			} else {
 				canv.setAxes3d(false);
-				p2 = canv.getTransformedPoint(new Point2D.Double(row.get(col1-1), row.get(col2-1)));
+				p2 = canv.getTransformedPoint(
+					new Point2D.Double(row.get(col1), row.get(col2)));
 				if (p1 != null) {
 					switch(pdata.getPltype()) {
 					case LINES :

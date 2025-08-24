@@ -54,6 +54,7 @@ import javax.swing.table.TableColumnModel;
 
 import com.babai.ssplot.math.io.NumParse;
 import com.babai.ssplot.math.plot.PlotData;
+import com.babai.ssplot.math.plot.PlotData.PlotType;
 import com.babai.ssplot.util.InfoLogger;
 
 import com.babai.ssplot.ui.controls.UIFrame;
@@ -69,8 +70,9 @@ public class DataViewer extends UIFrame {
 
 	private JTable table;
 	private JButton btnPlot, btnEditProp;
-	private JLabel lblZData;
-	private JComboBox<Integer> jcbXData, jcbYData, jcbZData;
+
+	// Selects which data column is plotted in which axis
+	private Vector<JComboBox<Integer>> jcbColMapper;
 	
 	private InfoLogger logger;
 	private Consumer<PlotData> updater;
@@ -122,15 +124,15 @@ public class DataViewer extends UIFrame {
 			btnEditProp
 		);
 
-		var pnlPrefs = hbox(
-			label("<html><body><b>Axes:</b></body></html>"),
-			label("X → Col"),
-			jcbXData = new JComboBox<>(),
-			label("Y → Col"),
-			jcbYData = new JComboBox<>(),
-			lblZData = label("Z → Col"),
-			jcbZData = new JComboBox<>()
-		);
+		jcbColMapper = new Vector<JComboBox<Integer>>();
+		var axes = PlotType.THREED.axes();
+		var pnlPrefs = hbox(label("<html><body><b>Axes:</b></body></html>"));
+		for (var axis : axes) {
+			pnlPrefs.add(label(axis + " → Col"));
+			var cbox = new JComboBox<Integer>();
+			jcbColMapper.add(cbox);
+			pnlPrefs.add(cbox);
+		}
 
 		table = new JTable();
 		table.setBorder(BorderFactory.createLineBorder(Color.GRAY));
@@ -193,9 +195,9 @@ public class DataViewer extends UIFrame {
 			btnPlot
 		);
 		
-		pnlPlots.setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 5));
-		pnlPrefs.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
-		pnlEdit.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		pnlPlots.emptyBorder(5, 5, 0, 5);
+		pnlPrefs.emptyBorder(0, 5, 0, 5);
+		pnlEdit.emptyBorder(5, 5, 5, 5);
 
 		this.title("Dataset Viewer")
 			.closeOperation(JFrame.HIDE_ON_CLOSE)
@@ -205,8 +207,7 @@ public class DataViewer extends UIFrame {
 					pnlPrefs,
 					pnlEdit,
 					scroll)
-				.emptyBorder(10)
-			)
+				.emptyBorder(10))
 			.packFrame();
 	}
 
@@ -238,26 +239,29 @@ public class DataViewer extends UIFrame {
 
 		populateAxisSelectors(pdata);
 		
-		/* Update the table */
+		// Update the table
 		var headers = new Vector<String>();
-		for (int i = 1; i <= colNo; i++) {
-			if (i == pdata.getDataCol1()) {
-				headers.add("X Data");
-				logger.log(String.format("X Max : %f, Min : %f", pdata.getMax(i-1), pdata.getMin(i-1)));
-			} else if (i == pdata.getDataCol2()) {
-				headers.add("Y Data");
-				logger.log(String.format("Y Max : %f, Min : %f", pdata.getMax(i-1), pdata.getMin(i-1)));
-			} else if (i == pdata.getDataCol3()) {
-				headers.add("Z Data");
-				logger.log(String.format("Z Max : %f, Min : %f", pdata.getMax(i-1), pdata.getMin(i-1)));
-			} else {
-				headers.add("Column " + i);
-				logger.log(String.format("Col %d Max : %f, Min : %f", i, pdata.getMax(i-1), pdata.getMin(i-1)));
+		var mappings = pdata.getDataColMapping();
+		for (int i = 0; i < colNo; i++) {
+			boolean isKnownColumn = false;
+			for (var entry : mappings.entrySet()) {
+				if (entry.getValue() == i) {
+					headers.add(entry.getKey() + " Data");
+					logger.log(String.format("%s Max : %f, Min : %f",
+						entry.getKey(), pdata.getMax(i), pdata.getMin(i)));
+					isKnownColumn = true;
+					break;
+				}
+			}
+			
+			if (!isKnownColumn) {
+				headers.add("Column " + (i+1));
+				logger.log(String.format("Col %d Max : %f, Min : %f",
+					i, pdata.getMax(i), pdata.getMin(i)));
 			}
 		}
 		
-		lblZData.setEnabled(colNo > 2);
-		jcbZData.setEnabled(colNo > 2);
+		jcbColMapper.lastElement().setEnabled(colNo > 2);
 
 		table.setModel(new DefaultTableModel(dataset, headers));
 
@@ -268,35 +272,33 @@ public class DataViewer extends UIFrame {
 	}
 
 	private void populateAxisSelectors(PlotData pdata) {
-		jcbXData.removeAllItems();
-		jcbYData.removeAllItems();
-		jcbZData.removeAllItems();
-		
-		jcbXData.setEnabled(pdata != null);
-		jcbYData.setEnabled(pdata != null);
-		jcbZData.setEnabled(pdata != null);
-		
 		jcbPlotlist.setEnabled(pdata != null);
 		btnPlot.setEnabled(pdata != null);
 		btnEditProp.setEnabled(pdata != null);
 		
-		if (pdata == null) return;
-		
-		for (int i = 1; i <= pdata.getColumnCount(); i++) {
-			jcbXData.addItem(i);
-			jcbYData.addItem(i);
-			jcbZData.addItem(i);
+		int i = 0;
+		for (var axis : PlotType.THREED.axes()) {
+			var jcbData = jcbColMapper.get(i);
+			jcbData.removeAllItems();
+			jcbData.setEnabled(pdata != null);
+			i++;
+			
+			if (pdata == null) continue;
+			
+			for (int j = 1; j <= pdata.getColumnCount(); j++) {
+				jcbData.addItem(j);
+			}
+			if (pdata.getDataCol(axis) < jcbData.getItemCount()) {
+				jcbData.setSelectedIndex(pdata.getDataCol(axis));
+			}
 		}
-		
-		jcbXData.setSelectedItem(pdata.getDataCol1());
-		jcbYData.setSelectedItem(pdata.getDataCol2());
-		jcbZData.setSelectedItem(pdata.getDataCol3());
 	}
 	
 	private void updateView() {
 		var pdata = getData();
 		if (pdata.isPresent()) {
-			logger.log(String.format("Plotting col %d (y axis) vs col %d (x axis)", this.getCol2(), this.getCol1()));
+			logger.log(String.format("Plotting col %d (y axis) vs col %d (x axis)",
+				getCol(0) + 1, getCol(1) + 1));
 			updater.accept(pdata.get());
 		}
 	}
@@ -327,7 +329,7 @@ public class DataViewer extends UIFrame {
 		if (id != -1) {
 			PlotData curData = plotlist.get(id);
 			curData.setData(newdataset);
-			curData.setDataCols(getCol1(), getCol2());
+			curData.setDataCols(getCol(0), getCol(1));
 			updatePlotList();
 			jcbPlotlist.setSelectedIndex(id);
 			return Optional.of(curData);
@@ -372,22 +374,8 @@ public class DataViewer extends UIFrame {
 		}
 	}
 	
-	public int getCol1() {
-		return (Integer) jcbXData.getSelectedItem();
-	}
-
-	public int getCol2() {
-		return (Integer) jcbYData.getSelectedItem();
-	}
-	
-	public int getCol3() {
-		return (Integer) jcbZData.getSelectedItem();
-	}
-
-	public void toggleColumnChanger() {
-		jcbXData.setEnabled(!jcbXData.isEnabled());
-		jcbYData.setEnabled(!jcbYData.isEnabled());
-		btnPlot.setEnabled(!btnPlot.isEnabled());
+	public int getCol(int idx) {
+		return (Integer) jcbColMapper.get(idx).getSelectedIndex();
 	}
 	
 	public void newData() {
@@ -399,7 +387,7 @@ public class DataViewer extends UIFrame {
 			return;
 		}
 		
-		Double fillWith = filler == null ? 0 : Double.parseDouble(filler);
+		Double fillWith = (filler == null) ? 0 : Double.parseDouble(filler);
 		
 		colNo = Integer.parseInt(colString);
 		rowNo = Integer.parseInt(rowString);

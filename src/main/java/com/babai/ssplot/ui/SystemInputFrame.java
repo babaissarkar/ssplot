@@ -28,6 +28,7 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Vector;
 import java.util.function.Consumer;
 import javax.swing.Box;
 import javax.swing.JFrame;
@@ -75,7 +76,7 @@ public class SystemInputFrame extends UIFrame {
 	}
 
 	private void initInputDialog() {
-		final String[] axes = {"X", "Y", "Z"};
+		final var axes = PlotData.PlotType.THREED.axes();
 
 		// Creating Gui
 		this
@@ -100,7 +101,7 @@ public class SystemInputFrame extends UIFrame {
 			);
 	}
 	
-	private JToolBar createToolbarUI(final String[] axes) {
+	private JToolBar createToolbarUI(final Vector<String> axes) {
 		var plot2dCondition = curMode.when(mode ->
 			(mode == SystemMode.ODE && noOfEqns() == 2)
 			|| (mode == SystemMode.DFE && noOfEqns() >= 1)
@@ -188,7 +189,7 @@ public class SystemInputFrame extends UIFrame {
 			.emptyBorder(5);
 	}
 
-	private UIGrid createEqnInputUIPanel(final String[] axes) {
+	private UIGrid createEqnInputUIPanel(final Vector<String> axes) {
 		final String sub_markup = "<html><body>%s<sub>%s</sub>%s</body></html>";
 		final String small_markup = "<html><body style='font-size:12'>%s</body></html>";
 		
@@ -196,11 +197,11 @@ public class SystemInputFrame extends UIFrame {
 		
 		eqnFieldLabels.put(
 			SystemMode.ODE,
-			forEach(axes, i -> "d%s/dt =".formatted(axes[i].toLowerCase()), String[]::new)
+			forEach(axes, i -> "d%s/dt =".formatted(axes.get(i).toLowerCase()), String[]::new)
 		);
 		eqnFieldLabels.put(
 			SystemMode.DFE,
-			forEach(axes, i -> sub_markup.formatted(axes[i].toLowerCase(), "n+1", " ="), String[]::new)
+			forEach(axes, i -> sub_markup.formatted(axes.get(i).toLowerCase(), "n+1", " ="), String[]::new)
 		);
 		eqnFieldLabels.put(
 			SystemMode.FN1,
@@ -232,7 +233,7 @@ public class SystemInputFrame extends UIFrame {
 				.spanx(4)
 				.column(label("Equations").font(HEADER_FONT));
 
-		for (int i = 0; i < axes.length; i++) {
+		for (int i = 0; i < axes.size(); i++) {
 			final int idx = i;
 			pnlMatrix.row()
 				.column(label().bindToUI(curMode.when(mode -> eqnFieldLabels.get(mode)[idx])))
@@ -256,7 +257,7 @@ public class SystemInputFrame extends UIFrame {
 				// Entry area for the point where the system is to be solved (X,Y,Z)
 				hbox(
 					forEach(axes, idx -> hbox(
-						label(String.format(small_markup, axes[idx])),
+						label(String.format(small_markup, axes.get(idx))),
 						input()
 							.chars(3)
 							.enabled(inputConditions.get(idx))
@@ -268,7 +269,7 @@ public class SystemInputFrame extends UIFrame {
 		return pnlMatrix;
 	}
 	
-	private UIGrid createRangesUIPanel(final String[] axes) {
+	private UIGrid createRangesUIPanel(final Vector<String> axes) {
 		final String sub_markup = "<html><body>%s<sub>%s</sub>%s</body></html>";
 		final String[] tags = {"min", "max", "step"};
 		final double[] rangeAsArray = EquationSystem.DEFAULT_RANGE.toArray();
@@ -287,14 +288,14 @@ public class SystemInputFrame extends UIFrame {
 					.spanx(9)
 					.column(label("Ranges").font(HEADER_FONT));
 
-		for (int row = 0; row < axes.length; row++) {
+		for (int row = 0; row < axes.size(); row++) {
 			final int row_idx = row;
 			pnlRange.row();
 			for (int col = 0; col < tags.length; col++) {
 				final int col_idx = col; 
 				pnlRange
 					.weightx(0)
-					.column(label(sub_markup.formatted(axes[row], tags[col], "")))
+					.column(label(sub_markup.formatted(axes.get(row), tags[col], "")))
 					.weightx(1)
 					.column(input()
 						.chars(5)
@@ -410,6 +411,7 @@ public class SystemInputFrame extends UIFrame {
 		var solver = new Solver(ParserManager.getParser(), system);
 		curData = new PlotData(solver.RK4Iterate3D(solnPoint[0], solnPoint[1], solnPoint[2]));
 		curData.setPltype(PlotData.PlotType.THREED);
+		curData.setDataCols(0, 1, 2);
 		curData.setFgColor(Color.BLACK);
 		curData.setSystem(system);
 	}
@@ -429,6 +431,7 @@ public class SystemInputFrame extends UIFrame {
 		var solver = new Solver(ParserManager.getParser(), system);
 		curData = new PlotData(solver.functionData2D());
 		curData.setPltype(PlotData.PlotType.THREED);
+		curData.setDataCols(0, 1, 2);
 		curData.setFgColor(Color.BLACK);
 		curData.setTitle(String.format("z = %s", system.eqns()[0]));
 		curData.setSystem(system);

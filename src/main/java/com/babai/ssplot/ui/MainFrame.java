@@ -415,7 +415,7 @@ public class MainFrame extends JFrame {
 			zoomField.setMaximumSize(zoomField.getPreferredSize());
 
 			// --- Rotation Section ---
-			axisSelector = new JComboBox<>(new String[]{"X", "Y", "Z"});
+			axisSelector = new JComboBox<>(PlotData.PlotType.THREED.axes());
 			// disable growing
 			axisSelector.setMaximumSize(axisSelector.getPreferredSize());
 			var rotateCWBtn = button()

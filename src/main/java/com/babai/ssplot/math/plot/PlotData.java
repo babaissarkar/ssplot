@@ -25,6 +25,8 @@ package com.babai.ssplot.math.plot;
 
 import java.awt.Color;
 import java.awt.geom.Point2D;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Vector;
 
 import com.babai.ssplot.math.system.core.EquationSystem;
@@ -36,17 +38,32 @@ import com.babai.ssplot.math.system.core.EquationSystem;
  */
 public class PlotData implements Cloneable {
 	public enum PlotType {
-		LINES("Lines"),
-		POINTS("Points"),
-		LP("Both Lines and Points"),
-		VECTORS("3D Points"), 
-		THREED("3D Lines"), 
-		TRLINE("Vector field");
+		LINES("Lines", "X", "Y"),
+		POINTS("Points", "X", "Y"),
+		LP("Both Lines and Points", "X", "Y"),
+		
+		VECTORS("3D Points", "X", "Y", "Z"), 
+		THREED("3D Lines", "X", "Y", "Z"),
+		
+		TRLINE("Vector field", "X", "Y");
 		
 		private final String type;
+		private final Vector<String> axes;
 
-		PlotType(String type) {
+		PlotType(String type, String... axes) {
 			this.type = type;
+			this.axes = new Vector<String>();
+			for (var axis : axes) {
+				this.axes.add(axis);
+			}
+		}
+		
+		public Vector<String> axes() {
+			return axes;
+		}
+		
+		public int dim() {
+			return axes.size();
 		}
 		
 		@Override
@@ -61,6 +78,7 @@ public class PlotData implements Cloneable {
 	private Vector<Node> nodes;
 	private EquationSystem system;
 	
+	private PlotType pltype;
 	private PointType pttype;
 	
 	// TODO make this private
@@ -72,12 +90,11 @@ public class PlotData implements Cloneable {
 	 */
 	public int ptX, ptY;
 	
-	private int dataCol1, dataCol2, dataCol3;
-	private PlotType pltype;
+	private HashMap<String, String> axesLabels = new HashMap<>();
+	private HashMap<String, Integer> axesDataColumns = new HashMap<>();
+	
 	private Color fgColor, fgColor2;
-
 	private String title;
-	private String xlabel, ylabel;
 	
 	// Sliences an exception in splice
 	@Override
@@ -118,7 +135,7 @@ public class PlotData implements Cloneable {
 
 		var pdata = (PlotData) this.clone();
 		pdata.data = new Vector<>();
-		for (Vector<Double> row : this.data.subList(from, to)) {
+		for (var row : this.data.subList(from, to)) {
 			pdata.data.add(new Vector<>(row)); // copy inner vectors too
 		}
 		return pdata;
@@ -131,13 +148,21 @@ public class PlotData implements Cloneable {
 	public PlotData(Vector<Vector<Double>> extData) {
 		data = extData;
 		nodes = new Vector<Node>();
+		
+		// Plot Type
 		pltype = PlotType.LINES;
-		setPointType(PointType.SQUARE);
+		
+		//  Axes properties
+		setDataCols(0, 1);
+		
+		// Cosmetic point properties
+		pttype = PointType.SQUARE;
 		ptX = 2; ptY = 2;
+		
+		// Cosmetic plot properties
+		title = "New Data " + System.nanoTime();
 		fgColor = Color.RED;
 		fgColor2 = Color.BLUE;
-		setDataCols(1, 2, 3);
-		title = "New Data " + System.nanoTime();
 	}
 	
 	public int getRowCount() {
@@ -148,20 +173,9 @@ public class PlotData implements Cloneable {
 		return getRowCount() > 0 ? data.firstElement().size() : 0;
 	}
 	
-	public String getXLabel() {
-		return xlabel;
-	}
-
-	public void setXLabel(String xlabel) {
-		this.xlabel = xlabel;
-	}
-
-	public String getYLabel() {
-		return ylabel;
-	}
-
-	public void setYLabel(String ylabel) {
-		this.ylabel = ylabel;
+	// Can return null
+	public void getAxisLabel(String axisName) {
+		this.axesLabels.get(axisName);
 	}
 
 	public void setTitle(String title) {
@@ -202,51 +216,33 @@ public class PlotData implements Cloneable {
 	}
 
 	/**
-	 * @return the first active data column's index
+	 * @return the index of the data column corresponding to axis with `axisName`.
 	 */
-	public int getDataCol1() {
-		return dataCol1;
-	}
-
-	/**
-	 * @return the second active data column's index
-	 */
-	public int getDataCol2() {
-		return dataCol2;
+	public int getDataCol(String axisName) {
+		return axesDataColumns.getOrDefault(axisName, pltype.axes().indexOf(axisName));
 	}
 	
 	/**
-	 * @return the second active data column's index
-	 */
-	public int getDataCol3() {
-		return dataCol3;
-	}
-
-	/**
-	 * Set the active data columns
+	 * Sets which data column is associated with which axis
 	 * 
-	 * @param dataCol1, dataCol2 : the dataCols to set
+	 * @param dataCols: the dataCols to set. An array of column indices.
+	 * Column with index `dataCols[0]` will be associated with X axis, and so on.
 	 */
-	public void setDataCols(int dataCol1, int dataCol2) {
-		this.dataCol1 = dataCol1;
-		this.dataCol2 = dataCol2;
+	public void setDataCols(int... dataCols) {
+		var axes = pltype.axes();
+		for (int i = 0; i < dataCols.length; i++) {
+			axesDataColumns.put(axes.get(i), dataCols[i]);
+		}
 	}
 	
-	/**
-	 * Set the active data columns
-	 * 
-	 * @param dataCol1, dataCol2, dataCol3 : the dataCols to set
-	 */
-	public void setDataCols(int dataCol1, int dataCol2, int dataCol3) {
-		this.dataCol1 = dataCol1;
-		this.dataCol2 = dataCol2;
-		this.dataCol3 = dataCol3;
+	public HashMap<String, Integer> getDataColMapping() {
+		return this.axesDataColumns;
 	}
 
 	/**
 	 * @param dataCol     index of a column
 	 * 
-	 * @return            max value among all data in the given column
+	 * @return            maximum value among all data in the given column
 	 */
 	public double getMax(int dataCol) {
 		if (this.data.isEmpty()) {
