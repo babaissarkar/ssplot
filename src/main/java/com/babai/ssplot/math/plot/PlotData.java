@@ -325,7 +325,9 @@ public class PlotData implements Cloneable {
 
 	public String info() {
 		var buff = new StringBuilder();
-		buff.append(getSystem().toString()).append("\n");
+		if (getSystem() != null) {
+			buff.append(getSystem().toString()).append("\n");
+		}
 		var mappings = getDataColMapping();
 		for (int i = 0; i < getColumnCount(); i++) {
 			boolean isKnownColumn = false;

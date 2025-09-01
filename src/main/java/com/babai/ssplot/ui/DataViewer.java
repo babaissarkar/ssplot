@@ -24,11 +24,10 @@
 package com.babai.ssplot.ui;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 import java.awt.print.PrinterException;
 import java.io.File;
 import java.io.IOException;
@@ -38,17 +37,16 @@ import java.util.Optional;
 import java.util.Vector;
 import java.util.function.Consumer;
 
-import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
-import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 
@@ -56,7 +54,7 @@ import com.babai.ssplot.math.io.NumParse;
 import com.babai.ssplot.math.plot.PlotData;
 import com.babai.ssplot.math.plot.PlotData.PlotType;
 import com.babai.ssplot.util.InfoLogger;
-
+import com.babai.ssplot.util.UIHelper;
 import com.babai.ssplot.ui.controls.UIFrame;
 import static com.babai.ssplot.ui.controls.DUI.*;
 
@@ -65,8 +63,8 @@ public class DataViewer extends UIFrame {
 	private JComboBox<String> jcbPlotlist;
 	public Vector<Vector<Double>> dataset;
 
-	private int colNo = 0;
-	private int rowNo = 0;
+	private int colNum = 0;
+	private int rowNum = 0;
 
 	private JTable table;
 	private JButton btnPlot, btnEditProp;
@@ -138,17 +136,8 @@ public class DataViewer extends UIFrame {
 		table.setShowGrid(true);
 		table.setGridColor(Color.GRAY);
 		table.setAutoCreateRowSorter(true);
-		// Add paste support from spreadsheet
-		table.getInputMap().put(
-			KeyStroke.getKeyStroke(
-				KeyEvent.VK_V,
-				Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()), "Paste");
-		table.getActionMap().put("Paste", new AbstractAction() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				pasteFromClipboard(table);
-			}
-		});
+		// Add paste support from spreadsheet		
+		UIHelper.bindAction(table, "Paste", "control V", () -> pasteFromClipboard(table));
 
 		var scroll = scrollPane(table);
 		scroll.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -177,6 +166,10 @@ public class DataViewer extends UIFrame {
 			.icon("/printer.png")
 			.tooltip("Print Data")
 			.onClick(this::printData);
+		var btnPaste  = button()
+			.icon("/paste.png")
+			.tooltip("Paste Data from Spreadsheet")
+			.onClick(() -> pasteFromClipboard(table));
 		btnPlot = button()
 			.text("Replot")
 			.tooltip("Replot Data")
@@ -186,6 +179,7 @@ public class DataViewer extends UIFrame {
 		var pnlEdit = hbox(
 			btnNew,
 			btnLoad,
+			btnPaste,
 			btnSave,
 			btnColumn,
 			btnRow,
@@ -233,15 +227,15 @@ public class DataViewer extends UIFrame {
 		if (pdata == null) return;
 		
 		dataset = pdata.getData();
-		colNo = pdata.getColumnCount();
-		rowNo = pdata.getRowCount();
+		colNum = pdata.getColumnCount();
+		rowNum = pdata.getRowCount();
 
 		populateAxisSelectors(pdata);
 		
 		// Update the table
 		var headers = new Vector<String>();
 		var mappings = pdata.getDataColMapping();
-		for (int i = 0; i < colNo; i++) {
+		for (int i = 0; i < colNum; i++) {
 			boolean isKnownColumn = false;
 			for (var entry : mappings.entrySet()) {
 				if (entry.getValue() == i) {
@@ -258,12 +252,12 @@ public class DataViewer extends UIFrame {
 		
 		logger.log("<html>" + pdata.info().replace("\n", "<br/>") + "</html>");
 		
-		jcbColMapper.lastElement().setEnabled(colNo > 2);
+		jcbColMapper.lastElement().setEnabled(colNum > 2);
 
 		table.setModel(new DefaultTableModel(dataset, headers));
 
 		TableColumnModel columns = table.getColumnModel();
-		for (int i = 0; i < colNo; i++) {
+		for (int i = 0; i < colNum; i++) {
 			columns.getColumn(i).setPreferredWidth(10);
 		}
 	}
@@ -336,16 +330,16 @@ public class DataViewer extends UIFrame {
 	}
 
 	/** @return the number of rows in the dataset */
-	public int getRowNo() {
-		return rowNo;
+	public int getrowNum() {
+		return rowNum;
 	}
 	
 	/** @return the number of columns in the dataset */
 	public int getColumnNo() {
-		return colNo;
+		return colNum;
 	}
 
-	private static void pasteFromClipboard(JTable table) {
+	private void pasteFromClipboard(JTable table) {
 		try {
 			String clipboardText = (String) Toolkit.getDefaultToolkit()
 					.getSystemClipboard()
@@ -353,19 +347,59 @@ public class DataViewer extends UIFrame {
 
 			int startRow = table.getSelectedRow();
 			int startCol = table.getSelectedColumn();
+			if (startRow == -1) {
+				startRow = 0;
+			}
+			if (startCol == -1) {
+				startCol = 0;
+			}
 
 			String[] rows = clipboardText.split("\n");
 
+			// Determine new size
+			int newRowCount = Math.max(table.getRowCount(), startRow + rows.length);
+			int newColCount = table.getColumnCount();
+
+			// Find max columns in clipboard
+			for (String row : rows) {
+				String[] cells = row.split("\\s+");
+				newColCount = Math.max(newColCount, startCol + cells.length);
+			}
+
+			// Initialize vector of vectors with existing data or zeros
+			Vector<Vector<Double>> data = new Vector<>();
+			for (int r = 0; r < newRowCount; r++) {
+				Vector<Double> rowVector = new Vector<>();
+				for (int c = 0; c < newColCount; c++) {
+					Object value = (r < table.getRowCount() && c < table.getColumnCount())
+							? table.getValueAt(r, c) : null;
+					try {
+						rowVector.add(value != null ? Double.parseDouble(value.toString()) : 0.0);
+					} catch (NumberFormatException e) {
+						rowVector.add(0.0); // fallback if existing value isn't a number
+					}
+				}
+				data.add(rowVector);
+			}
+
+			// Populate new data from clipboard
 			for (int i = 0; i < rows.length; i++) {
 				String[] cells = rows[i].split("\\s+");
 				for (int j = 0; j < cells.length; j++) {
 					int row = startRow + i;
 					int col = startCol + j;
-					if (row < table.getRowCount() && col < table.getColumnCount()) {
-						table.setValueAt(cells[j].trim(), row, col);
+					if (row < data.size() && col < data.get(row).size()) {
+						try {
+							data.get(row).set(col, Double.parseDouble(cells[j].trim()));
+						} catch (NumberFormatException e) {
+							data.get(row).set(col, 0.0); // fallback for invalid number
+						}
 					}
 				}
 			}
+
+			// Set data using your defined method
+			setData(new PlotData(data));
 		} catch (UnsupportedFlavorException | IOException ex) {
 			ex.printStackTrace();
 		}
@@ -376,35 +410,24 @@ public class DataViewer extends UIFrame {
 	}
 	
 	public void newData() {
-		String colString = JOptionPane.showInputDialog("No. of columns :");
-		String rowString = JOptionPane.showInputDialog("No. of rows :");
-		String filler    = JOptionPane.showInputDialog("Fill with :");
-		
-		if (colString == null || rowString == null) {
+		var dialog = new TableDimInputDialog(this);
+		dialog.setVisible(true);
+
+		if (!dialog.isCancelled()) {
+			rowNum = dialog.getRowNum();
+			colNum = dialog.getColNum();
+			var dataset = new Vector<Vector<Double>>();
+			for (int i = 0; i < rowNum; i++) {
+				var row = new Vector<Double>();
+				for (int j = 0; j < colNum; j++) {
+					row.add(dialog.getFillWith());
+				}
+				dataset.add(row);
+			}
+			setData(new PlotData(dataset));
+		} else {
 			return;
 		}
-		
-		Double fillWith = (filler == null) ? 0 : Double.parseDouble(filler);
-		
-		colNo = Integer.parseInt(colString);
-		rowNo = Integer.parseInt(rowString);
-		
-		var dataset = new Vector<Vector<Double>>();
-		for (int i = 0; i < rowNo; i++) {
-			var row = new Vector<Double>();
-			for (int j = 0; j < colNo; j++) {
-				row.add(fillWith);
-			}
-			dataset.add(row);
-		}
-		setData(new PlotData(dataset));
-
-//		Vector<String> headers = new Vector<String>();
-//		for (int i = 1; i <= colNo; i++) {
-//			headers.add("Column " + i);
-//		}
-//
-//		table.setModel(new DefaultTableModel(headers, rowNo));
 	}
 
 	public boolean openFile() {
@@ -427,9 +450,9 @@ public class DataViewer extends UIFrame {
 
 	public void saveFile() {
 		var data = new Vector<Vector<Double>>(); 
-		for (int i = 0; i < rowNo; i++) {
+		for (int i = 0; i < rowNum; i++) {
 			var row = new Vector<Double>();
-			for (int j = 0; j < colNo; j++) {
+			for (int j = 0; j < colNum; j++) {
 				row.add(Double.parseDouble(table.getValueAt(i, j).toString()));
 			}
 			data.add(row);
@@ -462,10 +485,9 @@ public class DataViewer extends UIFrame {
 		String colName = JOptionPane.showInputDialog("Column Name?");
 		DefaultTableModel model = (DefaultTableModel) table.getModel();
 		if (model != null) {
-			int rows = model.getRowCount();
-			String[] col = new String[rows];
+			String[] col = new String[model.getRowCount()];
 			Arrays.fill(col, "");
-			if (colName == "") {
+			if (!colName.isEmpty()) {
 				model.addColumn(colName, col);
 			} else {
 				model.addColumn("Column " + (model.getColumnCount()+1), col);
@@ -495,5 +517,86 @@ public class DataViewer extends UIFrame {
 
 	public void setUpdateCallback(Consumer<PlotData> update) {
 		this.updater = update;
+	}
+	
+	public class TableDimInputDialog extends JDialog {
+		private int colNum;
+		private int rowNum;
+		private double fillWith = 0.0;
+		private boolean cancelled = false;
+
+		public TableDimInputDialog(Component parent) {
+			super(SwingUtilities.getWindowAncestor(parent), "Table Dimensions");
+			
+			var colField = input().numeric(true).chars(5).text("1");
+			var rowField = input().numeric(true).chars(5).text("1");
+			var fillerField = input().numeric(true).chars(5).text("0");
+
+			// Create OK and Cancel buttons
+			var okButton = button()
+				.text("OK")
+				.onClick(() -> {
+					if (colField.empty() || rowField.empty()) {
+						JOptionPane.showMessageDialog(TableDimInputDialog.this, "Columns and rows cannot be empty.", "Error", JOptionPane.ERROR_MESSAGE);
+						return;
+					}
+
+					try {
+						colNum = colField.intValue();
+						rowNum = rowField.intValue();
+						fillWith = fillerField.value();
+						cancelled = false;
+						dispose(); // Close the dialog
+					} catch (NumberFormatException ex) {
+						JOptionPane.showMessageDialog(TableDimInputDialog.this, "Please enter valid numbers.", "Error", JOptionPane.ERROR_MESSAGE);
+					}
+				});
+
+			var cancelButton = button()
+				.text("Cancel")
+				.onClick(() -> {
+					colNum = -1;
+					rowNum = -1;
+					fillWith = -1;
+					cancelled = true;
+					dispose(); // Close the dialog
+				});
+
+			setContentPane(grid()
+				.row()
+					.column(label("No. of columns:"))
+					.column(colField)
+				.row()
+					.column(label("No. of rows:"))
+					.column(rowField)
+				.row()
+					.column(label("Fill with (optional):"))
+					.column(fillerField)
+				.row()
+					.column(hbox(okButton, cancelButton))
+				.emptyBorder(20));
+			
+			pack();
+			setModalityType(JDialog.ModalityType.APPLICATION_MODAL);
+			setLocationRelativeTo(SwingUtilities.getWindowAncestor(parent));
+			setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		}
+
+		public int getColNum() {
+			return colNum;
+		}
+
+		public int getRowNum() {
+			return rowNum;
+		}
+		
+		public boolean isCancelled() {
+			return cancelled;
+		}
+
+		public double getFillWith() {
+			return fillWith;
+		}
+
 	}
 }

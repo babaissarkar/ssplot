@@ -339,6 +339,7 @@ public class SystemInputFrame extends UIFrame {
 	}
 
 	public void setSystem(EquationSystem system) {
+		if (system == null) return;
 		String[] eqns = system.eqns();
 		for (int i = 0; i < inputEqns.length; i++) {
 			inputEqns[i].text(eqns[i]);
