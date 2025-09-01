@@ -1,6 +1,7 @@
 2. Draw polar plots
 3. Draw grids.
 6. Fixed points and nullclines support
+
 7. Bad ticks when zoom is reduced below 1.0.
 9. Assign properties correctly to plots after selection from data viewer window. Properties overhaul.
 
@@ -12,8 +13,7 @@ setting plot color does not work on 3d ODE
 ticks disapper after resizing plot window + incorrect axis length makes it look cutoff
 setting title via menubar causes it to be not updated in data viewer (see also Bug #1 above)
 changing plot type (i.e. 2d -> 3d) causes the zoom level to reset/autozoom does not work.
+Incorrect handling for 1 column data (plotter aborts with exception)
 
 ## Enhancements
-dataset viewer needs more padding. table is flush with window
 FR: Showing angles on top + snapping to a particular angle might be a nice idea
-X/Y/Z duplication in DataViewer
