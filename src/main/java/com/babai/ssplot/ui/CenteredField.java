@@ -23,23 +23,21 @@
 
 package com.babai.ssplot.ui;
 
-import java.awt.Font;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
 import javax.swing.JTextField;
 
-public class CenteredField extends JTextField {
-	private static final Font monoFont =
-		new Font("monospace", Font.PLAIN, 14);
-	
+import com.babai.ssplot.ui.controls.DUI.Text;
+
+public class CenteredField extends JTextField {	
 	public CenteredField(int count) {
 		this("", count);
 	}
 	
 	public CenteredField(String text, int count) {
 		super(text, count);
-		setFont(monoFont);
+		setFont(Text.monoFont);
 		setHorizontalAlignment(JTextField.CENTER);
 	}
 	

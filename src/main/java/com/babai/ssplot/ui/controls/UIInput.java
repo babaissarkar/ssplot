@@ -33,11 +33,11 @@ import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-public class UIInput extends JTextField {
-	private static final Font monoFont = new Font("monospace", Font.PLAIN, 14);
-	
+import com.babai.ssplot.ui.controls.DUI.Text;
+
+public class UIInput extends JTextField {	
 	public UIInput() {
-		setFont(monoFont);
+		setFont(Text.monoFont);
 		setMargin(new Insets(5, 5, 5, 5));
 		setHorizontalAlignment(JTextField.CENTER);
 	}

@@ -40,6 +40,8 @@ import com.babai.ssplot.util.InfoLogger;
 
 public class Canvas {
 	/* This is the view helper */
+	private final static Font serifFont = new Font("Serif", Font.BOLD, 22);
+	
 	private int W, H; /* Size of image */
 	private boolean axesVisible = true;
 	private boolean axes3d = false;
@@ -300,11 +302,10 @@ public class Canvas {
 	/* Add a title to the plot */
 	public void drawTitle(String title) {
 		/* Draw the title in top center */
-		Font f = new Font("Serif", Font.BOLD, 22);
 		Font prevFont = g.getFont();
 		Color prevColor = g.getColor();
 
-		g.setFont(f);
+		g.setFont(serifFont);
 		FontMetrics fm = g.getFontMetrics();
 		double textH = fm.getHeight();
 		double textW = fm.stringWidth(title);

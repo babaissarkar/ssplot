@@ -24,6 +24,7 @@
 package com.babai.ssplot.ui.controls;
 
 import java.awt.Component;
+import java.awt.Font;
 import java.util.Collection;
 import java.util.function.IntFunction;
 import java.util.stream.IntStream;
@@ -177,5 +178,9 @@ public class DUI {
 		}
 		
 		public final static String LBREAK = "<br/>";
+		
+		// Fonts
+		public final static Font headerFont = new Font("Cantarell", Font.BOLD, 20);
+		public final static Font monoFont = new Font("monospace", Font.PLAIN, 14);
 	}
 }

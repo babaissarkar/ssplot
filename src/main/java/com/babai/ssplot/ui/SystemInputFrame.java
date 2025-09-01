@@ -59,7 +59,6 @@ import static com.babai.ssplot.ui.controls.DUI.*;
 // TODO noOfEqns() is not a correct check, it triggers for any N eqns
 // instead of only the first N
 public class SystemInputFrame extends UIFrame {
-	private static final Font HEADER_FONT = new Font("Cantarell", Font.BOLD, 20);
 	private StateVar<SystemMode> curMode;
 	private EquationSystem.Builder builder;
 	private PlotData curData;
@@ -162,7 +161,7 @@ public class SystemInputFrame extends UIFrame {
 			.fill(GridBagConstraints.NONE)
 			.row()
 				.spanx(4)
-				.column(label("Iteration Parameters").font(HEADER_FONT))
+				.column(label("Iteration Parameters").font(Text.headerFont))
 			.row()
 				.column(label("Iteration count"))
 				.weightx(1.0)
@@ -224,7 +223,7 @@ public class SystemInputFrame extends UIFrame {
 			.insets(3)
 			.row()
 				.spanx(4)
-				.column(label("Equations").font(HEADER_FONT));
+				.column(label("Equations").font(Text.headerFont));
 
 		for (int i = 0; i < axes.size(); i++) {
 			final int idx = i;
@@ -269,7 +268,7 @@ public class SystemInputFrame extends UIFrame {
 		final double[] rangeAsArray = EquationSystem.DEFAULT_RANGE.toArray();
 		
 		// Ranges entry
-		List<StateVar<Boolean>> rangeConditions = List.of(
+		var rangeConditions = List.of(
 			curMode.when(mode -> noOfEqns() > 0),
 			curMode.when(mode ->
 				((mode != SystemMode.FN1) && noOfEqns() >= 2)
@@ -281,11 +280,11 @@ public class SystemInputFrame extends UIFrame {
 		);
 
 		var pnlRange = grid()
-				.anchor(GridBagConstraints.WEST)
-				.insets(3)
-				.row()
-					.spanx(9)
-					.column(label("Ranges").font(HEADER_FONT));
+			.anchor(GridBagConstraints.WEST)
+			.insets(3)
+			.row()
+				.spanx(9)
+				.column(label("Ranges").font(Text.headerFont));
 
 		for (int row = 0; row < axes.size(); row++) {
 			final int row_idx = row;
