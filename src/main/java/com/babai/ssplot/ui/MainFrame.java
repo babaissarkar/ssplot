@@ -56,6 +56,7 @@ import javax.swing.UIManager;
 import com.babai.ssplot.cli.SSPlotCLI;
 import com.babai.ssplot.math.plot.*;
 import com.babai.ssplot.math.plot.PlotData.PlotType;
+import com.babai.ssplot.ui.controls.DUI.Text;
 import com.babai.ssplot.ui.controls.UIFrame;
 import com.babai.ssplot.ui.controls.UIInput;
 import com.babai.ssplot.ui.controls.UIRadioItem;
@@ -340,7 +341,7 @@ public class MainFrame extends JFrame {
 					item("Keymaps Help")
 						.onClick(() -> {
 							logger.log(KEY_HELP_MSG);
-							showMessageDialog(this, "<html>" + KEY_HELP_MSG + "</html>");
+							showMessageDialog(this, Text.tag("html", KEY_HELP_MSG));
 						}),
 					item("Homepage...")
 						.onClick(() -> openLink("https://github.com/babaissarkar/ssplot")),
@@ -542,7 +543,7 @@ public class MainFrame extends JFrame {
 		String[] buttonStrs = {"License", "Close"};
 		int status = showOptionDialog(
 			this,
-			"<html>" + ABOUT_MSG + "</html>",
+			Text.tag("html", ABOUT_MSG),
 			"About SSPlot",
 			YES_NO_OPTION,
 			INFORMATION_MESSAGE,

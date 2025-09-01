@@ -157,4 +157,25 @@ public class DUI {
 	public static UIFrame iframe(String title) {
 		return iframe().title(title);
 	}
+	
+	public class Text {
+		
+		public static String bold(String text) {
+			return htmlAndBody(tag("b", text));
+		}
+		
+		public static String htmlAndBody(String text) {
+			return tag("html", tag("body", text));
+		}
+		
+		public static String tag(String tagName, String text) {
+			return "<%s>%s</%s>".formatted(tagName, text, tagName);
+		}
+		
+		public static String tag(String tagName, String attribute, String text) {
+			return "<%s %s>%s</%s>".formatted(tagName, attribute, text, tagName);
+		}
+		
+		public final static String LBREAK = "<br/>";
+	}
 }

@@ -55,6 +55,7 @@ import com.babai.ssplot.math.plot.PlotData;
 import com.babai.ssplot.math.plot.PlotData.PlotType;
 import com.babai.ssplot.util.InfoLogger;
 import com.babai.ssplot.util.UIHelper;
+import com.babai.ssplot.ui.controls.DUI.Text;
 import com.babai.ssplot.ui.controls.UIFrame;
 import static com.babai.ssplot.ui.controls.DUI.*;
 
@@ -108,7 +109,7 @@ public class DataViewer extends UIFrame {
 			});
 
 		var pnlPlots = hbox(
-			label("<html><body><b>Plots:</b></body></html>"),
+			label(Text.bold("Plots:")),
 			jcbPlotlist,
 			button()
 				.text("Info")
@@ -123,7 +124,7 @@ public class DataViewer extends UIFrame {
 
 		jcbColMapper = new Vector<JComboBox<Integer>>();
 		var axes = PlotType.THREED.axes();
-		var pnlPrefs = hbox(label("<html><body><b>Axes:</b></body></html>"));
+		var pnlPrefs = hbox(label(Text.bold("Axes:")));
 		for (var axis : axes) {
 			pnlPrefs.add(label(axis + " → Col"));
 			var cbox = new JComboBox<Integer>();
@@ -136,8 +137,8 @@ public class DataViewer extends UIFrame {
 		table.setShowGrid(true);
 		table.setGridColor(Color.GRAY);
 		table.setAutoCreateRowSorter(true);
-		// Add paste support from spreadsheet		
-		UIHelper.bindAction(table, "Paste", "control V", () -> pasteFromClipboard(table));
+		// Add paste support from spreadsheet
+		UIHelper.bindAction(table, "Paste", "ctrl v", () -> pasteFromClipboard(table));
 
 		var scroll = scrollPane(table);
 		scroll.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -250,7 +251,7 @@ public class DataViewer extends UIFrame {
 			}
 		}
 		
-		logger.log("<html>" + pdata.info().replace("\n", "<br/>") + "</html>");
+		logger.log(Text.tag("html", pdata.info().replace("\n", Text.LBREAK)));
 		
 		jcbColMapper.lastElement().setEnabled(colNum > 2);
 
@@ -562,19 +563,22 @@ public class DataViewer extends UIFrame {
 					dispose(); // Close the dialog
 				});
 
-			setContentPane(grid()
-				.row()
-					.column(label("No. of columns:"))
-					.column(colField)
-				.row()
-					.column(label("No. of rows:"))
-					.column(rowField)
-				.row()
-					.column(label("Fill with (optional):"))
-					.column(fillerField)
-				.row()
-					.column(hbox(okButton, cancelButton))
-				.emptyBorder(20));
+			setContentPane(
+				vbox(
+					grid()
+						.row()
+							.column(label("No. of columns:"))
+							.column(colField)
+						.row()
+							.column(label("No. of rows:"))
+							.column(rowField)
+						.row()
+							.column(label("Fill with (optional):"))
+							.column(fillerField)
+						.emptyBorder(20),
+					hbox(okButton, cancelButton)
+				)
+			);
 			
 			pack();
 			setModalityType(JDialog.ModalityType.APPLICATION_MODAL);

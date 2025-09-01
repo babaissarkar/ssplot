@@ -28,6 +28,7 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 import java.util.function.Consumer;
 import javax.swing.Box;
@@ -39,7 +40,7 @@ import com.babai.ssplot.math.system.core.EquationSystem;
 import com.babai.ssplot.math.system.core.SystemMode;
 import com.babai.ssplot.math.system.parser.ParserManager;
 import com.babai.ssplot.math.system.solver.Solver;
-
+import com.babai.ssplot.ui.controls.DUI.Text;
 import com.babai.ssplot.ui.controls.StateVar;
 import com.babai.ssplot.ui.controls.UIFrame;
 import com.babai.ssplot.ui.controls.UIGrid;
@@ -190,37 +191,29 @@ public class SystemInputFrame extends UIFrame {
 	}
 
 	private UIGrid createEqnInputUIPanel(final Vector<String> axes) {
-		final String sub_markup = "<html><body>%s<sub>%s</sub>%s</body></html>";
-		final String small_markup = "<html><body style='font-size:12'>%s</body></html>";
+		final String subMarkup = Text.htmlAndBody("%s" + Text.tag("sub", "%s") + "%s");
+		final String smallMarkup = Text.tag("html", Text.tag("body", "style='font-size:12'", "%s"));
 		
-		var eqnFieldLabels = new HashMap<SystemMode, String[]>();
-		
-		eqnFieldLabels.put(
+		var eqnFieldLabels = Map.of(
 			SystemMode.ODE,
-			forEach(axes, i -> "d%s/dt =".formatted(axes.get(i).toLowerCase()), String[]::new)
-		);
-		eqnFieldLabels.put(
+			forEach(axes, i -> "d%s/dt =".formatted(axes.get(i).toLowerCase()), String[]::new),
 			SystemMode.DFE,
-			forEach(axes, i -> sub_markup.formatted(axes.get(i).toLowerCase(), "n+1", " ="), String[]::new)
-		);
-		eqnFieldLabels.put(
+			forEach(axes, i -> subMarkup.formatted(axes.get(i).toLowerCase(), "n+1", " ="), String[]::new),
 			SystemMode.FN1,
-			new String[] { "y(x) =", "", "" }
-		);
-		eqnFieldLabels.put(
+			new String[] { "y(x) =", "", "" },
 			SystemMode.FN2,
 			new String[] { "z(x, y) =", "", "" }
 		);
 		
 		// Equations entry enable conditions
-		List<StateVar<Boolean>> eqnCondition = List.of(
+		var eqnCondition = List.of(
 			new StateVar<Boolean>(true),
 			curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE)),
 			curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE))
 		);
 		
 		// Solution point entry enable conditions
-		List<StateVar<Boolean>> inputConditions = List.of(
+		var inputConditions = List.of(
 			curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE) && noOfEqns() >= 2),
 			curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE) && noOfEqns() >= 2),
 			curMode.when(mode -> (mode == SystemMode.ODE && noOfEqns() == 3))
@@ -245,7 +238,8 @@ public class SystemInputFrame extends UIFrame {
 						.enabled(eqnCondition.get(idx))
 						.onChange(text -> {
 							builder.eqn(idx, text);
-							curMode.set(curMode.get()); // FIXME find a better way than this to update UI
+							// FIXME find a better way than this to update UI
+							curMode.set(curMode.get());
 						})
 				);
 		}
@@ -257,7 +251,7 @@ public class SystemInputFrame extends UIFrame {
 				// Entry area for the point where the system is to be solved (X,Y,Z)
 				hbox(
 					forEach(axes, idx -> hbox(
-						label(String.format(small_markup, axes.get(idx))),
+						label(String.format(smallMarkup, axes.get(idx))),
 						input()
 							.chars(3)
 							.enabled(inputConditions.get(idx))
@@ -270,7 +264,7 @@ public class SystemInputFrame extends UIFrame {
 	}
 	
 	private UIGrid createRangesUIPanel(final Vector<String> axes) {
-		final String sub_markup = "<html><body>%s<sub>%s</sub>%s</body></html>";
+		final String subMarkup = Text.htmlAndBody("%s" + Text.tag("sub", "%s") + "%s");
 		final String[] tags = {"min", "max", "step"};
 		final double[] rangeAsArray = EquationSystem.DEFAULT_RANGE.toArray();
 		
@@ -300,7 +294,7 @@ public class SystemInputFrame extends UIFrame {
 				final int col_idx = col; 
 				pnlRange
 					.weightx(0)
-					.column(label(sub_markup.formatted(axes.get(row), tags[col], "")))
+					.column(label(subMarkup.formatted(axes.get(row), tags[col], "")))
 					.weightx(1)
 					.column(input()
 						.chars(5)

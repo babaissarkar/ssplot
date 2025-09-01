@@ -29,6 +29,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.ScrollPaneConstants;
 
+import com.babai.ssplot.ui.controls.DUI.Text;
 import com.babai.ssplot.util.InfoLogger;
 
 public class StatLogger implements InfoLogger {
@@ -47,8 +48,8 @@ public class StatLogger implements InfoLogger {
 	}
 
 	public void log(String s) {
-		logs.append(s + "<br>");
-		txStatus.setText("<html><body>" + logs.toString() + "</body></html>");
+		logs.append(s + Text.LBREAK);
+		txStatus.setText(Text.htmlAndBody(logs.toString()));
 	}
 	
 	public Component getComponent() {
@@ -57,7 +58,7 @@ public class StatLogger implements InfoLogger {
 
 	public void clear() {
 		logs = new StringBuffer();
-		txStatus.setText("<html><body>" + logs.toString() + "</body></html>");
+		txStatus.setText(Text.htmlAndBody(logs.toString()));
 	}
 	
 }
