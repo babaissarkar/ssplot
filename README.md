@@ -49,13 +49,12 @@ Highly appreciated and helpful to the future of this project!<br/>
 You will require Java JDK and Apache Maven. You will also require Markdown if you want to generate a html version of this Readme.
 
 1. Clone this repository.
-2. `cd` into the cloned directory and run `mvn package`. It will build everything and put the generated jar file into the jar directory.
-3. Link the final jar file into the jar directory. Choose the correct pom file for your OS using `mvn` 's `-f` option.
-3. You can run the generated `SSPlot.jar` file using the command `java -jar jar/SSPlot.jar` or simple `./ssplot`, if the link is correctly created.
-4. Generate the README.html using markdown : `markdown README.md > README.html`.
+2. `cd` into the cloned directory and run `./mvnw package` (Linux) or `mvnw.cmd package` (Win). It will build everything and put the generated jar file into the jar directory. If you need MSI installer, run `mvnw.cmd package jpackage:jpackage@win`. If you need linux packages (AppImage, DEB), run `./generate-all.sh` (Markdown needed).
+3. You can run the generated `ssplot.jar` file using the command `java -jar jar/ssplot.jar` or simple `./ssplot`, if the link is correctly created. Alternatively, run/install packages for your OS.
+4. *(Optional)* Generate the README.html using markdown : `markdown README.md > README.html`.
 
-# Quick Build
-Run the `generate-all.sh` script.
+# Quick Build (all packages)
+Run the `generate-all.sh` script (Needed: `markdown` program on your path).
 
 # Using a external script engine for parsing math expressions
 
