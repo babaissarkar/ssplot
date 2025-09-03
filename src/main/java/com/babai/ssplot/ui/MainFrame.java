@@ -22,13 +22,10 @@
 */
 package com.babai.ssplot.ui;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.GraphicsEnvironment;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,11 +35,9 @@ import java.util.Optional;
 import java.util.Properties;
 
 import javax.imageio.ImageIO;
-import javax.swing.Box;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JColorChooser;
-import javax.swing.JComboBox;
 import javax.swing.JDesktopPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -51,17 +46,13 @@ import javax.swing.JMenuBar;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
-import javax.swing.UIManager;
 
 import com.babai.ssplot.cli.SSPlotCLI;
 import com.babai.ssplot.math.plot.*;
 import com.babai.ssplot.math.plot.PlotData.PlotType;
 import com.babai.ssplot.ui.controls.DUI.Text;
-import com.babai.ssplot.ui.controls.UIFrame;
-import com.babai.ssplot.ui.controls.UIInput;
 import com.babai.ssplot.ui.controls.UIRadioItem;
 import com.babai.ssplot.ui.help.HelpFrame;
-import com.babai.ssplot.util.UIHelper;
 
 import static javax.swing.JOptionPane.*;
 
@@ -105,9 +96,6 @@ public class MainFrame extends JFrame {
 		plt = new Plotter(logger);
 		plt.initPlot();
 		
-		pv = new PlotView(logger, plt);
-		pv.setPadding(10);
-		
 		odeinput = new SystemInputFrame();
 		odeinput.setResizable(true);
 		odeinput.setClosable(true);
@@ -124,13 +112,10 @@ public class MainFrame extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setJMenuBar(createMenu());
 		
+		// Plot Area
+		pv = new PlotView(logger, plt);
 		var ifrmPlot = new PlotFrame(pv);
-		ifrmPlot
-			.title("Plot")
-			.resizable(true)
-			.closable(false)
-			.maximizable(true)
-			.iconifiable(true);
+		ifrmPlot.title("Plot");
 		
 		// Update callbacks: these are called to update PlotView
 		// when data in SystemInputFrame or DataViewer changes.
@@ -159,7 +144,8 @@ public class MainFrame extends JFrame {
 		ifrmPlot.setSize(ifrmPlot.getWidth(), odeinput.getHeight());
 		
 		dbv.pack();
-		int dbvWidth = Math.min(dbv.getWidth(), screenBounds.width - odeinput.getWidth() - ifrmPlot.getWidth());
+		int dbvWidth = Math.min(dbv.getWidth(),
+			screenBounds.width - odeinput.getWidth() - ifrmPlot.getWidth());
 		if (dbvWidth > Plotter.DEFAULT_W/2) {
 			dbv.setSize(new Dimension(dbvWidth, odeinput.getHeight()));
 			dbv.setLocation(screenBounds.width - dbvWidth, 0);
@@ -178,13 +164,17 @@ public class MainFrame extends JFrame {
 		ifrmPlot.setVisible(true);
 		odeinput.setVisible(true);
 		
-		var ifrmLogs = new JInternalFrame("Logs", true, true, true, true);
-		ifrmLogs.add(logger.getComponent());
+		var ifrmLogs = iframe("Logs")
+			.resizable(true)
+			.iconifiable(true)
+			.maximizable(true)
+			.closable(false)
+			.content(logger.getComponent());
 		
 		// Bottom pane
 		var console = new ScriptConsole();
-		var txtScratchpad = new HintTextArea();
-		txtScratchpad.setHintText("You can write anything here.");
+		var txtScratchpad = new HintTextArea()
+			.hintText("You can write anything here.");
 		
 		getContentPane().add(splitPane()
 			.type(JSplitPane.VERTICAL_SPLIT)
@@ -361,124 +351,6 @@ public class MainFrame extends JFrame {
 		radioGroup.add(modeAnimate);
 		
 		return bar;
-	}
-	
-	private class PlotFrame extends UIFrame {
-		private UIInput zoomField;
-		private JComboBox<String> axisSelector;
-		
-		public PlotFrame(PlotView pv) {
-			setSize(Plotter.DEFAULT_W + 35, Plotter.DEFAULT_H + 100);
-			addComponentListener(new ComponentAdapter() {
-				public void componentResized(ComponentEvent ce) {
-					// FIXME more embedded magic numbers
-					pv.resize(getWidth() - 35, getHeight() - 100);
-				}
-			});
-			
-			// Plow View window: Keybindings for movement and actions
-			bindAction(this, "left",   "LEFT",  pv::moveLeft);
-			bindAction(this, "right",  "RIGHT", pv::moveRight);
-			bindAction(this, "up",     "UP",    pv::moveUp);
-			bindAction(this, "down",   "DOWN",  pv::moveDown);
-
-			bindAction(this, "plus",   "J", pv::zoomIn);
-			bindAction(this, "minus",  "F", pv::zoomOut);
-			bindAction(this, "splus",  "H", pv::smallZoomIn);
-			bindAction(this, "sminus", "G", pv::smallZoomOut);
-
-			bindAction(this, "rotAp",  "Q", pv::rotateXPlus);
-			bindAction(this, "rotAm",  "A", pv::rotateXMinus);
-			bindAction(this, "rotBp",  "W", pv::rotateYPlus);
-			bindAction(this, "rotBm",  "S", pv::rotateYMinus);
-			bindAction(this, "rotCp",  "E", pv::rotateZPlus);
-			bindAction(this, "rotCm",  "D", pv::rotateZMinus);
-			
-			// --- Zoom Section ---
-			zoomField = input().text("1").chars(4).numeric(true);
-			var zoomLabel = label(" X");
-			var zoomInBtn = button()
-				.icon("/zoom-in.png")
-				.tooltip("Zoom In (x2)")
-				.onClick(() -> {
-					displayScale();
-					pv.zoomIn();
-				});
-			var zoomOutBtn = button()
-				.icon("/zoom-out.png")
-				.tooltip("Zoom In (x0.5)")
-				.onClick(() -> {
-					displayScale();
-					pv.zoomOut();
-				});
-			
-			// disable growing
-			zoomField.setMaximumSize(zoomField.getPreferredSize());
-
-			// --- Rotation Section ---
-			axisSelector = new JComboBox<>(PlotData.PlotType.LINES3.axes());
-			// disable growing
-			axisSelector.setMaximumSize(axisSelector.getPreferredSize());
-			var rotateCWBtn = button()
-				.icon("/rotate-cw.png")
-				.tooltip("Rotate Clockwise")
-				.onClick(() -> {
-					String axis = (String) axisSelector.getSelectedItem();
-					if (axis.equals("X")) {
-						pv.rotateXPlus();
-					} else if (axis.equals("Y")) {
-						pv.rotateYPlus();
-					} else {
-						pv.rotateZPlus();
-					}
-				});
-			var rotateCCWBtn = button()
-				.icon("/rotate-ccw.png")
-				.tooltip("Rotate Counter-clockwise")
-				.onClick(() -> {
-					String axis = (String) axisSelector.getSelectedItem();
-					if (axis.equals("X")) {
-						pv.rotateXMinus();
-					} else if (axis.equals("Y")) {
-						pv.rotateYMinus();
-					} else {
-						pv.rotateZMinus();
-					}
-				});
-
-			var toolbar = toolbar(
-				zoomInBtn,
-				zoomField,
-				zoomLabel,
-				zoomOutBtn,
-				
-				// --- Separator ---
-				Box.createRigidArea(new Dimension(10, 0)),
-				
-				rotateCWBtn,
-				label("Axis:"),
-				axisSelector,
-				rotateCCWBtn
-			);
-			
-			toolbar.setFloatable(false);
-			toolbar.setRollover(true);
-
-			add(toolbar, BorderLayout.NORTH);
-			add(pv, BorderLayout.CENTER);
-		}
-		
-		private void displayScale() {
-			zoomField.setText(String.format("%3.1f", pv.getScale()));
-		}
-		
-		public void updateView(PlotData data) {
-			pv.setCurPlot(data);
-			pv.setCurPlotType(data.getPltype());
-			pv.fit();
-			displayScale();
-			axisSelector.setEnabled(data.getColumnCount() >= 3);
-		}
 	}
 	
 	/* Menu Actions */

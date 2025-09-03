@@ -31,7 +31,7 @@ import javax.swing.JTextArea;
 
 /** JTextArea with hint text that gets cleared as soon as user starts typing */
 public class HintTextArea extends JTextArea {
-	public void setHintText(String hint) {
+	public HintTextArea hintText(String hint) {
 		if (!hint.isEmpty()) {
 			setForeground(Color.GRAY);
 			setText(hint);
@@ -61,5 +61,6 @@ public class HintTextArea extends JTextArea {
 				}
 			});
 		}
+		return this;
 	}
 }

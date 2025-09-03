@@ -76,6 +76,7 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 		addMouseListener(this);
 		addMouseMotionListener(this);
 		setFocusable(true);
+		setPadding(10);
 	}
 
 	@Override
