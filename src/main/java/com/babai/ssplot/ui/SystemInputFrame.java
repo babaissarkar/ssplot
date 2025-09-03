@@ -76,11 +76,10 @@ public class SystemInputFrame extends UIFrame {
 	}
 
 	private void initInputDialog() {
-		final var axes = PlotData.PlotType.THREED.axes();
+		final var axes = PlotData.PlotType.LINES3.axes();
 
 		// Creating Gui
-		this
-			.title("System Parameters")
+		this.title("System Parameters")
 			.closeOperation(JFrame.HIDE_ON_CLOSE)
 			.content(
 				vbox(
@@ -348,7 +347,7 @@ public class SystemInputFrame extends UIFrame {
 		var system = getSystem();
 		var solver = new Solver(ParserManager.getParser(), system);
 		curData = new PlotData(solver.directionField());
-		curData.setPltype(PlotData.PlotType.VECTORS);
+		curData.setPltype(PlotData.PlotType.POINTS3);
 		curData.setSystem(system);
 		updater.accept(curData);
 	}
@@ -409,7 +408,7 @@ public class SystemInputFrame extends UIFrame {
 		var system = getSystem();
 		var solver = new Solver(ParserManager.getParser(), system);
 		curData = new PlotData(solver.RK4Iterate3D(solnPoint[0], solnPoint[1], solnPoint[2]));
-		curData.setPltype(PlotData.PlotType.THREED);
+		curData.setPltype(PlotData.PlotType.LINES3);
 		curData.setDataCols(0, 1, 2);
 		curData.setFgColor(Color.BLACK);
 		curData.setSystem(system);
@@ -429,7 +428,7 @@ public class SystemInputFrame extends UIFrame {
 		var system = getSystem();
 		var solver = new Solver(ParserManager.getParser(), system);
 		curData = new PlotData(solver.functionData2D());
-		curData.setPltype(PlotData.PlotType.THREED);
+		curData.setPltype(PlotData.PlotType.LINES3);
 		curData.setDataCols(0, 1, 2);
 		curData.setFgColor(Color.BLACK);
 		curData.setTitle(String.format("z = %s", system.eqns()[0]));

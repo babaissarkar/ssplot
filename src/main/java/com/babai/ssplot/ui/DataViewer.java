@@ -123,7 +123,7 @@ public class DataViewer extends UIFrame {
 		);
 
 		jcbColMapper = new Vector<JComboBox<Integer>>();
-		var axes = PlotType.THREED.axes();
+		var axes = PlotType.LINES3.axes();
 		var pnlPrefs = hbox(label(Text.bold("Axes:")));
 		for (var axis : axes) {
 			pnlPrefs.add(label(axis + " → Col"));
@@ -269,7 +269,7 @@ public class DataViewer extends UIFrame {
 		btnEditProp.setEnabled(pdata != null);
 		
 		int i = 0;
-		for (var axis : PlotType.THREED.axes()) {
+		for (var axis : PlotType.LINES3.axes()) {
 			var jcbData = jcbColMapper.get(i);
 			jcbData.removeAllItems();
 			jcbData.setEnabled(pdata != null);

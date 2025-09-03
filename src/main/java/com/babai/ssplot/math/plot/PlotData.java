@@ -25,9 +25,9 @@ package com.babai.ssplot.math.plot;
 
 import java.awt.Color;
 import java.awt.geom.Point2D;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Vector;
 
 import com.babai.ssplot.math.system.core.EquationSystem;
@@ -39,27 +39,24 @@ import com.babai.ssplot.math.system.core.EquationSystem;
  */
 public class PlotData implements Cloneable {
 	public enum PlotType {
-		LINES("Lines", "X", "Y"),
-		POINTS("Points", "X", "Y"),
-		LP("Both Lines and Points", "X", "Y"),
+		LINES("2D Lines", "X", "Y"),
+		POINTS("2D Points", "X", "Y"),
+		LINES_POINTS("2D Lines with Points", "X", "Y"),
 		
-		VECTORS("3D Points", "X", "Y", "Z"), 
-		THREED("3D Lines", "X", "Y", "Z"),
+		POINTS3("3D Points", "X", "Y", "Z"), 
+		LINES3("3D Lines", "X", "Y", "Z"),
 		
-		TRLINE("Vector field", "X", "Y");
+		VFIELD("Vector field", "X", "Y");
 		
 		private final String type;
-		private final Vector<String> axes;
+		private final List<String> axes;
 
 		PlotType(String type, String... axes) {
 			this.type = type;
-			this.axes = new Vector<String>();
-			for (var axis : axes) {
-				this.axes.add(axis);
-			}
+			this.axes = List.of(axes);
 		}
 		
-		public Vector<String> axes() {
+		public List<String> axes() {
 			return axes;
 		}
 		

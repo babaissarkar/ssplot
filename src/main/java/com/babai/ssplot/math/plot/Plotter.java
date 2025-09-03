@@ -89,7 +89,7 @@ public final class Plotter {
 		Color curPlotColor2 = pdata.getFgColor2();
 		
 		// TODO : Move 3d axis drawing to Canvas class
-		if (pdata.getPltype() == PlotData.PlotType.THREED || pdata.getPltype() == PlotData.PlotType.TRLINE) {
+		if (pdata.getPltype() == PlotData.PlotType.LINES3 || pdata.getPltype() == PlotData.PlotType.VFIELD) {
 			// draw rotated axis
 			canv.setStroke(2);
 			
@@ -120,7 +120,7 @@ public final class Plotter {
 		}
 
 		for (Vector<Double> row : dataset) {
-			if (pdata.getPltype() == PlotData.PlotType.VECTORS) {
+			if (pdata.getPltype() == PlotData.PlotType.POINTS3) {
 				canv.setAxes3d(false);
 				/* For now, it works for vector data in first four columns only */
 				if (row.size() >= 4) {
@@ -131,7 +131,7 @@ public final class Plotter {
 				} else {
 					System.err.println("Bad vector field data!");
 				}
-			} else if (pdata.getPltype() == PlotData.PlotType.THREED) {
+			} else if (pdata.getPltype() == PlotData.PlotType.LINES3) {
 				//System.out.println("3D");
 				if (row.size() >= 3) {
 					Point2D.Double pp = p.project(row.get(0), row.get(1), row.get(2));
@@ -142,7 +142,7 @@ public final class Plotter {
 				} else {
 					System.err.println("Data is not three dimensional!");
 				}
-			} else if (pdata.getPltype() == PlotData.PlotType.TRLINE) {
+			} else if (pdata.getPltype() == PlotData.PlotType.VFIELD) {
 				//System.out.println("3D");
 				if (row.size() >= 3) {
 					Point2D.Double pp = p.project(row.get(0), row.get(1), row.get(2));
@@ -170,7 +170,7 @@ public final class Plotter {
 					case POINTS :
 						canv.drawPoint(p1, PlotData.PointType.SQUARE, pdata.ptX, pdata.ptY);
 						break;
-					case LP :
+					case LINES_POINTS :
 						Color c = canv.getFGColor();
 						Point2D.Double pback = new Point2D.Double( p1.getX() - (pdata.ptX+4)/2, p1.getY() - (pdata.ptY+4)/2 );
 						
