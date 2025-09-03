@@ -194,7 +194,7 @@ public class MainFrame extends JFrame {
 				tabPane()
 					.tab("Logs", ifrmLogs.getContentPane())
 					.tab("Console", console)
-					.tab("Notes", txtScratchpad)
+					.tab("Notes", scrollPane(txtScratchpad))
 					.onChange(tabIdx -> {
 						switch(tabIdx) {
 						case 1:
