@@ -100,7 +100,7 @@ public class SystemInputFrame extends UIFrame {
 			);
 	}
 	
-	private JToolBar createToolbarUI(final Vector<String> axes) {
+	private JToolBar createToolbarUI(final List<PlotData.Axis> axes) {
 		var plot2dCondition = curMode.when(mode ->
 			(mode == SystemMode.ODE && noOfEqns() == 2)
 			|| (mode == SystemMode.DFE && noOfEqns() >= 1)
@@ -188,15 +188,15 @@ public class SystemInputFrame extends UIFrame {
 			.emptyBorder(5);
 	}
 
-	private UIGrid createEqnInputUIPanel(final Vector<String> axes) {
+	private UIGrid createEqnInputUIPanel(final List<PlotData.Axis> axes) {
 		final String subMarkup = Text.htmlAndBody("%s" + Text.tag("sub", "%s") + "%s");
 		final String smallMarkup = Text.tag("html", Text.tag("body", "style='font-size:12'", "%s"));
 		
 		var eqnFieldLabels = Map.of(
 			SystemMode.ODE,
-			forEach(axes, i -> "d%s/dt =".formatted(axes.get(i).toLowerCase()), String[]::new),
+			forEach(axes, i -> "d%s/dt =".formatted(axes.get(i).toString().toLowerCase()), String[]::new),
 			SystemMode.DFE,
-			forEach(axes, i -> subMarkup.formatted(axes.get(i).toLowerCase(), "n+1", " ="), String[]::new),
+			forEach(axes, i -> subMarkup.formatted(axes.get(i).toString().toLowerCase(), "n+1", " ="), String[]::new),
 			SystemMode.FN1,
 			new String[] { "y(x) =", "", "" },
 			SystemMode.FN2,
@@ -261,7 +261,7 @@ public class SystemInputFrame extends UIFrame {
 		return pnlMatrix;
 	}
 	
-	private UIGrid createRangesUIPanel(final Vector<String> axes) {
+	private UIGrid createRangesUIPanel(final List<PlotData.Axis> axes) {
 		final String subMarkup = Text.htmlAndBody("%s" + Text.tag("sub", "%s") + "%s");
 		final String[] tags = {"min", "max", "step"};
 		final double[] rangeAsArray = EquationSystem.DEFAULT_RANGE.toArray();

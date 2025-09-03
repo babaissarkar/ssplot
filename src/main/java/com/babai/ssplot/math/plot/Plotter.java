@@ -71,8 +71,8 @@ public final class Plotter {
 			initPlot();
 		}
 		
-		c1 = pdata.getDataCol("X");
-		c2 = pdata.getDataCol("Y");
+		c1 = pdata.getDataCol(0);
+		c2 = pdata.getDataCol(1);
 		plotData(canv, pdata);
 	}
 	

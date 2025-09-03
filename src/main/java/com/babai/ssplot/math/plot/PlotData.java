@@ -38,25 +38,41 @@ import com.babai.ssplot.math.system.core.EquationSystem;
  * of equations.
  */
 public class PlotData implements Cloneable {
+	public interface Axis { };
+	public enum CartesianAxis implements Axis { X, Y, Z; }
+	public enum PolarAxis implements Axis {
+		R("R"), THETA("θ"), PHI("φ");
+		
+		private final String label;
+		private PolarAxis(String label) {
+			this.label = label;
+		}
+		
+		@Override
+		public String toString() {
+			return this.label;
+		}
+	}
+	
 	public enum PlotType {
-		LINES("2D Lines", "X", "Y"),
-		POINTS("2D Points", "X", "Y"),
-		LINES_POINTS("2D Lines with Points", "X", "Y"),
+		LINES("2D Lines", CartesianAxis.X, CartesianAxis.Y),
+		POINTS("2D Points", CartesianAxis.X, CartesianAxis.Y),
+		LINES_POINTS("2D Lines with Points", CartesianAxis.X, CartesianAxis.Y),
 		
-		POINTS3("3D Points", "X", "Y", "Z"), 
-		LINES3("3D Lines", "X", "Y", "Z"),
+		POINTS3("3D Points", CartesianAxis.X, CartesianAxis.Y, CartesianAxis.Z), 
+		LINES3("3D Lines", CartesianAxis.X, CartesianAxis.Y, CartesianAxis.Z),
 		
-		VFIELD("Vector field", "X", "Y");
+		VFIELD("Vector field", CartesianAxis.X, CartesianAxis.Y);
 		
 		private final String type;
-		private final List<String> axes;
+		private final List<Axis> axes;
 
-		PlotType(String type, String... axes) {
+		PlotType(String type, Axis... axes) {
 			this.type = type;
 			this.axes = List.of(axes);
 		}
 		
-		public List<String> axes() {
+		public List<Axis> axes() {
 			return axes;
 		}
 		
@@ -70,6 +86,8 @@ public class PlotData implements Cloneable {
 		}
 	};
 	
+	// TODO PointTypes should have a method that draws themselves?
+	// Also, ptX, ptY could be fields of PointType
 	public enum PointType { SQUARE, CIRCLE };
 
 	private Vector<Vector<Double>> data;
@@ -89,7 +107,7 @@ public class PlotData implements Cloneable {
 	public int ptX, ptY;
 	
 	private HashMap<String, String> axesLabels = new HashMap<>();
-	private HashMap<String, Integer> axesDataColumns = new HashMap<>();
+	private HashMap<Axis, Integer> axesDataColumns = new HashMap<>();
 	
 	private Color fgColor, fgColor2;
 	private String title;
@@ -216,8 +234,16 @@ public class PlotData implements Cloneable {
 	/**
 	 * @return the index of the data column corresponding to axis with `axisName`.
 	 */
-	public int getDataCol(String axisName) {
+	public int getDataCol(Axis axisName) {
 		return axesDataColumns.getOrDefault(axisName, pltype.axes().indexOf(axisName));
+	}
+	
+	/**
+	 * @param index
+	 * @return the data column corresponding to `index`.
+	 */
+	public int getDataCol(int index) {
+		return getDataCol(getPltype().axes().get(index));
 	}
 	
 	/**
@@ -233,7 +259,7 @@ public class PlotData implements Cloneable {
 		}
 	}
 	
-	public HashMap<String, Integer> getDataColMapping() {
+	public HashMap<Axis, Integer> getDataColMapping() {
 		return this.axesDataColumns;
 	}
 
@@ -330,7 +356,7 @@ public class PlotData implements Cloneable {
 			boolean isKnownColumn = false;
 			for (var entry : mappings.entrySet()) {
 				if (entry.getValue() == i) {
-					buff.append(formatStats(entry.getKey(), i));
+					buff.append(formatStats(entry.getKey().toString(), i));
 					isKnownColumn = true;
 					break;
 				}
