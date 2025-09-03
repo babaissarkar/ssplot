@@ -80,6 +80,16 @@ public class UIGrid extends JPanel implements UIStylizable<UIGrid> {
 		return this;
 	}
 	
+	public UIGrid padx(int pad) {
+		gbc.ipadx = pad;
+		return this;
+	}
+	
+	public UIGrid pady(int pad) {
+		gbc.ipady = pad;
+		return this;
+	}
+	
 	public UIGrid row() {
 		gbc.gridwidth = 1;
 		gbc.gridx = 0;
