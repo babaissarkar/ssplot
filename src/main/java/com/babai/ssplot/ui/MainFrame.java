@@ -33,6 +33,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.function.Function;
 
 import javax.imageio.ImageIO;
 import javax.swing.ButtonGroup;
@@ -50,8 +51,10 @@ import com.babai.ssplot.cli.SSPlotCLI;
 import com.babai.ssplot.math.plot.*;
 import com.babai.ssplot.math.plot.PlotData.PlotType;
 import com.babai.ssplot.ui.controls.DUI.Text;
+import com.babai.ssplot.ui.controls.UIButton;
 import com.babai.ssplot.ui.controls.UIRadioItem;
 import com.babai.ssplot.ui.help.HelpFrame;
+import com.babai.ssplot.util.FocusTracker;
 
 import static javax.swing.JOptionPane.*;
 
@@ -90,7 +93,7 @@ public class MainFrame extends JFrame {
 		
 		// Initialize logger
 		logger = new StatLogger();
-		logger.log("<h1>Welcome to SSPlot!</h1>");
+		logger.log(Text.tag("h1", "Welcome to SSPlot!"));
 		
 		plt = new Plotter(logger);
 		plt.initPlot();
@@ -171,9 +174,61 @@ public class MainFrame extends JFrame {
 			.content(logger.getComponent());
 		
 		// Bottom pane
+		FocusTracker.install();
+		
 		var console = new ScriptConsole();
 		var txtScratchpad = new HintTextArea()
 			.hintText("You can write anything here.");
+		
+		// Helper lambda for the symbols input pane below
+		// Creates a button that inserts text into the last focused input.
+		// If the text ends with ")", caret goes just before it; otherwise caret at end.
+		Function<String, UIButton> mathBtnMaker = (text) ->
+			button().text(text).onClick(() -> {
+				if (text.endsWith(")")) {
+					FocusTracker.insertTextWithCaret(text, text.length() - 1);
+				} else {
+					FocusTracker.insertText(text);
+				}
+			});
+			
+		var symbolsPane = grid()
+			.insets(10)
+			.padx(10).pady(10)
+			.row()
+				.spanx(10)
+				.column(label("Click a button to insert the corresponding symbol in an input area"))
+				.row()
+					.column(mathBtnMaker.apply("+"))
+					.column(mathBtnMaker.apply("-"))
+					.column(mathBtnMaker.apply("*"))
+					.column(mathBtnMaker.apply("/"))
+					.column(mathBtnMaker.apply("^"))
+					.column(mathBtnMaker.apply("("))
+					.column(mathBtnMaker.apply(")"))
+					.column(mathBtnMaker.apply("π"))
+					.column(mathBtnMaker.apply("e"))
+				.row()
+					.column(mathBtnMaker.apply("sin()"))
+					.column(mathBtnMaker.apply("cos()"))
+					.column(mathBtnMaker.apply("tan()"))
+					.column(mathBtnMaker.apply("asin()"))
+					.column(mathBtnMaker.apply("acos()"))
+					.column(mathBtnMaker.apply("atan()"))
+					.column(mathBtnMaker.apply("log()"))
+					.column(mathBtnMaker.apply("exp()"))
+					.column(mathBtnMaker.apply("ln()"))
+				.row()
+					.column(mathBtnMaker.apply("α"))
+					.column(mathBtnMaker.apply("β"))
+					.column(mathBtnMaker.apply("γ"))
+					.column(mathBtnMaker.apply("δ"))
+					.column(mathBtnMaker.apply("θ"))
+					.column(mathBtnMaker.apply("φ"))
+					.column(mathBtnMaker.apply("λ"))
+					.column(mathBtnMaker.apply("μ"))
+					.column(mathBtnMaker.apply("ψ"))
+			.emptyBorder(10);
 		
 		getContentPane().add(splitPane()
 			.type(JSplitPane.VERTICAL_SPLIT)
@@ -184,6 +239,7 @@ public class MainFrame extends JFrame {
 					.tab("Logs", ifrmLogs.getContentPane())
 					.tab("Console", console)
 					.tab("Notes", scrollPane(txtScratchpad))
+					.tab("Math Symbols", scrollPane(symbolsPane))
 					.onChange(tabIdx -> {
 						switch(tabIdx) {
 						case 1:
