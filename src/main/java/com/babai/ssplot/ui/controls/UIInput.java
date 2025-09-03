@@ -23,7 +23,6 @@
 
 package com.babai.ssplot.ui.controls;
 
-import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -122,17 +121,24 @@ public class UIInput extends JTextField {
 		getDocument().addDocumentListener(new DocumentListener() {
 			@Override
 			public void insertUpdate(DocumentEvent e) {
-				textAction.accept(getText());
+				runUpdateActions();
 			}
 
 			@Override
 			public void removeUpdate(DocumentEvent e) {
-				textAction.accept(getText());
+				runUpdateActions();
 			}
 
 			@Override
 			public void changedUpdate(DocumentEvent e) {
-				textAction.accept(getText());
+				runUpdateActions();
+			}
+			
+			private void runUpdateActions() {
+				String text = getText();
+				if (!text.isEmpty()) {
+					textAction.accept(getText());
+				}
 			}
 		});
 		return this;
