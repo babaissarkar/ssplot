@@ -41,7 +41,6 @@ import javax.swing.JColorChooser;
 import javax.swing.JDesktopPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JInternalFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;

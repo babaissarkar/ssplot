@@ -80,17 +80,17 @@ public class PlotFrame extends UIFrame {
 
 		// --- Rotation Section ---
 		var axisSelector = new JComboBox<PlotData.Axis>();
-		// TODO add entries to axisSelector here
-		// disable growing
-		axisSelector.setMaximumSize(axisSelector.getPreferredSize());
+		axisSelector.setMaximumSize(axisSelector.getPreferredSize()); // disable growing
 		axisSelector.setEnabled(false);
 		rotationEnabled.onChange(() -> {
-			axisSelector.setEnabled(rotationEnabled.get());
-			if (axisSelector.isEnabled()) {
+			boolean enabled = rotationEnabled.get();
+			axisSelector.setEnabled(enabled);
+			axisSelector.removeAllItems();
+			if (enabled) {
 				var ptype = pv.getCurPlotType();
 				if (ptype.isPresent()) {
 					for (var axis : ptype.get().axes()) {
-						axisSelector.add(label(axis.toString()));
+						axisSelector.addItem(axis);
 					}
 				}
 			}
