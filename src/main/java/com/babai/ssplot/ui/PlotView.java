@@ -325,18 +325,21 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 		this.mouseDragStart[0] = ev.getX();
 		this.mouseDragStart[1] = ev.getY();
 
-		// FIXME origin is a magic number
 		if (ev.getButton() != MouseEvent.BUTTON1) {
+			
+			// FIXME origin is a magic number
 			/* The plotting area starts from (20,20) in java graphics space,
 			 * so we are substracting it. */
-			Point2D.Double clickedAt = new Point2D.Double(ev.getX() - 20, ev.getY() - 20);
-			Point2D.Double p = plt.getCanvas().getInvTransformedPoint(clickedAt);
+			final var origin = new Point2D.Double(20, 20);
+			
+			var clickedAt = new Point2D.Double(ev.getX() - origin.getX(), ev.getY() - origin.getY());
+			var p = plt.getCanvas().getInvTransformedPoint(clickedAt);
 			//			String label = String.format("(%3.1f, %3.1f)", p.getX(), p.getY());
 			String label = p.toString();
 
 			if (ev.getButton() == MouseEvent.BUTTON3) {
-				//pv.addNode(new Point2D.Double(x-20, y-20), label, Color.BLUE);
-				log("Point : " + label);
+//				pv.addNode(new Point2D.Double(x-20, y-20), label, Color.BLUE);
+//				log("Point : " + label);
 			} else if (ev.getButton() == MouseEvent.BUTTON2) {
 				plt.setZoomCenter(p);
 				log("Zoom Center set at " + label);
