@@ -24,17 +24,15 @@
 package com.babai.ssplot.ui;
 
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.GridBagConstraints;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 import java.util.function.Consumer;
 import javax.swing.Box;
 import javax.swing.JFrame;
 import javax.swing.JToolBar;
 
+import com.babai.ssplot.math.plot.Axis;
 import com.babai.ssplot.math.plot.PlotData;
 import com.babai.ssplot.math.system.core.EquationSystem;
 import com.babai.ssplot.math.system.core.SystemMode;
@@ -100,7 +98,7 @@ public class SystemInputFrame extends UIFrame {
 			);
 	}
 	
-	private JToolBar createToolbarUI(final List<PlotData.Axis> axes) {
+	private JToolBar createToolbarUI(final List<Axis> axes) {
 		var plot2dCondition = curMode.when(mode ->
 			(mode == SystemMode.ODE && noOfEqns() == 2)
 			|| (mode == SystemMode.DFE && noOfEqns() >= 1)
@@ -188,7 +186,7 @@ public class SystemInputFrame extends UIFrame {
 			.emptyBorder(5);
 	}
 
-	private UIGrid createEqnInputUIPanel(final List<PlotData.Axis> axes) {
+	private UIGrid createEqnInputUIPanel(final List<Axis> axes) {
 		final String subMarkup = Text.htmlAndBody("%s" + Text.tag("sub", "%s") + "%s");
 		final String smallMarkup = Text.tag("html", Text.tag("body", "style='font-size:12'", "%s"));
 		
@@ -261,7 +259,7 @@ public class SystemInputFrame extends UIFrame {
 		return pnlMatrix;
 	}
 	
-	private UIGrid createRangesUIPanel(final List<PlotData.Axis> axes) {
+	private UIGrid createRangesUIPanel(final List<Axis> axes) {
 		final String subMarkup = Text.htmlAndBody("%s" + Text.tag("sub", "%s") + "%s");
 		final String[] tags = {"min", "max", "step"};
 		final double[] rangeAsArray = EquationSystem.DEFAULT_RANGE.toArray();

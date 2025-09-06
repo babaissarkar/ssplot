@@ -8,6 +8,7 @@ import java.awt.event.ComponentEvent;
 import javax.swing.Box;
 import javax.swing.JComboBox;
 
+import com.babai.ssplot.math.plot.Axis;
 import com.babai.ssplot.math.plot.PlotData;
 import com.babai.ssplot.math.plot.Plotter;
 import com.babai.ssplot.ui.controls.StateVar;
@@ -79,7 +80,7 @@ public class PlotFrame extends UIFrame {
 		zoomField.setMaximumSize(zoomField.getPreferredSize());
 
 		// --- Rotation Section ---
-		var axisSelector = new JComboBox<PlotData.Axis>();
+		var axisSelector = new JComboBox<Axis>();
 		axisSelector.setMaximumSize(axisSelector.getPreferredSize()); // disable growing
 		axisSelector.setEnabled(false);
 		rotationEnabled.onChange(() -> {

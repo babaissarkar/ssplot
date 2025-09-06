@@ -37,32 +37,16 @@ import com.babai.ssplot.math.system.core.EquationSystem;
  * including the data, the plot properties and the system
  * of equations.
  */
-public class PlotData implements Cloneable {
-	public interface Axis { };
-	public enum CartesianAxis implements Axis { X, Y, Z; }
-	public enum PolarAxis implements Axis {
-		R("R"), THETA("θ"), PHI("φ");
-		
-		private final String label;
-		private PolarAxis(String label) {
-			this.label = label;
-		}
-		
-		@Override
-		public String toString() {
-			return this.label;
-		}
-	}
-	
+public class PlotData implements Cloneable {	
 	public enum PlotType {
-		LINES("2D Lines", CartesianAxis.X, CartesianAxis.Y),
-		POINTS("2D Points", CartesianAxis.X, CartesianAxis.Y),
-		LINES_POINTS("2D Lines with Points", CartesianAxis.X, CartesianAxis.Y),
+		LINES("2D Lines", Axis.Cartesian.X, Axis.Cartesian.Y),
+		POINTS("2D Points", Axis.Cartesian.X, Axis.Cartesian.Y),
+		LINES_POINTS("2D Lines with Points", Axis.Cartesian.X, Axis.Cartesian.Y),
 		
-		POINTS3("3D Points", CartesianAxis.X, CartesianAxis.Y, CartesianAxis.Z), 
-		LINES3("3D Lines", CartesianAxis.X, CartesianAxis.Y, CartesianAxis.Z),
+		POINTS3("3D Points", Axis.Cartesian.X, Axis.Cartesian.Y, Axis.Cartesian.Z), 
+		LINES3("3D Lines", Axis.Cartesian.X, Axis.Cartesian.Y, Axis.Cartesian.Z),
 		
-		VFIELD("Vector field", CartesianAxis.X, CartesianAxis.Y);
+		VFIELD("Vector field", Axis.Cartesian.X, Axis.Cartesian.Y);
 		
 		private final String type;
 		private final List<Axis> axes;
