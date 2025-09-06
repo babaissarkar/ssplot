@@ -34,13 +34,8 @@ import java.awt.image.BufferedImage;
 
 import com.babai.ssplot.util.InfoLogger;
 
-// TODO should this be moved under `ui` package?
-// or should be made UI independent?
-// Like draw on a BufferedImage and show that instead.
-
 public class Canvas {
-	/* This is the view helper */
-	private final static Font serifFont = new Font("Serif", Font.BOLD, 22);
+	private final static Font titleFont = new Font("Serif", Font.BOLD, 22);
 	
 	private int W, H; /* Size of image */
 	private boolean axesVisible = true;
@@ -48,34 +43,64 @@ public class Canvas {
 	private int curNoTics = 10;
 	private BufferedImage img; /* The image */
 	private Graphics2D g;
-	private Color fgColor, bgColor, axesColor, titleColor;
+	private Color fgColor, bgColor, axesColor, ticColor, titleColor;
+	private Color borderColor;
 
 	/* Transformation Params */
 	private double scaleFactor;
 	private int dx, dy, moveX, moveY;
 	private Point2D.Double zc = new Point2D.Double(0, 0); /* Center of Zoom */
-	private InfoLogger logger;
 	private String xlbl, ylbl;
-	private Project2D project;
-
-	public void setXLabel(String xlbl) {
-		this.xlbl = xlbl;
-	}
-
-	public void setYLabel(String ylbl) {
-		this.ylbl = ylbl;
-	}
-
-	private void initParams() {
+	private Project2D projector;
+	
+	private InfoLogger logger;
+	
+	/*
+	 * This only sets properties of the plot
+	 * but does not start drawing. */
+	public Canvas(InfoLogger logger) {
+		this.logger = logger;
+		this.projector = new Project2D(this.logger);
 		scaleFactor = 1.0;
 		dx = 0; dy = 0;
 		moveX = 0; moveY = 0;
+		ticColor = Color.BLACK;
 		fgColor = Color.BLACK;
 		bgColor = Color.WHITE;
 		axesColor = Color.BLACK;
 		titleColor = Color.BLACK;
+		borderColor = Color.BLUE;
 	}
 
+	/**
+	 * Initializes the plot by creating an empty plotting area.
+	 * You need to initialize the Canvas first by calling its constructor.
+	 */
+	public void initPlot(int W, int H) {
+		g = initImage(W, H);
+		g.setColor(bgColor);
+		g.fill(new Rectangle2D.Double(0, 0, W, H));
+		g.setColor(fgColor);
+
+		resetAxes();
+
+		if (isAxesVisible()) {
+			shiftAxes(W/2,H/2);
+			if (!isAxes3d()) {
+				drawAxes();
+				drawTics(curNoTics);
+			}
+		}
+
+		if (isBoundingBoxVisible()) {
+			drawBoundingBox();
+		}
+	}
+	
+	public void refresh() {
+		initPlot(this.W, this.H);
+	}
+	
 	private Graphics2D initImage(int W, int H) {
 		this.W = W;
 		this.H = H;
@@ -86,37 +111,6 @@ public class Canvas {
 				RenderingHints.VALUE_ANTIALIAS_ON);
 		g2.setRenderingHints(rh);
 		return g2;
-	}
-
-	public Canvas(int W, int H, InfoLogger logger) {
-		this.logger = logger;
-		this.project = new Project2D(this.logger);
-		initParams();
-		g = initImage(W, H);
-	}
-
-	/** Initializes the plot by creating an empty plotting area.
-	 * You need to initialize the Canvas first by calling its constructor. */
-	public void initPlot() {
-		g.setColor(bgColor);
-		g.fill(new Rectangle2D.Double(0, 0, W, H));
-		g.setColor(fgColor);
-
-		resetAxes();
-
-		if (isAxesVisible()) {
-			if (isAxes3d()) {
-				shiftAxes(W/2,H/2);
-			} else {
-				shiftAxes(W/2,H/2);
-				drawAxes();
-				drawTics(curNoTics);
-			}
-		}
-
-		if (isBoundingBoxVisible()) {
-			drawBoundingBox();
-		}
 	}
 
 	public Graphics2D getGraphics() {
@@ -136,7 +130,7 @@ public class Canvas {
 	/*********************************** Drawing Methods ************************************************/
 
 	/* Draws a point, at the specified point and of the specified type.*/
-	public void drawPoint(Point2D.Double p, PlotData.PointType ptype, double sizeX, double sizeY) {    
+	public void drawPoint(Point2D.Double p, PlotData.PointType ptype, double sizeX, double sizeY) {
 		if (ptype == PlotData.PointType.SQUARE) {
 			g.fill(new Rectangle2D.Double(p.x, p.y, sizeX, sizeY));
 		} else if (ptype == PlotData.PointType.CIRCLE) {
@@ -189,17 +183,16 @@ public class Canvas {
 		int strokeWidth = 1;
 
 		Color curColor = g.getColor();
-		g.setColor(Color.BLUE);
+		g.setColor(borderColor);
 
 		g.drawLine(0, 0, 0, H);
-		/* Correction for finite thickness of the line */
+		
+		// Correction for finite thickness of the line
 		g.drawLine(0, H-strokeWidth, W, H-strokeWidth);
 		g.drawLine(W-strokeWidth, H, W-strokeWidth, 0);
 		g.drawLine(W, 0, 0, 0);
 
 		g.setColor(curColor);
-
-		//		log(String.format("bounding box : %d, %d, %d, %d\n", 0, 0, W, H));
 	}
 
 	/*********************************** Plot Specific Drawing Methods ************************************************/
@@ -219,7 +212,7 @@ public class Canvas {
 	/* Draw tics along the axes */
 	public void drawTics(int noOfMajorTics) {
 		Color curColor = g.getColor();
-		g.setColor(Color.BLACK);
+		g.setColor(ticColor);
 
 		FontMetrics m = g.getFontMetrics();
 		int strHeight = m.getHeight();
@@ -228,7 +221,8 @@ public class Canvas {
 		int offsetTicsX = (int) ((moveX*noOfMajorTics)/(W*scaleFactor));
 		int offsetTicsY = (int) ((moveY*noOfMajorTics)/(H*scaleFactor));
 
-		for (int i = (-(noOfMajorTics/2 - 1) - offsetTicsX - (int) scaleFactor); i < (noOfMajorTics/2 - offsetTicsX + (int) scaleFactor); i++) {
+		for (int i = (-(noOfMajorTics/2 - 1) - offsetTicsX - (int) scaleFactor);
+				i < (noOfMajorTics/2 - offsetTicsX + (int) scaleFactor); i++) {
 			// X axis tics
 			int x =  i * W/noOfMajorTics;
 			double lbl = x/scaleFactor;
@@ -305,21 +299,19 @@ public class Canvas {
 		Font prevFont = g.getFont();
 		Color prevColor = g.getColor();
 
-		g.setFont(serifFont);
+		g.setFont(titleFont);
 		FontMetrics fm = g.getFontMetrics();
 		double textH = fm.getHeight();
 		double textW = fm.stringWidth(title);
 
-		Point2D.Double p = new Point2D.Double(20, 30); /* Need to be changed. (20,30) is Magic no. */
-		log("" + H/2);
+		Point2D.Double titlePos = new Point2D.Double(20, 30);
 
-		g.setColor(Color.WHITE);
-		g.fill(new Rectangle2D.Double(p.x, p.y - textH, textW + 2, textH + 2));
-		//g.setColor(prevColor);
+		g.setColor(bgColor);
+		g.fill(new Rectangle2D.Double(titlePos.x, titlePos.y - textH, textW + 2, textH + 2));
 		g.setColor(titleColor);
-		drawText(title, p);
+		drawText(title, titlePos);
 
-		Point2D.Double p2 = getInvTransformedPoint(p);
+		Point2D.Double p2 = getInvTransformedPoint(titlePos);
 		log(String.format("Added title \"%s\" at (%6.2f, %6.2f)", title, p2.x, p2.y));
 
 		g.setColor(prevColor);
@@ -470,17 +462,18 @@ public class Canvas {
 		return p;
 	}
 
+	
+	// Utility logging method
 	private void log(String string) {
 		if (logger != null) {
 			logger.log(string + "\n");
 		}
-		//System.out.println("log : " + string);
 	}
 
 	/************************************ 3D *********************************************/
 	/**Set the projector from 3d to 2d. */
 	public void setProjection(Project2D p) {
-		this.project = p;
+		this.projector = p;
 	}
 
 	/********************* Nodes *******************************/
@@ -498,7 +491,7 @@ public class Canvas {
 		g.setColor(axesColor);
 
 		// Origin Shift
-		Point2D.Double shTrP = project.project(W/2, H/2, 0);
+		Point2D.Double shTrP = projector.project(W/2, H/2, 0);
 		double shX = -(shTrP.x - W/2);
 		double shY = -(shTrP.y - H/2);
 
@@ -506,10 +499,10 @@ public class Canvas {
 		//		Point2D.Double px2 = project.projectInv(dx+moveX, W, 0);
 		//		Point2D.Double py1 = project.projectInv(0, dy-moveY, 0);
 		//		Point2D.Double py2 = project.projectInv(H, dy-moveY, 0);
-		Point2D.Double px1 = project.projectInv(0, 0, 0);
-		Point2D.Double px2 = project.projectInv(0, W, 0);
-		Point2D.Double py1 = project.projectInv(0, 0, 0);
-		Point2D.Double py2 = project.projectInv(H, 0, 0);
+		Point2D.Double px1 = projector.projectInv(0, 0, 0);
+		Point2D.Double px2 = projector.projectInv(0, W, 0);
+		Point2D.Double py1 = projector.projectInv(0, 0, 0);
+		Point2D.Double py2 = projector.projectInv(H, 0, 0);
 		px1 = new Point2D.Double(px1.x+dx+moveX+shX, px1.y+shY);
 		px2 = new Point2D.Double(px2.x+dx+moveX+shX, px2.y+shY);
 		py1 = new Point2D.Double(py1.x+shX, py1.y+dy-moveY+shY);
@@ -521,5 +514,38 @@ public class Canvas {
 		g.setColor(curColor);
 	}
 
+	/********************** Getters and Setters ******************/
+	
+	/**
+	 * Set the axis color to the given color
+	 * @param axesColor the new axis color 
+	 */
+	public void setAxesColor(Color axesColor) {
+		this.axesColor = axesColor;
+	}
+	
+	public void setXLabel(String xlbl) {
+		this.xlbl = xlbl;
+	}
+
+	public void setYLabel(String ylbl) {
+		this.ylbl = ylbl;
+	}
+
+	/**
+	 * @param ticColor sets the color of the tics on the axes to `ticColor`.
+	 */
+	public void setTicColor(Color ticColor) {
+		this.ticColor = ticColor;
+	}
+
+	/**
+	 * @param titleColor sets the color of plot title
+	 */
+	public void setTitleColor(Color titleColor) {
+		this.titleColor = titleColor;
+	}
+	
+	
 }
 

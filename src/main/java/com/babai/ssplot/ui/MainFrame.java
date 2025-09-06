@@ -98,7 +98,14 @@ public class MainFrame extends JFrame {
 		logger.log(Text.tag("h1", "Welcome to SSPlot!"));
 		
 		plt = new Plotter(logger);
-		plt.initPlot();
+		if (isDark) {
+			plt.setFgColor(Color.WHITE);
+			plt.setBgColor(Color.decode("#474c5b"));
+			plt.setAxisColor(Color.WHITE);
+			plt.setTicColor(Color.WHITE);
+			plt.setTitleColor(Color.WHITE);
+			plt.clear();
+		}
 		
 		odeinput = new SystemInputFrame();
 		odeinput.setResizable(true);
@@ -337,7 +344,7 @@ public class MainFrame extends JFrame {
 					item("Clear plot")
 						.hotkey("ctrl X")
 						.onClick(() -> {
-							pv.clear();
+							pv.refresh();
 							dbv.clear();
 						}),
 						
@@ -352,12 +359,12 @@ public class MainFrame extends JFrame {
 							}),
 						item("Add X axis label")
 							.onClick(() -> {
-								plt.getCanvas().setXLabel(showInputDialog("X Label:"));
+								plt.setXLabel(showInputDialog("X Label:"));
 								pv.repaint();
 							}),
 						item("Add Y axis label")
 							.onClick(() -> {
-								plt.getCanvas().setYLabel(showInputDialog("Y Label:"));
+								plt.setYLabel(showInputDialog("Y Label:"));
 								pv.repaint();
 							}),
 						item("Set Plot Type")

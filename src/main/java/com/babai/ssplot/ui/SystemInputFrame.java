@@ -380,7 +380,6 @@ public class SystemInputFrame extends UIFrame {
 			var solver = new Solver(ParserManager.getParser(), system);
 			curData = new PlotData(solver.cobweb(system.solnPoint()[0]));
 			curData.setPltype(PlotData.PlotType.LINES);
-			curData.setFgColor(Color.BLACK);
 			curData.setSystem(system);
 		}
 		updater.accept(curData);
@@ -398,7 +397,6 @@ public class SystemInputFrame extends UIFrame {
 			break;
 		}
 		curData.setPltype(PlotData.PlotType.LINES);
-		curData.setFgColor(Color.BLACK);
 		curData.setSystem(system);
 	}
 
@@ -408,7 +406,6 @@ public class SystemInputFrame extends UIFrame {
 		curData = new PlotData(solver.RK4Iterate3D(solnPoint[0], solnPoint[1], solnPoint[2]));
 		curData.setPltype(PlotData.PlotType.LINES3);
 		curData.setDataCols(0, 1, 2);
-		curData.setFgColor(Color.BLACK);
 		curData.setSystem(system);
 	}
 
@@ -417,7 +414,6 @@ public class SystemInputFrame extends UIFrame {
 		var solver = new Solver(ParserManager.getParser(), system);
 		curData = new PlotData(solver.functionData());
 		curData.setPltype(PlotData.PlotType.LINES);
-		curData.setFgColor(Color.BLACK);
 		curData.setTitle(String.format("y = %s", system.eqns()[0]));
 		curData.setSystem(system);
 	}
@@ -428,7 +424,6 @@ public class SystemInputFrame extends UIFrame {
 		curData = new PlotData(solver.functionData2D());
 		curData.setPltype(PlotData.PlotType.LINES3);
 		curData.setDataCols(0, 1, 2);
-		curData.setFgColor(Color.BLACK);
 		curData.setTitle(String.format("z = %s", system.eqns()[0]));
 		curData.setSystem(system);
 	}

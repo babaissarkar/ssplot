@@ -35,9 +35,10 @@ import javax.imageio.ImageIO;
 import com.babai.ssplot.util.InfoLogger;
 
 public final class Plotter {
-	private Canvas canv;
 	private final Project2D p;
 	private final InfoLogger logger;
+	
+	private Canvas canv;
 	private int c1, c2;
 	
 	public static final int DEFAULT_W = 450, DEFAULT_H = 450;
@@ -56,21 +57,25 @@ public final class Plotter {
 	
 	public void initPlot(int W, int H) {
 		p.setView(0, 0, 0);
-		canv = new Canvas(W, H, logger);
-		canv.initPlot();
+		if (canv == null) {
+			canv = new Canvas(logger);
+		}
+		canv.initPlot(W, H);
 	}
 	
 	public void clear() {
-		canv.initPlot();
+		canv.refresh();
 	}
 	
-	/** If you don't set the size of the plot, it uses the default size.
-	 *  It will also initialize the plot if you forget. */
+	/* If you don't set the size of the plot, it uses the default size.
+	 * It will also initialize the plot if you forget. */
 	public void plotData(PlotData pdata) {
 		if (canv == null) {
 			initPlot();
 		}
 		
+		// TODO more data columns are possible
+		// are we hardcoding things?
 		c1 = pdata.getDataCol(0);
 		c2 = pdata.getDataCol(1);
 		plotData(canv, pdata);
@@ -86,48 +91,51 @@ public final class Plotter {
 
 		Vector<Vector<Double>> dataset = pdata.getData();
 		canv.setFGColor(pdata.getFgColor());
-		Color curPlotColor2 = pdata.getFgColor2();
 		
 		// TODO : Move 3d axis drawing to Canvas class
-		if (pdata.getPltype() == PlotData.PlotType.LINES3 || pdata.getPltype() == PlotData.PlotType.VFIELD) {
+		if (pdata.getPltype() == PlotData.PlotType.LINES3 || pdata.getPltype() == PlotData.PlotType.POINTS3) {
+			final var xAxisColor = Color.RED;
+			final var yAxisColor = Color.BLUE;
+			final var zAxisColor = new Color(4, 121, 0);
+			
+			var oldFgColor = canv.getFGColor();
+			
 			// draw rotated axis
 			canv.setStroke(2);
 			
-			canv.setFGColor(Color.RED);
+			canv.setFGColor(xAxisColor);
 			Point2D.Double pp1 = p.project(-225, 0, 0);
 			p1 = canv.getTransformedPoint(pp1);
 			Point2D.Double pp2 = p.project(225, 0, 0);
 			p2 = canv.getTransformedPoint(pp2);
 			canv.drawLine(p1, p2);
 			
-			canv.setFGColor(Color.BLUE);
+			canv.setFGColor(yAxisColor);
 			pp1 = p.project(0, 225, 0);
 			p1 = canv.getTransformedPoint(pp1);
 			pp2 = p.project(0, -225, 0);
 			p2 = canv.getTransformedPoint(pp2);
 			canv.drawLine(p1, p2);
 			
-//			canv.setFGColor(Color.GREEN);
-			canv.setFGColor(new Color(4, 121, 0));
+			canv.setFGColor(zAxisColor);
 			pp1 = p.project(0, 0, 225);
 			p1 = canv.getTransformedPoint(pp1);
 			pp2 = p.project(0, 0, -225);
 			p2 = canv.getTransformedPoint(pp2);
-//			System.out.format("%f, %f\n", p1.x, p1.y);
-//			System.out.format("%f, %f\n", p2.x, p2.y);
 			canv.drawLine(p1, p2);
-			canv.setFGColor(Color.BLACK);
+			
+			canv.setFGColor(oldFgColor);
 		}
 
 		for (Vector<Double> row : dataset) {
-			if (pdata.getPltype() == PlotData.PlotType.POINTS3) {
+			if (pdata.getPltype() == PlotData.PlotType.VFIELD) {
 				canv.setAxes3d(false);
 				/* For now, it works for vector data in first four columns only */
 				if (row.size() >= 4) {
 					p1 = canv.getTransformedPoint(new Point2D.Double(row.get(0), row.get(1)));
 					p2 = canv.getTransformedPoint(new Point2D.Double(row.get(2), row.get(3)));
 
-					canv.drawVector(p1, p2, curPlotColor2);
+					canv.drawVector(p1, p2, pdata.getFgColor2());
 				} else {
 					System.err.println("Bad vector field data!");
 				}
@@ -142,7 +150,7 @@ public final class Plotter {
 				} else {
 					System.err.println("Data is not three dimensional!");
 				}
-			} else if (pdata.getPltype() == PlotData.PlotType.VFIELD) {
+			} else if (pdata.getPltype() == PlotData.PlotType.POINTS3) {
 				//System.out.println("3D");
 				if (row.size() >= 3) {
 					Point2D.Double pp = p.project(row.get(0), row.get(1), row.get(2));
@@ -172,12 +180,16 @@ public final class Plotter {
 						break;
 					case LINES_POINTS :
 						Color c = canv.getFGColor();
-						Point2D.Double pback = new Point2D.Double( p1.getX() - (pdata.ptX+4)/2, p1.getY() - (pdata.ptY+4)/2 );
-						
+						Point2D.Double pback = new Point2D.Double(
+							p1.getX() - (pdata.ptX+4)/2,
+							p1.getY() - (pdata.ptY+4)/2);
+						// The line is draw with plot FG color
+						// but the points on the top is drawn with black below
+						// FIXME generalization needed
 						canv.setStroke(pdata.ptX);
 						canv.drawLine(p1, p2);
 						
-						canv.setFGColor(Color.BLACK);
+						canv.setFGColor(pdata.getFgColor2());
 						canv.drawPoint(pback, PlotData.PointType.CIRCLE, pdata.ptX+4, pdata.ptY+4);
 						canv.setFGColor(c);
 					default :
@@ -228,9 +240,9 @@ public final class Plotter {
 	
 	public void zoomOut(double zc_x, double zc_y) {
 		canv.setZoomCenter(new Point2D.Double(zc_x, zc_y));
-        if (canv.getScaleFactor() >= 2) {
-            canv.setScaleFactor(canv.getScaleFactor()/2);
-        }
+		if (canv.getScaleFactor() >= 2) {
+			canv.setScaleFactor(canv.getScaleFactor()/2);
+		}
 	}
 	
 	/* Scale the plot by the give factor */
@@ -267,9 +279,37 @@ public final class Plotter {
 
 	public void save(File outfile) {
 		try {
-			ImageIO.write(getCanvas().getImage(), "png", outfile);
+			ImageIO.write(canv.getImage(), "png", outfile);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public void setXLabel(String label) {
+		canv.setXLabel(label);
+	}
+	
+	public void setYLabel(String label) {
+		canv.setYLabel(label);
+	}
+	
+	public void setFgColor(Color fgColor) {
+		canv.setFGColor(fgColor);
+	}
+
+	public void setBgColor(Color bgcolor) {
+		canv.setBGColor(bgcolor);
+	}
+
+	public void setAxisColor(Color axisColor) {
+		canv.setAxesColor(axisColor);
+	}
+	
+	public void setTicColor(Color ticColor) {
+		canv.setTicColor(ticColor);
+	}
+
+	public void setTitleColor(Color titleColor) {
+		canv.setTitleColor(titleColor);
 	}
 }

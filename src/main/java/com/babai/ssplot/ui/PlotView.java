@@ -70,7 +70,7 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 		frameCounter = 0;
 		refresher = new Timer(timerInterval, e -> nextAnimationFrame());
 
-		clear();
+		refresh();
 
 		// Mouse Listener
 		addMouseListener(this);
@@ -183,14 +183,15 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 	}
 
 	/* Reset canvas */
-	public void clear() {
+	public void refresh() {
 		plots = new Vector<PlotData>();
-		plt.initPlot();
+		plt.clear();
 		repaint();
 	}
 
 	/* Resize canvas */
 	public void resize(int w, int h) {
+		System.out.println("PlotView.resize: ");
 		plt.initPlot(w, h);
 		repaint();
 	}

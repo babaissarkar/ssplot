@@ -162,7 +162,7 @@ public class PlotData implements Cloneable {
 		// Cosmetic plot properties
 		title = "New Data " + System.nanoTime();
 		fgColor = Color.RED;
-		fgColor2 = Color.BLUE;
+		fgColor2 = Color.BLACK;
 	}
 	
 	public int getRowCount() {
