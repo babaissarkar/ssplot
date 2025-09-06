@@ -48,7 +48,7 @@ import javax.swing.border.TitledBorder;
  * <pre>{@code
  * public class MyPanel extends JPanel implements UIBordered<MyPanel> {
  *     public MyPanel() {
- *         emptyBorder(10).setBackground(Color.LIGHT_GRAY);
+ *         emptyBorder(10).bg(Color.LIGHT_GRAY);
  *     }
  * }
  * }</pre>
