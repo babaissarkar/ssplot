@@ -63,6 +63,8 @@ import static com.babai.ssplot.ui.controls.DUI.*;
 import static com.babai.ssplot.util.UIHelper.*;
 
 public class MainFrame extends JFrame {
+	// Is dark theme enabled?
+	public static boolean isDark = false;
 	
 	private final Plotter plt;
 	private final PlotView pv;
@@ -491,6 +493,7 @@ public class MainFrame extends JFrame {
 		
 		// Global UI Configuration
 		if (hasArg("dark", args)) {
+			MainFrame.isDark = true;
 			setDarkLF();
 		} else if(hasArg("nimbus", args)) {
 			setNimbusLF();
