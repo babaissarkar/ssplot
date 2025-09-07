@@ -97,7 +97,7 @@ public class SystemInputFrame extends UIFrame {
 					Box.createVerticalStrut(10),
 					createIterationParamUIPanel()
 				)
-				.bg(MainFrame.isDark ? Color.decode("#474c5b") : Color.WHITE) // TODO: very theme specific
+				.bg(MainFrame.isDark() ? Color.decode("#474c5b") : Color.WHITE) // TODO: very theme specific
 				.emptyBorder(15)
 			)
 			.packFrame();
@@ -148,7 +148,7 @@ public class SystemInputFrame extends UIFrame {
 					.onClick(this::hide) // TODO this should reset everything to default vals
 			)
 			.gap(0, 0)
-			.bg(MainFrame.isDark ? Color.decode("#474c5b") : Color.WHITE) // TODO: very theme specific
+			.bg(MainFrame.isDark() ? Color.decode("#474c5b") : Color.WHITE) // TODO: very theme specific
 		);
 		
 		bar.setBackground(Color.WHITE);

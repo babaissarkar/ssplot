@@ -65,7 +65,7 @@ import static com.babai.ssplot.util.UIHelper.*;
 
 public class MainFrame extends JFrame {
 	// Is dark theme enabled?
-	public static boolean isDark = false;
+	private static boolean isDark = false;
 	
 	private final StatLogger logger;
 	
@@ -481,5 +481,9 @@ public class MainFrame extends JFrame {
 		tooltipManager.setReshowDelay(100);
 		
 		new MainFrame().setVisible(true);
+	}
+
+	public static boolean isDark() {
+		return isDark;
 	}
 }
