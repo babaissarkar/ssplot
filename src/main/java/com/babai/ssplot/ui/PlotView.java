@@ -85,8 +85,8 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 		addMouseWheelListener(ev -> {
 			int x = ev.getX() - (int) origin.getX();
 			int y = ev.getY() - (int) origin.getY();
-
-			plt.setZoomCenter(plt.toCartesianPoint(new Point2D.Double(x, y)));
+// FIXME setZoomCenter is broken
+//			plt.setZoomCenter(plt.toCartesianPoint(new Point2D.Double(x, y)));
 			if (ev.getWheelRotation() < 0) {
 				smallZoomIn();
 			} else if (ev.getWheelRotation() > 0) {
@@ -374,8 +374,9 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 //				pv.addNode(new Point2D.Double(x-20, y-20), label, Color.BLUE);
 //				log("Point : " + label);
 			} else if (ev.getButton() == MouseEvent.BUTTON2) {
-				plt.setZoomCenter(p);
-				log("Zoom Center set at " + p.toString());
+// FIXME setZoomCenter is broken
+//				plt.setZoomCenter(p);
+//				log("Zoom Center set at " + p.toString());
 			}
 
 			repaint();

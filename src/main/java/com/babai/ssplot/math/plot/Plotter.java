@@ -27,11 +27,6 @@ import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.Vector;
-import java.io.File;
-import java.io.IOException;
-
-import javax.imageio.ImageIO;
-
 import com.babai.ssplot.util.InfoLogger;
 
 public final class Plotter {

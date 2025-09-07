@@ -445,6 +445,7 @@ public class Canvas {
 
 	/* Transforms from Java Graphics space to Cartesian space. */
 	/* Takes care of scaling and translation */
+	// FIXME does not work with non Zero Zoom Center
 	public Point2D.Double getInvTransformedPoint(Point2D.Double p1) {
 		double x1 = p1.x;
 		double y1 = p1.y;
