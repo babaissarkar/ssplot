@@ -26,6 +26,7 @@ import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.GraphicsEnvironment;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -66,10 +67,6 @@ public class MainFrame extends JFrame {
 	// Is dark theme enabled?
 	public static boolean isDark = false;
 	
-	private final Plotter plt;
-	private final PlotView pv;
-	private final DataViewer dbv;
-	private final SystemInputFrame odeinput;
 	private final StatLogger logger;
 	
 	private static String ABOUT_MSG;
@@ -97,14 +94,13 @@ public class MainFrame extends JFrame {
 		logger = new StatLogger();
 		logger.log(Text.tag("h1", "Welcome to SSPlot!"));
 		
-		plt = new Plotter(logger);
+		var plt = new Plotter(logger);
 		if (isDark) {
 			plt.setFgColor(Color.WHITE);
 			plt.setBgColor(Color.decode("#474c5b"));
 			plt.setAxisColor(Color.WHITE);
 			plt.setTicColor(Color.WHITE);
 			plt.setTitleColor(Color.WHITE);
-			plt.clear();
 		}
 		
 		//
@@ -112,12 +108,11 @@ public class MainFrame extends JFrame {
 		//
 	
 		// Internal Windows
-		odeinput = new SystemInputFrame();
-		dbv = new DataViewer(logger);
-		pv = new PlotView(logger, plt);
+		var odeinput = new SystemInputFrame();
+		var dbv = new DataView(logger);
+		var pv = new PlotView(logger, plt);
 		var ifrmPlot = new PlotFrame(pv);
 		ifrmPlot.title("Plot");
-		
 		// Update callbacks: these are called to update PlotView
 		// when data in SystemInputFrame or DataViewer changes.
 		odeinput.setUpdateCallback(data -> {
@@ -152,22 +147,15 @@ public class MainFrame extends JFrame {
 			dbv.setVisible(false);
 		}
 		
-		// Main panel
-		var mainPane = new JDesktopPane();
-		mainPane.setDragMode(JDesktopPane.OUTLINE_DRAG_MODE);
-		mainPane.add(ifrmPlot);
-		mainPane.add(odeinput);
-		mainPane.add(dbv);
+		// Top area with internal windows
+		var topPane = new JDesktopPane();
+		topPane.setDragMode(JDesktopPane.OUTLINE_DRAG_MODE);
+		topPane.add(ifrmPlot);
+		topPane.add(odeinput);
+		topPane.add(dbv);
 		
 		ifrmPlot.setVisible(true);
 		odeinput.setVisible(true);
-		
-		var ifrmLogs = iframe("Logs")
-			.resizable(true)
-			.iconifiable(true)
-			.maximizable(true)
-			.closable(false)
-			.content(logger.getComponent());
 		
 		// Bottom pane
 		FocusTracker.install();
@@ -229,15 +217,15 @@ public class MainFrame extends JFrame {
 		// Main Container
 		setTitle("SSPlot");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setJMenuBar(createMenu());
+		setJMenuBar(createMenu(pv, dbv, odeinput));
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
 		getContentPane().add(splitPane()
 			.type(JSplitPane.VERTICAL_SPLIT)
 			.dividerLoc((int) (screenBounds.height * 0.7))
-			.top(mainPane)
+			.top(topPane)
 			.bottom(
 				tabPane()
-					.tab("Logs", ifrmLogs.getContentPane())
+					.tab("Logs", logger.getComponent())
 					.tab("Console", console)
 					.tab("Notes", scrollPane(txtScratchpad))
 					.tab("Math Symbols", scrollPane(symbolsPane))
@@ -257,11 +245,11 @@ public class MainFrame extends JFrame {
 		);
 	}
 	
-	private JMenuBar createMenu() {
+	private JMenuBar createMenu(PlotView pv, DataView dbv, SystemInputFrame sif) {
 		var radioGroup = new ButtonGroup();
 		UIRadioItem modeNormal, modeAnimate, modeOverlay;
 		
-		var bar =menuBar(
+		var bar = menuBar(
 			menu("File").content(
 					menu("New Plot").content(
 						item("Load Data from File...")
@@ -279,14 +267,14 @@ public class MainFrame extends JFrame {
 						item("From Equation...")
 							.hotkey("ctrl M")
 							.onClick(() -> {
-								odeinput.setVisible(true);
-								odeinput.requestFocusInWindow();
+								sif.setVisible(true);
+								sif.requestFocusInWindow();
 							})
 					),
 					
 					item("Save Image...")
 						.hotkey("ctrl S")
-						.onClick(this::saveImage),
+						.onClick(() -> saveImage(pv.getImage())),
 						
 					item("Save Data...")
 						.hotkey("ctrl shift S")
@@ -303,37 +291,21 @@ public class MainFrame extends JFrame {
 				),
 
 				menu("Plot").content(
-					item("Toggle Axes")
-						.onClick(() -> {
-							plt.toggleAxes();
-							pv.repaint();
-						}),
+					item("Toggle Axes").onClick(pv::toggleAxes),
 						
 					menu("Plot Mode").content(
-						modeNormal = radioItem("Normal")
-							.selected(true)
-							.onClick(() -> {
-								pv.setNormal();
-								pv.repaint();
-							}),
-						modeOverlay = radioItem("Overlay")
-							.onClick(() -> {
-								pv.toggleOverlayMode();
-								pv.repaint();
-							}),
-						modeAnimate = radioItem("Animate")
-							.onClick(() -> {
-								pv.toggleAnimate();
-								pv.repaint();
-							})
+						modeNormal = radioItem("Normal").onClick(pv::setNormal)
+							.selected(true),
+						modeOverlay = radioItem("Overlay").onClick(pv::toggleOverlayMode),
+						modeAnimate = radioItem("Animate").onClick(pv::toggleAnimate)
 					),
 					
 					item("Autoscale")
 						.hotkey("ctrl F")
-						.onClick(() -> pv.fit()),
+						.onClick(pv::fit),
 						
 					item("Clear plot")
-						.hotkey("ctrl X")
+						.hotkey("alt X")
 						.onClick(() -> {
 							pv.refresh();
 							dbv.clear();
@@ -349,19 +321,13 @@ public class MainFrame extends JFrame {
 								}
 							}),
 						item("Add X axis label")
-							.onClick(() -> {
-								plt.setXLabel(showInputDialog("X Label:"));
-								pv.repaint();
-							}),
+							.onClick(() -> pv.setXLabel(showInputDialog("X Label:"))),
 						item("Add Y axis label")
-							.onClick(() -> {
-								plt.setYLabel(showInputDialog("Y Label:"));
-								pv.repaint();
-							}),
+							.onClick(() -> pv.setYLabel(showInputDialog("Y Label:"))),
 						item("Set Plot Type")
-							.onClick(() -> changePlotType()),
+							.onClick(() -> changePlotType(pv)),
 						item("Set Line Width")
-							.onClick(() -> setLineWidth()),
+							.onClick(() -> setLineWidth(pv)),
 						item("Set Plot Color")
 							.onClick(() -> pv.setColor(JColorChooser.showDialog(this, "Plot Color 1", Color.RED)))
 					)
@@ -375,8 +341,8 @@ public class MainFrame extends JFrame {
 						}),
 					item("Equation Editor...")
 						.onClick(() -> {
-							odeinput.setVisible(true);
-							odeinput.requestFocusInWindow();
+							sif.setVisible(true);
+							sif.requestFocusInWindow();
 						})
 				),
 
@@ -409,40 +375,16 @@ public class MainFrame extends JFrame {
 	}
 	
 	/* Menu Actions */
-	private void saveImage() {
+	private void saveImage(BufferedImage img) {
 		var files = new JFileChooser();
 		int stat = files.showSaveDialog(this);
 		if (stat == JFileChooser.APPROVE_OPTION) {
 			File f = files.getSelectedFile();
-			plt.save(f);
-		}
-	}
-	
-	private void setLineWidth() {
-		String strWidth = showInputDialog("Line Width:");
-		if (strWidth != null) {
-			int width = Integer.parseInt(strWidth);
-			Optional<PlotData> pd = pv.getCurPlot();
-			if (pd.isPresent()) {
-				pd.get().ptX = width;
-				pd.get().ptY = width;
+			try {
+				ImageIO.write(img, "png", f);
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-			pv.repaint();
-		}
-	}
-	
-	private void changePlotType() {
-		PlotType type = (PlotType) showInputDialog(
-			this,
-			"Choose Plot Type :",
-			"Plot Type",
-			QUESTION_MESSAGE,
-			null,
-			PlotType.values(),
-			PlotType.LINES);
-		
-		if (type != null) {
-			pv.setCurPlotType(type);
 		}
 	}
 	
@@ -461,6 +403,37 @@ public class MainFrame extends JFrame {
 			Desktop.getDesktop().browse(new URI(url));
 		} catch (URISyntaxException|IOException e) {
 			e.printStackTrace();
+		}
+	}
+	
+	//
+	// UI Methods
+	//
+	private void setLineWidth(PlotView pv) {
+		String strWidth = showInputDialog("Line Width:");
+		if (strWidth != null) {
+			int width = Integer.parseInt(strWidth);
+			Optional<PlotData> pd = pv.getCurPlot();
+			if (pd.isPresent()) {
+				pd.get().ptX = width;
+				pd.get().ptY = width;
+			}
+			pv.repaint();
+		}
+	}
+	
+	private void changePlotType(PlotView pv) {
+		PlotType type = (PlotType) showInputDialog(
+			this,
+			"Choose Plot Type :",
+			"Plot Type",
+			QUESTION_MESSAGE,
+			null,
+			PlotType.values(),
+			PlotType.LINES);
+		
+		if (type != null) {
+			pv.setCurPlotType(type);
 		}
 	}
 	

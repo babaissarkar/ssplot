@@ -273,18 +273,6 @@ public final class Plotter {
 		p.moveView(axis);
 	}
 	
-	public Canvas getCanvas() {
-		return canv;
-	}
-
-	public void save(File outfile) {
-		try {
-			ImageIO.write(canv.getImage(), "png", outfile);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
 	public void setXLabel(String label) {
 		canv.setXLabel(label);
 	}
@@ -311,5 +299,14 @@ public final class Plotter {
 
 	public void setTitleColor(Color titleColor) {
 		canv.setTitleColor(titleColor);
+	}
+
+	public void shift(int dx, int dy) {
+		canv.shift(dx, dy);
+	}
+	
+	/** Converts from internal Java coordinates to Cartesian coordinates */
+	public Point2D.Double toCartesianPoint(Point2D.Double internalPoint) {
+		return canv.getInvTransformedPoint(internalPoint);
 	}
 }

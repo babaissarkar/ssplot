@@ -1,5 +1,3 @@
-package com.babai.ssplot.cli;
-
 /*
  * SSPlotCLI.java
  *
@@ -22,11 +20,15 @@ package com.babai.ssplot.cli;
  *
  *
  */
+package com.babai.ssplot.cli;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Scanner;
+
+import javax.imageio.ImageIO;
 
 import com.babai.ssplot.math.io.NumParse;
 import com.babai.ssplot.math.plot.PlotData;
@@ -94,12 +96,11 @@ public class SSPlotCLI {
 
 	public void save() {
 		Path p = Paths.get("out.png");
-		//~ try {
-		//~ ImageIO.write(plt.getCanvas().getImage(), "png", f);
-		//~ } catch (IOException e) {
-		//~ e.printStackTrace();
-		//~ }
-		plt.save(p.toFile());
+		try {
+			ImageIO.write(plt.getImage(), "png", p.toFile());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		System.out.println("Output written to : " + p.toAbsolutePath());
 	}
 }

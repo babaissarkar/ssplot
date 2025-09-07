@@ -31,6 +31,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Vector;
@@ -41,12 +42,18 @@ import javax.swing.Timer;
 import com.babai.ssplot.math.plot.PlotData;
 import com.babai.ssplot.math.plot.Plotter;
 import com.babai.ssplot.math.plot.Project2D;
+import com.babai.ssplot.ui.controls.DUI.Text;
 
 public class PlotView extends JLabel implements MouseListener, MouseMotionListener {
 
 	private Vector<PlotData> plots;
 	private Plotter plt;
 	private StatLogger logger;
+	
+	// FIXME origin is a magic number
+	/* The plotting area starts from (20,20) in java graphics space,
+	 * so we are substracting it. */
+	private final Point2D.Double origin = new Point2D.Double(20, 20);
 
 	private boolean overlayMode;
 	private boolean dragOn;
@@ -75,6 +82,18 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 		// Mouse Listener
 		addMouseListener(this);
 		addMouseMotionListener(this);
+		addMouseWheelListener(ev -> {
+			int x = ev.getX() - (int) origin.getX();
+			int y = ev.getY() - (int) origin.getY();
+
+			plt.setZoomCenter(plt.toCartesianPoint(new Point2D.Double(x, y)));
+			if (ev.getWheelRotation() < 0) {
+				smallZoomIn();
+			} else if (ev.getWheelRotation() > 0) {
+				smallZoomOut();
+			}
+		});
+		
 		setFocusable(true);
 		setPadding(10);
 	}
@@ -218,22 +237,22 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 	}
 
 	public void moveUp() {
-		plt.getCanvas().shift(0, -5);
+		plt.shift(0, -5);
 		repaint();
 	}
 
 	public void moveDown() {
-		plt.getCanvas().shift(0, 5);
+		plt.shift(0, 5);
 		repaint();
 	}
 
 	public void moveLeft() {
-		plt.getCanvas().shift(5, 0);
+		plt.shift(5, 0);
 		repaint();
 	}
 
 	public void moveRight() {
-		plt.getCanvas().shift(-5, 0);
+		plt.shift(-5, 0);
 		repaint();
 	}
 
@@ -266,12 +285,18 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 		plt.moveView(Project2D.Axis.NZ);
 		repaint();
 	}
+	
+	public void toggleAxes() {
+		plt.toggleAxes();
+		repaint();
+	}
 
 	public void toggleOverlayMode() {
 		stopAnimation();
 		overlayMode = !overlayMode;
+		repaint();
 		
-		log("<b>Overlay mode :</b> " + overlayMode);
+		log(Text.tag("b", "Overlay mode : ") + overlayMode);
 	}
 
 	public void toggleAnimate() {
@@ -280,20 +305,21 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 		} else {
 			startAnimation();
 		}
+		repaint();
 	}
 
 	public void startAnimation() {
 		animate = true;
 		frameCounter = 0;
 		refresher.start();
-		log("<b>Animate :</b> " + "ON");
+		log(Text.tag("b", "Animate : ") + "ON");
 	}
 
 	public void stopAnimation() {
 		animate = false;
 		frameCounter = 0;
 		refresher.stop();
-		log("<b>Animate :</b> " + "OFF");
+		log(Text.tag("b", "Animate : ") + "OFF");
 	}
 
 	public void setNormal() {
@@ -301,7 +327,22 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 			toggleOverlayMode();
 		}
 		stopAnimation();
+		repaint();
 	}
+
+	public void setXLabel(String label) {
+		plt.setXLabel(label);
+		repaint();
+	}
+
+	public void setYLabel(String label) {
+		plt.setYLabel(label);
+		repaint();
+	}
+	
+	//
+	// Listeners
+	//
 
 	@Override
 	public void mouseDragged(MouseEvent mout) {
@@ -326,23 +367,15 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 		this.mouseDragStart[1] = ev.getY();
 
 		if (ev.getButton() != MouseEvent.BUTTON1) {
-			
-			// FIXME origin is a magic number
-			/* The plotting area starts from (20,20) in java graphics space,
-			 * so we are substracting it. */
-			final var origin = new Point2D.Double(20, 20);
-			
 			var clickedAt = new Point2D.Double(ev.getX() - origin.getX(), ev.getY() - origin.getY());
-			var p = plt.getCanvas().getInvTransformedPoint(clickedAt);
-			//			String label = String.format("(%3.1f, %3.1f)", p.getX(), p.getY());
-			String label = p.toString();
+			var p = plt.toCartesianPoint(clickedAt);
 
 			if (ev.getButton() == MouseEvent.BUTTON3) {
 //				pv.addNode(new Point2D.Double(x-20, y-20), label, Color.BLUE);
 //				log("Point : " + label);
 			} else if (ev.getButton() == MouseEvent.BUTTON2) {
 				plt.setZoomCenter(p);
-				log("Zoom Center set at " + label);
+				log("Zoom Center set at " + p.toString());
 			}
 
 			repaint();
@@ -352,6 +385,9 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 	@Override
 	public void mouseReleased(MouseEvent mout) {
 		if (dragOn) {
+			// FIXME improve the UX, user gets no feedback what's going on
+			// maybe blender style axis rotation widget?
+			
 			//Rudimentary view rotation using a mouse
 			int x2 = mout.getX();
 			int y2 = mout.getY();
@@ -386,24 +422,8 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 		dragOn = false;
 	}
 
-	/*
-	pv.addMouseWheelListener(
-		new MouseWheelListener() {
-			public void mouseWheelMoved(MouseWheelEvent ev) {
-				int x = ev.getX()-20;
-				int y = ev.getY()-20;
-
-				Point2D.Double p = pv.getCanvas().getInvTransformedPoint(new Point2D.Double(x, y));
-
-				if (ev.getWheelRotation() < 0) {
-					pv.zoomIn(p.getX(), p.getY());
-				} else if (ev.getWheelRotation() > 0) {
-					pv.zoomOut(p.getX(), p.getY());
-				}
-			}
-		}
-		);
-	 */
-
+	public BufferedImage getImage() {
+		return plt.getImage();
+	}
 }
 

@@ -1,5 +1,5 @@
 /*
- * DBViewer.java
+ * DBView.java
  * 
  * Copyright 2021-2025 Subhraman Sarkar <suvrax@gmail.com>
  * 
@@ -59,7 +59,7 @@ import com.babai.ssplot.ui.controls.DUI.Text;
 import com.babai.ssplot.ui.controls.UIFrame;
 import static com.babai.ssplot.ui.controls.DUI.*;
 
-public class DataViewer extends UIFrame {
+public class DataView extends UIFrame {
 	private Vector<PlotData> plotlist;
 	private Vector<Vector<Double>> dataset;
 
@@ -76,7 +76,7 @@ public class DataViewer extends UIFrame {
 	private InfoLogger logger;
 	private Consumer<PlotData> updater;
 	
-	public DataViewer(InfoLogger logger) {
+	public DataView(InfoLogger logger) {
 		this.logger = logger;
 		plotlist = new Vector<PlotData>();
 
@@ -213,7 +213,7 @@ public class DataViewer extends UIFrame {
 		clear();
 	}
 
-	public DataViewer(PlotData data, InfoLogger logger) {
+	public DataView(PlotData data, InfoLogger logger) {
 		this(logger);
 		setData(data);
 	}
