@@ -61,15 +61,15 @@ import static com.babai.ssplot.ui.controls.DUI.*;
 
 public class DataViewer extends UIFrame {
 	private Vector<PlotData> plotlist;
-	private JComboBox<String> jcbPlotlist;
-	public Vector<Vector<Double>> dataset;
+	private Vector<Vector<Double>> dataset;
 
 	private int colNum = 0;
 	private int rowNum = 0;
 
 	private JTable table;
-	private JButton btnPlot, btnEditProp;
+	private JButton btnPlot, btnInfo, btnEditProp;
 
+	private JComboBox<String> jcbPlotlist;
 	// Selects which data column is plotted in which axis
 	private Vector<JComboBox<Integer>> jcbColMapper;
 	
@@ -107,18 +107,20 @@ public class DataViewer extends UIFrame {
 				setDataOnly(curData);
 				updateView();
 			});
+		
+		btnInfo = button()
+			.text("Info")
+			.onClick(() -> {
+				int id = jcbPlotlist.getSelectedIndex();
+				var pdataOpt = getData();
+				if (id == -1 || pdataOpt.isEmpty()) return;
+				JOptionPane.showMessageDialog(this, pdataOpt.get().info(), "Dataset Information", JOptionPane.INFORMATION_MESSAGE);
+			});
 
 		var pnlPlots = hbox(
 			label(Text.bold("Plots:")),
 			jcbPlotlist,
-			button()
-				.text("Info")
-				.onClick(() -> {
-					int id = jcbPlotlist.getSelectedIndex();
-					var pdataOpt = getData();
-					if (id == -1 || pdataOpt.isEmpty()) return;
-					JOptionPane.showMessageDialog(this, pdataOpt.get().info(), "Dataset Information", JOptionPane.INFORMATION_MESSAGE);
-				}),
+			btnInfo,
 			btnEditProp
 		);
 
@@ -202,7 +204,13 @@ public class DataViewer extends UIFrame {
 					pnlEdit,
 					scroll)
 				.emptyBorder(10))
+			.resizable(true)
+			.iconifiable(true)
+			.closable(true)
+			.maximizable(false)
 			.packFrame();
+		
+		clear();
 	}
 
 	public DataViewer(PlotData data, InfoLogger logger) {
@@ -220,7 +228,13 @@ public class DataViewer extends UIFrame {
 	
 	public void clear() {
 		plotlist.clear();
+		updatePlotList();
+		for (var cbox : jcbColMapper) {
+			cbox.removeAllItems();
+			cbox.setEnabled(false);
+		}
 		table.setModel(new DefaultTableModel());
+		populateAxisSelectors(null);
 	}
 
 	/** Show the given plot data in the table */
@@ -265,11 +279,14 @@ public class DataViewer extends UIFrame {
 
 	private void populateAxisSelectors(PlotData pdata) {
 		jcbPlotlist.setEnabled(pdata != null);
+		btnInfo.setEnabled(pdata != null);
 		btnPlot.setEnabled(pdata != null);
 		btnEditProp.setEnabled(pdata != null);
 		
+		if (pdata == null) return;
+		
 		int i = 0;
-		for (var axis : PlotType.LINES3.axes()) {
+		for (var axis : pdata.getPltype().axes()) {
 			var jcbData = jcbColMapper.get(i);
 			jcbData.removeAllItems();
 			jcbData.setEnabled(pdata != null);
@@ -294,9 +311,7 @@ public class DataViewer extends UIFrame {
 			updater.accept(pdata.get());
 		}
 	}
-	
 
-	// TODO this should return an Optional
 	/** @return the dataset */
 	public Optional<PlotData> getData() {
 		var newdataset = new Vector<Vector<Double>>();
@@ -331,12 +346,12 @@ public class DataViewer extends UIFrame {
 	}
 
 	/** @return the number of rows in the dataset */
-	public int getrowNum() {
+	public int getRowNum() {
 		return rowNum;
 	}
 	
 	/** @return the number of columns in the dataset */
-	public int getColumnNo() {
+	public int getColumnNum() {
 		return colNum;
 	}
 

@@ -79,6 +79,10 @@ public class SystemInputFrame extends UIFrame {
 		// Creating Gui
 		this.title("System Parameters")
 			.closeOperation(JFrame.HIDE_ON_CLOSE)
+			.resizable(true)
+			.iconifiable(true)
+			.closable(true)
+			.maximizable(false)
 			.content(
 				vbox(
 					createToolbarUI(axes),
@@ -95,7 +99,8 @@ public class SystemInputFrame extends UIFrame {
 				)
 				.bg(MainFrame.isDark ? Color.decode("#474c5b") : Color.WHITE) // TODO: very theme specific
 				.emptyBorder(15)
-			);
+			)
+			.packFrame();
 	}
 	
 	private JToolBar createToolbarUI(final List<Axis> axes) {

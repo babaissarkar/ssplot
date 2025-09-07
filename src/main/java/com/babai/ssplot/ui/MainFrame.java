@@ -107,23 +107,13 @@ public class MainFrame extends JFrame {
 			plt.clear();
 		}
 		
+		//
+		// GUI
+		//
+	
+		// Internal Windows
 		odeinput = new SystemInputFrame();
-		odeinput.setResizable(true);
-		odeinput.setClosable(true);
-		odeinput.setIconifiable(true);
-		
 		dbv = new DataViewer(logger);
-		dbv.setClosable(true);
-		dbv.setResizable(true);
-		dbv.setIconifiable(true);
-		dbv.setMaximizable(true);
-		
-		// Create GUI
-		setTitle("SSPlot");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setJMenuBar(createMenu());
-		
-		// Plot Area
 		pv = new PlotView(logger, plt);
 		var ifrmPlot = new PlotFrame(pv);
 		ifrmPlot.title("Plot");
@@ -144,17 +134,14 @@ public class MainFrame extends JFrame {
 			ifrmPlot.show();
 		});
 		
-		// Sizing calculations for internal frames
+		// Sizing/Position calculations for internal frames
 		var ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		var screenBounds = ge.getMaximumWindowBounds();
 		
-		// FIXME magic number
-		odeinput.setLocation(Plotter.DEFAULT_W + 35, 0);
-		odeinput.pack();
+		odeinput.setLocation(Plotter.DEFAULT_W + 35, 0); // FIXME magic number 35
 		
 		ifrmPlot.setSize(ifrmPlot.getWidth(), odeinput.getHeight());
 		
-		dbv.pack();
 		int dbvWidth = Math.min(dbv.getWidth(),
 			screenBounds.width - odeinput.getWidth() - ifrmPlot.getWidth());
 		if (dbvWidth > Plotter.DEFAULT_W/2) {
@@ -239,6 +226,11 @@ public class MainFrame extends JFrame {
 					.column(mathBtnMaker.apply("ln()"))
 			.emptyBorder(5);
 		
+		// Main Container
+		setTitle("SSPlot");
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setJMenuBar(createMenu());
+		setExtendedState(JFrame.MAXIMIZED_BOTH);
 		getContentPane().add(splitPane()
 			.type(JSplitPane.VERTICAL_SPLIT)
 			.dividerLoc((int) (screenBounds.height * 0.7))
@@ -263,7 +255,6 @@ public class MainFrame extends JFrame {
 					})
 			)
 		);
-		setExtendedState(JFrame.MAXIMIZED_BOTH);
 	}
 	
 	private JMenuBar createMenu() {
