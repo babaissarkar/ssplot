@@ -29,6 +29,8 @@ import java.awt.LayoutManager;
 import javax.swing.JInternalFrame;
 import javax.swing.SwingUtilities;
 
+import com.babai.ssplot.ui.CrashFrame;
+
 import static com.babai.ssplot.ui.controls.DUI.borderPane;
 
 public class UIFrame extends JInternalFrame implements UIStylizable<UIFrame> {
@@ -104,7 +106,8 @@ public class UIFrame extends JInternalFrame implements UIStylizable<UIFrame> {
 				setSelected(true);
 				moveToFront();
 			} catch (Exception e) {
-				e.printStackTrace();
+				//FIXME do we really want to do this in DUI code?
+				CrashFrame.showCrash(e);
 			}
 		});
 		return this;

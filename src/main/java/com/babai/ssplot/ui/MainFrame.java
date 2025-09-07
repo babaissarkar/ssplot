@@ -23,15 +23,12 @@
 package com.babai.ssplot.ui;
 
 import java.awt.Color;
-import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.GraphicsEnvironment;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Function;
@@ -79,7 +76,7 @@ public class MainFrame extends JFrame {
 				.formatted(prop.getProperty("version"));
 			KEY_HELP_MSG = prop.getProperty("key_help_msg");
 		} catch (IOException e) {
-			e.printStackTrace();
+			CrashFrame.showCrash(e);
 		}
 	}
 	
@@ -87,7 +84,7 @@ public class MainFrame extends JFrame {
 		try {
 			setIconImage(ImageIO.read(getClass().getResource("/ssplot.png")));
 		} catch (IOException e) {
-			e.printStackTrace();
+			CrashFrame.showCrash(e);
 		}
 		
 		// Initialize logger
@@ -383,26 +380,8 @@ public class MainFrame extends JFrame {
 			try {
 				ImageIO.write(img, "png", f);
 			} catch (IOException e) {
-				e.printStackTrace();
+				CrashFrame.showCrash(e);
 			}
-		}
-	}
-	
-	private void openLink(String url) {
-		if (url.isBlank()) {
-			logger.log("Empty link, not opening.");
-			return;
-		}
-		
-		if (!Desktop.isDesktopSupported()) {
-			logger.log("Browsing links not supported on this platform!");
-			return;
-		}
-		
-		try {
-			Desktop.getDesktop().browse(new URI(url));
-		} catch (URISyntaxException|IOException e) {
-			e.printStackTrace();
 		}
 	}
 	

@@ -35,6 +35,7 @@ import com.babai.ssplot.math.plot.PlotData;
 import com.babai.ssplot.math.plot.Plotter;
 import com.babai.ssplot.math.system.parser.Parser;
 import com.babai.ssplot.math.system.parser.ParserManager;
+import com.babai.ssplot.ui.CrashFrame;
 
 public class SSPlotCLI {
 	Plotter plt;
@@ -90,7 +91,7 @@ public class SSPlotCLI {
 			plt.plotData(pdata);
 			save();
 		} catch (Exception e) {
-			e.printStackTrace();
+			CrashFrame.showCrash(e);
 		}
 	}
 
@@ -99,7 +100,7 @@ public class SSPlotCLI {
 		try {
 			ImageIO.write(plt.getImage(), "png", p.toFile());
 		} catch (IOException e) {
-			e.printStackTrace();
+			CrashFrame.showCrash(e);
 		}
 		System.out.println("Output written to : " + p.toAbsolutePath());
 	}

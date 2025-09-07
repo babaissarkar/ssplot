@@ -28,6 +28,8 @@ import java.util.Map;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 
+import com.babai.ssplot.ui.CrashFrame;
+
 public class ScriptParser implements Parser {
 	private String name;
 	private ScriptEngine engine;
@@ -48,7 +50,7 @@ public class ScriptParser implements Parser {
 			engine.eval("answer = " + expression);
 			return (double) engine.get("answer");
 		} catch (ScriptException e) {
-			e.printStackTrace();
+			CrashFrame.showCrash(e);
 		}
 		return 0;
 	}

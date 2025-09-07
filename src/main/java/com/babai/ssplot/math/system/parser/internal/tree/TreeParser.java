@@ -23,15 +23,8 @@
 package com.babai.ssplot.math.system.parser.internal.tree;
 
 import java.util.Map;
-import java.util.Vector;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.babai.ssplot.math.system.parser.Parser;
 import com.babai.ssplot.math.system.parser.internal.SSMathParser;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 
 public class TreeParser implements Parser {
 	public static final String NAME = "Internal"; 

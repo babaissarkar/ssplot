@@ -416,8 +416,8 @@ public class DataView extends UIFrame {
 
 			// Set data using your defined method
 			setData(new PlotData(data));
-		} catch (UnsupportedFlavorException | IOException ex) {
-			ex.printStackTrace();
+		} catch (UnsupportedFlavorException | IOException e) {
+			CrashFrame.showCrash(e);
 		}
 	}
 	
@@ -455,7 +455,7 @@ public class DataView extends UIFrame {
 					setData(new PlotData(NumParse.parse(dpath)));
 					return true;
 				} catch (IOException e) {
-					e.printStackTrace();
+					CrashFrame.showCrash(e);
 				}
 			}
 			
@@ -516,8 +516,7 @@ public class DataView extends UIFrame {
 		try {
 			table.print();
 		} catch (PrinterException e) {
-			System.err.println("Can't print!");
-			e.printStackTrace();
+			CrashFrame.showCrash(e);
 		}
 	}
 	

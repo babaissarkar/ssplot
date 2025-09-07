@@ -29,6 +29,9 @@ import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+
+import com.babai.ssplot.ui.CrashFrame;
+
 import java.awt.Color;
 import java.awt.SystemColor;
 import javax.swing.JScrollPane;
@@ -59,7 +62,7 @@ public class HelpFrame extends JFrame {
 		try {
 			textPane.setPage(this.getClass().getResource(docPath));
 		} catch (IOException e) {
-			e.printStackTrace();
+			CrashFrame.showCrash(e);
 		}
 		
 		scrollPane.setViewportView(textPane);

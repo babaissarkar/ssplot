@@ -34,6 +34,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Vector;
 
+import com.babai.ssplot.ui.CrashFrame;
+
 public class NumParse {
 	public static final String sep = "\\s+";
 	
@@ -58,7 +60,7 @@ public class NumParse {
 	}
 	
 	public static void write(Vector<Vector<Double>> data, Path p) {
-		try (PrintStream print = new PrintStream(p.toFile())) {
+		try (var print = new PrintStream(p.toFile())) {
 			for (Vector<Double> v : data) {
 				for (int i = 0; i < v.size(); i++) {
 					print.print(v.get(i));
@@ -69,7 +71,7 @@ public class NumParse {
 				print.print("\n");
 			}
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			CrashFrame.showCrash(e);
 		}
 	}
 }
