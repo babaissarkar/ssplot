@@ -102,13 +102,15 @@ public class PlotFrame extends UIFrame {
 			.tooltip("Rotate Clockwise")
 			.enabled(rotationEnabled)
 			.onClick(() -> {
-				String axis = (String) axisSelector.getSelectedItem();
-				if (axis.equals("X")) {
+				Axis axis = (Axis) axisSelector.getSelectedItem();
+				if (axis == Axis.Cartesian.X) {
 					pv.rotateXPlus();
-				} else if (axis.equals("Y")) {
+				} else if (axis == Axis.Cartesian.Y) {
 					pv.rotateYPlus();
-				} else {
+				} else if (axis == Axis.Cartesian.Z) {
 					pv.rotateZPlus();
+				} else {
+					// TODO polar axis rotations
 				}
 			});
 		
@@ -117,13 +119,15 @@ public class PlotFrame extends UIFrame {
 			.tooltip("Rotate Counter-clockwise")
 			.enabled(rotationEnabled)
 			.onClick(() -> {
-				String axis = (String) axisSelector.getSelectedItem();
-				if (axis.equals("X")) {
+				Axis axis = (Axis) axisSelector.getSelectedItem();
+				if (axis == Axis.Cartesian.X) {
 					pv.rotateXMinus();
-				} else if (axis.equals("Y")) {
+				} else if (axis == Axis.Cartesian.Y) {
 					pv.rotateYMinus();
-				} else {
+				} else if (axis == Axis.Cartesian.Z) {
 					pv.rotateZMinus();
+				} else {
+					// TODO polar axis rotations
 				}
 			});
 
