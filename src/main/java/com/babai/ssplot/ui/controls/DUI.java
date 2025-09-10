@@ -36,26 +36,14 @@ import javax.swing.JToolBar;
 
 //TODO this does not mentions what property of this class gets bound
 public class DUI {
-	public static <T, U> U[] forEach(
-			Collection<T> items,
-			IntFunction<? extends U> mapper,
-			IntFunction<U[]> arrayCtor)
-	{
-		return IntStream.range(0, items.size())
-				.mapToObj(mapper)
-				.toArray(arrayCtor);
+	public static <T, U> U[] forEach(Collection<T> items, IntFunction<? extends U> mapper, IntFunction<U[]> arrayCtor) {
+		return IntStream.range(0, items.size()).mapToObj(mapper).toArray(arrayCtor);
 	}
-	
-	public static <T, U> U[] forEach(
-			T[] items,
-			IntFunction<? extends U> mapper,
-			IntFunction<U[]> arrayCtor)
-	{
-		return IntStream.range(0, items.length)
-				.mapToObj(mapper)
-				.toArray(arrayCtor);
+
+	public static <T, U> U[] forEach(T[] items, IntFunction<? extends U> mapper, IntFunction<U[]> arrayCtor) {
+		return IntStream.range(0, items.length).mapToObj(mapper).toArray(arrayCtor);
 	}
-	
+
 	public static <T> JComponent[] forEach(Collection<T> items, IntFunction<? extends JComponent> mapper) {
 		return forEach(items, mapper, JComponent[]::new);
 	}
@@ -79,7 +67,7 @@ public class DUI {
 	public static UIButton button() {
 		return new UIButton();
 	}
-	
+
 	public static JMenuBar menuBar(Component... children) {
 		var bar = new JMenuBar();
 		for (var child : children) {
@@ -91,15 +79,15 @@ public class DUI {
 	public static UIMenu menu(String text) {
 		return new UIMenu().text(text);
 	}
-	
+
 	public static UIMenuItem item(String text) {
 		return new UIMenuItem().text(text);
 	}
-	
+
 	public static UIRadioItem radioItem(String text) {
 		return new UIRadioItem().text(text);
 	}
-	
+
 	public static UICheckItem checkItem(String text) {
 		return new UICheckItem().text(text);
 	}
@@ -138,11 +126,11 @@ public class DUI {
 	public static UIGrid grid() {
 		return new UIGrid();
 	}
-	
+
 	public static UITabPane tabPane() {
 		return new UITabPane();
 	}
-	
+
 	public static UISplitPane splitPane() {
 		return new UISplitPane();
 	}
@@ -158,33 +146,46 @@ public class DUI {
 	public static UIFrame iframe() {
 		return new UIFrame();
 	}
-	
+
 	public static UIFrame iframe(String title) {
 		return iframe().title(title);
 	}
-	
+
 	public class Text {
-		
+
 		public static String bold(String text) {
 			return htmlAndBody(tag("b", text));
 		}
-		
+
 		public static String htmlAndBody(String text) {
 			return tag("html", tag("body", text));
 		}
-		
+
 		public static String tag(String tagName, String text) {
 			return "<%s>%s</%s>".formatted(tagName, text, tagName);
 		}
-		
+
 		public static String tag(String tagName, String attribute, String text) {
 			return "<%s %s>%s</%s>".formatted(tagName, attribute, text, tagName);
 		}
-		
+
 		public final static String LBREAK = "<br/>";
-		
+
 		// Fonts
-		public final static Font headerFont = new Font("Cantarell", Font.BOLD, 20);
-		public final static Font monoFont = new Font("monospace", Font.PLAIN, 14);
+		public final static Font baseFont, headerFont;
+		public final static Font monoFont;
+
+		static {
+			Font f = null;
+			monoFont = new Font("monospace", Font.PLAIN, 14);
+			try (var is = Text.class.getResourceAsStream("/fonts/Cantarell-Regular.ttf")) {
+				f = Font.createFont(Font.TRUETYPE_FONT, is);
+			} catch (Exception e) {
+				System.err.println("Failed to load Cantarell font, falling back to system default.");
+				f = new Font("Sans", Font.BOLD, 18);
+			}
+			baseFont = f.deriveFont(Font.PLAIN, 15f);
+			headerFont = baseFont.deriveFont(Font.BOLD, 17f);
+		}
 	}
 }

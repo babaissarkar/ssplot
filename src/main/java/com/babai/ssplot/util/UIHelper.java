@@ -27,6 +27,7 @@ import static javax.swing.JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT;
 
 import java.awt.Color;
 import java.awt.Desktop;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.net.URI;
@@ -45,6 +46,7 @@ import javax.swing.UIManager.LookAndFeelInfo;
 
 import com.babai.ssplot.ui.CrashFrame;
 import com.babai.ssplot.ui.MainFrame;
+import com.babai.ssplot.ui.controls.DUI;
 import com.formdev.flatlaf.intellijthemes.FlatArcDarkOrangeIJTheme;
 import com.formdev.flatlaf.intellijthemes.FlatArcOrangeIJTheme;
 import com.formdev.flatlaf.util.SystemInfo;
@@ -56,7 +58,7 @@ public interface UIHelper {
 		Properties prop = new Properties();
 		try {
 			prop.load(MainFrame.class.getResourceAsStream("/com/babai/ssplot/ui/FlatLaf.properties"));
-			// After loading properties (customProps)
+			// Load color/integer objects from strings
 			prop.forEach((key, value) -> { 
 				String val = value.toString();
 				if (val.startsWith("#")) {
@@ -71,6 +73,17 @@ public interface UIHelper {
 			});
 		} catch (IOException e) {
 			CrashFrame.showCrash(e);
+		}
+	}
+	
+	private static void setUIFont(Font font) {
+		var keys = UIManager.getDefaults().keys();
+		while (keys.hasMoreElements()) {
+			Object key = keys.nextElement();
+			Object value = UIManager.get(key);
+			if (value instanceof Font) {
+				UIManager.put(key, font);
+			}
 		}
 	}
 	
@@ -131,6 +144,7 @@ public interface UIHelper {
 				}
 			}
 		}
+		setUIFont(DUI.Text.baseFont);
 	}
 	
 	public static void setMetalLF() {
@@ -143,6 +157,7 @@ public interface UIHelper {
 		{
 			CrashFrame.showCrash(e);
 		}
+		setUIFont(DUI.Text.baseFont);
 	}
 
 	public static void setDarkLF() {
@@ -152,6 +167,7 @@ public interface UIHelper {
 			JFrame.setDefaultLookAndFeelDecorated(true);
 			JDialog.setDefaultLookAndFeelDecorated(true);
 		}
+		UIManager.put("defaultFont", DUI.Text.baseFont);
 	}
 
 	public static void setLightLF() {
@@ -161,5 +177,6 @@ public interface UIHelper {
 			JFrame.setDefaultLookAndFeelDecorated(true);
 			JDialog.setDefaultLookAndFeelDecorated(true);
 		}
+		UIManager.put("defaultFont", DUI.Text.baseFont);
 	}
 }
