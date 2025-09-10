@@ -19,14 +19,14 @@
   <url type="vcs-browser">https://github.com/babaissarkar/ssplot</url>
   
   <description>
-     <p>A simple plotter and numerical solver, which can plot csv style plain text files with numerical data separated by whitespace, and can numerically solve equations and ODEs to generate data and plot them for studying dynamical systems.</p>
+     <p>A simple plotter and numerical solver, which can plot plain text files with numerical data separated by whitespace, and can numerically solve equations and ODEs to generate data and plot them for studying dynamical systems.</p>
      <p>Features :</p>
      <ol>
-        <li>Plot datafiles (2D and 3D).</li>
+        <li>2D and 3D plotting.</li>
         <li>Plot appearance customization.</li>
-        <li>Solve and plot ODE and Difference Equations.</li>
+        <li>Numerically solve and plot ODE and Difference Equations.</li>
         <li>Plot functions of one and two variables.</li>
-        <li>Comes with its own JavaScript based Console for simple calculation tasks.</li>
+        <li>Use its own console or CLI mode for simple calculation tasks.</li>
      </ol>
   </description>
   <content_rating type="oars-1.1" />

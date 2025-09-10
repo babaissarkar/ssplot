@@ -13,14 +13,13 @@
 	<name>SSPlot</name>
 	<url>http://www.github.com/babaissarkar/ssplot</url>
 	<description>
-		A simple plotting utility and numerical simulator.
-		It can :
-		1. Plot datafiles (2D and 3D).
-		2. Can change appearance of plot.
-		3. Solve and plot ODE and Difference Equations.
+		A simple plotter and numerical solver, which can plot plain text files with numerical data separated by whitespace, and can numerically solve equations and ODEs to generate data and plot them for studying dynamical systems.
+		Features :
+		1. 2D and 3D plotting.
+		2. Plot appearance customization.
+		3. Numerically solve and plot ODE and Difference Equations.
 		4. Plot functions of one and two variables.
-		5. Comes with its own JavaScript based Console for simple calculation
-		tasks.
+		5. Use its own console or CLI mode for simple calculation tasks.
 	</description>
 
 	<developers>
