@@ -290,7 +290,8 @@ public class MainFrame extends JFrame {
 				),
 
 				menu("Plot").content(
-					item("Toggle Axes").onClick(pv::toggleAxes),
+					checkItem("Show Axes").onClick(pv::toggleAxes)
+						.selected(true),
 						
 					menu("Plot Mode").content(
 						modeNormal = radioItem("Normal").onClick(pv::setNormal)

@@ -99,6 +99,10 @@ public class DUI {
 	public static UIRadioItem radioItem(String text) {
 		return new UIRadioItem().text(text);
 	}
+	
+	public static UICheckItem checkItem(String text) {
+		return new UICheckItem().text(text);
+	}
 
 	public static <E> UIRadioGroup<E> radioGroup(Class<E> clazz) {
 		return new UIRadioGroup<>();
