@@ -41,6 +41,7 @@ import javax.swing.JDesktopPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
+import javax.swing.JOptionPane;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
@@ -53,6 +54,7 @@ import com.babai.ssplot.ui.controls.UIButton;
 import com.babai.ssplot.ui.controls.UIRadioItem;
 import com.babai.ssplot.ui.help.HelpFrame;
 import com.babai.ssplot.util.FocusTracker;
+import com.babai.ssplot.util.SystemInfo;
 
 import static javax.swing.JOptionPane.*;
 
@@ -353,8 +355,8 @@ public class MainFrame extends JFrame {
 						}),
 					item("Homepage...")
 						.onClick(() -> openLink("https://github.com/babaissarkar/ssplot")),
-					item("Report An Issue...")
-						.onClick(() -> openLink("https://github.com/babaissarkar/ssplot/issues")),
+					item("Report Bug/Request Feature...")
+						.onClick(() -> openLink("https://github.com/babaissarkar/ssplot/issues/new")),
 					item("Contribute code...")
 						.onClick(() -> openLink("https://github.com/babaissarkar/ssplot/pulls")),
 					item("Donate...")
@@ -419,7 +421,7 @@ public class MainFrame extends JFrame {
 	private void showAbout() {
 		logger.log(ABOUT_MSG);
 		
-		String[] buttonStrs = {"License", "Close"};
+		String[] buttonStrs = {"License", "System Info", "Close"};
 		int status = showOptionDialog(
 			this,
 			Text.tag("html", ABOUT_MSG),
@@ -428,10 +430,19 @@ public class MainFrame extends JFrame {
 			INFORMATION_MESSAGE,
 			new ImageIcon(getClass().getResource("/ssplot.png")),
 			buttonStrs,
-			buttonStrs[1]);
+			buttonStrs[2]);
 		
-		if (status == 0) {
+		switch(status) {
+		case 0:
 			new HelpFrame("License", "/docs/lgpl-2.1-standalone.html").setVisible(true);
+			break;
+		case 1:
+			showMessageDialog(
+				this,
+				Text.htmlAndBody(SystemInfo.getSystemInfo()),
+				"System Information",
+				JOptionPane.INFORMATION_MESSAGE);
+			break;
 		}
 	}	
 	

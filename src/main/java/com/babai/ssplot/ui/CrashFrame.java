@@ -2,12 +2,17 @@ package com.babai.ssplot.ui;
 
 import javax.swing.*;
 
+import com.babai.ssplot.ui.controls.DUI.Text;
+import com.babai.ssplot.util.SystemInfo;
+
 import static com.babai.ssplot.util.UIHelper.openLink;
 
 import java.awt.*;
 import java.awt.datatransfer.*;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 public class CrashFrame extends JFrame {
 
@@ -23,8 +28,10 @@ public class CrashFrame extends JFrame {
 		JLabel iconLabel = new JLabel(UIManager.getIcon("OptionPane.errorIcon"));
 		topPanel.add(iconLabel, BorderLayout.WEST);
 
-		JLabel messageLabel = new JLabel("<html>Oops! Something went wrong.<br>"
-				+ "Please report this issue so we can fix it. Thank you!</html>");
+		JLabel messageLabel = new JLabel(Text.htmlAndBody(
+				"Oops! Something went wrong."
+				+ Text.LBREAK
+				+ "Please report this issue so we can fix it. Thank you!"));
 		topPanel.add(messageLabel, BorderLayout.CENTER);
 		topPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		add(topPanel, BorderLayout.NORTH);
@@ -46,13 +53,26 @@ public class CrashFrame extends JFrame {
 			StringSelection selection = new StringSelection(logArea.getText());
 			Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 			clipboard.setContents(selection, selection);
-			JOptionPane.showMessageDialog(this, "Error log copied to clipboard!", "Copied",
-					JOptionPane.INFORMATION_MESSAGE);
+			JOptionPane.showMessageDialog(
+				this,
+				"Error log copied to clipboard!",
+				"Copied",
+				JOptionPane.INFORMATION_MESSAGE);
 		});
 
-		// Open report issue link (example)
-		reportButton.addActionListener(e ->
-			openLink("https://github.com/babaissarkar/ssplot/issues"));
+		// Open prefilled report issue link
+		reportButton.addActionListener(e -> {
+			String issueURL = "https://github.com/babaissarkar/ssplot/issues/new?"
+				+ "title="
+				+ URLEncoder.encode("[BUG] SSPlot Crash (Edit me)", StandardCharsets.UTF_8)
+				+ "&body="
+				+ URLEncoder.encode(
+					"\n\n" + SystemInfo.getSystemInfo() + "\n"
+					+ "```java\n" + logArea.getText() + "\n```",
+					StandardCharsets.UTF_8)
+				+ "&labels=bug";
+			openLink(issueURL);
+		});
 
 		buttonPanel.add(copyButton);
 		buttonPanel.add(reportButton);
