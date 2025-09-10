@@ -161,7 +161,7 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 		if (optCurPlot.isPresent()) {
 			optCurPlot.get().setPltype(pltype);
 			repaint();
-			log("<b>Plot Type : </b>" + pltype);
+			log(Text.tag("b", "Plot Type : ") + pltype);
 		}
 	}
 

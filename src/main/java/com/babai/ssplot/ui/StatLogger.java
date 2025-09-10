@@ -34,22 +34,29 @@ import com.babai.ssplot.util.InfoLogger;
 
 public class StatLogger implements InfoLogger {
 	private StringBuffer logs = new StringBuffer();
-	private JTextPane txStatus;
+	private JTextPane txtStatus;
 	private JScrollPane jscroll;
 	
 	public StatLogger() {
-		txStatus = new JTextPane();
-		txStatus.setContentType("text/html");
-		txStatus.setEditable(false);
+		txtStatus = new JTextPane();
+		txtStatus.setContentType("text/html");
+		txtStatus.setEditable(false);
 
-		jscroll = new JScrollPane(txStatus,
+		jscroll = new JScrollPane(txtStatus,
 				ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
 				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 	}
 
 	public void log(String s) {
-		logs.append(s + Text.LBREAK);
-		txStatus.setText(Text.htmlAndBody(logs.toString()));
+		String log = s.strip();
+		log = log.replace("<html>", "");
+		log = log.replace("<body>", "");
+		log = log.replace("</body>", "");
+		log = log.replace("</html>", "");
+		
+		logs.append(log + Text.LBREAK);
+		txtStatus.setText(Text.htmlAndBody(logs.toString()));
+		txtStatus.setCaretPosition(txtStatus.getDocument().getLength());
 	}
 	
 	public Component getComponent() {
@@ -58,7 +65,8 @@ public class StatLogger implements InfoLogger {
 
 	public void clear() {
 		logs = new StringBuffer();
-		txStatus.setText(Text.htmlAndBody(logs.toString()));
+		txtStatus.setText(Text.htmlAndBody(logs.toString()));
+		txtStatus.setCaretPosition(txtStatus.getDocument().getLength());
 	}
 	
 }
