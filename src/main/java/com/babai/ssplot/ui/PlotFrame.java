@@ -60,6 +60,7 @@ public class PlotFrame extends UIFrame {
 		
 		// --- Zoom Section ---
 		zoomField = input().text("1").chars(4).numeric(true);
+		zoomField.setFocusable(false);
 		var zoomLabel = label(" X");
 		var zoomInBtn = button()
 			.icon("/zoom-in.png")
