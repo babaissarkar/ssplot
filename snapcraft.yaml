@@ -1,0 +1,47 @@
+name: ssplot
+version: '2.3.1'
+adopt-info: ssplot
+
+base: core22
+grade: devel
+confinement: strict
+
+apps:
+  ssplot:
+    command: runtime/bin/java -jar $SNAP/jar/ssplot.jar
+    desktop: meta/gui/ssplot.desktop
+    extensions: [gnome]
+
+parts:
+  ssplot:
+    plugin: maven
+    source: .
+    build-packages:
+      - openjdk-21-jre
+      - maven
+    parse-info:
+      - io.github.babaissarkar.ssplot.metainfo.xml
+      
+  runtime:
+    plugin: nil
+    source: .
+    build-packages:
+      - openjdk-21-jdk
+    override-build: |
+      # Run your existing script to build the runtime
+      ./packaging/appimage/link.sh
+      ls -lh
+      # Copy the generated runtime into the install dir
+      cp -r ./SSPlot.AppDir/* $SNAPCRAFT_PART_INSTALL/runtime/
+      # Copy desktop file
+      mkdir -p $SNAPCRAFT_PART_INSTALL/meta/gui
+      cp $PWD/packaging/appimage/ssplot.desktop $SNAPCRAFT_PART_INSTALL/meta/gui
+      cp $PWD/packaging/appimage/ssplot.png $SNAPCRAFT_PART_INSTALL/meta/gui
+      sed -i 's|Icon=".*"|Icon="/snap/snapcraft/15775/meta/gui/ssplot.png"|g' $SNAPCRAFT_PART_INSTALL/meta/gui/ssplot.desktop
+      
+  cleanup:
+    plugin: nil
+    source: .
+    after: [runtime, ssplot]
+    override-prime: |
+      rm -v $SNAPCRAFT_PRIME/jar/SSPlot.jar
