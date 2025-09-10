@@ -265,8 +265,6 @@ public class DataView extends UIFrame {
 			}
 		}
 		
-		logger.log(Text.tag("html", pdata.info().replace("\n", Text.LBREAK)));
-		
 		jcbColMapper.lastElement().setEnabled(colNum > 2);
 
 		table.setModel(new DefaultTableModel(dataset, headers));
