@@ -1,0 +1,13 @@
+*~
+*.bak
+*.txt
+*.orig
+*.bkp
+*.log
+*.settings
+*.classpath
+*.project
+/.flatpak-builder/
+/bin/
+/jar/
+/target/
