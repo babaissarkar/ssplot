@@ -249,13 +249,17 @@ public class DataView extends UIFrame {
 		populateAxisSelectors(pdata);
 		
 		// Update the table
+		
+		// FIXME Can be moved into a separate function
+		// See also PlotData.info()
 		var headers = new Vector<String>();
 		var mappings = pdata.getDataColMapping();
 		for (int i = 0; i < colNum; i++) {
 			boolean isKnownColumn = false;
 			for (var entry : mappings.entrySet()) {
-				if (entry.getValue() == i) {
-					headers.add(entry.getKey() + " Data");
+				var lbl = pdata.getAxisLabel(i);
+				if (lbl.isPresent() || entry.getValue() == i) {
+					headers.add(lbl.orElse(entry.getKey().toString() + " Data"));
 					isKnownColumn = true;
 					break;
 				}
@@ -451,7 +455,12 @@ public class DataView extends UIFrame {
 			Path dpath = files.getSelectedFile().toPath();
 			if (dpath != null) {
 				try {
-					setData(new PlotData(NumParse.parse(dpath)));
+					var pdata = new PlotData(NumParse.parse(dpath));
+					var headers = NumParse.getHeaders();
+					if (!headers.isEmpty()) {
+						pdata.setAxisLabels(headers);
+					}
+					setData(pdata);
 					return true;
 				} catch (IOException e) {
 					CrashFrame.showCrash(e);

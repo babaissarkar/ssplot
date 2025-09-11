@@ -25,9 +25,11 @@ package com.babai.ssplot.math.plot;
 
 import java.awt.Color;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.Vector;
 
 import com.babai.ssplot.math.system.core.EquationSystem;
@@ -90,7 +92,7 @@ public class PlotData implements Cloneable {
 	 */
 	public int ptX, ptY;
 	
-	private HashMap<String, String> axesLabels = new HashMap<>();
+	private List<String> axesLabels = new ArrayList<String>();
 	private HashMap<Axis, Integer> axesDataColumns = new HashMap<>();
 	
 	private Color fgColor, fgColor2;
@@ -173,9 +175,14 @@ public class PlotData implements Cloneable {
 		return getRowCount() > 0 ? data.firstElement().size() : 0;
 	}
 	
-	// Can return null
-	public void getAxisLabel(String axisName) {
-		this.axesLabels.get(axisName);
+	public Optional<String> getAxisLabel(int i) {
+		return (i > axesLabels.size())
+			? Optional.empty()
+			: Optional.of(axesLabels.get(i));
+	}
+	
+	public void setAxisLabels(List<String> labels) {
+		this.axesLabels = labels;
 	}
 
 	public void setTitle(String title) {
@@ -324,8 +331,10 @@ public class PlotData implements Cloneable {
 	
 	public Vector<Double> getColumn(int i) {
 		Vector<Double> colData = new Vector<>();
-		for (var row : data) { // assuming `data` is your Vector<Vector<Double>>
-			if (i < row.size()) colData.add(row.get(i));
+		for (var row : data) {
+			if (i < row.size()) {
+				colData.add(row.get(i));
+			}
 		}
 		return colData;
 	}
@@ -335,12 +344,16 @@ public class PlotData implements Cloneable {
 		if (getSystem() != null) {
 			buff.append(getSystem().toString()).append("\n");
 		}
+		
+		// FIXME Can be moved into a separate function
 		var mappings = getDataColMapping();
 		for (int i = 0; i < getColumnCount(); i++) {
 			boolean isKnownColumn = false;
 			for (var entry : mappings.entrySet()) {
-				if (entry.getValue() == i) {
-					buff.append(formatStats(entry.getKey().toString(), i));
+				var lbl = getAxisLabel(i);
+				if (lbl.isPresent() || entry.getValue() == i) {
+					String colName = lbl.orElse(entry.getKey().toString() + " Data");
+					buff.append(formatStats(colName, i));
 					isKnownColumn = true;
 					break;
 				}
@@ -356,7 +369,7 @@ public class PlotData implements Cloneable {
 		Vector<Double> colData = getColumn(i);
 		return String.format(
 				"""
-				%s Data:
+				%s:
 					Count=%d, Min=%.4f, Max=%.4f,
 					Mean=%.4f, Var=%.4f, SD=%.4f,
 					Skew=%.4f, Kurt=%.4f,
