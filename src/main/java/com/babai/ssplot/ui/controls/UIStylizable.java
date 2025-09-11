@@ -73,6 +73,12 @@ public interface UIStylizable<T extends JComponent> {
 		((JComponent) this).setForeground(c);
 		return (T) this;
 	}
+	
+	@SuppressWarnings("unchecked")
+	default T font(Font f) {
+		((JComponent) this).setFont(f);
+		return (T) this;
+	}
 
 	@SuppressWarnings("unchecked")
 	default T border(Border b) {

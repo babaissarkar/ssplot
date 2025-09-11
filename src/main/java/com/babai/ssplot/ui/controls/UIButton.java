@@ -28,7 +28,7 @@ import java.awt.Insets;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 
-public class UIButton extends JButton {
+public class UIButton extends JButton implements UIStylizable<UIButton> {
 
 	public UIButton icon(String resource) {
 		setIcon(new ImageIcon(getClass().getResource(resource)));

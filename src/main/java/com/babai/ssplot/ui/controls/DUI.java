@@ -174,15 +174,17 @@ public class DUI {
 		// Fonts
 		public final static Font baseFont, headerFont;
 		public final static Font monoFont;
+		public final static Font fallbackFont;
 
 		static {
 			Font f = null;
+			fallbackFont = new Font("Sans", Font.PLAIN, 18);
 			monoFont = new Font("monospace", Font.PLAIN, 14);
 			try (var is = Text.class.getResourceAsStream("/fonts/Cantarell-Regular.ttf")) {
 				f = Font.createFont(Font.TRUETYPE_FONT, is);
 			} catch (Exception e) {
 				System.err.println("Failed to load Cantarell font, falling back to system default.");
-				f = new Font("Sans", Font.BOLD, 18);
+				f = fallbackFont.deriveFont(Font.BOLD);
 			}
 			baseFont = f.deriveFont(Font.PLAIN, 15f);
 			headerFont = baseFont.deriveFont(Font.BOLD, 17f);

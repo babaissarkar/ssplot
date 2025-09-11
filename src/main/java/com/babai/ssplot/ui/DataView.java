@@ -128,7 +128,8 @@ public class DataView extends UIFrame {
 		var axes = PlotType.LINES3.axes();
 		var pnlPrefs = hbox(label(Text.bold("Axes:")));
 		for (var axis : axes) {
-			pnlPrefs.add(label(axis + " → Col"));
+			pnlPrefs.add(label(
+				Text.htmlAndBody(axis + " <span style='font-family:Sans'>→</span> Col")));
 			var cbox = new JComboBox<Integer>();
 			jcbColMapper.add(cbox);
 			pnlPrefs.add(cbox);
