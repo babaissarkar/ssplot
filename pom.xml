@@ -78,6 +78,7 @@
 				<filtering>false</filtering>
 				<excludes>
 					<exclude>filtered/**</exclude>
+					<exclude>*.svg</exclude>
 				</excludes>
 			</resource>
 			<resource>
@@ -99,7 +100,8 @@
 						</goals>
 						<configuration>
 							<sourceDirectory>
-								${basedir}/src/main/java/com/babai/ssplot/math/system/parser/internal</sourceDirectory>
+								${basedir}/src/main/java/com/babai/ssplot/math/system/parser/internal
+							</sourceDirectory>
 						</configuration>
 					</execution>
 				</executions>
