@@ -2,6 +2,8 @@ options
 {
 	LOOKAHEAD=4;
 	STATIC=false;
+	JAVA_UNICODE_ESCAPE=true;
+	UNICODE_INPUT=true;
 }
 
 PARSER_BEGIN(SSMathParser)
@@ -13,9 +15,7 @@ import java.io.StringReader;
 public class SSMathParser {
 
 	public static TreeNode parseString(String s) throws Exception {
-		SSMathParser parser = new SSMathParser(new StringReader(s));
-		TreeNode node = parser.getNode();
-		return node;
+		return new SSMathParser(new StringReader(s)).getNode();
 	}
 }
 
@@ -27,7 +27,13 @@ TOKEN : {
 	< NUMBER : ["0"-"9"] >
 |	< DIGIT : (<NUMBER>)+ ("." (<NUMBER>)+)? >
 // E is excluded from variable names. It is used for the math constant "e" instead.
-|	< LETTER : (["A"-"D"] | ["F"-"Z"] | ["a"-"d"] | ["f"-"z"]) >
+|	< LETTER :
+		( ["A"-"D"] | ["F"-"Z"]   // Latin uppercase (skips E)
+		| ["a"-"d"] | ["f"-"z"]   // Latin lowercase (skips e)
+		| ["\u0391"-"\u03A9"]     // Greek uppercase Α–Ω
+		| ["\u03B1"-"\u03C9"]     // Greek lowercase α–ω
+		)
+	>
 |	< PI : "pi"|"PI"|"π" >
 |	< E : "e"|"E" >
 |	< FN : "sin"|"cos"|"tan"|"asin"|"acos"|"atan"|"exp"|"log"|"ln" >
