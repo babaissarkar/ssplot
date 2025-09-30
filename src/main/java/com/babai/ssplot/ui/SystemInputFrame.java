@@ -239,6 +239,7 @@ public class SystemInputFrame extends UIFrame {
 						.enabled(eqnCondition.get(idx))
 						.onChange(text -> {
 							builder.eqn(idx, text);
+							System.out.println(builder.numberOfEqns());
 							// FIXME find a better way than this to update UI
 							curMode.set(curMode.get());
 						})
@@ -273,12 +274,12 @@ public class SystemInputFrame extends UIFrame {
 		var rangeConditions = List.of(
 			curMode.when(mode -> noOfEqns() > 0),
 			curMode.when(mode ->
-				((mode != SystemMode.FN1) && noOfEqns() >= 2)
-				|| mode == SystemMode.FN1
-				|| mode == SystemMode.FN2),
+				(mode != SystemMode.FN1 && noOfEqns() >= 2)
+				|| mode == SystemMode.FN1 && noOfEqns() >= 1
+				|| mode == SystemMode.FN2 && noOfEqns() >= 1),
 			curMode.when(mode ->
 				((mode == SystemMode.DFE || mode == SystemMode.ODE) && noOfEqns() == 3)
-				|| mode == SystemMode.FN2)
+				|| mode == SystemMode.FN2 && noOfEqns() >= 1)
 		);
 
 		var pnlRange = grid()
