@@ -89,6 +89,8 @@ public class Canvas {
 			if (!isAxes3d()) {
 				drawAxes();
 				drawTics(curNoTics);
+			} else {
+				drawAxes3D();
 			}
 		}
 
@@ -207,6 +209,42 @@ public class Canvas {
 		g.drawLine(dx+moveX, 0, dx+moveX, H);
 
 		g.setColor(curColor);
+	}
+	
+	public void drawAxes3D() {
+		final var xAxisColor = Color.RED;
+		final var yAxisColor = Color.BLUE;
+		final var zAxisColor = new Color(4, 121, 0);
+		
+		Point2D.Double p1 = null, p2 = null;
+		
+		var oldFgColor = getFGColor();
+		
+		// draw rotated axis
+		setStroke(2);
+		
+		setFGColor(xAxisColor);
+		Point2D.Double pp1 = projector.project(-225, 0, 0);
+		p1 = getTransformedPoint(pp1);
+		Point2D.Double pp2 = projector.project(225, 0, 0);
+		p2 = getTransformedPoint(pp2);
+		drawLine(p1, p2);
+		
+		setFGColor(yAxisColor);
+		pp1 = projector.project(0, 225, 0);
+		p1 = getTransformedPoint(pp1);
+		pp2 = projector.project(0, -225, 0);
+		p2 = getTransformedPoint(pp2);
+		drawLine(p1, p2);
+		
+		setFGColor(zAxisColor);
+		pp1 = projector.project(0, 0, 225);
+		p1 = getTransformedPoint(pp1);
+		pp2 = projector.project(0, 0, -225);
+		p2 = getTransformedPoint(pp2);
+		drawLine(p1, p2);
+		
+		setFGColor(oldFgColor);
 	}
 
 	/* Draw tics along the axes */
@@ -487,33 +525,6 @@ public class Canvas {
 		setFGColor(fgc);
 	}
 
-	public void drawAxes3D() {
-		Color curColor = g.getColor();
-		g.setColor(axesColor);
-
-		// Origin Shift
-		Point2D.Double shTrP = projector.project(W/2, H/2, 0);
-		double shX = -(shTrP.x - W/2);
-		double shY = -(shTrP.y - H/2);
-
-		//		Point2D.Double px1 = project.projectInv(dx+moveX, 0, 0);
-		//		Point2D.Double px2 = project.projectInv(dx+moveX, W, 0);
-		//		Point2D.Double py1 = project.projectInv(0, dy-moveY, 0);
-		//		Point2D.Double py2 = project.projectInv(H, dy-moveY, 0);
-		Point2D.Double px1 = projector.projectInv(0, 0, 0);
-		Point2D.Double px2 = projector.projectInv(0, W, 0);
-		Point2D.Double py1 = projector.projectInv(0, 0, 0);
-		Point2D.Double py2 = projector.projectInv(H, 0, 0);
-		px1 = new Point2D.Double(px1.x+dx+moveX+shX, px1.y+shY);
-		px2 = new Point2D.Double(px2.x+dx+moveX+shX, px2.y+shY);
-		py1 = new Point2D.Double(py1.x+shX, py1.y+dy-moveY+shY);
-		py2 = new Point2D.Double(py2.x+shX, py2.y+dy-moveY+shY);
-
-		drawLine(px1, px2);
-		drawLine(py1, py2);
-
-		g.setColor(curColor);
-	}
 
 	/********************** Getters and Setters ******************/
 	

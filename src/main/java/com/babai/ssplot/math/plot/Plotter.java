@@ -75,46 +75,12 @@ public final class Plotter {
 
 		Vector<Vector<Double>> dataset = pdata.getData();
 		canv.setFGColor(pdata.getFgColor());
-		
-		// TODO : Move 3d axis drawing to Canvas class
-		if (pdata.getPlotType().dim() == 3) {
-			final var xAxisColor = Color.RED;
-			final var yAxisColor = Color.BLUE;
-			final var zAxisColor = new Color(4, 121, 0);
-			
-			var oldFgColor = canv.getFGColor();
-			
-			// draw rotated axis
-			canv.setStroke(2);
-			
-			canv.setFGColor(xAxisColor);
-			Point2D.Double pp1 = p.project(-225, 0, 0);
-			p1 = canv.getTransformedPoint(pp1);
-			Point2D.Double pp2 = p.project(225, 0, 0);
-			p2 = canv.getTransformedPoint(pp2);
-			canv.drawLine(p1, p2);
-			
-			canv.setFGColor(yAxisColor);
-			pp1 = p.project(0, 225, 0);
-			p1 = canv.getTransformedPoint(pp1);
-			pp2 = p.project(0, -225, 0);
-			p2 = canv.getTransformedPoint(pp2);
-			canv.drawLine(p1, p2);
-			
-			canv.setFGColor(zAxisColor);
-			pp1 = p.project(0, 0, 225);
-			p1 = canv.getTransformedPoint(pp1);
-			pp2 = p.project(0, 0, -225);
-			p2 = canv.getTransformedPoint(pp2);
-			canv.drawLine(p1, p2);
-			
-			canv.setFGColor(oldFgColor);
-		}
+		canv.setAxes3d(pdata.getPlotType().dim() == 3);
+		clear();
 
 		for (Vector<Double> row : dataset) {
 			switch(pdata.getPlotType()) {
 			case VFIELD:
-				canv.setAxes3d(false);
 				/* For now, it works for vector data in first four columns only */
 				if (row.size() >= 4) {
 					p1 = canv.getTransformedPoint(new Point2D.Double(row.get(dataCols.get(0)), row.get(dataCols.get(1))));
@@ -131,7 +97,6 @@ public final class Plotter {
 					Point2D.Double pp = p.project(row.get(dataCols.get(0)), row.get(dataCols.get(1)), row.get(dataCols.get(2)));
 					p1 = canv.getTransformedPoint(pp);
 					canv.setProjection(p);
-					canv.setAxes3d(true);
 					canv.drawPoint(p1, PlotData.PointType.SQUARE, pdata.ptX, pdata.ptY);
 				} else {
 					System.err.println("Data is not three dimensional!");
@@ -144,7 +109,6 @@ public final class Plotter {
 					p2 = canv.getTransformedPoint(pp);
 					if (p1 != null) {
 						canv.setProjection(p);
-						canv.setAxes3d(true);
 						canv.setStroke(pdata.ptX);
 						canv.drawLine(p1, p2);
 					}
@@ -157,7 +121,7 @@ public final class Plotter {
 			default:
 				canv.setAxes3d(false);
 				p2 = canv.getTransformedPoint(
-						new Point2D.Double(row.get(dataCols.get(0)), row.get(dataCols.get(1))));
+					new Point2D.Double(row.get(dataCols.get(0)), row.get(dataCols.get(1))));
 				if (p1 != null) {
 					switch(pdata.getPlotType()) {
 					case LINES :
