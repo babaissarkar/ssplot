@@ -105,8 +105,7 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 		if (overlayMode) {
 			for (PlotData pdata : plots) {
 				if (plots.size() > 0) {
-					plt.plotData(pdata);
-					plt.plotOthers(pdata);
+					plt.plot(pdata);
 				}
 			} 
 		} else if (animate) {
@@ -116,15 +115,13 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 					frameCounter = 0;
 				}
 				var pdata = optCurPlot.get().splice(0, frameCounter);
-				plt.plotData(pdata);
-				plt.plotOthers(pdata);
+				plt.plot(pdata);
 			}
 		} else {
 			Optional<PlotData> optCurPlot = getCurPlot();
 			if ((plots.size() > 0) && optCurPlot.isPresent()) {
 				var pdata = optCurPlot.get();
-				plt.plotData(pdata);
-				plt.plotOthers(pdata);
+				plt.plot(pdata);
 			}
 		}
 

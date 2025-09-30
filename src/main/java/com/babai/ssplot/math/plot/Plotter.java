@@ -59,9 +59,14 @@ public final class Plotter {
 		canv.refresh();
 	}
 	
+	public void plot(PlotData data) {
+		plotData(data);
+		plotOthers(data);
+	}
+	
 	/* If you don't set the size of the plot, it uses the default size.
 	 * It will also initialize the plot if you forget. */
-	public void plotData(PlotData pdata) {
+	private void plotData(PlotData pdata) {
 		if (canv == null) {
 			initPlot();
 		}
@@ -156,15 +161,8 @@ public final class Plotter {
 		
 		canv.setStroke(1);
 	}
-
-	public void plotPoint(Point2D.Double p0, int ptX, int ptY) {
-		if (canv == null) {
-			initPlot();
-		}
-		canv.drawPoint(canv.getTransformedPoint(p0), PlotData.PointType.SQUARE, ptX, ptY);
-	}
-
-	public void plotOthers(PlotData pdata) {
+	
+	private void plotOthers(PlotData pdata) {
 		if (pdata.getTitle() != null) {
 			canv.drawTitle(pdata.getTitle());
 		}

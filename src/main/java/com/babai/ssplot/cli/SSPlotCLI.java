@@ -87,8 +87,7 @@ public class SSPlotCLI {
 		try {
 			Path dfpath = Paths.get(fname);
 			System.out.println("Path : " + dfpath.toString());
-			PlotData pdata = new PlotData(NumParse.parse(dfpath));
-			plt.plotData(pdata);
+			plt.plot(new PlotData(NumParse.parse(dfpath)));
 			save();
 		} catch (Exception e) {
 			CrashFrame.showCrash(e);
