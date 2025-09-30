@@ -218,8 +218,7 @@ public class PlotData implements Cloneable {
 	}
 
 	public void addNode(Point2D.Double p, String str, Color c) {
-		Node n = new Node(p, str, c);
-		nodes.add(n);
+		nodes.add(new Node(p, str, c));
 	}
 
 	/**
@@ -231,7 +230,7 @@ public class PlotData implements Cloneable {
 	
 	/**
 	 * @param index
-	 * @return the data column corresponding to `index`.
+	 * @return the `index`th data column.
 	 */
 	public int getDataCol(int index) {
 		return getDataCol(getPltype().axes().get(index));
@@ -240,8 +239,8 @@ public class PlotData implements Cloneable {
 	/**
 	 * Sets which data column is associated with which axis
 	 * 
-	 * @param dataCols: the dataCols to set. An array of column indices.
-	 * Column with index `dataCols[0]` will be associated with X axis, and so on.
+	 * @param dataCols    An array of column indices.
+	 * Column with index `dataCols[0]` will be associated with the 0-th axis, and so on.
 	 */
 	public void setDataCols(int... dataCols) {
 		var axes = pltype.axes();
@@ -280,17 +279,18 @@ public class PlotData implements Cloneable {
 	}
 
 	/**
-	 * @return the nodes
-	 */
-	public Vector<Node> getNodes() {
-		return nodes;
-	}
-
-	/**
 	 * @param data the data to set
 	 */
 	public void setData(Vector<Vector<Double>> data) {
 		this.data = data;
+	}
+	
+
+	/**
+	 * @return the nodes
+	 */
+	public Vector<Node> getNodes() {
+		return nodes;
 	}
 
 	/**
