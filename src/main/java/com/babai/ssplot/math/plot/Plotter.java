@@ -172,8 +172,8 @@ public final class Plotter {
 						Point2D.Double pback = new Point2D.Double(
 							p1.getX() - (pdata.ptX+4)/2,
 							p1.getY() - (pdata.ptY+4)/2);
-						// The line is draw with plot FG color
-						// but the points on the top is drawn with black below
+						// The line is drawn with plot FGcolor 1
+						// the points on the top is drawn with plot FGcolor 2
 						// FIXME generalization needed
 						canv.setStroke(pdata.ptX);
 						canv.drawLine(p1, p2);
