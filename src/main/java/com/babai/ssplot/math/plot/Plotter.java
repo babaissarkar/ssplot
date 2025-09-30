@@ -117,8 +117,8 @@ public final class Plotter {
 				canv.setAxes3d(false);
 				/* For now, it works for vector data in first four columns only */
 				if (row.size() >= 4) {
-					p1 = canv.getTransformedPoint(new Point2D.Double(dataCols.get(0), dataCols.get(1)));
-					p2 = canv.getTransformedPoint(new Point2D.Double(dataCols.get(2), dataCols.get(3)));
+					p1 = canv.getTransformedPoint(new Point2D.Double(row.get(dataCols.get(0)), row.get(dataCols.get(1))));
+					p2 = canv.getTransformedPoint(new Point2D.Double(row.get(dataCols.get(2)), row.get(dataCols.get(3))));
 
 					canv.drawVector(p1, p2, pdata.getFgColor2());
 				} else {
@@ -128,7 +128,7 @@ public final class Plotter {
 				
 			case LINES3:
 				if (row.size() >= 3) {
-					Point2D.Double pp = p.project(dataCols.get(0), dataCols.get(1), dataCols.get(2));
+					Point2D.Double pp = p.project(row.get(dataCols.get(0)), row.get(dataCols.get(1)), row.get(dataCols.get(2)));
 					p1 = canv.getTransformedPoint(pp);
 					canv.setProjection(p);
 					canv.setAxes3d(true);
@@ -140,7 +140,7 @@ public final class Plotter {
 				
 			case POINTS3:
 				if (row.size() >= 3) {
-					Point2D.Double pp = p.project(dataCols.get(0), dataCols.get(1), dataCols.get(2));
+					Point2D.Double pp = p.project(row.get(dataCols.get(0)), row.get(dataCols.get(1)), row.get(dataCols.get(2)));
 					p2 = canv.getTransformedPoint(pp);
 					if (p1 != null) {
 						canv.setProjection(p);
@@ -157,7 +157,7 @@ public final class Plotter {
 			default:
 				canv.setAxes3d(false);
 				p2 = canv.getTransformedPoint(
-					new Point2D.Double(row.get(dataCols.get(0)), row.get(dataCols.get(1))));
+						new Point2D.Double(row.get(dataCols.get(0)), row.get(dataCols.get(1))));
 				if (p1 != null) {
 					switch(pdata.getPlotType()) {
 					case LINES :

@@ -84,7 +84,6 @@ public class PlotData implements Cloneable {
 	private PointType pttype;
 	
 	// TODO make this private
-	// TODO double-check if ptX is circle radius
 	/**
 	 * Width and height of the plotted point's marker
 	 * If Circle, ptX is the circle's radius, ptY is ignored
