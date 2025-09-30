@@ -107,6 +107,86 @@ public class PlotData implements Cloneable {
 			throw new AssertionError(); // Should never happen since we implement Cloneable
 		}
 	}
+
+	public PlotData() { this(new Vector<Vector<Double>>()); }
+
+	public PlotData(Vector<Vector<Double>> extData) {
+		data = extData;
+		nodes = new Vector<Node>();
+		// Active axes
+		setDataCols(0, 1);
+		
+		// Plot Type
+		pltype = PlotType.LINES;
+		
+		// Cosmetic point properties
+		pttype = PointType.SQUARE;
+		ptX = 2; ptY = 2;
+		
+		// Cosmetic plot properties
+		title = "New Data " + System.nanoTime();
+		fgColor = Color.RED;
+		fgColor2 = Color.BLACK;
+	}
+	
+	// ------------- PROPERTY METHODS -----------------
+	// TODO may these should be moved into a helper properties class?
+	public Optional<String> getAxisLabel(int i) {
+		return (i > axesLabels.size())
+			? Optional.empty()
+			: Optional.of(axesLabels.get(i));
+	}
+	
+	public void setAxisLabels(List<String> labels) { this.axesLabels = labels; }
+	public void setTitle(String title) { this.title = title; }
+	public String getTitle() { return this.title; }
+	public void setFgColor(Color c) { this.fgColor = (c != null) ? c : Color.RED; }
+	public Color getFgColor() { return fgColor; }
+	public void setFgColor2(Color c) { this.fgColor2 = (c != null) ? c : Color.BLUE; }
+	public Color getFgColor2() { return fgColor2; }
+	public void setPlotType(PlotType pltype) { this.pltype = pltype; }
+	public PlotType getPlotType() { return pltype; }
+	public PointType getPointType() { return pttype; }
+	public void setPointType(PointType pttype) { this.pttype = pttype; }
+	public EquationSystem getSystem() { return system; }
+	public void setSystem(EquationSystem system) { this.system = system; }
+
+
+	// ------------- DATA METHODS -----------------
+	public Vector<Vector<Double>> getData() { return data; }
+	public void setData(Vector<Vector<Double>> data) { this.data = data; }
+	public int getRowCount() { return data.size(); }
+	public int getColumnCount() { return getRowCount() > 0 ? data.firstElement().size() : 0; }
+	
+	/**
+	 * @return the index of the data column corresponding to axis with `axisName`.
+	 */
+	public int getDataCol(Axis axisName) {
+		return axesDataColumns.getOrDefault(axisName, pltype.axes().indexOf(axisName));
+	}
+	
+	/**
+	 * @param index
+	 * @return the `index`th data column.
+	 */
+	public int getDataCol(int index) {
+		return getDataCol(getPlotType().axes().get(index));
+	}
+	
+	/**
+	 * Sets which data column is associated with which axis
+	 * 
+	 * @param dataCols    An array of column indices.
+	 * Column with index `dataCols[0]` will be associated with the 0-th axis, and so on.
+	 */
+	public void setDataCols(int... dataCols) {
+		var axes = pltype.axes();
+		for (int i = 0; i < dataCols.length; i++) {
+			axesDataColumns.put(axes.get(i), dataCols[i]);
+		}
+	}
+	
+	public HashMap<Axis, Integer> getDataColMapping() { return this.axesDataColumns; }
 	
 	/**
 	 * Creates a new {@code PlotData} instance containing a subset of the data rows
@@ -142,191 +222,6 @@ public class PlotData implements Cloneable {
 		}
 		return pdata;
 	}
-
-	public PlotData() {
-		this(new Vector<Vector<Double>>());
-	}
-
-	public PlotData(Vector<Vector<Double>> extData) {
-		data = extData;
-		nodes = new Vector<Node>();
-		
-		// Plot Type
-		pltype = PlotType.LINES;
-		
-		//  Axes properties
-		setDataCols(0, 1);
-		
-		// Cosmetic point properties
-		pttype = PointType.SQUARE;
-		ptX = 2; ptY = 2;
-		
-		// Cosmetic plot properties
-		title = "New Data " + System.nanoTime();
-		fgColor = Color.RED;
-		fgColor2 = Color.BLACK;
-	}
-	
-	public int getRowCount() {
-		return data.size();
-	}
-	
-	public int getColumnCount() {
-		return getRowCount() > 0 ? data.firstElement().size() : 0;
-	}
-	
-	public Optional<String> getAxisLabel(int i) {
-		return (i > axesLabels.size())
-			? Optional.empty()
-			: Optional.of(axesLabels.get(i));
-	}
-	
-	public void setAxisLabels(List<String> labels) {
-		this.axesLabels = labels;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
-	public String getTitle() {
-		return this.title;
-	}
-
-	public void setFgColor(Color c) {
-		this.fgColor = (c != null) ? c : Color.RED;
-	}
-
-	public Color getFgColor() {
-		return fgColor;
-	}
-
-	public void setFgColor2(Color fgColor2) {
-		this.fgColor2 = (fgColor2 != null) ? fgColor2 : Color.BLUE;
-	}
-
-	public Color getFgColor2() {
-		return fgColor2;
-	}
-
-	public void setPlotType(PlotType pltype) {
-		this.pltype = pltype;
-	}
-
-	public PlotType getPlotType() {
-		return pltype;
-	}
-
-	/**
-	 * @return the index of the data column corresponding to axis with `axisName`.
-	 */
-	public int getDataCol(Axis axisName) {
-		return axesDataColumns.getOrDefault(axisName, pltype.axes().indexOf(axisName));
-	}
-	
-	/**
-	 * @param index
-	 * @return the `index`th data column.
-	 */
-	public int getDataCol(int index) {
-		return getDataCol(getPlotType().axes().get(index));
-	}
-	
-	/**
-	 * Sets which data column is associated with which axis
-	 * 
-	 * @param dataCols    An array of column indices.
-	 * Column with index `dataCols[0]` will be associated with the 0-th axis, and so on.
-	 */
-	public void setDataCols(int... dataCols) {
-		var axes = pltype.axes();
-		for (int i = 0; i < dataCols.length; i++) {
-			axesDataColumns.put(axes.get(i), dataCols[i]);
-		}
-	}
-	
-	public HashMap<Axis, Integer> getDataColMapping() {
-		return this.axesDataColumns;
-	}
-
-	/**
-	 * @param dataCol     index of a column
-	 * 
-	 * @return            maximum value among all data in the given column
-	 */
-	public double getMax(int dataCol) {
-		return Collections.max(getColumn(dataCol));
-	}
-
-	/**
-	 * @param dataCol     index of a column
-	 * 
-	 * @return            min value among all data in the given column
-	 */
-	public double getMin(int dataCol) {
-		return Collections.min(getColumn(dataCol));
-	}
-
-	/**
-	 * @return the data
-	 */
-	public Vector<Vector<Double>> getData() {
-		return data;
-	}
-
-	/**
-	 * @param data the data to set
-	 */
-	public void setData(Vector<Vector<Double>> data) {
-		this.data = data;
-	}
-	
-	public void addNode(Point2D.Double p, String str, Color c) {
-		nodes.add(new Node(p, str, c));
-	}
-
-	/**
-	 * @return the nodes
-	 */
-	public Vector<Node> getNodes() {
-		return nodes;
-	}
-
-	/**
-	 * @param nodes the nodes to set
-	 */
-	public void setNodes(Vector<Node> nodes) {
-		this.nodes = nodes;
-	}
-
-	/**
-	 * @return the PointType
-	 */
-	public PointType getPointType() {
-		return pttype;
-	}
-
-	/**
-	 * @param pttype the PointType to set
-	 */
-	public void setPointType(PointType pttype) {
-		this.pttype = pttype;
-	}
-
-	/**
-	 * @return the system of equations
-	 */
-	public EquationSystem getSystem() {
-		return system;
-	}
-
-	/**
-	 * Sets the system of equations
-	 * @param system the system to set
-	 */
-	public void setSystem(EquationSystem system) {
-		this.system = system;
-	}
 	
 	public Vector<Double> getColumn(int i) {
 		Vector<Double> colData = new Vector<>();
@@ -338,6 +233,26 @@ public class PlotData implements Cloneable {
 		return colData;
 	}
 
+	/**
+	 * @param dataCol     index of a column
+	 * @return            maximum value among all data in the given column
+	 */
+	public double getMax(int dataCol) { return Collections.max(getColumn(dataCol)); }
+
+	/**
+	 * @param dataCol     index of a column
+	 * @return            min value among all data in the given column
+	 */
+	public double getMin(int dataCol) { return Collections.min(getColumn(dataCol)); }
+	
+	
+	// ------------------ NODE METHODS -------------------
+	public void addNode(Point2D.Double p, String str, Color c) { nodes.add(new Node(p, str, c)); }
+	public Vector<Node> getNodes() { return nodes; }
+	public void setNodes(Vector<Node> nodes) { this.nodes = nodes; }
+	
+
+	// ------------------- STRING REPRESENTATION --------------
 	public String info() {
 		var buff = new StringBuilder();
 		if (getSystem() != null) {
