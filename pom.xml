@@ -20,6 +20,7 @@
 		3. Numerically solve and plot ODE and Difference Equations.
 		4. Plot functions of one and two variables.
 		5. Use its own console or CLI mode for simple calculation tasks.
+		6. Special math characters input panel.
 	</description>
 
 	<developers>

@@ -27,6 +27,7 @@
         <li>Numerically solve and plot ODE and Difference Equations.</li>
         <li>Plot functions of one and two variables.</li>
         <li>Use its own console or CLI mode for simple calculation tasks.</li>
+        <li>Special math characters input panel.</li>
      </ol>
   </description>
   <content_rating type="oars-1.1" />
