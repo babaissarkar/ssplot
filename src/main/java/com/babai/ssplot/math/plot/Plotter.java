@@ -26,23 +26,20 @@ package com.babai.ssplot.math.plot;
 import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.Vector;
 import com.babai.ssplot.util.InfoLogger;
 
 public final class Plotter {
 	private final Project2D p;
 	private final InfoLogger logger;
-	
 	private Canvas canv;
-	private int c1, c2;
 	
 	public static final int DEFAULT_W = 450, DEFAULT_H = 450;
 	
 	public Plotter(InfoLogger logger) {
 		this.logger = logger;
 		p = new Project2D(logger);
-		c1 = 1;
-		c2 = 2;
 		initPlot();
 	}
 	
@@ -69,19 +66,11 @@ public final class Plotter {
 			initPlot();
 		}
 		
-		// TODO more data columns are possible
-		// are we hardcoding things?
-		c1 = pdata.getDataCol(0);
-		c2 = pdata.getDataCol(1);
 		plotData(canv, pdata);
 	}
 	
 	private void plotData(Canvas canv, PlotData pdata) {
-		plotData(canv, pdata, c1, c2);
-	}
-	
-	private void plotData(Canvas canv, PlotData pdata, int col1, int col2) {
-		
+		var dataCols = new ArrayList<Integer>(pdata.getDataColMapping().values());
 		Point2D.Double p1 = null, p2 = null;
 
 		Vector<Vector<Double>> dataset = pdata.getData();
@@ -123,21 +112,23 @@ public final class Plotter {
 		}
 
 		for (Vector<Double> row : dataset) {
-			if (pdata.getPltype() == PlotData.PlotType.VFIELD) {
+			switch(pdata.getPltype()) {
+			case VFIELD:
 				canv.setAxes3d(false);
 				/* For now, it works for vector data in first four columns only */
 				if (row.size() >= 4) {
-					p1 = canv.getTransformedPoint(new Point2D.Double(row.get(0), row.get(1)));
-					p2 = canv.getTransformedPoint(new Point2D.Double(row.get(2), row.get(3)));
+					p1 = canv.getTransformedPoint(new Point2D.Double(dataCols.get(0), dataCols.get(1)));
+					p2 = canv.getTransformedPoint(new Point2D.Double(dataCols.get(2), dataCols.get(3)));
 
 					canv.drawVector(p1, p2, pdata.getFgColor2());
 				} else {
 					System.err.println("Bad vector field data!");
 				}
-			} else if (pdata.getPltype() == PlotData.PlotType.LINES3) {
-				//System.out.println("3D");
+				break;
+				
+			case LINES3:
 				if (row.size() >= 3) {
-					Point2D.Double pp = p.project(row.get(0), row.get(1), row.get(2));
+					Point2D.Double pp = p.project(dataCols.get(0), dataCols.get(1), dataCols.get(2));
 					p1 = canv.getTransformedPoint(pp);
 					canv.setProjection(p);
 					canv.setAxes3d(true);
@@ -145,10 +136,11 @@ public final class Plotter {
 				} else {
 					System.err.println("Data is not three dimensional!");
 				}
-			} else if (pdata.getPltype() == PlotData.PlotType.POINTS3) {
-				//System.out.println("3D");
+				break;
+				
+			case POINTS3:
 				if (row.size() >= 3) {
-					Point2D.Double pp = p.project(row.get(0), row.get(1), row.get(2));
+					Point2D.Double pp = p.project(dataCols.get(0), dataCols.get(1), dataCols.get(2));
 					p2 = canv.getTransformedPoint(pp);
 					if (p1 != null) {
 						canv.setProjection(p);
@@ -160,10 +152,12 @@ public final class Plotter {
 				} else {
 					System.err.println("Data is not three dimensional!");
 				}
-			} else {
+				break;
+				
+			default:
 				canv.setAxes3d(false);
 				p2 = canv.getTransformedPoint(
-					new Point2D.Double(row.get(col1), row.get(col2)));
+					new Point2D.Double(row.get(dataCols.get(0)), row.get(dataCols.get(1))));
 				if (p1 != null) {
 					switch(pdata.getPltype()) {
 					case LINES :
