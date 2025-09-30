@@ -151,7 +151,7 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 	public Optional<PlotData.PlotType> getCurPlotType() {
 		Optional<PlotData> optCurPlot = getCurPlot();
 		return optCurPlot.isPresent()
-			? Optional.of(optCurPlot.get().getPltype()) : Optional.empty();
+			? Optional.of(optCurPlot.get().getPlotType()) : Optional.empty();
 	}
 
 	/** Sets current plot type */
@@ -159,7 +159,7 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 		Optional<PlotData> optCurPlot = getCurPlot();
 
 		if (optCurPlot.isPresent()) {
-			optCurPlot.get().setPltype(pltype);
+			optCurPlot.get().setPlotType(pltype);
 			repaint();
 			log(Text.tag("b", "Plot Type : ") + pltype);
 		}

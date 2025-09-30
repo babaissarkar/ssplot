@@ -289,7 +289,7 @@ public class DataView extends UIFrame {
 		if (pdata == null) return;
 		
 		int i = 0;
-		for (var axis : pdata.getPltype().axes()) {
+		for (var axis : pdata.getPlotType().axes()) {
 			var jcbData = jcbColMapper.get(i);
 			jcbData.removeAllItems();
 			jcbData.setEnabled(pdata != null);

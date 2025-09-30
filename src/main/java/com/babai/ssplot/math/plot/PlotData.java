@@ -209,16 +209,12 @@ public class PlotData implements Cloneable {
 		return fgColor2;
 	}
 
-	public void setPltype(PlotType pltype) {
+	public void setPlotType(PlotType pltype) {
 		this.pltype = pltype;
 	}
 
-	public PlotType getPltype() {
+	public PlotType getPlotType() {
 		return pltype;
-	}
-
-	public void addNode(Point2D.Double p, String str, Color c) {
-		nodes.add(new Node(p, str, c));
 	}
 
 	/**
@@ -233,7 +229,7 @@ public class PlotData implements Cloneable {
 	 * @return the `index`th data column.
 	 */
 	public int getDataCol(int index) {
-		return getDataCol(getPltype().axes().get(index));
+		return getDataCol(getPlotType().axes().get(index));
 	}
 	
 	/**
@@ -285,6 +281,9 @@ public class PlotData implements Cloneable {
 		this.data = data;
 	}
 	
+	public void addNode(Point2D.Double p, String str, Color c) {
+		nodes.add(new Node(p, str, c));
+	}
 
 	/**
 	 * @return the nodes

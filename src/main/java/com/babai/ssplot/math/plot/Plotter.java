@@ -77,7 +77,7 @@ public final class Plotter {
 		canv.setFGColor(pdata.getFgColor());
 		
 		// TODO : Move 3d axis drawing to Canvas class
-		if (pdata.getPltype() == PlotData.PlotType.LINES3 || pdata.getPltype() == PlotData.PlotType.POINTS3) {
+		if (pdata.getPlotType() == PlotData.PlotType.LINES3 || pdata.getPlotType() == PlotData.PlotType.POINTS3) {
 			final var xAxisColor = Color.RED;
 			final var yAxisColor = Color.BLUE;
 			final var zAxisColor = new Color(4, 121, 0);
@@ -112,7 +112,7 @@ public final class Plotter {
 		}
 
 		for (Vector<Double> row : dataset) {
-			switch(pdata.getPltype()) {
+			switch(pdata.getPlotType()) {
 			case VFIELD:
 				canv.setAxes3d(false);
 				/* For now, it works for vector data in first four columns only */
@@ -159,7 +159,7 @@ public final class Plotter {
 				p2 = canv.getTransformedPoint(
 					new Point2D.Double(row.get(dataCols.get(0)), row.get(dataCols.get(1))));
 				if (p1 != null) {
-					switch(pdata.getPltype()) {
+					switch(pdata.getPlotType()) {
 					case LINES :
 						canv.setStroke(pdata.ptX);
 						canv.drawLine(p1, p2);

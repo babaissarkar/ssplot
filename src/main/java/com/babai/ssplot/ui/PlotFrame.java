@@ -165,9 +165,9 @@ public class PlotFrame extends UIFrame {
 	
 	public void updateView(PlotData data) {
 		pv.setCurPlot(data);
-		pv.setCurPlotType(data.getPltype());
+		pv.setCurPlotType(data.getPlotType());
 		pv.fit();
 		displayScale();
-		rotationEnabled.set(data.getPltype().dim() == 3);
+		rotationEnabled.set(data.getPlotType().dim() == 3);
 	}
 }
