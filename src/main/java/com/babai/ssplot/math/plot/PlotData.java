@@ -80,8 +80,8 @@ public class PlotData implements Cloneable {
 	private Vector<Node> nodes;
 	private EquationSystem system;
 	
-	private PlotType pltype;
-	private PointType pttype;
+	private PlotType plotType;
+	private PointType pointType;
 	
 	// TODO make this private
 	/**
@@ -111,15 +111,15 @@ public class PlotData implements Cloneable {
 
 	public PlotData(Vector<Vector<Double>> extData) {
 		data = extData;
-		nodes = new Vector<Node>();
+		nodes = new Vector<Node>();		
+		// Plot Type
+		plotType = PlotType.LINES;
+		
 		// Active axes
 		setDataCols(0, 1);
 		
-		// Plot Type
-		pltype = PlotType.LINES;
-		
 		// Cosmetic point properties
-		pttype = PointType.SQUARE;
+		pointType = PointType.SQUARE;
 		ptX = 2; ptY = 2;
 		
 		// Cosmetic plot properties
@@ -130,23 +130,23 @@ public class PlotData implements Cloneable {
 	
 	// ------------- PROPERTY METHODS -----------------
 	// TODO may these should be moved into a helper properties class?
-	public Optional<String> getAxisLabel(int i) {
-		return (i > axesLabels.size())
-			? Optional.empty()
-			: Optional.of(axesLabels.get(i));
-	}
 	
+	public Optional<String> getAxisLabel(int i) {
+		return Optional.ofNullable(i < axesLabels.size() ? axesLabels.get(i) : null);
+	}
 	public void setAxisLabels(List<String> labels) { this.axesLabels = labels; }
+	
 	public void setTitle(String title) { this.title = title; }
 	public String getTitle() { return this.title; }
 	public void setFgColor(Color c) { this.fgColor = (c != null) ? c : Color.RED; }
 	public Color getFgColor() { return fgColor; }
 	public void setFgColor2(Color c) { this.fgColor2 = (c != null) ? c : Color.BLUE; }
 	public Color getFgColor2() { return fgColor2; }
-	public void setPlotType(PlotType pltype) { this.pltype = pltype; }
-	public PlotType getPlotType() { return pltype; }
-	public PointType getPointType() { return pttype; }
-	public void setPointType(PointType pttype) { this.pttype = pttype; }
+	public void setPlotType(PlotType pltype) { this.plotType = pltype; }
+	public PlotType getPlotType() { return plotType; }
+	public PointType getPointType() { return pointType; }
+	public void setPointType(PointType pttype) { this.pointType = pttype; }
+	
 	public EquationSystem getSystem() { return system; }
 	public void setSystem(EquationSystem system) { this.system = system; }
 
@@ -161,7 +161,7 @@ public class PlotData implements Cloneable {
 	 * @return the index of the data column corresponding to axis with `axisName`.
 	 */
 	public int getDataCol(Axis axisName) {
-		return axesDataColumns.getOrDefault(axisName, pltype.axes().indexOf(axisName));
+		return axesDataColumns.getOrDefault(axisName, plotType.axes().indexOf(axisName));
 	}
 	
 	/**
@@ -179,7 +179,7 @@ public class PlotData implements Cloneable {
 	 * Column with index `dataCols[0]` will be associated with the 0-th axis, and so on.
 	 */
 	public void setDataCols(int... dataCols) {
-		var axes = pltype.axes();
+		var axes = plotType.axes();
 		for (int i = 0; i < dataCols.length; i++) {
 			axesDataColumns.put(axes.get(i), dataCols[i]);
 		}

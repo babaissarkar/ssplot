@@ -239,7 +239,6 @@ public class SystemInputFrame extends UIFrame {
 						.enabled(eqnCondition.get(idx))
 						.onChange(text -> {
 							builder.eqn(idx, text);
-							System.out.println(builder.numberOfEqns());
 							// FIXME find a better way than this to update UI
 							curMode.set(curMode.get());
 						})
