@@ -77,7 +77,7 @@ public final class Plotter {
 		canv.setFGColor(pdata.getFgColor());
 		
 		// TODO : Move 3d axis drawing to Canvas class
-		if (pdata.getPlotType() == PlotData.PlotType.LINES3 || pdata.getPlotType() == PlotData.PlotType.POINTS3) {
+		if (pdata.getPlotType().dim() == 3) {
 			final var xAxisColor = Color.RED;
 			final var yAxisColor = Color.BLUE;
 			final var zAxisColor = new Color(4, 121, 0);
