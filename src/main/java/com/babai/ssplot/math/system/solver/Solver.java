@@ -68,7 +68,7 @@ public class Solver {
 			return soln;
 		}
 		
-		Evaluator2D dx_dt = (x, y) -> parser.evaluate(system.eqns()[0], Map.of("x", x, "y", y));		
+		Evaluator2D dx_dt = (x, y) -> parser.evaluate(system.eqns()[0], Map.of("x", x, "y", y));
 		Evaluator2D dy_dt = (x, y) -> parser.evaluate(system.eqns()[1], Map.of("x", x, "y", y));
 		
 		double x, y;

@@ -42,7 +42,7 @@ public class ParserManager {
 		// Engine set via envvar
 		String engineName = System.getenv("SSPLOT_ENGINE");
 		if (engineName == null) {
-			engineName = TreeParser.NAME;
+			engineName = TreeParser.internalParserName();
 		}
 		currParser = parsers.get(engineName);
 		System.out.println("Using parsing engine: " + engineName);

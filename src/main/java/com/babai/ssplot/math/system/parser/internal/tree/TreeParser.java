@@ -22,20 +22,36 @@
 
 package com.babai.ssplot.math.system.parser.internal.tree;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 import com.babai.ssplot.math.system.parser.Parser;
 import com.babai.ssplot.math.system.parser.internal.SSMathParser;
 
 public class TreeParser implements Parser {
-	public static final String NAME = "Internal"; 
+	private static final String NAME = "Internal";
+	private static final Map<String, TreeNode> exprCache = new LinkedHashMap<>(16, 0.75f, true) {
+		private static final int MAX_CACHE_ENTRIES = 100;
+		@Override
+		protected boolean removeEldestEntry(Map.Entry<String, TreeNode> eldest) {
+			return size() > MAX_CACHE_ENTRIES;
+		}
+	};
 	
 	@Override
-	public double evaluate(String expression, Map<String, Double> variables) {
-		return parse(expression).evalAt(variables);
+	public double evaluate(String expression, Map<String, Double> variables) {		
+		// get the cached TreeNode or parse it if missing
+		TreeNode tree = exprCache.computeIfAbsent(expression, this::parse);
+
+		// evaluate the cached AST with the provided variables
+		return tree.evalAt(variables);
 	}
 
 	@Override
 	public String getName() {
+		return internalParserName();
+	}
+	
+	public static String internalParserName() {
 		return NAME;
 	}
 
