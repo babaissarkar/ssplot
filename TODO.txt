@@ -3,17 +3,18 @@
 6. Fixed points and nullclines support
 
 7. Bad ticks when zoom is reduced below 1.0.
-9. Assign properties correctly to plots after selection from data viewer window. Properties overhaul.
+9. Assign properties correctly to plots after selection from data viewer window (Done for title at least). Properties overhaul.
+
+10. Might be breaking MVC contract in places, check
 
 ## Bugs
 
+Incorrect handling for 1 column data (plotter aborts with exception)
 Plotting area shrinks in 3d mode. Hardcoded plot area size?
 setting plot color does not work on 3d ODE
 ticks disapper after resizing plot window + incorrect axis length makes it look cutoff
-setting title via menubar causes it to be not updated in data viewer (see also Bug #1 above)
 changing plot type (i.e. 2d -> 3d) causes the zoom level to reset/autozoom does not work.
 |-> autoscale unimplemented for 3d mode
-Incorrect handling for 1 column data (plotter aborts with exception)
 Zooming with non zero zoom center does not work
 3d lines mode plots the same as 3d points. Should it paint a surface/mesh instead?
 
