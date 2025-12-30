@@ -317,10 +317,10 @@ public class MainFrame extends JFrame {
 					menu("Plot Properties").content(
 						item("Add title")
 							.onClick(() -> {
-								Optional<PlotData> pdata = pv.getCurPlot();
-								if (pdata.isPresent()) {
-									pdata.get().setTitle(showInputDialog("Title:"));
-									pv.repaint();
+								String title = showInputDialog("Title:");
+								if (title != null) {
+									pv.setTitle(title);
+									dbv.setCurPlotTitle(title);
 								}
 							}),
 						item("Add X axis label")
@@ -397,13 +397,17 @@ public class MainFrame extends JFrame {
 	private void setLineWidth(PlotView pv) {
 		String strWidth = showInputDialog("Line Width:");
 		if (strWidth != null) {
-			int width = Integer.parseInt(strWidth);
-			Optional<PlotData> pd = pv.getCurPlot();
-			if (pd.isPresent()) {
-				pd.get().ptX = width;
-				pd.get().ptY = width;
+			try {
+				int width = Integer.parseInt(strWidth);
+				Optional<PlotData> pd = pv.getCurPlot();
+				if (pd.isPresent()) {
+					pd.get().ptX = width;
+					pd.get().ptY = width;
+				}
+				pv.repaint();
+			} catch(NumberFormatException ne) {
+				showMessageDialog(null, "Non-numeric or invalid value found.", "Error", JOptionPane.ERROR_MESSAGE);
 			}
-			pv.repaint();
 		}
 	}
 	

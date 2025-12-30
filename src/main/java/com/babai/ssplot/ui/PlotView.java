@@ -337,6 +337,14 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 		repaint();
 	}
 	
+	public void setTitle(String title) {
+		Optional<PlotData> pdata = getCurPlot();
+		if (pdata.isPresent()) {
+			pdata.get().setTitle(title);
+			repaint();
+		}
+	}
+	
 	//
 	// Listeners
 	//

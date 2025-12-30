@@ -528,13 +528,7 @@ public class Canvas {
 
 	/********************** Getters and Setters ******************/
 	
-	/**
-	 * Set the axis color to the given color
-	 * @param axesColor the new axis color 
-	 */
-	public void setAxesColor(Color axesColor) {
-		this.axesColor = axesColor;
-	}
+	//TODO odd public api: we have setX/YLabel but drawTitle!
 	
 	public void setXLabel(String xlbl) {
 		this.xlbl = xlbl;
@@ -542,6 +536,14 @@ public class Canvas {
 
 	public void setYLabel(String ylbl) {
 		this.ylbl = ylbl;
+	}
+	
+	/**
+	 * Set the axis color to the given color
+	 * @param axesColor the new axis color 
+	 */
+	public void setAxesColor(Color axesColor) {
+		this.axesColor = axesColor;
 	}
 
 	/**
@@ -556,8 +558,7 @@ public class Canvas {
 	 */
 	public void setTitleColor(Color titleColor) {
 		this.titleColor = titleColor;
-	}
-	
+	}	
 	
 }
 

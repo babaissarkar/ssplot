@@ -96,17 +96,7 @@ public class DataView extends UIFrame {
 		btnEditProp = button()
 			.text("Edit Properties...")
 			.tooltip("Edit the properties of the current plot")
-			.onClick(() -> {
-				int id = jcbPlotlist.getSelectedIndex();
-				String title = JOptionPane.showInputDialog("Title :");
-				if (title == null || id == -1) return;
-				
-				PlotData curData = plotlist.get(id);
-				curData.setTitle(title);
-				updatePlotList();
-				setDataOnly(curData);
-				updateView();
-			});
+			.onClick(() -> setCurPlotTitle(JOptionPane.showInputDialog("Title :")));
 		
 		btnInfo = button()
 			.text("Info")
@@ -236,6 +226,19 @@ public class DataView extends UIFrame {
 		}
 		table.setModel(new DefaultTableModel());
 		populateAxisSelectors(null);
+	}
+	
+	public void setCurPlotTitle(String title) {
+		int id = jcbPlotlist.getSelectedIndex();
+		if (title == null || id == -1) return;
+		
+		PlotData curData = plotlist.get(id);
+		curData.setTitle(title);
+		updatePlotList();
+		
+		// FIXME Do we really need these two? We want to set title, but not reupdate plots asap.
+		setDataOnly(curData);
+		updateView();
 	}
 
 	/** Show the given plot data in the table */
