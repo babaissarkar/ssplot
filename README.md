@@ -1,9 +1,9 @@
 # SSPlot
 A simple plotting utility for plotting CSV datafiles, equations and dynamical systems (differential and difference equations).
 
-[![License: LGPL v2.1](https://img.shields.io/badge/License-LGPL%20v2.1-orange.svg)](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html) [![CI](https://github.com/babaissarkar/ssplot/actions/workflows/maven-publish.yml/badge.svg)](https://github.com/babaissarkar/ssplot/actions/workflows/maven-publish.yml?query=branch%3Amaster) [![GitHub Release](https://img.shields.io/github/v/release/babaissarkar/ssplot?display_name=release&labelColor=orange&color=black)](https://github.com/babaissarkar/ssplot/releases/tag/v2.3.1) ![Ask DeepWiki](https://deepwiki.com/badge.svg) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.16777601.svg)](https://doi.org/10.5281/zenodo.16777601)
+[![License: LGPL v2.1](https://img.shields.io/badge/License-LGPL%20v2.1-orange.svg)](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html) [![CI](https://github.com/babaissarkar/ssplot/actions/workflows/maven-publish.yml/badge.svg)](https://github.com/babaissarkar/ssplot/actions/workflows/maven-publish.yml?query=branch%3Amaster) [![GitHub Release](https://img.shields.io/github/v/release/babaissarkar/ssplot?display_name=release&labelColor=orange&color=black)](https://github.com/babaissarkar/ssplot/releases/tag/v2.3.2) ![Ask DeepWiki](https://deepwiki.com/badge.svg) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.16777601.svg)](https://doi.org/10.5281/zenodo.16777601)
 
-![Main Screen of SSPlot, version 2.3.1](https://babaissarkar.github.io/images/ssplot_screenshot.png)
+![Main Screen of SSPlot, version 2.3.2](https://babaissarkar.github.io/images/ssplot_screenshot.png)
 
 # Requirements
 Any Java version >= 17. (Use latest version if possible)
@@ -13,7 +13,7 @@ Any Java version >= 17. (Use latest version if possible)
 ## Windows
 An `MSI` installer is available (has bundled java runtime).
 
-<a href='https://github.com/babaissarkar/ssplot/releases/download/v2.3.1/SSPlot-2.3.1.msi'><img width='240' alt='Download as MSI Installer' src='src/main/resources/download_msi.svg'/></a>
+<a href='https://github.com/babaissarkar/ssplot/releases/download/v2.3.2/SSPlot-2.3.2.msi'><img width='240' alt='Download as MSI Installer' src='src/main/resources/download_msi.svg'/></a>
 
 For latest dev version, use the generated MSI from the latest workflow run from the Actions tab.
 
@@ -21,10 +21,8 @@ For latest dev version, use the generated MSI from the latest workflow run from 
 A `DEB` package (Actions tab), a flatpak from flathub and an `AppImage` with bundled AdoptOpenJDK java runtime is available.
 
 <a href='https://flathub.org/apps/io.github.babaissarkar.ssplot'><img width='240' alt='Download on Flathub' src='https://flathub.org/api/badge?locale=en'/></a>
-<a href='https://github.com/babaissarkar/ssplot/releases/download/v2.3.1/SSPlot-x86_64.AppImage'><img width='240' alt='Download as AppImage' src='https://docs.appimage.org/_images/download-appimage-banner.svg'/></a>
-<a href="https://snapcraft.io/ssplot">
-    <img alt="Get it from the Snap Store" src=https://snapcraft.io/en/dark/install.svg width='240'/>
-  </a>
+<a href='https://github.com/babaissarkar/ssplot/releases/download/v2.3.2/SSPlot-x86_64.AppImage'><img width='240' alt='Download as AppImage' src='https://docs.appimage.org/_images/download-appimage-banner.svg'/></a>
+<a href="https://snapcraft.io/ssplot"><img alt="Get it from the Snap Store" src=https://snapcraft.io/en/dark/install.svg width='240'/></a>
 
 ## Manual Installation
 1. Install Java runtime (JRE).
