@@ -363,8 +363,8 @@ public class MainFrame extends JFrame {
 						.onClick(() -> openLink("https://github.com/babaissarkar/ssplot/issues/new")),
 					item("Contribute code...")
 						.onClick(() -> openLink("https://github.com/babaissarkar/ssplot/pulls")),
-					item("Donate...")
-						.onClick(() -> openLink("https://ko-fi.com/lumiouse")),
+//					item("Donate...")
+//						.onClick(() -> openLink("https://ko-fi.com/lumiouse")),
 					item("About")
 						.onClick(() -> showAbout())
 				)

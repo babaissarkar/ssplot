@@ -40,10 +40,6 @@ Note 2. Make sure you can access the `java` command from the JRE on the terminal
 * [DeepWiki](https://deepwiki.com/babaissarkar/ssplot) (Note: may contain very slight inaccuracies)
 * A old manual is available inside the `docs/manual` directory (or its link, the `doc` directory at the root) in pdf and odt formats. You can generate the pdf from the odt using LibreOffice Writer or any other tool you prefer.
 
-# Support this Project!
-Highly appreciated and helpful to the future of this project!<br/>
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/I2I11E85IE)
-
 # Dependency libraries (included)
 1. FlatLAF
 2. FlatLAF Intellij Themes
