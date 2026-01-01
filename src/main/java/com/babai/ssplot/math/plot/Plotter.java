@@ -40,10 +40,6 @@ public final class Plotter {
 	public Plotter(InfoLogger logger) {
 		this.logger = logger;
 		p = new Project2D(logger);
-		initPlot();
-	}
-	
-	public void initPlot() {
 		initPlot(DEFAULT_W, DEFAULT_H);
 	}
 	
@@ -68,13 +64,9 @@ public final class Plotter {
 	 * It will also initialize the plot if you forget. */
 	private void plotData(PlotData pdata) {
 		if (canv == null) {
-			initPlot();
+			initPlot(DEFAULT_W, DEFAULT_H);
 		}
 		
-		plotData(canv, pdata);
-	}
-	
-	private void plotData(Canvas canv, PlotData pdata) {
 		var dataCols = new ArrayList<Integer>();
 		for (int i = 0; i < pdata.getPlotType().dim(); i++) {
 			dataCols.add(pdata.getDataCol(i));
@@ -89,77 +81,77 @@ public final class Plotter {
 
 		for (Vector<Double> row : dataset) {
 			switch(pdata.getPlotType()) {
-			case VFIELD:
-				/* For now, it works for vector data in first four columns only */
-				if (row.size() >= 4) {
-					p1 = canv.getTransformedPoint(new Point2D.Double(row.get(dataCols.get(0)), row.get(dataCols.get(1))));
-					p2 = canv.getTransformedPoint(new Point2D.Double(row.get(dataCols.get(2)), row.get(dataCols.get(3))));
-
-					canv.drawVector(p1, p2, pdata.getFgColor2());
-				} else {
-					System.err.println("Bad vector field data!");
+				case VFIELD -> {
+					/* For now, it works for vector data in first four columns only */
+					if (row.size() >= 4) {
+						// TODO data mapping for 4 col Vfield data
+						// currently always first 4 cols will be used
+						p1 = canv.getTransformedPoint(new Point2D.Double(row.get(0), row.get(1)));
+						p2 = canv.getTransformedPoint(new Point2D.Double(row.get(2), row.get(3)));
+	
+						canv.drawVector(p1, p2, pdata.getFgColor2());
+					} else {
+						System.err.println("Bad vector field data!");
+					}
 				}
-				break;
-				
-			case LINES3:
-				if (row.size() >= 3) {
-					Point2D.Double pp = p.project(row.get(dataCols.get(0)), row.get(dataCols.get(1)), row.get(dataCols.get(2)));
-					p1 = canv.getTransformedPoint(pp);
-					canv.setProjection(p);
-					canv.drawPoint(p1, PlotData.PointType.SQUARE, pdata.ptX, pdata.ptY);
-				} else {
-					System.err.println("Data is not three dimensional!");
-				}
-				break;
-				
-			case POINTS3:
-				if (row.size() >= 3) {
-					Point2D.Double pp = p.project(row.get(dataCols.get(0)), row.get(dataCols.get(1)), row.get(dataCols.get(2)));
-					p2 = canv.getTransformedPoint(pp);
-					if (p1 != null) {
+					
+				case POINTS3 -> {
+					if (row.size() >= 3) {
 						canv.setProjection(p);
-						canv.setStroke(pdata.ptX);
-						canv.drawLine(p1, p2);
+						canv.drawPoint(getPoint3D(row, dataCols, p, 0, 1, 2), PlotData.PointType.SQUARE, pdata.ptX, pdata.ptY);
+					} else {
+						System.err.println("Data is not three dimensional!");
 					}
+				}
+					
+				case LINES3 -> {
+					if (row.size() >= 3) {
+						p2 = getPoint3D(row, dataCols, p, 0, 1, 2);
+						if (p1 != null) {
+							canv.setProjection(p);
+							canv.setStroke(pdata.ptX);
+							canv.drawLine(p1, p2);
+						}
+						p1 = p2;
+					} else {
+						System.err.println("Data is not three dimensional!");
+					}
+				}
+					
+				case POINTS, LINES, LINES_POINTS -> {
+					p2 = getPoint2D(row, dataCols, 0, 1);
+					
+					if (p1 != null) {
+						switch(pdata.getPlotType()) {
+							case LINES -> {
+								canv.setStroke(pdata.ptX);
+								canv.drawLine(p1, p2);
+							}
+							
+							case POINTS -> canv.drawPoint(p1, PlotData.PointType.SQUARE, pdata.ptX, pdata.ptY);
+							
+							case LINES_POINTS -> {
+								Color c = canv.getFGColor();
+								Point2D.Double pback = new Point2D.Double(
+									p1.getX() - (pdata.ptX+4)/2,
+									p1.getY() - (pdata.ptY+4)/2);
+								// The line is drawn with plot FGcolor 1
+								// the points on the top is drawn with plot FGcolor 2
+								// FIXME generalization needed
+								canv.setStroke(pdata.ptX);
+								canv.drawLine(p1, p2);
+								
+								canv.setFGColor(pdata.getFgColor2());
+								canv.drawPoint(pback, PlotData.PointType.CIRCLE, pdata.ptX+4, pdata.ptY+4);
+								canv.setFGColor(c);
+							}
+							
+							default -> {}
+						}
+					}
+					
 					p1 = p2;
-				} else {
-					System.err.println("Data is not three dimensional!");
 				}
-				break;
-				
-			default:
-				canv.setAxes3d(false);
-				p2 = canv.getTransformedPoint(
-					new Point2D.Double(row.get(dataCols.get(0)), row.get(dataCols.get(1))));
-				if (p1 != null) {
-					switch(pdata.getPlotType()) {
-					case LINES :
-						canv.setStroke(pdata.ptX);
-						canv.drawLine(p1, p2);
-						break;
-					case POINTS :
-						canv.drawPoint(p1, PlotData.PointType.SQUARE, pdata.ptX, pdata.ptY);
-						break;
-					case LINES_POINTS :
-						Color c = canv.getFGColor();
-						Point2D.Double pback = new Point2D.Double(
-							p1.getX() - (pdata.ptX+4)/2,
-							p1.getY() - (pdata.ptY+4)/2);
-						// The line is drawn with plot FGcolor 1
-						// the points on the top is drawn with plot FGcolor 2
-						// FIXME generalization needed
-						canv.setStroke(pdata.ptX);
-						canv.drawLine(p1, p2);
-						
-						canv.setFGColor(pdata.getFgColor2());
-						canv.drawPoint(pback, PlotData.PointType.CIRCLE, pdata.ptX+4, pdata.ptY+4);
-						canv.setFGColor(c);
-					default :
-						// Nothing here.
-						break;
-					}
-				}
-				p1 = p2;
 			}
 		}
 		
@@ -174,6 +166,16 @@ public final class Plotter {
 		for (Node node : pdata.getNodes()) {
 			canv.drawNode(node);
 		}
+	}
+
+	private Point2D.Double getPoint3D(Vector<Double> row, ArrayList<Integer> dataCols, Project2D projector,
+			int i, int j, int k)
+	{
+		return projector.project(row.get(dataCols.get(i)), row.get(dataCols.get(j)), row.get(dataCols.get(k)));
+	}
+
+	private Point2D.Double getPoint2D(Vector<Double> row, ArrayList<Integer> dataCols, int c1, int c2) {
+		return canv.getTransformedPoint(new Point2D.Double(row.get(dataCols.get(c1)), row.get(dataCols.get(c2))));
 	}
 
 	public BufferedImage getImage() {
