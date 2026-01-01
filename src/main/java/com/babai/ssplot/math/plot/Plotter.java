@@ -75,7 +75,11 @@ public final class Plotter {
 	}
 	
 	private void plotData(Canvas canv, PlotData pdata) {
-		var dataCols = new ArrayList<Integer>(pdata.getDataColMapping().values());
+		var dataCols = new ArrayList<Integer>();
+		for (int i = 0; i < pdata.getPlotType().dim(); i++) {
+			dataCols.add(pdata.getDataCol(i));
+		}
+		
 		Point2D.Double p1 = null, p2 = null;
 
 		Vector<Vector<Double>> dataset = pdata.getData();
