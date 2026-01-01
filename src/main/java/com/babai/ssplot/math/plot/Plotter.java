@@ -82,10 +82,9 @@ public final class Plotter {
 		for (Vector<Double> row : dataset) {
 			switch(pdata.getPlotType()) {
 				case VFIELD -> {
-					/* For now, it works for vector data in first four columns only */
+					// For now, it works for vector data in first four columns only
+					// TODO custom column mapping
 					if (row.size() >= 4) {
-						// TODO data mapping for 4 col Vfield data
-						// currently always first 4 cols will be used
 						p1 = canv.getTransformedPoint(new Point2D.Double(row.get(0), row.get(1)));
 						p2 = canv.getTransformedPoint(new Point2D.Double(row.get(2), row.get(3)));
 	
