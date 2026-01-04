@@ -45,13 +45,12 @@ public class NumParse {
 		return headers;
 	}
 	
-	public static Vector<Vector<Double>> parse(Path fpath) throws IOException {
-		var arEntries = new Vector<Vector<Double>>();
+	public static double[][] parse(Path fpath) throws IOException {
 		var lines = Files.readAllLines(fpath);
+		var arEntries = new double[lines.size()][];
 		
 		// Reading and parsing data.
-		for (int i = 0; i < lines.size(); i++) {
-			var entries = new Vector<Double>();
+		for (int i = 0, row = 0; i < lines.size(); i++) {
 			String line = lines.get(i);
 			
 			// If any lines starts with "#", ignore
@@ -72,26 +71,28 @@ public class NumParse {
 				strEntries = line.split(sepWS);
 			}
 			
+			// Looks like this line doesn't contain any
+			// separators, skip
 			if (strEntries == null) {
-				// Looks like this line doesn't contain any
-				// separators, skip
 				continue;
 			}
 			
-			for (String str : strEntries) {
+			var entries = new double[strEntries.length];
+			for (int col = 0; col < strEntries.length; col++) {
 				try {
-					entries.add(Double.parseDouble(str));
+					entries[col] = Double.parseDouble(strEntries[col]);
 				} catch(NumberFormatException noe) {
 					// Files has headers, store
 					// delete any " (dbl quotes) if exists
 					if (i == 0) {
-						headers.add(str.strip().replace("\"", ""));
+						headers.add(strEntries[col].strip().replace("\"", ""));
 					}
 				}
 			}
 			
-			if (!entries.isEmpty()) {
-				arEntries.add(entries);
+			if (entries.length != 0) {
+				arEntries[row] = entries;
+				row++;
 			}
 		}
 		return arEntries;

@@ -26,7 +26,6 @@ package com.babai.ssplot.math.plot;
 import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -76,7 +75,7 @@ public class PlotData implements Cloneable {
 	// Also, ptX, ptY could be fields of PointType
 	public enum PointType { SQUARE, CIRCLE };
 
-	private Vector<Vector<Double>> data;
+	private double[][] data;
 	private Vector<Node> nodes;
 	private EquationSystem system;
 	
@@ -96,20 +95,8 @@ public class PlotData implements Cloneable {
 	
 	private Color fgColor, fgColor2;
 	private String title;
-	
-	// Sliences an exception in splice
-	@Override
-	public Object clone() {
-		try {
-			return super.clone(); // shallow clone
-		} catch (CloneNotSupportedException e) {
-			throw new AssertionError(); // Should never happen since we implement Cloneable
-		}
-	}
 
-	public PlotData() { this(new Vector<Vector<Double>>()); }
-
-	public PlotData(Vector<Vector<Double>> extData) {
+	public PlotData(double[][] extData) {
 		data = extData;
 		nodes = new Vector<Node>();		
 		// Plot Type
@@ -152,10 +139,10 @@ public class PlotData implements Cloneable {
 
 
 	// ------------- DATA METHODS -----------------
-	public Vector<Vector<Double>> getData() { return data; }
-	public void setData(Vector<Vector<Double>> data) { this.data = data; }
-	public int getRowCount() { return data.size(); }
-	public int getColumnCount() { return getRowCount() > 0 ? data.firstElement().size() : 0; }
+	public double[][] getData() { return data; }
+	public void setData(double[][] data) { this.data = data; }
+	public int getRowCount() { return data.length; }
+	public int getColumnCount() { return data.length > 0 ? data[0].length : 0; }
 	
 	/**
 	 * @return the index of the data column corresponding to axis with `axisName`.
@@ -212,21 +199,20 @@ public class PlotData implements Cloneable {
 		}
 		
 		from = Math.max(0, from);
-		to = Math.min(this.data.size(), to);
+		to = Math.min(getRowCount(), to);
 
-		var pdata = (PlotData) this.clone();
-		pdata.data = new Vector<>();
-		for (var row : this.data.subList(from, to)) {
-			pdata.data.add(new Vector<>(row)); // copy inner vectors too
+		double[][] dataCopy = new double[to - from][];
+		for (int i = from; i < to; i++) {
+			dataCopy[i] = this.data[i];
 		}
-		return pdata;
+		return new PlotData(dataCopy);
 	}
 	
-	public Vector<Double> getColumn(int i) {
-		Vector<Double> colData = new Vector<>();
-		for (var row : data) {
-			if (i < row.size()) {
-				colData.add(row.get(i));
+	public double[] getColumn(int i) {
+		double[] colData = new double[getRowCount()];
+		for (int rowIdx = 0; rowIdx < colData.length; rowIdx++) {
+			if (i < getColumnCount()) {
+				colData[rowIdx] = this.data[rowIdx][i]; 
 			}
 		}
 		return colData;
@@ -236,13 +222,13 @@ public class PlotData implements Cloneable {
 	 * @param dataCol     index of a column
 	 * @return            maximum value among all data in the given column
 	 */
-	public double getMax(int dataCol) { return Collections.max(getColumn(dataCol)); }
+	public double getMax(int dataCol) { return Stats.max(getColumn(dataCol)); }
 
 	/**
 	 * @param dataCol     index of a column
 	 * @return            min value among all data in the given column
 	 */
-	public double getMin(int dataCol) { return Collections.min(getColumn(dataCol)); }
+	public double getMin(int dataCol) { return Stats.min(getColumn(dataCol)); }
 	
 	
 	// ------------------ NODE METHODS -------------------
@@ -279,7 +265,7 @@ public class PlotData implements Cloneable {
 	}
 
 	private String formatStats(String colName, int i) {
-		Vector<Double> colData = getColumn(i);
+		double[] colData = getColumn(i);
 		return String.format(
 				"""
 				%s:
@@ -289,9 +275,9 @@ public class PlotData implements Cloneable {
 					Q1=%.4f, Median=%.4f, Q3=%.4f
 				""",
 				colName,
-				colData.size(),
-				Collections.min(colData),
-				Collections.max(colData),
+				colData.length,
+				Stats.min(colData),
+				Stats.max(colData),
 				Stats.mean(colData),
 				Stats.variance(colData),
 				Stats.stdDev(colData),

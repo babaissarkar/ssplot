@@ -45,7 +45,6 @@ public class SSPlotCLI {
 		clilogger.log("Welcome to SSPlot CLI!");
 
 		plt = new Plotter(clilogger);
-		plt.initPlot();
 	}
 
 	public static void main (String[] args) {

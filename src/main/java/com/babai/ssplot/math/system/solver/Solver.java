@@ -60,9 +60,9 @@ public class Solver {
 	/******************************************************************/
 	/** Solve the system of equations by RK 4th order method */
 	/******************************************************************/
-	public Vector<Vector<Double>> RK4Iterate(double x0, double y0) {
+	public double[][] RK4Iterate(double x0, double y0) {
 		System.out.println("2D RK4 started.");
-		var soln = new Vector<Vector<Double>>();
+		var soln = new double[system.n()][2];
 		if (!validate(2)) { // 2d system
 			System.err.println("Invalid System for 2D RK4 iteration!");
 			return soln;
@@ -79,7 +79,7 @@ public class Solver {
 		x = x0;
 		y = y0;
 
-		for (int i = 0; i < system.n(); i++) {
+		for (int i = 0; i < system.n(); i++) {			
 			k1 = h * dx_dt.of(x, y);
 			p1 = h * dy_dt.of(x, y);
 			k2 = h * dx_dt.of(x + 0.5 * k1, y + 0.5 * p1);
@@ -91,7 +91,8 @@ public class Solver {
 			x += (k1 + 2*k2 + 2*k3 + k4)/6.0;
 			y += (p1 + 2*p2 + 2*p3 + p4)/6.0;
 
-			soln.add(new Vector<>(List.of(x, y)));
+			soln[i][0] = x;
+			soln[i][1] = y;
 		}
 
 		return soln;

@@ -27,7 +27,7 @@ import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.Vector;
+
 import com.babai.ssplot.util.InfoLogger;
 
 public final class Plotter {
@@ -74,19 +74,19 @@ public final class Plotter {
 		
 		Point2D.Double p1 = null, p2 = null;
 
-		Vector<Vector<Double>> dataset = pdata.getData();
+		var dataset = pdata.getData();
 		canv.setFGColor(pdata.getFgColor());
 		canv.setAxes3d(pdata.getPlotType().dim() == 3);
 		clear();
 
-		for (Vector<Double> row : dataset) {
+		for (var row : dataset) {
 			switch(pdata.getPlotType()) {
 				case VFIELD -> {
 					// For now, it works for vector data in first four columns only
 					// TODO custom column mapping
-					if (row.size() >= 4) {
-						p1 = canv.getTransformedPoint(new Point2D.Double(row.get(0), row.get(1)));
-						p2 = canv.getTransformedPoint(new Point2D.Double(row.get(2), row.get(3)));
+					if (row.length >= 4) {
+						p1 = canv.getTransformedPoint(new Point2D.Double(row[0], row[1]));
+						p2 = canv.getTransformedPoint(new Point2D.Double(row[2], row[3]));
 	
 						canv.drawVector(p1, p2, pdata.getFgColor2());
 					} else {
@@ -95,7 +95,7 @@ public final class Plotter {
 				}
 					
 				case POINTS3 -> {
-					if (row.size() >= 3) {
+					if (row.length >= 3) {
 						canv.setProjection(p);
 						canv.drawPoint(getPoint3D(row, dataCols, p, 0, 1, 2), PlotData.PointType.SQUARE, pdata.ptX, pdata.ptY);
 					} else {
@@ -104,7 +104,7 @@ public final class Plotter {
 				}
 					
 				case LINES3 -> {
-					if (row.size() >= 3) {
+					if (row.length >= 3) {
 						p2 = getPoint3D(row, dataCols, p, 0, 1, 2);
 						if (p1 != null) {
 							canv.setProjection(p);
@@ -167,14 +167,14 @@ public final class Plotter {
 		}
 	}
 
-	private Point2D.Double getPoint3D(Vector<Double> row, ArrayList<Integer> dataCols, Project2D projector,
+	private Point2D.Double getPoint3D(double[] row, ArrayList<Integer> dataCols, Project2D projector,
 			int i, int j, int k)
 	{
-		return projector.project(row.get(dataCols.get(i)), row.get(dataCols.get(j)), row.get(dataCols.get(k)));
+		return projector.project(row[dataCols.get(i)], row[dataCols.get(j)], row[dataCols.get(k)]);
 	}
 
-	private Point2D.Double getPoint2D(Vector<Double> row, ArrayList<Integer> dataCols, int c1, int c2) {
-		return canv.getTransformedPoint(new Point2D.Double(row.get(dataCols.get(c1)), row.get(dataCols.get(c2))));
+	private Point2D.Double getPoint2D(double[] row, ArrayList<Integer> dataCols, int c1, int c2) {
+		return canv.getTransformedPoint(new Point2D.Double(row[dataCols.get(c1)], row[dataCols.get(c2)]));
 	}
 
 	public BufferedImage getImage() {
