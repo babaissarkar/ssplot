@@ -1,5 +1,5 @@
 /*
- * DBView.java
+ * DataView.java
  * 
  * Copyright 2021-2025 Subhraman Sarkar <suvrax@gmail.com>
  * 
@@ -61,7 +61,7 @@ import static com.babai.ssplot.ui.controls.DUI.*;
 
 public class DataView extends UIFrame {
 	private Vector<PlotData> plotlist;
-	private Vector<Vector<Double>> dataset;
+	private double[][] dataset;
 
 	private int colNum = 0;
 	private int rowNum = 0;
@@ -220,6 +220,7 @@ public class DataView extends UIFrame {
 	public void clear() {
 		plotlist.clear();
 		updatePlotList();
+		
 		for (var cbox : jcbColMapper) {
 			cbox.removeAllItems();
 			cbox.setEnabled(false);
@@ -255,21 +256,21 @@ public class DataView extends UIFrame {
 		
 		// FIXME Can be moved into a separate function
 		// See also PlotData.info()
-		var headers = new Vector<String>();
+		var headers = new String[colNum];
 		var mappings = pdata.getDataColMapping();
 		for (int i = 0; i < colNum; i++) {
 			boolean isKnownColumn = false;
 			for (var entry : mappings.entrySet()) {
 				var lbl = pdata.getAxisLabel(i);
 				if (lbl.isPresent() || entry.getValue() == i) {
-					headers.add(lbl.orElse(entry.getKey().toString() + " Data"));
+					headers[i] = lbl.orElse(entry.getKey().toString() + " Data");
 					isKnownColumn = true;
 					break;
 				}
 			}
 			
 			if (!isKnownColumn) {
-				headers.add("Column " + (i+1));
+				headers[i] = "Column " + (i+1);
 			}
 		}
 		
@@ -320,22 +321,20 @@ public class DataView extends UIFrame {
 
 	/** @return the dataset */
 	public Optional<PlotData> getData() {
-		var newdataset = new Vector<Vector<Double>>();
 		var model = (DefaultTableModel) table.getModel();
+		var newdataset = new double[model.getRowCount()][model.getColumnCount()];
 
 		for (int i = 0; i < model.getRowCount(); i++) {
-			var row = new Vector<Double>();
 			for (int j = 0; j < model.getColumnCount(); j++) {
 				Object o = model.getValueAt(i, j);
-				double val = -1.0; // placeholder for unsupported type
 				if (o instanceof Double d) {
-					val = d;
+					newdataset[i][j] = d;
 				} else if (o instanceof String s) {
-					val = Double.parseDouble(s);
+					newdataset[i][j] = Double.parseDouble(s);
+				} else {
+					newdataset[i][j] = -1; // placeholder for unsupported type
 				}
-				row.add(val);
 			}
-			newdataset.add(row);
 		}
 
 		int id = jcbPlotlist.getSelectedIndex();
@@ -389,19 +388,17 @@ public class DataView extends UIFrame {
 			}
 
 			// Initialize vector of vectors with existing data or zeros
-			Vector<Vector<Double>> data = new Vector<>();
+			var data = new double[newRowCount][newColCount];
 			for (int r = 0; r < newRowCount; r++) {
-				Vector<Double> rowVector = new Vector<>();
 				for (int c = 0; c < newColCount; c++) {
 					Object value = (r < table.getRowCount() && c < table.getColumnCount())
 							? table.getValueAt(r, c) : null;
 					try {
-						rowVector.add(value != null ? Double.parseDouble(value.toString()) : 0.0);
+						data[r][c] = value != null ? Double.parseDouble(value.toString()) : 0.0;
 					} catch (NumberFormatException e) {
-						rowVector.add(0.0); // fallback if existing value isn't a number
+						data[r][c] = 0.0; // fallback if existing value isn't a number
 					}
 				}
-				data.add(rowVector);
 			}
 
 			// Populate new data from clipboard
@@ -410,11 +407,12 @@ public class DataView extends UIFrame {
 				for (int j = 0; j < cells.length; j++) {
 					int row = startRow + i;
 					int col = startCol + j;
-					if (row < data.size() && col < data.get(row).size()) {
+					if (row < data.length && col < data[0].length) {
+						data[row][0] = col;
 						try {
-							data.get(row).set(col, Double.parseDouble(cells[j].trim()));
+							data[row][1] = Double.parseDouble(cells[j].trim());
 						} catch (NumberFormatException e) {
-							data.get(row).set(col, 0.0); // fallback for invalid number
+							data[row][1] = 0.0; // fallback for invalid number
 						}
 					}
 				}
@@ -438,14 +436,8 @@ public class DataView extends UIFrame {
 		if (!dialog.isCancelled()) {
 			rowNum = dialog.getRowNum();
 			colNum = dialog.getColNum();
-			var dataset = new Vector<Vector<Double>>();
-			for (int i = 0; i < rowNum; i++) {
-				var row = new Vector<Double>();
-				for (int j = 0; j < colNum; j++) {
-					row.add(dialog.getFillWith());
-				}
-				dataset.add(row);
-			}
+			var dataset = new double[rowNum][colNum];
+			Arrays.fill(dataset, dialog.getFillWith());
 			setData(new PlotData(dataset));
 		} else {
 			return;
