@@ -244,22 +244,9 @@ public class PlotData implements Cloneable {
 			buff.append(getSystem().toString()).append("\n");
 		}
 		
-		// FIXME Can be moved into a separate function
-		var mappings = getDataColMapping();
+		var headers = getHeaders();
 		for (int i = 0; i < getColumnCount(); i++) {
-			boolean isKnownColumn = false;
-			for (var entry : mappings.entrySet()) {
-				var lbl = getAxisLabel(i);
-				if (lbl.isPresent() || entry.getValue() == i) {
-					String colName = lbl.orElse(entry.getKey().toString() + " Data");
-					buff.append(formatStats(colName, i));
-					isKnownColumn = true;
-					break;
-				}
-			}
-			if (!isKnownColumn) {
-				buff.append(formatStats("Col " + i, i));
-			}
+			buff.append(formatStats(headers.get(i), i));
 		}
 		return buff.toString();
 	}
@@ -288,4 +275,24 @@ public class PlotData implements Cloneable {
 				Stats.quartile(colData, 0.75));
 	}
 
+	public Vector<String> getHeaders() {
+		var headers = new Vector<String>();
+		var mappings = getDataColMapping();
+		for (int i = 0; i < getColumnCount(); i++) {
+			boolean isKnownColumn = false;
+			for (var entry : mappings.entrySet()) {
+				var lbl = getAxisLabel(i);
+				if (lbl.isPresent() || entry.getValue() == i) {
+					headers.add(lbl.orElse(entry.getKey().toString() + " Data"));
+					isKnownColumn = true;
+					break;
+				}
+			}
+			
+			if (!isKnownColumn) {
+				headers.add("Column " + (i+1));
+			}
+		}
+		return headers;
+	}
 }

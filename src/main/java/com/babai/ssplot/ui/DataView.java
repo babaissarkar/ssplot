@@ -254,29 +254,22 @@ public class DataView extends UIFrame {
 		
 		// Update the table
 		
-		// FIXME Can be moved into a separate function
-		// See also PlotData.info()
-		var headers = new String[colNum];
-		var mappings = pdata.getDataColMapping();
-		for (int i = 0; i < colNum; i++) {
-			boolean isKnownColumn = false;
-			for (var entry : mappings.entrySet()) {
-				var lbl = pdata.getAxisLabel(i);
-				if (lbl.isPresent() || entry.getValue() == i) {
-					headers[i] = lbl.orElse(entry.getKey().toString() + " Data");
-					isKnownColumn = true;
-					break;
-				}
-			}
-			
-			if (!isKnownColumn) {
-				headers[i] = "Column " + (i+1);
-			}
-		}
+		var headers = pdata.getHeaders();
 		
 		jcbColMapper.lastElement().setEnabled(colNum > 2);
-
-		table.setModel(new DefaultTableModel(dataset, headers));
+		
+		// FIXME find a better, efficient way than creating a duplicate
+		// container everytime. Issue is that DefaultTableModel doesn't support
+		// primitive arrays. Double[][] incurs boxing/unboxing.
+		var tableData = new Vector<Vector<Double>>();
+		for (var row : dataset) {
+			var tableRow = new Vector<Double>();
+			for (var value : row) {
+				tableRow.add(value);
+			}
+			tableData.add(tableRow);
+		}
+		table.setModel(new DefaultTableModel(tableData, headers));
 
 		TableColumnModel columns = table.getColumnModel();
 		for (int i = 0; i < colNum; i++) {
@@ -444,6 +437,7 @@ public class DataView extends UIFrame {
 		}
 	}
 
+	// FIXME doesn't belong here
 	public boolean openFile() {
 		var files = new JFileChooser();
 		if (files.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
@@ -467,6 +461,7 @@ public class DataView extends UIFrame {
 		return false;
 	}
 
+	// FIXME doesn't belong here
 	public void saveFile() {
 		var data = new Vector<Vector<Double>>(); 
 		for (int i = 0; i < rowNum; i++) {
