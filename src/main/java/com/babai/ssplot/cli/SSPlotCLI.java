@@ -25,7 +25,6 @@ package com.babai.ssplot.cli;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Map;
 import java.util.Scanner;
 
 import javax.imageio.ImageIO;
@@ -73,7 +72,7 @@ public class SSPlotCLI {
 				if (line.equalsIgnoreCase("exit")) {
 					break;
 				} else {
-					System.out.println(parser.evaluate(line, Map.of()));
+					System.out.println(parser.evaluate(line));
 				}
 			}
 		} catch (Exception e) {

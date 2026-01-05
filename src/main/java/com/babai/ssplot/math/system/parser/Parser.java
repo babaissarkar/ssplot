@@ -23,11 +23,11 @@
 
 package com.babai.ssplot.math.system.parser;
 
-import java.util.Map;
-
 public interface Parser {
-	// Evaluate an expression using this parser
-	double evaluate(String expression, Map<String, Double> variables);
+	public void setVariables(String... variables);
+	
+	/** Evaluate an expression using this parser */
+	public double evaluate(String expression, double... values);
 	
 	public String getName();
 }

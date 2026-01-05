@@ -23,15 +23,19 @@
 
 package com.babai.ssplot.math.system.parser.internal.tree;
 
-import java.util.Map;
-import java.util.Vector;
+import java.util.ArrayList;
 
 public class TreeNode {
 	private TreeOperator nodeOp = null;
-	private Vector<TreeNode> nodes = new Vector<TreeNode>();
+	private ArrayList<TreeNode> nodes = new ArrayList<>();
+	private String[] varNames = new String[0];
 
 	public TreeNode(TreeOperator op) {
 		this.nodeOp = op;
+	}
+	
+	public void setVarNames(String... varNames) {
+		this.varNames = varNames;
 	}
 
 	/** 
@@ -48,8 +52,11 @@ public class TreeNode {
 		return res;
 	}
 	
-	public double evalAt(Map<String, Double> variables) {
-		variables.forEach((var, val) -> scanVariables(var, val));
+	public double evalAt(double... values) {
+		// TODO check values len >= varName length
+		for (int varIdx = 0; varNames != null && varIdx < varNames.length; varIdx++) {
+			scanVariables(varNames[varIdx], values[varIdx]);
+		}
 		return getValue();
 	}
 
@@ -84,10 +91,10 @@ public class TreeNode {
 	}
 
 	public void removeChilds() {
-		nodes.removeAllElements();
+		nodes.clear();
 	}
 
-	public Vector<TreeNode> getChilds() {
+	public ArrayList<TreeNode> getChilds() {
 		return nodes;
 	}
 

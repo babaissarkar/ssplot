@@ -23,8 +23,6 @@
 
 package com.babai.ssplot.math.system.parser;
 
-import java.util.Map;
-
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 
@@ -33,6 +31,12 @@ import com.babai.ssplot.ui.CrashFrame;
 public class ScriptParser implements Parser {
 	private String name;
 	private ScriptEngine engine;
+	private String[] varNames;
+	
+	@Override
+	public void setVariables(String... varNames) {
+		this.varNames = varNames;
+	}
 	
 	public ScriptParser(String name, ScriptEngine engine) {
 		this.name = name;
@@ -40,12 +44,15 @@ public class ScriptParser implements Parser {
 	}
 
 	@Override
-	public double evaluate(String expression, Map<String, Double> variables) {
+	public double evaluate(String expression, double... variables) {
 		if (expression.isEmpty()) {
 			return 0;
 		}
 		
-		variables.forEach((var, val) -> engine.put(var, val));
+		for (int i = 0; varNames != null && i < varNames.length; i++) {
+			engine.put(varNames[i], variables[i]);
+		}
+		
 		try {
 			engine.eval("answer = " + expression);
 			return (double) engine.get("answer");

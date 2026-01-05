@@ -29,6 +29,8 @@ import com.babai.ssplot.math.system.parser.internal.SSMathParser;
 
 public class TreeParser implements Parser {
 	private static final String NAME = "Internal";
+	private String[] varNames;
+	
 	private static final Map<String, TreeNode> exprCache = new LinkedHashMap<>(16, 0.75f, true) {
 		private static final int MAX_CACHE_ENTRIES = 100;
 		@Override
@@ -37,30 +39,38 @@ public class TreeParser implements Parser {
 		}
 	};
 	
+	public static String internalParserName() {
+		return NAME;
+	}
+	
 	@Override
-	public double evaluate(String expression, Map<String, Double> variables) {		
+	public double evaluate(String expression, double... vals) {
 		// get the cached TreeNode or parse it if missing
 		TreeNode tree = exprCache.computeIfAbsent(expression, this::parse);
 
 		// evaluate the cached AST with the provided variables
-		return tree.evalAt(variables);
+		return tree.evalAt(vals);
 	}
 
 	@Override
 	public String getName() {
 		return internalParserName();
 	}
-	
-	public static String internalParserName() {
-		return NAME;
-	}
 
 	public TreeNode parse(String token) {
+		TreeNode exprNode; 
 		try {
-			return SSMathParser.parseString(token);
+			exprNode = SSMathParser.parseString(token);
 		} catch(Exception e) {
-			return new TreeNode(new Constant(0.0));
+			exprNode = new TreeNode(new Constant(0.0));
 		}
+		exprNode.setVarNames(varNames);
+		return exprNode;
+	}
+
+	@Override
+	public void setVariables(String... varNames) {
+		this.varNames = varNames;
 	}
 }
 

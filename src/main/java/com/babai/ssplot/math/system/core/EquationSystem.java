@@ -24,7 +24,6 @@
 package com.babai.ssplot.math.system.core;
 
 import java.util.Arrays;
-import java.util.Iterator;
 
 /**
  * Class that holds data for system of equations.
@@ -43,8 +42,17 @@ public record EquationSystem (
 	public static final double DEFAULT_H = 0.05; /* Default stepsize for RK4                */
 	public static final Range DEFAULT_RANGE =
 			new Range(-10, 10, 0.1);             /* Default range for the variables x, y, z */
+	
 	public int numberOfEqns() {
 		return (int) Arrays.stream(eqns).filter(eqn -> !eqn.isEmpty() && !eqn.isBlank()).count();
+	}
+	
+	public String eqn(int i) {
+		return eqns[i];
+	}
+	
+	public Range range(int i) {
+		return ranges[i];
 	}
 
 	@Override
@@ -154,7 +162,7 @@ public record EquationSystem (
 	}
 
 	/** Small record for storing range info for each independent variable */
-	public record Range(double start, double end, double step) implements Iterable<Double> {
+	public record Range(double start, double end, double step) {
 
 		public Range(double start, double end) {
 			this(start, end, start < end ? 1 : -1);
@@ -163,41 +171,19 @@ public record EquationSystem (
 		public Range(double end) {
 			this(0, end, end > 0 ? 1 : -1);
 		}
-
-		@Override
-		public Iterator<Double> iterator() {
-			return new Iterator<Double>() {
-				Double current = start;
-
-				@Override
-				public boolean hasNext() {
-					if (step == 0) throw new IllegalArgumentException("Step cannot be zero!");
-					return step > 0 ? current < end : current > end;
-				}
-
-				@Override
-				public Double next() {
-					current += step;
-					return current;
-				}
-
-			};
+		
+		public double at(int i) {
+			return start + step * i;
 		}
 
 		/** NOTE: does not include endpoint */
 		public int count() {
-			return (int) Math.floor((end - start) / step);
+			if (step == 0) throw new IllegalArgumentException("Step cannot be zero!");
+			return (int) Math.round((end - start) / step);
 		}
 
 		public double[] toArray() {
 			return new double[] { start(), end(), step() };
-		}
-
-
-		public void printAllPoints() {
-			for (double d : this) {
-				System.out.println(d);
-			}
 		}
 	}
 
