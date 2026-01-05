@@ -349,7 +349,7 @@ public class SystemInputFrame extends UIFrame {
 		var system = getSystem();
 		var solver = new Solver(ParserManager.getParser(), system);
 		curData = new PlotData(solver.directionField());
-		curData.setPlotType(PlotData.PlotType.POINTS3);
+		curData.setPlotType(PlotData.PlotType.VFIELD);
 		curData.setSystem(system);
 		updater.accept(curData);
 	}

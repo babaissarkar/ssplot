@@ -75,9 +75,10 @@ public final class Plotter {
 		Point2D.Double p1 = null, p2 = null;
 
 		var dataset = pdata.getData();
+		
+		clear();
 		canv.setFGColor(pdata.getFgColor());
 		canv.setAxes3d(pdata.getPlotType().dim() == 3);
-		clear();
 
 		for (var row : dataset) {
 			switch(pdata.getPlotType()) {
