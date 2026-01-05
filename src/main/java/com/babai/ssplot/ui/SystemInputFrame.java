@@ -60,8 +60,9 @@ public class SystemInputFrame extends UIFrame {
 	private StateVar<SystemMode> curMode;
 	private EquationSystem.Builder builder;
 	private PlotData curData;
-	
 	private Consumer<PlotData> updater;
+	
+	private int solnPointNum = 0;
 	private UIInput[] inputEqns;
 
 	public SystemInputFrame() {
@@ -104,13 +105,13 @@ public class SystemInputFrame extends UIFrame {
 	
 	private JToolBar createToolbarUI(final List<Axis> axes) {
 		var plot2dCondition = curMode.when(mode ->
-			(mode == SystemMode.ODE && noOfEqns() == 2)
+			(mode == SystemMode.ODE && noOfEqns() == 2 && solnPointNum == 2)
 			|| (mode == SystemMode.DFE && noOfEqns() >= 1)
 			|| (mode == SystemMode.FN1 && noOfEqns() == 1)
 		);
 
 		var plot3dCondition = curMode.when(mode ->
-			(mode == SystemMode.ODE && noOfEqns() == 3)
+			(mode == SystemMode.ODE && noOfEqns() == 3 && solnPointNum == 3)
 			|| (mode == SystemMode.FN2 && noOfEqns() == 1)
 		);
 		
@@ -235,7 +236,7 @@ public class SystemInputFrame extends UIFrame {
 				.column(
 					inputEqns[i] = input()
 						.chars(10)
-						.enabled(eqnCondition.get(idx))
+						.visible(eqnCondition.get(idx))
 						.onChange(text -> {
 							builder.eqn(idx, text);
 							// FIXME find a better way than this to update UI
@@ -255,7 +256,18 @@ public class SystemInputFrame extends UIFrame {
 						input()
 							.chars(3)
 							.enabled(inputConditions.get(idx))
-							.onChange(text -> builder.solnPoint(idx, Double.parseDouble(text)))
+							.onChange(text -> {
+								if (!text.isEmpty()) {
+									solnPointNum++;
+									builder.solnPoint(idx, Double.parseDouble(text));
+								} else {
+									solnPointNum--;
+									builder.solnPoint(idx, 0.0);
+								}
+								
+								// FIXME find a better way than this to update UI
+								curMode.set(curMode.get());
+							})
 					))
 				)
 			)

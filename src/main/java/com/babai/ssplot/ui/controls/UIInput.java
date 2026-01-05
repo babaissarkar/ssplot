@@ -63,6 +63,18 @@ public class UIInput extends JTextField {
 		return this;
 	}
 	
+	// statevar change -> visible property change
+	public UIInput visible(StateVar<Boolean> visible) {
+		setEnabled(visible.get());
+		visible.onChange(() -> setVisible(visible.get()));
+		return this;
+	}
+	
+	public UIInput visible(boolean visible) {
+		setVisible(visible);
+		return this;
+	}
+	
 	public UIInput numeric(boolean numeric) {
 		var keyListener = new KeyAdapter() {
 			public void keyTyped(KeyEvent e) {
@@ -135,10 +147,10 @@ public class UIInput extends JTextField {
 			}
 			
 			private void runUpdateActions() {
-				String text = getText();
-				if (!text.isEmpty()) {
+//				String text = getText();
+//				if (!text.isEmpty()) {
 					textAction.accept(getText());
-				}
+//				}
 			}
 		});
 		return this;
