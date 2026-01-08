@@ -29,9 +29,7 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.print.PrinterException;
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Vector;
@@ -42,7 +40,6 @@ import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
@@ -50,14 +47,13 @@ import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 
-import com.babai.ssplot.math.io.NumParse;
 import com.babai.ssplot.math.plot.PlotData;
 import com.babai.ssplot.math.plot.PlotData.PlotType;
-import com.babai.ssplot.util.InfoLogger;
-import com.babai.ssplot.util.UIHelper;
 import com.babai.ssplot.ui.controls.DUI.Text;
 import com.babai.ssplot.ui.controls.UIFrame;
 import static com.babai.ssplot.ui.controls.DUI.*;
+import com.babai.ssplot.util.InfoLogger;
+import com.babai.ssplot.util.UIHelper;
 
 public class DataView extends UIFrame {
 	private Vector<PlotData> plotlist;
@@ -76,7 +72,7 @@ public class DataView extends UIFrame {
 	private InfoLogger logger;
 	private Consumer<PlotData> updater;
 	
-	public DataView(InfoLogger logger) {
+	public DataView(InfoLogger logger, MainFrame controller) {
 		this.logger = logger;
 		plotlist = new Vector<PlotData>();
 
@@ -143,11 +139,11 @@ public class DataView extends UIFrame {
 		var btnLoad   = button()
 			.icon("/open.jpg")
 			.tooltip("Load Data from File")
-			.onClick(this::openFile);
+			.onClick(controller::openFile);
 		var btnSave   = button()
 			.icon("/save.jpg")
 			.tooltip("Save Data")
-			.onClick(this::saveFile);
+			.onClick(() -> controller.saveFile(getData()));
 		var btnRow    = button()
 			.icon("/insert_row.png")
 			.tooltip("Add Row")
@@ -202,11 +198,6 @@ public class DataView extends UIFrame {
 			.packFrame();
 		
 		clear();
-	}
-
-	public DataView(PlotData data, InfoLogger logger) {
-		this(logger);
-		setData(data);
 	}
 	
 	public void setData(PlotData pdata) {
@@ -436,56 +427,9 @@ public class DataView extends UIFrame {
 			return;
 		}
 	}
-
-	// FIXME doesn't belong here
-	public boolean openFile() {
-		var files = new JFileChooser();
-		if (files.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-			Path dpath = files.getSelectedFile().toPath();
-			if (dpath != null) {
-				try {
-					var pdata = new PlotData(NumParse.parse(dpath));
-					var headers = NumParse.getHeaders();
-					if (!headers.isEmpty()) {
-						pdata.setAxisLabels(headers);
-					}
-					setData(pdata);
-					return true;
-				} catch (IOException e) {
-					CrashFrame.showCrash(e);
-				}
-			}
-			
-		}
-		
-		return false;
-	}
-
-	// FIXME doesn't belong here
-	public void saveFile() {
-		var data = new Vector<Vector<Double>>(); 
-		for (int i = 0; i < rowNum; i++) {
-			var row = new Vector<Double>();
-			for (int j = 0; j < colNum; j++) {
-				row.add(Double.parseDouble(table.getValueAt(i, j).toString()));
-			}
-			data.add(row);
-		}
-
-		var files = new JFileChooser();
-		int stat = files.showSaveDialog(this);
-		File f = null;
-		if (stat == JFileChooser.APPROVE_OPTION) {
-			f = files.getSelectedFile();
-			Path dpath = f.toPath();
-			if (dpath != null) {
-				NumParse.write(data, dpath);
-			}
-		}
-	}
 	
 	private void addRow() {
-		DefaultTableModel model = (DefaultTableModel) table.getModel();
+		var model = (DefaultTableModel) table.getModel();
 		if (model != null) {
 			int cols = model.getColumnCount();
 			String[] row = new String[cols];
@@ -497,7 +441,7 @@ public class DataView extends UIFrame {
 	
 	private void addColumn() {
 		String colName = JOptionPane.showInputDialog("Column Name?");
-		DefaultTableModel model = (DefaultTableModel) table.getModel();
+		var model = (DefaultTableModel) table.getModel();
 		if (model != null) {
 			String[] col = new String[model.getRowCount()];
 			Arrays.fill(col, "");

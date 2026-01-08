@@ -26,7 +26,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GraphicsEnvironment;
 import java.awt.image.BufferedImage;
-import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
@@ -38,7 +38,6 @@ import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JColorChooser;
 import javax.swing.JDesktopPane;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
@@ -47,6 +46,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 
 import com.babai.ssplot.cli.SSPlotCLI;
+import com.babai.ssplot.math.io.NumParse;
 import com.babai.ssplot.math.plot.*;
 import com.babai.ssplot.math.plot.PlotData.PlotType;
 import com.babai.ssplot.ui.controls.DUI;
@@ -54,6 +54,7 @@ import com.babai.ssplot.ui.controls.DUI.Text;
 import com.babai.ssplot.ui.controls.UIButton;
 import com.babai.ssplot.ui.controls.UIRadioItem;
 import com.babai.ssplot.ui.help.HelpFrame;
+import com.babai.ssplot.util.SwingFileChooser;
 import com.babai.ssplot.util.FocusTracker;
 import com.babai.ssplot.util.SystemInfo;
 
@@ -109,7 +110,7 @@ public class MainFrame extends JFrame {
 	
 		// Internal Windows
 		var odeinput = new SystemInputFrame();
-		var dbv = new DataView(logger);
+		var dbv = new DataView(logger, this);
 		var pv = new PlotView(logger, plt);
 		var ifrmPlot = new PlotFrame(pv);
 		ifrmPlot.title("Plot");
@@ -257,12 +258,10 @@ public class MainFrame extends JFrame {
 						item("Load Data from File...")
 							.hotkey("ctrl O")
 							.onClick(() -> {
-								if (dbv.openFile()) {
-									Optional<PlotData> pdata = dbv.getData();
-									if (pdata.isPresent()) {
-										pv.setCurPlot(pdata.get());
-										pv.fit();
-									}
+								Optional<PlotData> pdata = openFile();
+								if (pdata.isPresent()) {
+									pv.setCurPlot(pdata.get());
+									pv.fit();
 								}
 							}),
 							
@@ -280,7 +279,7 @@ public class MainFrame extends JFrame {
 						
 					item("Save Data...")
 						.hotkey("ctrl shift S")
-						.onClick(dbv::saveFile),
+						.onClick(() -> saveFile(dbv.getData())),
 						
 //								separator(),
 						
@@ -379,13 +378,44 @@ public class MainFrame extends JFrame {
 	
 	/* Menu Actions */
 	private void saveImage(BufferedImage img) {
-		var files = new JFileChooser();
-		int stat = files.showSaveDialog(this);
-		if (stat == JFileChooser.APPROVE_OPTION) {
-			File f = files.getSelectedFile();
+		var optPath = SwingFileChooser.save(this);
+		if (optPath.isPresent()) {
 			try {
-				ImageIO.write(img, "png", f);
+				ImageIO.write(img, "png", optPath.get().toFile());
 			} catch (IOException e) {
+				CrashFrame.showCrash(e);
+			}
+		}
+	}
+	
+	public Optional<PlotData> openFile() {
+		var optPath = SwingFileChooser.open(this);
+		double[][] data = null;
+		if (optPath.isPresent()) {
+			try {
+				data = NumParse.parse(optPath.get());
+			} catch (IOException e) {
+				CrashFrame.showCrash(e);
+			}
+		}
+		
+		if (data == null) return Optional.empty();
+		
+		var pdata = new PlotData(data);
+		var headers = NumParse.getHeaders();
+		if (!headers.isEmpty()) {
+			pdata.setAxisLabels(headers);
+		}
+		
+		return Optional.of(pdata);
+	}
+
+	public void saveFile(Optional<PlotData> optData) {
+		var optPath = SwingFileChooser.save(this);
+		if (optPath.isPresent() && optData.isPresent()) {
+			try {
+				NumParse.write(optData.get().getData(), optPath.get());
+			} catch (FileNotFoundException e) {
 				CrashFrame.showCrash(e);
 			}
 		}

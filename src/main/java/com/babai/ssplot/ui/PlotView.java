@@ -21,8 +21,6 @@
  * 
  */
 
-/* 20.07.2021 : Functions drawNode and addNode and class Node added. Function paint() changed to add node drawing.*/
-
 package com.babai.ssplot.ui;
 
 import java.awt.Color;
@@ -142,13 +140,13 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 	public Optional<PlotData.PlotType> getCurPlotType() {
 		Optional<PlotData> optCurPlot = getCurPlot();
 		return optCurPlot.isPresent()
-			? Optional.of(optCurPlot.get().getPlotType()) : Optional.empty();
+			? Optional.of(optCurPlot.get().getPlotType())
+			: Optional.empty();
 	}
 
 	/** Sets current plot type */
 	public void setCurPlotType(PlotData.PlotType pltype) {
 		Optional<PlotData> optCurPlot = getCurPlot();
-
 		if (optCurPlot.isPresent()) {
 			optCurPlot.get().setPlotType(pltype);
 			repaint();
