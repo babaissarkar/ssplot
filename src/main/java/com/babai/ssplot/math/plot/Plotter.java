@@ -55,14 +55,19 @@ public final class Plotter {
 		canv.refresh();
 	}
 	
+	public void plot(PlotData data, int lastIndex) {
+		plotData(data, lastIndex);
+		plotOthers(data);
+	}
+	
 	public void plot(PlotData data) {
-		plotData(data);
+		plotData(data, data.getRowCount());
 		plotOthers(data);
 	}
 	
 	/* If you don't set the size of the plot, it uses the default size.
-	 * It will also initialize the plot if you forget. */
-	private void plotData(PlotData pdata) {
+	 * It will also initialize the plot with default size if you forget. */
+	private void plotData(PlotData pdata, int lastIndex) {
 		if (canv == null) {
 			initPlot(DEFAULT_W, DEFAULT_H);
 		}
@@ -75,12 +80,16 @@ public final class Plotter {
 		Point2D.Double p1 = null, p2 = null;
 
 		var dataset = pdata.getData();
+		if (lastIndex > dataset.length) {
+			lastIndex = dataset.length;
+		}
 		
-		clear();
 		canv.setFGColor(pdata.getFgColor());
 		canv.setAxes3d(pdata.getPlotType().dim() == 3);
 
-		for (var row : dataset) {
+		for (int i = 0; i < lastIndex; i++) {
+			var row = dataset[i];
+			
 			switch(pdata.getPlotType()) {
 				case VFIELD -> {
 					// For now, it works for vector data in first four columns only

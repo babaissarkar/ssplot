@@ -30,11 +30,10 @@ import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Vector;
+import java.util.ArrayList;
 
 import javax.swing.JLabel;
 import javax.swing.Timer;
@@ -42,18 +41,14 @@ import javax.swing.Timer;
 import com.babai.ssplot.math.plot.PlotData;
 import com.babai.ssplot.math.plot.Plotter;
 import com.babai.ssplot.math.plot.Project2D;
+
 import com.babai.ssplot.ui.controls.DUI.Text;
 
 public class PlotView extends JLabel implements MouseListener, MouseMotionListener {
 
-	private Vector<PlotData> plots;
+	private ArrayList<PlotData> plots = new ArrayList<>();
 	private Plotter plt;
 	private StatLogger logger;
-	
-	// FIXME origin is a magic number
-	/* The plotting area starts from (20,20) in java graphics space,
-	 * so we are substracting it. */
-	private final Point2D.Double origin = new Point2D.Double(20, 20);
 
 	private boolean overlayMode;
 	private boolean dragOn;
@@ -83,9 +78,9 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 		addMouseListener(this);
 		addMouseMotionListener(this);
 		addMouseWheelListener(ev -> {
-			int x = ev.getX() - (int) origin.getX();
-			int y = ev.getY() - (int) origin.getY();
 // FIXME setZoomCenter is broken
+//			int x = ev.getX() - padding;
+//			int y = ev.getY() - padding;
 //			plt.setZoomCenter(plt.toCartesianPoint(new Point2D.Double(x, y)));
 			if (ev.getWheelRotation() < 0) {
 				smallZoomIn();
@@ -103,25 +98,24 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 		plt.clear();
 		
 		if (overlayMode) {
-			for (PlotData pdata : plots) {
+			for (var pdata : plots) {
 				if (plots.size() > 0) {
 					plt.plot(pdata);
 				}
 			} 
-		} else if (animate) {
-			Optional<PlotData> optCurPlot = getCurPlot();
-			if ((plots.size() > 0) && (frameCounter > 0) && optCurPlot.isPresent()) {
-				if (frameCounter >= optCurPlot.get().getData().length) {
-					frameCounter = 0;
-				}
-				var pdata = optCurPlot.get().splice(0, frameCounter);
-				plt.plot(pdata);
-			}
 		} else {
 			Optional<PlotData> optCurPlot = getCurPlot();
-			if ((plots.size() > 0) && optCurPlot.isPresent()) {
+			if (!plots.isEmpty() && optCurPlot.isPresent()) {
 				var pdata = optCurPlot.get();
-				plt.plot(pdata);
+				
+				if (animate && frameCounter > 0) {
+					if (frameCounter >= pdata.getRowCount()) {
+						frameCounter = 0;
+					}
+					plt.plot(pdata, frameCounter);
+				} else {
+					plt.plot(pdata);
+				}
 			}
 		}
 
@@ -135,7 +129,7 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 
 	/** Get current plot */
 	public Optional<PlotData> getCurPlot() {
-		return (plots.size() > 0) ? Optional.of(plots.lastElement()) : Optional.empty();
+		return (plots.size() > 0) ? Optional.of(plots.getLast()) : Optional.empty();
 	}
 
 	/** Sets current plot */
@@ -200,7 +194,7 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 
 	/* Reset canvas */
 	public void refresh() {
-		plots = new Vector<PlotData>();
+		plots.clear();
 		plt.clear();
 		repaint();
 	}
@@ -368,24 +362,24 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 
 	@Override
 	public void mousePressed(MouseEvent ev) {
-		this.mouseDragStart[0] = ev.getX();
-		this.mouseDragStart[1] = ev.getY();
-
-		if (ev.getButton() != MouseEvent.BUTTON1) {
-			var clickedAt = new Point2D.Double(ev.getX() - origin.getX(), ev.getY() - origin.getY());
-			var p = plt.toCartesianPoint(clickedAt);
-
-			if (ev.getButton() == MouseEvent.BUTTON3) {
-//				pv.addNode(new Point2D.Double(x-20, y-20), label, Color.BLUE);
+//		this.mouseDragStart[0] = ev.getX();
+//		this.mouseDragStart[1] = ev.getY();
+//
+//		if (ev.getButton() != MouseEvent.BUTTON1) {
+//			var clickedAt = new Point2D.Double(ev.getX() - padding, ev.getY() - padding);
+//			var p = plt.toCartesianPoint(clickedAt);
+//
+//			if (ev.getButton() == MouseEvent.BUTTON3) {
+//				addNode(new Point2D.Double(x-20, y-20), label, Color.BLUE);
 //				log("Point : " + label);
-			} else if (ev.getButton() == MouseEvent.BUTTON2) {
-// FIXME setZoomCenter is broken
+//			} else if (ev.getButton() == MouseEvent.BUTTON2) {
+//// FIXME setZoomCenter is broken
 //				plt.setZoomCenter(p);
 //				log("Zoom Center set at " + p.toString());
-			}
-
-			repaint();
-		}
+//			}
+//
+//			repaint();
+//		}
 	}
 
 	@Override

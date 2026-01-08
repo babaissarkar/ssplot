@@ -174,40 +174,6 @@ public class PlotData implements Cloneable {
 	
 	public HashMap<Axis, Integer> getDataColMapping() { return this.axesDataColumns; }
 	
-	/**
-	 * Creates a new {@code PlotData} instance containing a subset of the data rows
-	 * from the current instance, from index {@code from} (inclusive) to index {@code to} (exclusive).
-	 * 
-	 * <p>The method clones the original object, then replaces its data with a deep copy
-	 * of the specified sublist of rows. Each inner vector of doubles is also copied
-	 * to ensure data isolation.</p>
-	 * 
-	 * <p>If {@code from} is greater than {@code to}, an {@link IllegalArgumentException} is thrown.</p>
-	 * 
-	 * <p>Indices are clamped to valid ranges: {@code from} is set to at least 0,
-	 * and {@code to} is capped at the current data size.</p>
-	 * 
-	 * @param from the start index (inclusive) of the rows to splice
-	 * @param to the end index (exclusive) of the rows to splice
-	 * @return a new {@code PlotData} instance containing the spliced data rows
-	 * @throws IllegalArgumentException if {@code from} &gt; {@code to}
-	 */
-	public PlotData splice(int from, int to) {
-		if (from > to) {
-			throw new IllegalArgumentException(
-				"Invalid splice range: from (" + from + ") must be less than to (" + to + ")");
-		}
-		
-		from = Math.max(0, from);
-		to = Math.min(getRowCount(), to);
-
-		double[][] dataCopy = new double[to - from][];
-		for (int i = from; i < to; i++) {
-			dataCopy[i] = this.data[i];
-		}
-		return new PlotData(dataCopy);
-	}
-	
 	public double[] getColumn(int i) {
 		double[] colData = new double[getRowCount()];
 		for (int rowIdx = 0; rowIdx < colData.length; rowIdx++) {
