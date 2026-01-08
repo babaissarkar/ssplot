@@ -33,8 +33,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Vector;
 
-import com.babai.ssplot.ui.CrashFrame;
-
 public class NumParse {
 	private static final String sepWS = "\\s+";
 	private static final String sepCM = ",";
@@ -98,19 +96,17 @@ public class NumParse {
 		return arEntries;
 	}
 	
-	public static void write(Vector<Vector<Double>> data, Path p) {
+	public static void write(double[][] data, Path p) throws FileNotFoundException {
 		try (var print = new PrintStream(p.toFile())) {
 			for (var v : data) {
-				for (int i = 0; i < v.size(); i++) {
-					print.print(v.get(i));
-					if (i != v.size()-1) {
+				for (int i = 0; i < v.length; i++) {
+					print.print(v[i]);
+					if (i != v.length - 1) {
 						print.print(" ");
 					}
 				}
 				print.print("\n");
 			}
-		} catch (FileNotFoundException e) {
-			CrashFrame.showCrash(e);
 		}
 	}
 }
