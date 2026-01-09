@@ -26,7 +26,7 @@ package com.babai.ssplot.ui;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.util.List;
-import java.util.Map;
+import java.util.EnumMap;
 import java.util.function.Consumer;
 import javax.swing.Box;
 import javax.swing.JFrame;
@@ -202,16 +202,23 @@ public class SystemInputFrame extends UIFrame {
 		StateVar<Boolean> isFN = curMode.when(
 				mode -> (mode == SystemMode.FN1 || mode == SystemMode.FN2));
 		
-		var eqnFieldLabels = Map.of(
+		var eqnFieldLabels = new EnumMap<SystemMode, String[]>(SystemMode.class);
+		
+		eqnFieldLabels.put(
 			SystemMode.ODE,
-			forEach(axes, i -> "d%s/dt =".formatted(axes.get(i).toString().toLowerCase()), String[]::new),
+			forEach(axes, i -> "d%s/dt =".formatted(axes.get(i).toString().toLowerCase()), String[]::new));
+		
+		eqnFieldLabels.put(
 			SystemMode.DFE,
-			forEach(axes, i -> subMarkup.formatted(axes.get(i).toString().toLowerCase(), "n+1", " ="), String[]::new),
+			forEach(axes, i -> subMarkup.formatted(axes.get(i).toString().toLowerCase(), "n+1", " ="), String[]::new));
+		
+		eqnFieldLabels.put(
 			SystemMode.FN1,
-			new String[] { "y(x) =", "", "" },
+			new String[] { "y(x) =", "", "" });
+		
+		eqnFieldLabels.put(
 			SystemMode.FN2,
-			new String[] { "z(x, y) =", "", "" }
-		);
+			new String[] { "z(x, y) =", "", "" });
 		
 		// Equations entry enable conditions
 		var eqnCondition = List.of(
