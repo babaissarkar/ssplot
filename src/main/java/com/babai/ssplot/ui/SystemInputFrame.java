@@ -157,6 +157,9 @@ public class SystemInputFrame extends UIFrame {
 
 	// Iteration paramters entry panel
 	private UIGrid createIterationParamUIPanel() {
+		StateVar<Boolean> enableCond = curMode.when(
+			mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE));
+		
 		return grid()
 			.anchor(GridBagConstraints.WEST)
 			.insets(3)
@@ -171,8 +174,7 @@ public class SystemInputFrame extends UIFrame {
 					input()
 						.chars(6)
 						.text("" + EquationSystem.DEFAULT_N)
-						.enabled(curMode.when(mode ->
-							(mode == SystemMode.DFE || mode == SystemMode.ODE)))
+						.enabled(enableCond)
 						.numeric(true)
 						.onChange(text -> builder.n(Integer.parseInt(text)))
 				)
@@ -183,17 +185,22 @@ public class SystemInputFrame extends UIFrame {
 					input()
 						.chars(6)
 						.text("" + EquationSystem.DEFAULT_H)
-						.enabled(curMode.when(mode ->
-							(mode == SystemMode.DFE || mode == SystemMode.ODE)))
+						.enabled(enableCond)
 						.numeric(true)
 						.onChange(text -> builder.h(Double.parseDouble(text)))
 				)
-			.emptyBorder(5);
+			.emptyBorder(5)
+			.visible(enableCond);
 	}
 
 	private UIGrid createEqnInputUIPanel(final List<Axis> axes) {
 		final String subMarkup = Text.htmlAndBody("%s" + Text.tag("sub", "%s") + "%s");
 		final String smallMarkup = Text.tag("html", Text.tag("body", "style='font-size:12'", "%s"));
+		
+		StateVar<Boolean> isODEorDFE = curMode.when(
+				mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE));
+		StateVar<Boolean> isFN = curMode.when(
+				mode -> (mode == SystemMode.FN1 || mode == SystemMode.FN2));
 		
 		var eqnFieldLabels = Map.of(
 			SystemMode.ODE,
@@ -209,8 +216,8 @@ public class SystemInputFrame extends UIFrame {
 		// Equations entry enable conditions
 		var eqnCondition = List.of(
 			new StateVar<Boolean>(true),
-			curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE)),
-			curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE))
+			isODEorDFE,
+			isODEorDFE
 		);
 		
 		// Solution point entry enable conditions
@@ -220,17 +227,30 @@ public class SystemInputFrame extends UIFrame {
 			curMode.when(mode -> (mode == SystemMode.ODE && noOfEqns() == 3))
 		);
 		
-		var pnlMatrix = grid()
+		var pnlEquations = grid()
+			.emptyBorder(5)
 			.anchor(GridBagConstraints.WEST)
 			.insets(3)
 			.row()
 				.spanx(4)
 				.column(label("Equations").font(Text.headerFont));
+	
+		pnlEquations.row()
+			.column(
+				label("Parametric (x = x(t), y = y(t)):")
+					.visible(isFN)
+			)
+			.weightx(1)
+			.fill(GridBagConstraints.HORIZONTAL)
+			.column(
+				hbox(checkBox(""))
+					.visible(isFN)
+			);
 
 		for (int i = 0; i < axes.size(); i++) {
 			final int idx = i;
-			pnlMatrix.row()
-				.column(label().bindToUI(curMode.when(mode -> eqnFieldLabels.get(mode)[idx])))
+			pnlEquations.row()
+				.column(label().bindText(curMode.when(mode -> eqnFieldLabels.get(mode)[idx])))
 				.weightx(1)
 				.fill(GridBagConstraints.HORIZONTAL)
 				.column(
@@ -245,8 +265,9 @@ public class SystemInputFrame extends UIFrame {
 				);
 		}
 		
-		pnlMatrix.row()
-			.column(label("Solve At:"))
+		pnlEquations.row()
+			.column(label("Solve At:").visible(isODEorDFE))
+			.weightx(1)
 			.fill(GridBagConstraints.HORIZONTAL)
 			.column(
 				// Entry area for the point where the system is to be solved (X,Y,Z)
@@ -269,10 +290,10 @@ public class SystemInputFrame extends UIFrame {
 								curMode.set(curMode.get());
 							})
 					))
-				)
-			)
-			.emptyBorder(5);
-		return pnlMatrix;
+				).visible(isODEorDFE)
+			);
+		
+		return pnlEquations;
 	}
 	
 	private UIGrid createRangesUIPanel(final List<Axis> axes) {
@@ -331,7 +352,7 @@ public class SystemInputFrame extends UIFrame {
 					.column(Box.createHorizontalStrut(10));
 			}
 		}
-
+		
 		pnlRange.emptyBorder(5);
 		return pnlRange;
 	}
