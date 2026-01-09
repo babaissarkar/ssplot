@@ -91,6 +91,10 @@ public class DUI {
 	public static UICheckItem checkItem(String text) {
 		return new UICheckItem().text(text);
 	}
+	
+	public static UICheckBox checkBox(String text) {
+		return new UICheckBox().text(text);
+	}
 
 	public static <E> UIRadioGroup<E> radioGroup(Class<E> clazz) {
 		return new UIRadioGroup<>();
