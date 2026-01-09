@@ -34,7 +34,9 @@ import javax.swing.event.DocumentListener;
 
 import com.babai.ssplot.ui.controls.DUI.Text;
 
-public class UIInput extends JTextField {	
+public class UIInput extends JTextField
+	implements UIStylizable<UIInput>, UIStateful<UIInput>
+{
 	public UIInput() {
 		setFont(Text.monoFont);
 		setMargin(new Insets(5, 5, 5, 5));
@@ -48,30 +50,6 @@ public class UIInput extends JTextField {
 	
 	public UIInput text(String text) {
 		setText(text);
-		return this;
-	}
-	
-	// statevar change -> enabled property change
-	public UIInput enabled(StateVar<Boolean> enabled) {
-		setEnabled(enabled.get());
-		enabled.onChange(() -> setEnabled(enabled.get()));
-		return this;
-	}
-	
-	public UIInput enabled(boolean enabled) {
-		setEnabled(enabled);
-		return this;
-	}
-	
-	// statevar change -> visible property change
-	public UIInput visible(StateVar<Boolean> visible) {
-		setEnabled(visible.get());
-		visible.onChange(() -> setVisible(visible.get()));
-		return this;
-	}
-	
-	public UIInput visible(boolean visible) {
-		setVisible(visible);
 		return this;
 	}
 	

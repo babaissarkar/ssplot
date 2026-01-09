@@ -28,8 +28,9 @@ import java.awt.Font;
 
 import javax.swing.JLabel;
 
-public class UILabel extends JLabel {
-	
+public class UILabel extends JLabel
+	implements UIStylizable<UILabel>, UIStateful<UILabel>
+{	
 	public UILabel() {
 		// for now, labels are left aligned inside layout manager by default
 		setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -40,8 +41,8 @@ public class UILabel extends JLabel {
 		return this;
 	}
 	
-	// Binding type: text StateVar -> this class
-	public UILabel bindToUI(StateVar<String> text) {
+	// Binding type: text StateVar -> JLabel's text
+	public UILabel bindText(StateVar<String> text) {
 		setText(text.get());
 		text.onChange(() -> setText(text.get()));
 		return this;

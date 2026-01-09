@@ -27,20 +27,22 @@ import java.awt.FlowLayout;
 import javax.swing.JPanel;
 
 /** specialization of JPanel that acts like a horizontal box */
-public class UIHBox extends JPanel implements UIStylizable<UIHBox> {
+public class UIHBox extends JPanel
+	implements UIStylizable<UIHBox>, UIStateful<UIHBox>
+{
 	private FlowLayout layout;
-	
+
 	public UIHBox() {
 		layout = new FlowLayout();
 		setLayout(layout);
 	}
-	
+
 	public UIHBox align(int align) {
 		layout.setAlignment(align);
 		setLayout(layout);
 		return this;
 	}
-	
+
 	public UIHBox gap(int hgap, int vgap) {
 		layout.setHgap(hgap);
 		layout.setVgap(vgap);

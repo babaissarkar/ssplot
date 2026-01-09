@@ -30,7 +30,9 @@ import java.awt.Insets;
 
 import javax.swing.JPanel;
 
-public class UIGrid extends JPanel implements UIStylizable<UIGrid> {
+public class UIGrid extends JPanel
+	implements UIStylizable<UIGrid>, UIStateful<UIGrid>
+{
 	private GridBagConstraints gbc;
 	
 	public UIGrid() {

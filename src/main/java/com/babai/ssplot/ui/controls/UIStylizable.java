@@ -32,7 +32,7 @@ import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
 /**
- * A trait-style interface that adds fluent border-setting methods to Swing components.
+ * A trait-style interface that adds fluent appearance-setting methods to Swing components.
  * <p>
  * This interface is designed to be used as a mixin for classes that already extend
  * {@link JComponent}. It provides default methods like {@code border(...)} and 
@@ -60,27 +60,25 @@ import javax.swing.border.TitledBorder;
  *
  * @param <T> the concrete type of the component extending {@link JComponent}
  */
+
+@SuppressWarnings("unchecked")
 public interface UIStylizable<T extends JComponent> {
 	
-	@SuppressWarnings("unchecked")
 	default T bg(Color c) {
 		((JComponent) this).setBackground(c);
 		return (T) this;
 	}
 	
-	@SuppressWarnings("unchecked")
 	default T fg(Color c) {
 		((JComponent) this).setForeground(c);
 		return (T) this;
 	}
 	
-	@SuppressWarnings("unchecked")
 	default T font(Font f) {
 		((JComponent) this).setFont(f);
 		return (T) this;
 	}
 
-	@SuppressWarnings("unchecked")
 	default T border(Border b) {
 		((JComponent) this).setBorder(b);
 		return (T) this;
@@ -94,7 +92,6 @@ public interface UIStylizable<T extends JComponent> {
 		return border(BorderFactory.createEmptyBorder(top, left, bottom, right));
 	}
 	
-	@SuppressWarnings("unchecked")
 	default TitledBorderBuilder<T> titledBorder() {
 		return new TitledBorderBuilder<>((T) this);
 	}
