@@ -34,7 +34,9 @@ public record EquationSystem (
 		SystemMode mode,    /* Identifies the type of system */
 		int n,              /* Iteration count (ODE/DE)      */
 		double h,           /* Step Size (ODE)               */
-		double[] solnPoint  /* Point where the system is to be solved */
+		double[] solnPoint,    /* Point where the system is to be solved */
+		boolean isParametric,  /* Is this a parametric system of eqns?   */
+		boolean isPolar        /* Is this uses polar coordinates?        */
 		)
 {
 	public static final int DIM = 3;             /* Maximum dimension of system (global)    */
@@ -87,7 +89,11 @@ public record EquationSystem (
 		private SystemMode mode = SystemMode.ODE;
 		private int n = DEFAULT_N;
 		private double h = DEFAULT_H;
-		private double[] solnPoint = {0.0, 0.0, 0.0};
+		
+		// Note: NaN here means "unassigned"
+		private double[] solnPoint = {Double.NaN, Double.NaN, Double.NaN};
+		private boolean isParametric;
+		private boolean isPolar;
 
 		public Builder() {
 			Arrays.fill(eqns, "");
@@ -156,8 +162,26 @@ public record EquationSystem (
 				mode,
 				n,
 				h,
-				Arrays.copyOf(solnPoint, solnPoint.length)
+				Arrays.copyOf(solnPoint, solnPoint.length),
+				isParametric,
+				isPolar
 			);
+		}
+
+		public int getSolnPointNum() {
+			int count = 0;
+			for (double d : solnPoint) {
+				if (!Double.isNaN(d)) count++;
+			}
+			return count;
+		}
+
+		public void setParametric(boolean val) {
+			this.isParametric = val;
+		}
+		
+		public void setPolar(boolean val) {
+			this.isPolar = val;
 		}
 	}
 
