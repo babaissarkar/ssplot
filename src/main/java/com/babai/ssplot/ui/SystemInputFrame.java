@@ -58,8 +58,9 @@ import static com.babai.ssplot.ui.controls.DUI.*;
 // instead of only the first N
 public class SystemInputFrame extends UIFrame {
 	private StateVar<SystemMode> curMode;
+	private StateVar<Boolean> isParametric, isPolar;
+	
 	private EquationSystem.Builder builder;
-	private PlotData curData;
 	private Consumer<PlotData> updater;
 	
 	private int solnPointNum = 0;
@@ -68,8 +69,12 @@ public class SystemInputFrame extends UIFrame {
 	public SystemInputFrame() {
 		inputEqns = new UIInput[EquationSystem.DIM];
 		builder = new EquationSystem.Builder();
+		
 		curMode = new StateVar<>(SystemMode.ODE);
-		curMode.onChange(() -> builder.mode(curMode.get()));
+		curMode.onChange(mode -> builder.mode(mode));
+		isParametric = new StateVar<Boolean>(false);
+		isPolar = new StateVar<Boolean>(false);
+		
 		initInputDialog();
 	}
 
@@ -155,44 +160,7 @@ public class SystemInputFrame extends UIFrame {
 		return bar;
 	}
 
-	// Iteration paramters entry panel
-	private UIGrid createIterationParamUIPanel() {
-		StateVar<Boolean> enableCond = curMode.when(
-			mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE));
-		
-		return grid()
-			.anchor(GridBagConstraints.WEST)
-			.insets(3)
-			.fill(GridBagConstraints.NONE)
-			.row()
-				.spanx(4)
-				.column(label("Iteration Parameters").font(Text.headerFont))
-			.row()
-				.column(label("Iteration count"))
-				.weightx(1.0)
-				.column(
-					input()
-						.chars(6)
-						.text("" + EquationSystem.DEFAULT_N)
-						.enabled(enableCond)
-						.numeric(true)
-						.onChange(text -> builder.n(Integer.parseInt(text)))
-				)
-				.weightx(0)
-				.column(label("Iteration stepsize"))
-				.weightx(1.0)
-				.column(
-					input()
-						.chars(6)
-						.text("" + EquationSystem.DEFAULT_H)
-						.enabled(enableCond)
-						.numeric(true)
-						.onChange(text -> builder.h(Double.parseDouble(text)))
-				)
-			.emptyBorder(5)
-			.visible(enableCond);
-	}
-
+	// Equation Entry Panel
 	private UIGrid createEqnInputUIPanel(final List<Axis> axes) {
 		final String subMarkup = Text.htmlAndBody("%s" + Text.tag("sub", "%s") + "%s");
 		final String smallMarkup = Text.tag("html", Text.tag("body", "style='font-size:12'", "%s"));
@@ -240,19 +208,27 @@ public class SystemInputFrame extends UIFrame {
 			.insets(3)
 			.row()
 				.spanx(4)
-				.column(label("Equations").font(Text.headerFont));
+				.column(label("Equations").font(Text.headerFont))
 	
-		pnlEquations.row()
-			.column(
-				label("Parametric (x = x(t), y = y(t)):")
-					.visible(isFN)
-			)
-			.weightx(1)
-			.fill(GridBagConstraints.HORIZONTAL)
-			.column(
-				hbox(checkBox(""))
-					.visible(isFN)
-			);
+			.row()
+				.column(label("Parametric (x = x(t), y = y(t)):").visible(isFN))
+				.weightx(1)
+				.fill(GridBagConstraints.HORIZONTAL)
+				.column(
+					hbox(
+						checkBox().bindSelection(isParametric)
+					).visible(isFN)
+				)
+				
+			.row()
+				.column(label("Polar (r = r(θ)):").visible(isFN))
+				.weightx(1)
+				.fill(GridBagConstraints.HORIZONTAL)
+				.column(
+					hbox(
+						checkBox().bindSelection(isPolar)
+					)
+					.visible(isFN));
 
 		for (int i = 0; i < axes.size(); i++) {
 			final int idx = i;
@@ -303,6 +279,7 @@ public class SystemInputFrame extends UIFrame {
 		return pnlEquations;
 	}
 	
+	// Range Entry Panel
 	private UIGrid createRangesUIPanel(final List<Axis> axes) {
 		final String subMarkup = Text.htmlAndBody("%s" + Text.tag("sub", "%s") + "%s");
 		final String[] tags = {"min", "max", "step"};
@@ -362,6 +339,44 @@ public class SystemInputFrame extends UIFrame {
 		
 		pnlRange.emptyBorder(5);
 		return pnlRange;
+	}
+	
+	// Iteration paramters entry panel
+	private UIGrid createIterationParamUIPanel() {
+		StateVar<Boolean> enableCond = curMode.when(
+			mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE));
+		
+		return grid()
+			.anchor(GridBagConstraints.WEST)
+			.insets(3)
+			.fill(GridBagConstraints.NONE)
+			.row()
+				.spanx(4)
+				.column(label("Iteration Parameters").font(Text.headerFont))
+			.row()
+				.column(label("Iteration count"))
+				.weightx(1.0)
+				.column(
+					input()
+						.chars(6)
+						.text("" + EquationSystem.DEFAULT_N)
+						.enabled(enableCond)
+						.numeric(true)
+						.onChange(text -> builder.n(Integer.parseInt(text)))
+				)
+				.weightx(0)
+				.column(label("Iteration stepsize"))
+				.weightx(1.0)
+				.column(
+					input()
+						.chars(6)
+						.text("" + EquationSystem.DEFAULT_H)
+						.enabled(enableCond)
+						.numeric(true)
+						.onChange(text -> builder.h(Double.parseDouble(text)))
+				)
+			.emptyBorder(5)
+			.visible(enableCond);
 	}
 
 	private int noOfEqns() {
