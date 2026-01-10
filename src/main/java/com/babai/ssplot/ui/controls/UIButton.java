@@ -57,7 +57,7 @@ public class UIButton extends JButton implements UIStylizable<UIButton> {
 	// statevar change -> enabled property change
 	public UIButton enabled(StateVar<Boolean> enabled) {
 		setEnabled(enabled.get());
-		enabled.onChange(() -> setEnabled(enabled.get()));
+		enabled.onChange(e -> setEnabled(e));
 		return this;
 	}
 	

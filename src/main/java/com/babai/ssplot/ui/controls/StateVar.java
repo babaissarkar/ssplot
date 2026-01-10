@@ -23,12 +23,13 @@
 
 package com.babai.ssplot.ui.controls;
 
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class StateVar<T> {
 	private T value;
-	private Vector<Runnable> runners = new Vector<>();
+	private ArrayList<Consumer<T>> runners = new ArrayList<>();
 	
 	public StateVar(T value) {
 		this.value = value;
@@ -41,11 +42,11 @@ public class StateVar<T> {
 	public void set(T value) {
 		this.value = value;
 		for (var runner : runners) {
-			runner.run();
+			runner.accept(value);
 		}
 	}
 	
-	public void onChange(Runnable r) {
+	public void onChange(Consumer<T> r) {
 		this.runners.add(r);
 	}
 	
@@ -55,7 +56,7 @@ public class StateVar<T> {
 	
 	public <U> StateVar<U> when(Function<T, U> mapper) {
 		StateVar<U> derived = new StateVar<>(mapper.apply(get()));
-		onChange(() -> derived.set(mapper.apply(get())));
+		onChange(val -> derived.set(mapper.apply(val)));
 		return derived;
 	}
 

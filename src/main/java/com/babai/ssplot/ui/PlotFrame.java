@@ -84,8 +84,7 @@ public class PlotFrame extends UIFrame {
 		var axisSelector = new JComboBox<Axis>();
 		axisSelector.setMaximumSize(axisSelector.getPreferredSize()); // disable growing
 		axisSelector.setEnabled(false);
-		rotationEnabled.onChange(() -> {
-			boolean enabled = rotationEnabled.get();
+		rotationEnabled.onChange(enabled -> {
 			axisSelector.setEnabled(enabled);
 			axisSelector.removeAllItems();
 			if (enabled) {

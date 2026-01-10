@@ -19,5 +19,12 @@ public class UICheckBox extends JCheckBox
 		addActionListener(e -> action.run());
 		return this;
 	}
+	
+	// Binding type: text StateVar -> JCheckBox's selection (on/off)
+	public UICheckBox bindSelection(StateVar<Boolean> selection) {
+		setSelected(selection.get());
+		selection.onChange(selected -> setSelected(selected));
+		return this;
+	}
 }
 

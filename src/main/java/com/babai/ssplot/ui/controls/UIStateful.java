@@ -4,11 +4,11 @@ import javax.swing.JComponent;
 
 @SuppressWarnings("unchecked")
 public interface UIStateful<T extends JComponent> {
-	// statevar change -> enabled property change
 	
+	// statevar change -> enabled property change
 	default T enabled(StateVar<Boolean> enabled) {
 		((JComponent) this).setEnabled(enabled.get());
-		enabled.onChange(() -> ((JComponent) this).setEnabled(enabled.get()));
+		enabled.onChange(e -> ((JComponent) this).setEnabled(e));
 		return (T) this;
 	}
 
@@ -20,7 +20,7 @@ public interface UIStateful<T extends JComponent> {
 	// statevar change -> visible property change
 	default T visible(StateVar<Boolean> visible) {
 		((JComponent) this).setVisible(visible.get());
-		visible.onChange(() -> ((JComponent) this).setVisible(visible.get()));
+		visible.onChange(v -> ((JComponent) this).setVisible(v));
 		return (T) this;
 	}
 
