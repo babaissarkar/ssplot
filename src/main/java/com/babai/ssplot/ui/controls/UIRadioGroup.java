@@ -60,8 +60,8 @@ public class UIRadioGroup<E> extends UIHBox {
 		return this;
 	}
 	
-	// Binding type: this class -> selection StateVar
-	public UIRadioGroup<E> bindFromUI(StateVar<E> selection) {
+	// Binding type: selection StateVar <- RadioGroup's selection 
+	public UIRadioGroup<E> bindToSelection(StateVar<E> selection) {
 		if (selection != null) {
 			this.selected = selection;
 		}

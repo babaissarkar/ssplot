@@ -20,10 +20,17 @@ public class UICheckBox extends JCheckBox
 		return this;
 	}
 	
-	// Binding type: text StateVar -> JCheckBox's selection (on/off)
-	public UICheckBox bindSelection(StateVar<Boolean> selection) {
+	// Binding type: selection StateVar -> JCheckBox's selection (on/off)
+	public UICheckBox bindSelectionFrom(StateVar<Boolean> selection) {
 		setSelected(selection.get());
 		selection.onChange(selected -> setSelected(selected));
+		return this;
+	}
+	
+	// Binding type: selection StateVar <- JCheckBox's selection (on/off)
+	public UICheckBox bindSelectionTo(StateVar<Boolean> selection) {
+		selection.set(this.isSelected());
+		this.onClick(() -> selection.set(this.isSelected()));
 		return this;
 	}
 }

@@ -42,7 +42,7 @@ public class UILabel extends JLabel
 	}
 	
 	// Binding type: text StateVar -> JLabel's text
-	public UILabel bindText(StateVar<String> text) {
+	public UILabel bindTextFrom(StateVar<String> text) {
 		setText(text.get());
 		text.onChange(str -> setText(str));
 		return this;

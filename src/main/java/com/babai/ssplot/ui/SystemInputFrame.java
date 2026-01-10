@@ -93,7 +93,7 @@ public class SystemInputFrame extends UIFrame {
 					createToolbarUI(axes),
 					radioGroup(SystemMode.class)
 						.options(SystemMode.values(), SystemMode.ODE)
-						.bindFromUI(curMode),
+						.bindToSelection(curMode),
 					createEqnInputUIPanel(axes),
 					createRangesUIPanel(axes),
 					createIterationParamUIPanel()
@@ -210,7 +210,7 @@ public class SystemInputFrame extends UIFrame {
 				.fill(GridBagConstraints.HORIZONTAL)
 				.column(
 					hbox(
-						checkBox().bindSelection(isParametric)
+						checkBox().bindSelectionTo(isParametric)
 					).visible(isFN)
 				)
 				
@@ -220,14 +220,13 @@ public class SystemInputFrame extends UIFrame {
 				.fill(GridBagConstraints.HORIZONTAL)
 				.column(
 					hbox(
-						checkBox().bindSelection(isPolar)
-					)
-					.visible(isFN));
+						checkBox().bindSelectionTo(isPolar)
+					).visible(isFN));
 
 		for (int i = 0; i < axes.size(); i++) {
 			final int idx = i;
 			pnlEquations.row()
-				.column(label().bindText(curMode.when(mode -> eqnFieldLabels.get(mode)[idx])))
+				.column(label().bindTextFrom(curMode.when(mode -> eqnFieldLabels.get(mode)[idx])))
 				.weightx(1)
 				.fill(GridBagConstraints.HORIZONTAL)
 				.column(
