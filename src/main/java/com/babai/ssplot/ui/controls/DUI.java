@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.function.IntFunction;
 import java.util.stream.IntStream;
 
+import javax.swing.Box;
 import javax.swing.JComponent;
 import javax.swing.JMenuBar;
 import javax.swing.JScrollPane;
@@ -123,6 +124,20 @@ public class DUI {
 		var vbox = new UIVBox();
 		for (var child : children) {
 			vbox.add(child);
+		}
+		return vbox;
+	}
+	
+	public static UIVBox vbox(int vgap, Component... children) {
+		var vbox = new UIVBox();
+		boolean isFirst = true;
+		for (var child : children) {
+			vbox.add(child);
+			if (!isFirst) {
+				vbox.add(Box.createVerticalStrut(vgap));
+			} else {
+				isFirst = false;
+			}
 		}
 		return vbox;
 	}

@@ -89,17 +89,13 @@ public class SystemInputFrame extends UIFrame {
 			.closable(true)
 			.maximizable(false)
 			.content(
-				vbox(
+				vbox(10,
 					createToolbarUI(axes),
-					Box.createVerticalStrut(10),
 					radioGroup(SystemMode.class)
 						.options(SystemMode.values(), SystemMode.ODE)
-						.bindFromUI(curMode),
-					Box.createVerticalStrut(10),
+						.bindToSelection(curMode),
 					createEqnInputUIPanel(axes),
-					Box.createVerticalStrut(10),
 					createRangesUIPanel(axes),
-					Box.createVerticalStrut(10),
 					createIterationParamUIPanel()
 				)
 				.bg(MainFrame.isDark() ? Color.decode("#474c5b") : Color.WHITE) // TODO: very theme specific
