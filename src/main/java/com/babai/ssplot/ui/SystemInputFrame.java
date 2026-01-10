@@ -59,11 +59,11 @@ import static com.babai.ssplot.ui.controls.DUI.*;
 public class SystemInputFrame extends UIFrame {
 	private StateVar<SystemMode> curMode;
 	private StateVar<Boolean> isParametric, isPolar;
+	private StateVar<Integer> eqnCount, solnPointCount;
 	
 	private EquationSystem.Builder builder;
 	private Consumer<PlotData> updater;
 	
-	private int solnPointNum = 0;
 	private UIInput[] inputEqns;
 
 	public SystemInputFrame() {
@@ -72,8 +72,12 @@ public class SystemInputFrame extends UIFrame {
 		
 		curMode = new StateVar<>(SystemMode.ODE);
 		curMode.onChange(mode -> builder.mode(mode));
-		isParametric = new StateVar<Boolean>(false);
-		isPolar = new StateVar<Boolean>(false);
+		isParametric = new StateVar<>(false);
+		isParametric.onChange(val -> { builder.setParametric(val); refreshView(); });
+		isPolar = new StateVar<>(false);
+		isPolar.onChange(val -> { builder.setPolar(val); refreshView(); });
+		eqnCount = new StateVar<>(0);
+		solnPointCount = new StateVar<>(0);
 		
 		initInputDialog();
 	}
@@ -106,14 +110,14 @@ public class SystemInputFrame extends UIFrame {
 	
 	private JToolBar createToolbarUI(final List<Axis> axes) {
 		var plot2dCondition = curMode.when(mode ->
-			(mode == SystemMode.ODE && noOfEqns() == 2 && solnPointNum == 2)
-			|| (mode == SystemMode.DFE && noOfEqns() >= 1)
-			|| (mode == SystemMode.FN1 && noOfEqns() == 1)
+			(mode == SystemMode.ODE && eqnCount.get() == 2 && solnPointCount.get() == 2)
+			|| (mode == SystemMode.DFE && eqnCount.get() >= 1)
+			|| (mode == SystemMode.FN1 && eqnCount.get() == 1)
 		);
 
 		var plot3dCondition = curMode.when(mode ->
-			(mode == SystemMode.ODE && noOfEqns() == 3 && solnPointNum == 3)
-			|| (mode == SystemMode.FN2 && noOfEqns() == 1)
+			(mode == SystemMode.ODE && eqnCount.get() == 3 && solnPointCount.get() == 3)
+			|| (mode == SystemMode.FN2 && eqnCount.get() == 1)
 		);
 		
 		var bar = toolbar(
@@ -134,13 +138,13 @@ public class SystemInputFrame extends UIFrame {
 				button()
 					.icon("/cobweb.png")
 					.tooltip("Draw Cobweb Plot")
-					.enabled(curMode.when(mode -> (mode == SystemMode.DFE && noOfEqns() >= 1)))
+					.enabled(curMode.when(mode -> (mode == SystemMode.DFE && eqnCount.get() >= 1)))
 					.onClick(this::plotCobweb),
 
 				button()
 					.icon("/vfield.png")
 					.tooltip("Draw Direction Field")
-					.enabled(curMode.when(mode -> (mode == SystemMode.ODE && noOfEqns() == 2)))
+					.enabled(curMode.when(mode -> (mode == SystemMode.ODE && eqnCount.get() == 2)))
 					.onClick(this::plotDirectionField),
 					
 				button()
@@ -191,9 +195,9 @@ public class SystemInputFrame extends UIFrame {
 		
 		// Solution point entry enable conditions
 		var inputConditions = List.of(
-			curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE) && noOfEqns() >= 2),
-			curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE) && noOfEqns() >= 2),
-			curMode.when(mode -> (mode == SystemMode.ODE && noOfEqns() == 3))
+			curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE) && eqnCount.get() >= 2),
+			curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE) && eqnCount.get() >= 2),
+			curMode.when(mode -> (mode == SystemMode.ODE && eqnCount.get() == 3))
 		);
 		
 		var pnlEquations = grid()
@@ -235,8 +239,8 @@ public class SystemInputFrame extends UIFrame {
 						.visible(eqnCondition.get(idx))
 						.onChange(text -> {
 							builder.eqn(idx, text);
-							// FIXME find a better way than this to update UI
-							curMode.set(curMode.get());
+							eqnCount.set(builder.numberOfEqns());
+							refreshView();
 						})
 				);
 		}
@@ -255,15 +259,13 @@ public class SystemInputFrame extends UIFrame {
 							.enabled(inputConditions.get(idx))
 							.onChange(text -> {
 								if (!text.isEmpty()) {
-									solnPointNum++;
 									builder.solnPoint(idx, Double.parseDouble(text));
 								} else {
-									solnPointNum--;
 									builder.solnPoint(idx, 0.0);
 								}
 								
-								// FIXME find a better way than this to update UI
-								curMode.set(curMode.get());
+								solnPointCount.set(builder.getSolnPointNum());
+								refreshView();
 							})
 					))
 				).visible(isODEorDFE)
@@ -280,14 +282,14 @@ public class SystemInputFrame extends UIFrame {
 		
 		// Ranges entry
 		var rangeConditions = List.of(
-			curMode.when(mode -> noOfEqns() > 0),
+			curMode.when(mode -> eqnCount.get() > 0),
 			curMode.when(mode ->
-				(mode != SystemMode.FN1 && noOfEqns() >= 2)
-				|| mode == SystemMode.FN1 && noOfEqns() >= 1
-				|| mode == SystemMode.FN2 && noOfEqns() >= 1),
+				(mode != SystemMode.FN1 && eqnCount.get() >= 2)
+				|| mode == SystemMode.FN1 && eqnCount.get() >= 1
+				|| mode == SystemMode.FN2 && eqnCount.get() >= 1),
 			curMode.when(mode ->
-				((mode == SystemMode.DFE || mode == SystemMode.ODE) && noOfEqns() == 3)
-				|| mode == SystemMode.FN2 && noOfEqns() >= 1)
+				((mode == SystemMode.DFE || mode == SystemMode.ODE) && eqnCount.get() == 3)
+				|| mode == SystemMode.FN2 && eqnCount.get() >= 1)
 		);
 
 		var pnlRange = grid()
@@ -368,9 +370,10 @@ public class SystemInputFrame extends UIFrame {
 			.emptyBorder(5)
 			.visible(isODEorDFE);
 	}
-
-	private int noOfEqns() {
-		return builder.numberOfEqns();
+	
+	private void refreshView() {
+		// FIXME find a better way than this to update UI
+		curMode.set(curMode.get());
 	}
 
 	public EquationSystem getSystem() {
@@ -420,7 +423,7 @@ public class SystemInputFrame extends UIFrame {
 
 	private void plotCobweb() {
 		var system = getSystem();
-		if (noOfEqns() >= 1) {
+		if (eqnCount.get() >= 1) {
 			var solver = new Solver(ParserManager.getParser(), system);
 			var curData = new PlotData(solver.cobweb(system.solnPoint()[0]));
 			curData.setPlotType(PlotData.PlotType.LINES);
