@@ -93,7 +93,7 @@ public class SystemInputFrame extends UIFrame {
 					createToolbarUI(axes),
 					radioGroup(SystemMode.class)
 						.options(SystemMode.values(), SystemMode.ODE)
-						.bindToSelection(curMode),
+						.bindFromUI(curMode),
 					createEqnInputUIPanel(axes),
 					createRangesUIPanel(axes),
 					createIterationParamUIPanel()
@@ -161,10 +161,8 @@ public class SystemInputFrame extends UIFrame {
 		final String subMarkup = Text.htmlAndBody("%s" + Text.tag("sub", "%s") + "%s");
 		final String smallMarkup = Text.tag("html", Text.tag("body", "style='font-size:12'", "%s"));
 		
-		StateVar<Boolean> isODEorDFE = curMode.when(
-				mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE));
-		StateVar<Boolean> isFN = curMode.when(
-				mode -> (mode == SystemMode.FN1 || mode == SystemMode.FN2));
+		StateVar<Boolean> isODEorDFE = curMode.whenAny(List.of(SystemMode.DFE, SystemMode.ODE));
+		StateVar<Boolean> isFN = curMode.whenAny(List.of(SystemMode.FN1, SystemMode.FN2));
 		
 		var eqnFieldLabels = new EnumMap<SystemMode, String[]>(SystemMode.class);
 		
@@ -339,8 +337,7 @@ public class SystemInputFrame extends UIFrame {
 	
 	// Iteration paramters entry panel
 	private UIGrid createIterationParamUIPanel() {
-		StateVar<Boolean> enableCond = curMode.when(
-			mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE));
+		StateVar<Boolean> isODEorDFE = curMode.whenAny(List.of(SystemMode.DFE, SystemMode.ODE));
 		
 		return grid()
 			.anchor(GridBagConstraints.WEST)
@@ -356,7 +353,6 @@ public class SystemInputFrame extends UIFrame {
 					input()
 						.chars(6)
 						.text("" + EquationSystem.DEFAULT_N)
-						.enabled(enableCond)
 						.numeric(true)
 						.onChange(text -> builder.n(Integer.parseInt(text)))
 				)
@@ -367,12 +363,11 @@ public class SystemInputFrame extends UIFrame {
 					input()
 						.chars(6)
 						.text("" + EquationSystem.DEFAULT_H)
-						.enabled(enableCond)
 						.numeric(true)
 						.onChange(text -> builder.h(Double.parseDouble(text)))
 				)
 			.emptyBorder(5)
-			.visible(enableCond);
+			.visible(isODEorDFE);
 	}
 
 	private int noOfEqns() {

@@ -24,12 +24,13 @@
 package com.babai.ssplot.ui.controls;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class StateVar<T> {
 	private T value;
-	private ArrayList<Consumer<T>> runners = new ArrayList<>();
+	private List<Consumer<T>> runners = new ArrayList<>();
 	
 	public StateVar(T value) {
 		this.value = value;
@@ -58,6 +59,18 @@ public class StateVar<T> {
 		StateVar<U> derived = new StateVar<>(mapper.apply(get()));
 		onChange(val -> derived.set(mapper.apply(val)));
 		return derived;
+	}
+	
+	public StateVar<Boolean> whenAny(List<T> values) {
+		return this.when(val -> {
+			boolean res = false;
+			for (var v : values) {
+				if (v.equals(val)) {
+					res = true;
+				}
+			}
+			return res;
+		});
 	}
 
 }
