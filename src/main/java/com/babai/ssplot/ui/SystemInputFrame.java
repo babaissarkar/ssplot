@@ -385,36 +385,31 @@ public class SystemInputFrame extends UIFrame {
 	// TODO these methods sort of violate MVC, perhaps there should be some sort
 	// of controller class?
 	// Plotting functions : Calculates PlotData from EquationSystem
-	private void plotDirectionField() {
-		var system = getSystem();
-		var solver = new Solver(ParserManager.getParser(), system);
-		curData = new PlotData(solver.directionField());
-		curData.setPlotType(PlotData.PlotType.VFIELD);
-		curData.setSystem(system);
-		updater.accept(curData);
-	}
 
 	private void plot2D() {
 		var system = getSystem();
-		switch (curMode.get()) {
-		case FN1:
-			plotFunction2D();
-			break;
-		default:
-			plotTrajectory(system.solnPoint()[0], system.solnPoint()[1]);
-		}
-		updater.accept(curData);
+		var plotData = switch (curMode.get()) {
+			case FN1 -> plotFunction2D();
+			default -> plotTrajectory(system.solnPoint()[0], system.solnPoint()[1]);
+		};
+		updater.accept(plotData);
 	}
 
 	private void plot3D() {
 		var system = getSystem();
-		switch (curMode.get()) {
-		case FN2:
-			plotFunction3D();
-			break;
-		default:
-			plotODE3D(system.solnPoint());
-		}
+		var plotData = switch (curMode.get()) {
+			case FN2 -> plotFunction3D();
+			default -> plotODE3D(system.solnPoint());
+		};
+		updater.accept(plotData);
+	}
+	
+	private void plotDirectionField() {
+		var system = getSystem();
+		var solver = new Solver(ParserManager.getParser(), system);
+		var curData = new PlotData(solver.directionField());
+		curData.setPlotType(PlotData.PlotType.VFIELD);
+		curData.setSystem(system);
 		updater.accept(curData);
 	}
 
@@ -422,54 +417,54 @@ public class SystemInputFrame extends UIFrame {
 		var system = getSystem();
 		if (noOfEqns() >= 1) {
 			var solver = new Solver(ParserManager.getParser(), system);
-			curData = new PlotData(solver.cobweb(system.solnPoint()[0]));
+			var curData = new PlotData(solver.cobweb(system.solnPoint()[0]));
 			curData.setPlotType(PlotData.PlotType.LINES);
 			curData.setSystem(system);
+			updater.accept(curData);
 		}
-		updater.accept(curData);
 	}
 
-	private void plotTrajectory(double x, double y) {
+	private PlotData plotTrajectory(double x, double y) {
 		var system = getSystem();
 		var solver = new Solver(ParserManager.getParser(), system);
-		switch (curMode.get()) {
-		case DFE:
-			curData = new PlotData(solver.iterateMap(x, x));
-			break;
-		default:
-			curData = new PlotData(solver.RK4Iterate(x, y));
-			break;
-		}
+		PlotData curData = switch (curMode.get()) {
+			case DFE -> new PlotData(solver.iterateMap(x, x));
+			default -> new PlotData(solver.RK4Iterate(x, y));
+		};
 		curData.setPlotType(PlotData.PlotType.LINES);
 		curData.setSystem(system);
+		return curData;
 	}
 
-	private void plotODE3D(double[] solnPoint) {
+	private PlotData plotODE3D(double[] solnPoint) {
 		var system = getSystem();
 		var solver = new Solver(ParserManager.getParser(), system);
-		curData = new PlotData(solver.RK4Iterate3D(solnPoint[0], solnPoint[1], solnPoint[2]));
+		var curData = new PlotData(solver.RK4Iterate3D(solnPoint[0], solnPoint[1], solnPoint[2]));
 		curData.setPlotType(PlotData.PlotType.LINES3);
 		curData.setDataCols(0, 1, 2);
 		curData.setSystem(system);
+		return curData;
 	}
 
-	private void plotFunction2D() {
+	private PlotData plotFunction2D() {
 		var system = getSystem();
 		var solver = new Solver(ParserManager.getParser(), system);
-		curData = new PlotData(solver.functionData());
+		var curData = new PlotData(solver.functionData());
 		curData.setPlotType(PlotData.PlotType.LINES);
 		curData.setTitle(String.format("y = %s", system.eqns()[0]));
 		curData.setSystem(system);
+		return curData;
 	}
 
-	private void plotFunction3D() {
+	private PlotData plotFunction3D() {
 		var system = getSystem();
 		var solver = new Solver(ParserManager.getParser(), system);
-		curData = new PlotData(solver.functionData2D());
+		var curData = new PlotData(solver.functionData2D());
 		curData.setPlotType(PlotData.PlotType.LINES3);
 		curData.setDataCols(0, 1, 2);
 		curData.setTitle(String.format("z = %s", system.eqns()[0]));
 		curData.setSystem(system);
+		return curData;
 	}
 
 	public void setUpdateCallback(Consumer<PlotData> update) {
