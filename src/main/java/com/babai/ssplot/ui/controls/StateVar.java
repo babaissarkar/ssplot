@@ -25,6 +25,9 @@ package com.babai.ssplot.ui.controls;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -41,6 +44,10 @@ public class StateVar<T> {
 	}
 	
 	public void set(T value) {
+		if (Objects.equals(this.value, value)) {
+			return;
+		}
+		
 		this.value = value;
 		for (var runner : runners) {
 			runner.accept(value);
@@ -55,6 +62,7 @@ public class StateVar<T> {
 		this.runners.clear();
 	}
 	
+	// RULE: when() predicates must only read StateVars
 	public <U> StateVar<U> when(Function<T, U> mapper) {
 		StateVar<U> derived = new StateVar<>(mapper.apply(get()));
 		onChange(val -> derived.set(mapper.apply(val)));
@@ -71,6 +79,64 @@ public class StateVar<T> {
 			}
 			return res;
 		});
+	}
+	
+	public static <A, B, R> StateVar<R> combine(
+		StateVar<A> a,
+		StateVar<B> b,
+		BiFunction<A, B, R> fn
+	) {
+		StateVar<R> out = new StateVar<>(fn.apply(a.get(), b.get()));
+
+		final AtomicReference<A> av = new AtomicReference<>(a.get());
+		final AtomicReference<B> bv = new AtomicReference<>(b.get());
+
+		a.onChange(v -> {
+			av.set(v);
+			out.set(fn.apply(av.get(), bv.get()));
+		});
+
+		b.onChange(v -> {
+			bv.set(v);
+			out.set(fn.apply(av.get(), bv.get()));
+		});
+
+		return out;
+	}
+	
+	@FunctionalInterface
+	public interface TriFunction<A, B, C, R> {
+		R apply(A a, B b, C c);
+	}
+	
+	public static <A, B, C, R> StateVar<R> combine(
+		StateVar<A> a,
+		StateVar<B> b,
+		StateVar<C> c,
+		TriFunction<A, B, C, R> fn
+	) {
+		StateVar<R> out = new StateVar<>(fn.apply(a.get(), b.get(), c.get()));
+
+		final AtomicReference<A> av = new AtomicReference<>(a.get());
+		final AtomicReference<B> bv = new AtomicReference<>(b.get());
+		final AtomicReference<C> cv = new AtomicReference<>(c.get());
+
+		a.onChange(v -> {
+			av.set(v);
+			out.set(fn.apply(av.get(), bv.get(), cv.get()));
+		});
+
+		b.onChange(v -> {
+			bv.set(v);
+			out.set(fn.apply(av.get(), bv.get(), cv.get()));
+		});
+
+		c.onChange(v -> {
+			cv.set(v);
+			out.set(fn.apply(av.get(), bv.get(), cv.get()));
+		});
+
+		return out;
 	}
 
 }

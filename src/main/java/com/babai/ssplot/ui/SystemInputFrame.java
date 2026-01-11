@@ -73,9 +73,9 @@ public class SystemInputFrame extends UIFrame {
 		curMode = new StateVar<>(SystemMode.ODE);
 		curMode.onChange(mode -> builder.mode(mode));
 		isParametric = new StateVar<>(false);
-		isParametric.onChange(val -> { builder.setParametric(val); refreshView(); });
+		isParametric.onChange(val -> builder.setParametric(val));
 		isPolar = new StateVar<>(false);
-		isPolar.onChange(val -> { builder.setPolar(val); refreshView(); });
+		isPolar.onChange(val -> builder.setPolar(val));
 		eqnCount = new StateVar<>(0);
 		solnPointCount = new StateVar<>(0);
 		
@@ -97,7 +97,7 @@ public class SystemInputFrame extends UIFrame {
 					createToolbarUI(axes),
 					radioGroup(SystemMode.class)
 						.options(SystemMode.values(), SystemMode.ODE)
-						.bindToSelection(curMode),
+						.bindSelectionTo(curMode),
 					createEqnInputUIPanel(axes),
 					createRangesUIPanel(axes),
 					createIterationParamUIPanel()
@@ -109,15 +109,15 @@ public class SystemInputFrame extends UIFrame {
 	}
 	
 	private JToolBar createToolbarUI(final List<Axis> axes) {
-		var plot2dCondition = curMode.when(mode ->
-			(mode == SystemMode.ODE && eqnCount.get() == 2 && solnPointCount.get() == 2)
-			|| (mode == SystemMode.DFE && eqnCount.get() >= 1)
-			|| (mode == SystemMode.FN1 && eqnCount.get() == 1)
+		var plot2dCondition = StateVar.combine(curMode, eqnCount, solnPointCount, (mode, eqns, sp) ->
+			(mode == SystemMode.ODE && eqns == 2 && sp == 2)
+			|| (mode == SystemMode.DFE && eqns >= 1)
+			|| (mode == SystemMode.FN1 && eqns == 1)
 		);
 
-		var plot3dCondition = curMode.when(mode ->
-			(mode == SystemMode.ODE && eqnCount.get() == 3 && solnPointCount.get() == 3)
-			|| (mode == SystemMode.FN2 && eqnCount.get() == 1)
+		var plot3dCondition = StateVar.combine(curMode, eqnCount, solnPointCount, (mode, eqns, sp) ->
+			(mode == SystemMode.ODE && eqns == 3 && sp == 3)
+			|| (mode == SystemMode.FN2 && eqns == 1)
 		);
 		
 		var bar = toolbar(
@@ -138,13 +138,13 @@ public class SystemInputFrame extends UIFrame {
 				button()
 					.icon("/cobweb.png")
 					.tooltip("Draw Cobweb Plot")
-					.enabled(curMode.when(mode -> (mode == SystemMode.DFE && eqnCount.get() >= 1)))
+					.enabled(StateVar.combine(curMode, eqnCount, (mode, c) -> (mode == SystemMode.DFE && c >= 1)))
 					.onClick(this::plotCobweb),
 
 				button()
 					.icon("/vfield.png")
 					.tooltip("Draw Direction Field")
-					.enabled(curMode.when(mode -> (mode == SystemMode.ODE && eqnCount.get() == 2)))
+					.enabled(StateVar.combine(curMode, eqnCount, (mode, c) -> (mode == SystemMode.ODE && c == 2)))
 					.onClick(this::plotDirectionField),
 					
 				button()
@@ -195,9 +195,9 @@ public class SystemInputFrame extends UIFrame {
 		
 		// Solution point entry enable conditions
 		var inputConditions = List.of(
-			curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE) && eqnCount.get() >= 2),
-			curMode.when(mode -> (mode == SystemMode.DFE || mode == SystemMode.ODE) && eqnCount.get() >= 2),
-			curMode.when(mode -> (mode == SystemMode.ODE && eqnCount.get() == 3))
+			StateVar.combine(curMode, eqnCount, (mode, c) -> (mode == SystemMode.DFE || mode == SystemMode.ODE) && c >= 2),
+			StateVar.combine(curMode, eqnCount, (mode, c) -> (mode == SystemMode.DFE || mode == SystemMode.ODE) && c >= 2),
+			StateVar.combine(curMode, eqnCount, (mode, c) -> (mode == SystemMode.ODE && c == 3))
 		);
 		
 		var pnlEquations = grid()
@@ -240,7 +240,6 @@ public class SystemInputFrame extends UIFrame {
 						.onChange(text -> {
 							builder.eqn(idx, text);
 							eqnCount.set(builder.numberOfEqns());
-							refreshView();
 						})
 				);
 		}
@@ -265,7 +264,6 @@ public class SystemInputFrame extends UIFrame {
 								}
 								
 								solnPointCount.set(builder.getSolnPointNum());
-								refreshView();
 							})
 					))
 				).visible(isODEorDFE)
@@ -280,16 +278,16 @@ public class SystemInputFrame extends UIFrame {
 		final String[] tags = {"min", "max", "step"};
 		final double[] rangeAsArray = EquationSystem.DEFAULT_RANGE.toArray();
 		
-		// Ranges entry
+		// Ranges entry enable conditions
 		var rangeConditions = List.of(
-			curMode.when(mode -> eqnCount.get() > 0),
-			curMode.when(mode ->
-				(mode != SystemMode.FN1 && eqnCount.get() >= 2)
-				|| mode == SystemMode.FN1 && eqnCount.get() >= 1
-				|| mode == SystemMode.FN2 && eqnCount.get() >= 1),
-			curMode.when(mode ->
-				((mode == SystemMode.DFE || mode == SystemMode.ODE) && eqnCount.get() == 3)
-				|| mode == SystemMode.FN2 && eqnCount.get() >= 1)
+			eqnCount.when(c -> c > 0),
+			StateVar.combine(curMode, eqnCount, (mode, c) ->
+				(mode != SystemMode.FN1 && c >= 2)
+				|| mode == SystemMode.FN1 && c >= 1
+				|| mode == SystemMode.FN2 && c >= 1),
+			StateVar.combine(curMode, eqnCount, (mode, c) ->
+				((mode == SystemMode.DFE || mode == SystemMode.ODE) && c == 3)
+				|| mode == SystemMode.FN2 && c >= 1)
 		);
 
 		var pnlRange = grid()
@@ -369,11 +367,6 @@ public class SystemInputFrame extends UIFrame {
 				)
 			.emptyBorder(5)
 			.visible(isODEorDFE);
-	}
-	
-	private void refreshView() {
-		// FIXME find a better way than this to update UI
-		curMode.set(curMode.get());
 	}
 
 	public EquationSystem getSystem() {
