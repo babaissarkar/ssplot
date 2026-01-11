@@ -76,5 +76,5 @@ Once you have installed a JSR-223 compatible script engine, you just have to set
 
 # License
 This software is available under the LGPL 2.1 license. Please see the `COPYING` and `COPYING.LESSER` files.
-The bundled [Cantarell](https://fonts.google.com/specimen/Cantarell) font is available under the [SIL Open Font License, version 1.1](https://openfontlicense.org/open-font-license-official-text). A copy of the license can be found in the `src/main/resources/font/OFL.txt` subfolder.
+The bundled [Inter](https://github.com/rsms/inter) font is available under the [SIL Open Font License, version 1.1](https://openfontlicense.org/open-font-license-official-text). A copy of the license can be found in the `src/main/resources/font/LICENSE.txt` file.
 

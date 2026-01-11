@@ -26,7 +26,6 @@ package com.babai.ssplot.ui;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.util.List;
-import java.util.EnumMap;
 import java.util.function.Consumer;
 import javax.swing.Box;
 import javax.swing.JFrame;
@@ -60,16 +59,16 @@ public class SystemInputFrame extends UIFrame {
 	private StateVar<SystemMode> curMode;
 	private StateVar<Boolean> isParametric, isPolar;
 	private StateVar<Integer> eqnCount, solnPointCount;
-	
+
 	private EquationSystem.Builder builder;
 	private Consumer<PlotData> updater;
-	
+
 	private UIInput[] inputEqns;
 
 	public SystemInputFrame() {
 		inputEqns = new UIInput[EquationSystem.DIM];
 		builder = new EquationSystem.Builder();
-		
+
 		curMode = new StateVar<>(SystemMode.ODE);
 		curMode.onChange(mode -> builder.mode(mode));
 		isParametric = new StateVar<>(false);
@@ -78,14 +77,14 @@ public class SystemInputFrame extends UIFrame {
 		isPolar.onChange(val -> builder.setPolar(val));
 		eqnCount = new StateVar<>(0);
 		solnPointCount = new StateVar<>(0);
-		
+
 		initInputDialog();
 	}
 
 	private void initInputDialog() {
+		// FIXME May or may not always be Cartesian!
 		final var axes = PlotData.PlotType.LINES3.axes();
 
-		// Creating Gui
 		this.title("System Parameters")
 			.closeOperation(JFrame.HIDE_ON_CLOSE)
 			.resizable(true)
@@ -94,7 +93,7 @@ public class SystemInputFrame extends UIFrame {
 			.maximizable(false)
 			.content(
 				vbox(10,
-					createToolbarUI(axes),
+					createToolbarUI(),
 					radioGroup(SystemMode.class)
 						.options(SystemMode.values(), SystemMode.ODE)
 						.bindSelectionTo(curMode),
@@ -102,13 +101,13 @@ public class SystemInputFrame extends UIFrame {
 					createRangesUIPanel(axes),
 					createIterationParamUIPanel()
 				)
-				.bg(MainFrame.isDark() ? Color.decode("#474c5b") : Color.WHITE) // TODO: very theme specific
+				.bg(getThemeBGColor())
 				.emptyBorder(15)
 			)
 			.packFrame();
 	}
-	
-	private JToolBar createToolbarUI(final List<Axis> axes) {
+
+	private JToolBar createToolbarUI() {
 		var plot2dCondition = StateVar.combine(curMode, eqnCount, solnPointCount, (mode, eqns, sp) ->
 			(mode == SystemMode.ODE && eqns == 2 && sp == 2)
 			|| (mode == SystemMode.DFE && eqns >= 1)
@@ -119,7 +118,8 @@ public class SystemInputFrame extends UIFrame {
 			(mode == SystemMode.ODE && eqns == 3 && sp == 3)
 			|| (mode == SystemMode.FN2 && eqns == 1)
 		);
-		
+
+
 		var bar = toolbar(
 			hbox(
 				// Plot Buttons
@@ -146,60 +146,39 @@ public class SystemInputFrame extends UIFrame {
 					.tooltip("Draw Direction Field")
 					.enabled(StateVar.combine(curMode, eqnCount, (mode, c) -> (mode == SystemMode.ODE && c == 2)))
 					.onClick(this::plotDirectionField),
-					
+
 				button()
 					.icon("/cross.png")
 					.tooltip("Clear changes")
 					.onClick(this::hide) // TODO this should reset everything to default vals
 			)
 			.gap(0, 0)
-			.bg(MainFrame.isDark() ? Color.decode("#474c5b") : Color.WHITE) // TODO: very theme specific
+			.bg(getThemeBGColor()) // TODO: very theme specific
 		);
-		
+
 		bar.setBackground(Color.WHITE);
 		return bar;
 	}
 
 	// Equation Entry Panel
 	private UIGrid createEqnInputUIPanel(final List<Axis> axes) {
-		final String subMarkup = Text.htmlAndBody("%s" + Text.tag("sub", "%s") + "%s");
-		final String smallMarkup = Text.tag("html", Text.tag("body", "style='font-size:12'", "%s"));
-		
 		StateVar<Boolean> isODEorDFE = curMode.whenAny(List.of(SystemMode.DFE, SystemMode.ODE));
 		StateVar<Boolean> isFN = curMode.whenAny(List.of(SystemMode.FN1, SystemMode.FN2));
-		
-		var eqnFieldLabels = new EnumMap<SystemMode, String[]>(SystemMode.class);
-		
-		eqnFieldLabels.put(
-			SystemMode.ODE,
-			forEach(axes, i -> "d%s/dt =".formatted(axes.get(i).toString().toLowerCase()), String[]::new));
-		
-		eqnFieldLabels.put(
-			SystemMode.DFE,
-			forEach(axes, i -> subMarkup.formatted(axes.get(i).toString().toLowerCase(), "n+1", " ="), String[]::new));
-		
-		eqnFieldLabels.put(
-			SystemMode.FN1,
-			new String[] { "y(x) =", "", "" });
-		
-		eqnFieldLabels.put(
-			SystemMode.FN2,
-			new String[] { "z(x, y) =", "", "" });
-		
+
 		// Equations entry enable conditions
 		var eqnCondition = List.of(
 			new StateVar<Boolean>(true),
 			isODEorDFE,
 			isODEorDFE
 		);
-		
+
 		// Solution point entry enable conditions
 		var inputConditions = List.of(
 			StateVar.combine(curMode, eqnCount, (mode, c) -> (mode == SystemMode.DFE || mode == SystemMode.ODE) && c >= 2),
 			StateVar.combine(curMode, eqnCount, (mode, c) -> (mode == SystemMode.DFE || mode == SystemMode.ODE) && c >= 2),
 			StateVar.combine(curMode, eqnCount, (mode, c) -> (mode == SystemMode.ODE && c == 3))
 		);
-		
+
 		var pnlEquations = grid()
 			.emptyBorder(5)
 			.anchor(GridBagConstraints.WEST)
@@ -207,7 +186,7 @@ public class SystemInputFrame extends UIFrame {
 			.row()
 				.spanx(4)
 				.column(label("Equations").font(Text.headerFont))
-	
+
 			.row()
 				.column(label("Parametric (x = x(t), y = y(t)):").visible(isFN))
 				.weightx(1)
@@ -217,7 +196,7 @@ public class SystemInputFrame extends UIFrame {
 						checkBox().bindSelectionTo(isParametric)
 					).visible(isFN)
 				)
-				
+
 			.row()
 				.column(label("Polar (r = r(θ)):").visible(isFN))
 				.weightx(1)
@@ -230,7 +209,7 @@ public class SystemInputFrame extends UIFrame {
 		for (int i = 0; i < axes.size(); i++) {
 			final int idx = i;
 			pnlEquations.row()
-				.column(label().bindTextFrom(curMode.when(mode -> eqnFieldLabels.get(mode)[idx])))
+				.column(label().bindTextFrom(curMode.when(mode -> getInputLabel(axes, idx, mode))))
 				.weightx(1)
 				.fill(GridBagConstraints.HORIZONTAL)
 				.column(
@@ -243,7 +222,7 @@ public class SystemInputFrame extends UIFrame {
 						})
 				);
 		}
-		
+
 		pnlEquations.row()
 			.column(label("Solve At:").visible(isODEorDFE))
 			.weightx(1)
@@ -252,7 +231,7 @@ public class SystemInputFrame extends UIFrame {
 				// Entry area for the point where the system is to be solved (X,Y,Z)
 				hbox(
 					forEach(axes, idx -> hbox(
-						label(String.format(smallMarkup, axes.get(idx))),
+						label(axes.get(idx).toString()),
 						input()
 							.chars(3)
 							.enabled(inputConditions.get(idx))
@@ -262,22 +241,24 @@ public class SystemInputFrame extends UIFrame {
 								} else {
 									builder.solnPoint(idx, 0.0);
 								}
-								
+
 								solnPointCount.set(builder.getSolnPointNum());
 							})
 					))
 				).visible(isODEorDFE)
 			);
-		
+
 		return pnlEquations;
 	}
-	
+
 	// Range Entry Panel
 	private UIGrid createRangesUIPanel(final List<Axis> axes) {
-		final String subMarkup = Text.htmlAndBody("%s" + Text.tag("sub", "%s") + "%s");
+		final String subMarkup = Text.htmlAndBody(Text.tag("font", "face='Inter'",
+				"%s" + Text.tag("sub", Text.tag("font", "size='-1'", "%s")) + "%s"));
+
 		final String[] tags = {"min", "max", "step"};
 		final double[] rangeAsArray = EquationSystem.DEFAULT_RANGE.toArray();
-		
+
 		// Ranges entry enable conditions
 		var rangeConditions = List.of(
 			eqnCount.when(c -> c > 0),
@@ -301,7 +282,7 @@ public class SystemInputFrame extends UIFrame {
 			final int row_idx = row;
 			pnlRange.row();
 			for (int col = 0; col < tags.length; col++) {
-				final int col_idx = col; 
+				final int col_idx = col;
 				pnlRange
 					.weightx(0)
 					.column(label(subMarkup.formatted(axes.get(row), tags[col], "")))
@@ -329,15 +310,15 @@ public class SystemInputFrame extends UIFrame {
 					.column(Box.createHorizontalStrut(10));
 			}
 		}
-		
+
 		pnlRange.emptyBorder(5);
 		return pnlRange;
 	}
-	
+
 	// Iteration paramters entry panel
 	private UIGrid createIterationParamUIPanel() {
 		StateVar<Boolean> isODEorDFE = curMode.whenAny(List.of(SystemMode.DFE, SystemMode.ODE));
-		
+
 		return grid()
 			.anchor(GridBagConstraints.WEST)
 			.insets(3)
@@ -368,6 +349,32 @@ public class SystemInputFrame extends UIFrame {
 			.emptyBorder(5)
 			.visible(isODEorDFE);
 	}
+
+	//
+	// HELPERS
+	//
+
+	private Color getThemeBGColor() {
+		// TODO: very theme specific, perhaps there's a better way?
+		return MainFrame.isDark() ? Color.decode("#474c5b") : Color.WHITE;
+	}
+
+	private String getInputLabel(final List<Axis> axes, int idx, SystemMode mode) {
+		final String subMarkup = Text.htmlAndBody(Text.tag("font", "face='Inter'",
+				"%s" + Text.tag("sub", Text.tag("font", "size='-1'", "%s")) + "%s"));
+
+		return switch(mode) {
+		case ODE -> "d%s/dt =".formatted(axes.get(idx).toString().toLowerCase());
+		case DFE -> subMarkup.formatted(axes.get(idx).toString().toLowerCase(), "n+1", " =");
+		case FN1 -> idx == 0 ? "y(x) =" : "";
+		case FN2 -> idx == 0 ? "z(x, y) =" : "";
+		default -> throw new IllegalArgumentException("Unexpected value: " + mode);
+		};
+	}
+
+	//
+	// GETTERS/SETTERS
+	//
 
 	public EquationSystem getSystem() {
 		return this.builder.build();
@@ -404,7 +411,7 @@ public class SystemInputFrame extends UIFrame {
 		};
 		updater.accept(plotData);
 	}
-	
+
 	private void plotDirectionField() {
 		var system = getSystem();
 		var solver = new Solver(ParserManager.getParser(), system);

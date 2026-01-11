@@ -25,6 +25,7 @@ package com.babai.ssplot.ui.controls;
 
 import java.awt.Component;
 import java.awt.Font;
+import java.awt.GraphicsEnvironment;
 import java.util.Collection;
 import java.util.function.IntFunction;
 import java.util.stream.IntStream;
@@ -199,14 +200,30 @@ public class DUI {
 			Font f = null;
 			fallbackFont = new Font("Sans", Font.PLAIN, 18);
 			monoFont = new Font("monospace", Font.PLAIN, 14);
-			try (var is = Text.class.getResourceAsStream("/fonts/Cantarell-Regular.ttf")) {
+			
+			final String fontPath = "/fonts/Inter-Regular.ttf";
+			try (var is = Text.class.getResourceAsStream(fontPath)) {
 				f = Font.createFont(Font.TRUETYPE_FONT, is);
+				GraphicsEnvironment
+					.getLocalGraphicsEnvironment()
+					.registerFont(f);
 			} catch (Exception e) {
-				System.err.println("Failed to load Cantarell font, falling back to system default.");
-				f = fallbackFont.deriveFont(Font.BOLD);
+				System.err.println("Failed to load bundled font, falling back to system default.");
+				f = fallbackFont.deriveFont(Font.PLAIN, 15f);
 			}
 			baseFont = f.deriveFont(Font.PLAIN, 15f);
-			headerFont = baseFont.deriveFont(Font.BOLD, 17f);
+			
+			final String fontPathBold = "/fonts/Inter-SemiBold.ttf";
+			try (var is = Text.class.getResourceAsStream(fontPathBold)) {
+				f = Font.createFont(Font.TRUETYPE_FONT, is);
+				GraphicsEnvironment
+					.getLocalGraphicsEnvironment()
+					.registerFont(f);
+			} catch (Exception e) {
+				System.err.println("Failed to load bundled font, falling back to system default.");
+				f = fallbackFont.deriveFont(Font.PLAIN, 15f);
+			}
+			headerFont = f.deriveFont(Font.PLAIN, 17f);
 		}
 	}
 }

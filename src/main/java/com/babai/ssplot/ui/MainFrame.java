@@ -49,7 +49,6 @@ import com.babai.ssplot.cli.SSPlotCLI;
 import com.babai.ssplot.math.io.NumParse;
 import com.babai.ssplot.math.plot.*;
 import com.babai.ssplot.math.plot.PlotData.PlotType;
-import com.babai.ssplot.ui.controls.DUI;
 import com.babai.ssplot.ui.controls.DUI.Text;
 import com.babai.ssplot.ui.controls.UIButton;
 import com.babai.ssplot.ui.controls.UIRadioItem;
@@ -170,7 +169,6 @@ public class MainFrame extends JFrame {
 		// If the text ends with ")", caret goes just before it; otherwise caret at end.
 		Function<String, UIButton> mathBtnMaker = (text) ->
 			button()
-				.font(DUI.Text.fallbackFont)
 				.text(text).onClick(() -> {
 				if (text.endsWith(")")) {
 					FocusTracker.insertTextWithCaret(text, text.length() - 1);
