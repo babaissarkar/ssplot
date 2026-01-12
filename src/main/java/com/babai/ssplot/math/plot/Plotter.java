@@ -55,13 +55,12 @@ public final class Plotter {
 		canv.refresh();
 	}
 	
-	public void plot(PlotData data, int lastIndex) {
-		plotData(data, lastIndex);
-		plotOthers(data);
+	public void plot(PlotData data) {
+		plot(data, data.getRowCount());
 	}
 	
-	public void plot(PlotData data) {
-		plotData(data, data.getRowCount());
+	public void plot(PlotData data, int lastIndex) {
+		plotData(data, lastIndex);
 		plotOthers(data);
 	}
 	
