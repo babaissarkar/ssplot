@@ -26,33 +26,20 @@ package com.babai.ssplot.math.plot;
 import java.awt.geom.Point2D;
 
 import com.babai.ssplot.math.prim.Matrix;
-import com.babai.ssplot.util.InfoLogger;
 
 public class Project2D {
-	private double a, b, c;
 	private static final double defaultMoveAngle = 10.0;
+	
+	private double a, b, c;
 	private double moveAngle = Math.toRadians(defaultMoveAngle);
-	private InfoLogger logger;
 	
 	public enum Axis {X, Y, Z, NX, NY, NZ};
 	
-	public Project2D(InfoLogger logger) {
-		this.logger = logger;
-	}
 	
 	/**
 	 *  Set viewing angle for 3d plots
 	 */
 	public void setView(double a, double b, double c) {
-		double a2 = Math.toDegrees(a) % 360;
-		double b2 = Math.toDegrees(b) % 360;
-		double c2 = Math.toDegrees(c) % 360;
-		// TODO: this creates too much noise on the log window.
-		// Perhaps various log modes (Info/Debug) are needed?
-		if (logger != null) {
-			String threedpos = String.format("3D Rotation angles : %f, %f, %f\n", a2, b2, c2);
-			logger.log(threedpos);
-		}
 		this.a = a;
 		this.b = b;
 		this.c = c;
@@ -106,32 +93,12 @@ public class Project2D {
 	
 	public void moveView(Axis axis) {
 		switch (axis) {
-		case X:
-			setView(a + getMoveAngle(), b, c);
-			break;
-
-		case Y:
-			setView(a, b + getMoveAngle(), c);
-			break;
-			
-		case Z:
-			setView(a, b, c + getMoveAngle());
-			break;
-			
-		case NX:
-			setView(a - getMoveAngle(), b, c);
-			break;
-
-		case NY:
-			setView(a, b - getMoveAngle(), c);
-			break;
-			
-		case NZ:
-			setView(a, b, c - getMoveAngle());
-			break;
-			
-		default:
-			break;
+		case X -> setView(a + getMoveAngle(), b, c);
+		case Y -> setView(a, b + getMoveAngle(), c);
+		case Z -> setView(a, b, c + getMoveAngle());
+		case NX -> setView(a - getMoveAngle(), b, c);
+		case NY -> setView(a, b - getMoveAngle(), c);
+		case NZ -> setView(a, b, c - getMoveAngle());
 		}
 	}
 

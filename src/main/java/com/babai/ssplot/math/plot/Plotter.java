@@ -39,7 +39,7 @@ public final class Plotter {
 	
 	public Plotter(InfoLogger logger) {
 		this.logger = logger;
-		p = new Project2D(logger);
+		p = new Project2D();
 		initPlot(DEFAULT_W, DEFAULT_H);
 	}
 	

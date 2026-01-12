@@ -60,7 +60,7 @@ public class Canvas {
 	 * but does not start drawing. */
 	public Canvas(InfoLogger logger) {
 		this.logger = logger;
-		this.projector = new Project2D(this.logger);
+		this.projector = new Project2D();
 		scaleFactor = 1.0;
 		dx = 0; dy = 0;
 		moveX = 0; moveY = 0;
