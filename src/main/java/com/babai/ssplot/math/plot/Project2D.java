@@ -107,7 +107,7 @@ public class Project2D {
 		rotX.set(Math.sin(a), 2, 1);
 		rotX.set(1, 0, 0);
 		
-		R2 = rotZ.times(rotY.times(rotX.times(R)));
+		R2 = rotZ.multiply(rotY.multiply(rotX.multiply(R)));
 		
 		return new Point2D.Double(R2.get(0, 0), R2.get(1, 0));
 	}
