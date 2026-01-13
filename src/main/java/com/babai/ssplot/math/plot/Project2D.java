@@ -28,13 +28,20 @@ import java.awt.geom.Point2D;
 import com.babai.ssplot.math.prim.Matrix;
 
 public class Project2D {
-	private static final double defaultMoveAngle = 10.0;
+	private static final double defaultMoveAngle = Math.toRadians(10.0);
 	
 	private double a, b, c;
-	private double moveAngle = Math.toRadians(defaultMoveAngle);
+	private double moveAngle = defaultMoveAngle;
 	
-	public enum Axis {X, Y, Z, NX, NY, NZ};
+	public enum Axis { X, Y, Z, NX, NY, NZ };
 	
+	public double getMoveAngle() {
+		return moveAngle;
+	}
+
+	public void setMoveAngle(double moveAngle) {
+		this.moveAngle = moveAngle;
+	}
 	
 	/**
 	 *  Set viewing angle for 3d plots
@@ -45,15 +52,29 @@ public class Project2D {
 		this.c = c;
 	}
 	
-	public double getMoveAngle() {
-		return moveAngle;
-	}
-
-	public void setMoveAngle(double moveAngle) {
-		this.moveAngle = moveAngle;
+	public void moveView(Axis axis) {
+		switch (axis) {
+		case X -> setView(a + getMoveAngle(), b, c);
+		case Y -> setView(a, b + getMoveAngle(), c);
+		case Z -> setView(a, b, c + getMoveAngle());
+		case NX -> setView(a - getMoveAngle(), b, c);
+		case NY -> setView(a, b - getMoveAngle(), c);
+		case NZ -> setView(a, b, c - getMoveAngle());
+		}
 	}
 	
 	public Point2D.Double project(double x, double y, double z) {
+		return projectWithAngles(x, y, z, this.a, this.b, this.c);
+	}
+	
+	public Point2D.Double projectInverse(double x, double y, double z) {
+		return projectWithAngles(x, y, z, -this.a, -this.b, -this.c);
+	}
+	
+	private Point2D.Double projectWithAngles(
+		double x, double y, double z,
+		double a, double b, double c)
+	{
 		Matrix rotX, rotY, rotZ, R, R2;
 		rotZ = new Matrix(3, 3);
 		rotY = new Matrix(3, 3);
@@ -89,27 +110,5 @@ public class Project2D {
 		R2 = rotZ.times(rotY.times(rotX.times(R)));
 		
 		return new Point2D.Double(R2.get(0, 0), R2.get(1, 0));
-	}
-	
-	public void moveView(Axis axis) {
-		switch (axis) {
-		case X -> setView(a + getMoveAngle(), b, c);
-		case Y -> setView(a, b + getMoveAngle(), c);
-		case Z -> setView(a, b, c + getMoveAngle());
-		case NX -> setView(a - getMoveAngle(), b, c);
-		case NY -> setView(a, b - getMoveAngle(), c);
-		case NZ -> setView(a, b, c - getMoveAngle());
-		}
-	}
-
-	public Point2D.Double projectInv(double a, double b, double c) {
-		this.a = -this.a;
-		this.b = -this.b;
-		this.c = -this.c;
-		Point2D.Double tP = project(a, b, c);
-		this.a = -this.a;
-		this.b = -this.b;
-		this.c = -this.c;
-		return tP;
 	}
 }
