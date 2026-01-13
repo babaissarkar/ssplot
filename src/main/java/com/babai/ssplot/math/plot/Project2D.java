@@ -33,7 +33,7 @@ public class Project2D {
 	private double a, b, c;
 	private double moveAngle = defaultMoveAngle;
 	
-	public enum Axis { X, Y, Z, NX, NY, NZ };
+	public enum RotationAxis { X, Y, Z, NX, NY, NZ };
 	
 	public double getMoveAngle() {
 		return moveAngle;
@@ -44,7 +44,7 @@ public class Project2D {
 	}
 	
 	/**
-	 *  Set viewing angle for 3d plots
+	 *  Set viewing angle for 3d to 2d projection
 	 */
 	public void setView(double a, double b, double c) {
 		this.a = a;
@@ -52,7 +52,7 @@ public class Project2D {
 		this.c = c;
 	}
 	
-	public void moveView(Axis axis) {
+	public void moveView(RotationAxis axis) {
 		switch (axis) {
 		case X -> setView(a + getMoveAngle(), b, c);
 		case Y -> setView(a, b + getMoveAngle(), c);

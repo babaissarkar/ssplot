@@ -234,7 +234,7 @@ public final class Plotter {
 		p.setMoveAngle(Math.toRadians(th));
 	}
 	
-	public void moveView(Project2D.Axis axis) {
+	public void moveView(Project2D.RotationAxis axis) {
 		p.moveView(axis);
 	}
 	

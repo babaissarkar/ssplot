@@ -246,32 +246,32 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 	}
 
 	public void rotateXPlus() {
-		plt.moveView(Project2D.Axis.X);
+		plt.moveView(Project2D.RotationAxis.X);
 		repaint();
 	}
 
 	public void rotateXMinus() {
-		plt.moveView(Project2D.Axis.NX);
+		plt.moveView(Project2D.RotationAxis.NX);
 		repaint();
 	}
 
 	public void rotateYPlus() {
-		plt.moveView(Project2D.Axis.Y);
+		plt.moveView(Project2D.RotationAxis.Y);
 		repaint();
 	}
 
 	public void rotateYMinus() {
-		plt.moveView(Project2D.Axis.NY);
+		plt.moveView(Project2D.RotationAxis.NY);
 		repaint();
 	}
 
 	public void rotateZPlus() {
-		plt.moveView(Project2D.Axis.Z);
+		plt.moveView(Project2D.RotationAxis.Z);
 		repaint();
 	}
 
 	public void rotateZMinus() {
-		plt.moveView(Project2D.Axis.NZ);
+		plt.moveView(Project2D.RotationAxis.NZ);
 		repaint();
 	}
 	
@@ -399,15 +399,15 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 
 			if (dx > dy) {
 				if (dx > 0) {
-					plt.moveView(Project2D.Axis.Y);
+					plt.moveView(Project2D.RotationAxis.Y);
 				} else {
-					plt.moveView(Project2D.Axis.NY);
+					plt.moveView(Project2D.RotationAxis.NY);
 				}
 			} else {
 				if (dy > 0) {
-					plt.moveView(Project2D.Axis.X);
+					plt.moveView(Project2D.RotationAxis.X);
 				} else {
-					plt.moveView(Project2D.Axis.NX);
+					plt.moveView(Project2D.RotationAxis.NX);
 				}
 			}
 
