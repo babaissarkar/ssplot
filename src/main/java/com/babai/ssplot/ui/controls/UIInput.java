@@ -75,16 +75,16 @@ public class UIInput extends JTextField
 		return this;
 	}
 	
+	public boolean empty() {
+		return getText().isEmpty();
+	}
+	
 	public Double value() {
-		return Double.parseDouble(getText());
+		return empty() ? 0.0 : Double.parseDouble(getText());
 	}
 	
 	public Integer intValue() {
-		return Integer.parseInt(getText());
-	}
-	
-	public boolean empty() {
-		return getText().isEmpty();
+		return empty() ? 0 : Integer.parseInt(getText());
 	}
 	
 	public UIInput onChange(Runnable action) {
