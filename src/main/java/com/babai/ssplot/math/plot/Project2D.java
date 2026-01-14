@@ -71,6 +71,8 @@ public class Project2D {
 		return projectWithAngles(x, y, z, -this.a, -this.b, -this.c);
 	}
 	
+	// FIXME too many matrix allocation + multiplication slowling things down
+	// cache rot matrices and benchmark performance before + after
 	private Point2D.Double projectWithAngles(
 		double x, double y, double z,
 		double a, double b, double c)

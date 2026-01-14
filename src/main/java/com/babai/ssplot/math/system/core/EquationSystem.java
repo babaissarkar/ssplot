@@ -176,6 +176,8 @@ public record EquationSystem (
 			return count;
 		}
 
+		// TODO these two below break builder paradigm
+		// otoh, since calls are not chained, do we really need the fluent calls?
 		public void setParametric(boolean val) {
 			this.isParametric = val;
 		}
