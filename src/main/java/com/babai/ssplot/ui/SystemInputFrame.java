@@ -93,7 +93,7 @@ public class SystemInputFrame extends UIFrame {
 			.maximizable(false)
 			.content(
 				vbox(10,
-					createToolbarUI(),
+					createToolbar(),
 					radioGroup(SystemMode.class)
 						.options(SystemMode.values(), SystemMode.ODE)
 						.bindSelectionTo(curMode),
@@ -107,11 +107,11 @@ public class SystemInputFrame extends UIFrame {
 			.packFrame();
 	}
 
-	private JToolBar createToolbarUI() {
+	private JToolBar createToolbar() {
 		var plot2dCondition = StateVar.combine(curMode, eqnCount, solnPointCount, (mode, eqns, sp) ->
 			(mode == SystemMode.ODE && eqns == 2 && sp == 2)
 			|| (mode == SystemMode.DFE && eqns >= 1)
-			|| (mode == SystemMode.FN1 && eqns == 1)
+			|| (mode == SystemMode.FN1 && (eqns == 1 || eqns == 2)) // test
 		);
 
 		var plot3dCondition = StateVar.combine(curMode, eqnCount, solnPointCount, (mode, eqns, sp) ->
@@ -168,15 +168,15 @@ public class SystemInputFrame extends UIFrame {
 		// Equations entry enable conditions
 		var eqnCondition = List.of(
 			new StateVar<Boolean>(true),
-			isODEorDFE,
+			StateVar.combine(isODEorDFE, isParametric, (isO, isP) -> isO || isP),
 			isODEorDFE
 		);
 
 		// Solution point entry enable conditions
 		var inputConditions = List.of(
-			StateVar.combine(curMode, eqnCount, (mode, c) -> (mode == SystemMode.DFE || mode == SystemMode.ODE) && c >= 2),
-			StateVar.combine(curMode, eqnCount, (mode, c) -> (mode == SystemMode.DFE || mode == SystemMode.ODE) && c >= 2),
-			StateVar.combine(curMode, eqnCount, (mode, c) -> (mode == SystemMode.ODE && c == 3))
+			StateVar.combine(isODEorDFE, eqnCount, (isO, c) -> isO && c >= 2),
+			StateVar.combine(isODEorDFE, eqnCount, (isO, c) -> isO && c >= 2),
+			StateVar.combine(curMode, eqnCount, (mode, c) -> mode == SystemMode.ODE && c == 3)
 		);
 
 		var pnlEquations = grid()
@@ -209,7 +209,10 @@ public class SystemInputFrame extends UIFrame {
 		for (int i = 0; i < axes.size(); i++) {
 			final int idx = i;
 			pnlEquations.row()
-				.column(label().bindTextFrom(curMode.when(mode -> getInputLabel(axes, idx, mode))))
+				.column(label()
+					.bindTextFrom(StateVar.combine(curMode, isParametric,
+						(mode, isP) -> getInputLabel(axes, idx, mode, isP)))
+				)
 				.weightx(1)
 				.fill(GridBagConstraints.HORIZONTAL)
 				.column(
@@ -293,6 +296,7 @@ public class SystemInputFrame extends UIFrame {
 						.text("" + rangeAsArray[col])
 						.enabled(rangeConditions.get(row))
 						.onChange(text -> {
+							if (text.isEmpty()) return;
 							var range = builder.ranges()[row_idx];
 							builder.range(row_idx,
 								switch (col_idx % 3) {
@@ -359,14 +363,23 @@ public class SystemInputFrame extends UIFrame {
 		return MainFrame.isDark() ? Color.decode("#474c5b") : Color.WHITE;
 	}
 
-	private String getInputLabel(final List<Axis> axes, int idx, SystemMode mode) {
+	private String getInputLabel(final List<Axis> axes, int idx, SystemMode mode, boolean isParametric) {
 		final String subMarkup = Text.htmlAndBody(Text.tag("font", "face='Inter'",
 				"%s" + Text.tag("sub", Text.tag("font", "size='-1'", "%s")) + "%s"));
+		final String[] parametric2dLabels = { "x(t) =", "y(t) =", "" };
 
 		return switch(mode) {
 		case ODE -> "d%s/dt =".formatted(axes.get(idx).toString().toLowerCase());
 		case DFE -> subMarkup.formatted(axes.get(idx).toString().toLowerCase(), "n+1", " =");
-		case FN1 -> idx == 0 ? "y(x) =" : "";
+		case FN1 -> {
+			if (isParametric) {
+				yield parametric2dLabels[idx];
+			} else if (idx == 0) {
+				yield "y(x) =";
+			} else {
+				yield "";
+			}
+		}
 		case FN2 -> idx == 0 ? "z(x, y) =" : "";
 		default -> throw new IllegalArgumentException("Unexpected value: " + mode);
 		};
@@ -437,7 +450,7 @@ public class SystemInputFrame extends UIFrame {
 		var solver = new Solver(ParserManager.getParser(), system);
 		PlotData curData = switch (curMode.get()) {
 			case DFE -> new PlotData(solver.iterateMap(x, x));
-			default -> new PlotData(solver.RK4Iterate(x, y));
+			default -> new PlotData(solver.rk4Iterate(x, y));
 		};
 		curData.setPlotType(PlotData.PlotType.LINES);
 		curData.setSystem(system);
@@ -447,7 +460,7 @@ public class SystemInputFrame extends UIFrame {
 	private PlotData plotODE3D(double[] solnPoint) {
 		var system = getSystem();
 		var solver = new Solver(ParserManager.getParser(), system);
-		var curData = new PlotData(solver.RK4Iterate3D(solnPoint[0], solnPoint[1], solnPoint[2]));
+		var curData = new PlotData(solver.rk4Iterate3D(solnPoint[0], solnPoint[1], solnPoint[2]));
 		curData.setPlotType(PlotData.PlotType.LINES3);
 		curData.setDataCols(0, 1, 2);
 		curData.setSystem(system);
@@ -457,9 +470,13 @@ public class SystemInputFrame extends UIFrame {
 	private PlotData plotFunction2D() {
 		var system = getSystem();
 		var solver = new Solver(ParserManager.getParser(), system);
-		var curData = new PlotData(solver.functionData());
+		var curData = new PlotData(solver.functionData2D());
+		if (system.isParametric()) {
+			curData.setTitle(String.format("y = %s, x = %s", system.eqn(0), system.eqn(1)));
+		} else {
+			curData.setTitle(String.format("y = %s", system.eqn(0)));
+		}
 		curData.setPlotType(PlotData.PlotType.LINES);
-		curData.setTitle(String.format("y = %s", system.eqns()[0]));
 		curData.setSystem(system);
 		return curData;
 	}
@@ -467,10 +484,10 @@ public class SystemInputFrame extends UIFrame {
 	private PlotData plotFunction3D() {
 		var system = getSystem();
 		var solver = new Solver(ParserManager.getParser(), system);
-		var curData = new PlotData(solver.functionData2D());
+		var curData = new PlotData(solver.functionData3D());
 		curData.setPlotType(PlotData.PlotType.LINES3);
 		curData.setDataCols(0, 1, 2);
-		curData.setTitle(String.format("z = %s", system.eqns()[0]));
+		curData.setTitle(String.format("z = %s", system.eqn(0)));
 		curData.setSystem(system);
 		return curData;
 	}

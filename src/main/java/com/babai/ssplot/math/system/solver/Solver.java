@@ -54,11 +54,10 @@ public class Solver {
 		public double of(double x, double y, double z);
 	}
 	
-	/******************************************************************/
-	/** Solve the system of equations by RK 4th order method */
-	/******************************************************************/
-	public double[][] RK4Iterate(double x0, double y0) {
-		System.out.println("2D RK4 started.");
+	/**********************************************************************/
+	/** Solve the system of differential equations by RK 4th order method */
+	/**********************************************************************/
+	public double[][] rk4Iterate(double x0, double y0) {
 		var soln = new double[system.n()][2];
 		if (!validate(2)) { // 2d system
 			System.err.println("Invalid System for 2D RK4 iteration!");
@@ -100,8 +99,7 @@ public class Solver {
 		return soln;
 	}
 
-	public double[][] RK4Iterate3D(double x0, double y0, double z0) {
-		System.out.println("3D RK4 started.");
+	public double[][] rk4Iterate3D(double x0, double y0, double z0) {
 		var soln = new double[system.n()][3];
 		if (!validate(3)) { // 3d system
 			System.err.println("Invalid System for 3D RK4 iteration!");
@@ -234,9 +232,35 @@ public class Solver {
 
 		return soln;
 	}
+	
+	public double[][] functionData2D() {
+		return system.isParametric()
+			? functionData2DParametric()
+			: functionData2DNonParametric(); 
+	}
+	
+	private double[][] functionData2DParametric() {
+		var soln = new double[system.range(0).count()][2];
+		
+		final String eqn1 = system.eqn(0);
+		final String eqn2 = system.eqn(1);
+		parser.setVariables("t");
+		DoubleUnaryOperator fx = t -> parser.evaluate(eqn1, t);
+		DoubleUnaryOperator fy = t -> parser.evaluate(eqn2, t);
+		
+		var trange = system.range(0);
+		int tcount = trange.count();
+		for (int i = 0; i < tcount; i++) {
+			double t = trange.at(i);
+			soln[i][0] = fx.applyAsDouble(t);
+			soln[i][1] = fy.applyAsDouble(t);
+		}
+		
+		return soln;
+	}
 
-	public double[][] functionData() {
-		var soln = new double[system.ranges()[0].count()][2];
+	private double[][] functionData2DNonParametric() {
+		var soln = new double[system.range(0).count()][2];
 		
 		final String eqn = system.eqn(0);
 		parser.setVariables("x");
@@ -253,8 +277,8 @@ public class Solver {
 		return soln;
 	}
 
-	public double[][] functionData2D() {
-		int rows = (system.ranges()[0].count() * system.ranges()[1].count()) + 1;
+	public double[][] functionData3D() {
+		int rows = (system.range(0).count() * system.range(1).count()) + 1;
 		var soln = new double[rows][3];
 		
 		final String eqn1 = system.eqn(0);
