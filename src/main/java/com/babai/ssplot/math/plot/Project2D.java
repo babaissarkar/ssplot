@@ -25,25 +25,26 @@ package com.babai.ssplot.math.plot;
 
 import java.awt.geom.Point2D;
 
-import com.babai.ssplot.math.prim.Matrix;
-
 public class Project2D {
 	private static final double defaultMoveAngle = Math.toRadians(10.0);
-	
+
 	private double a, b, c;
 	private double moveAngle = defaultMoveAngle;
 
-	private Matrix rotMatrix;
-	
+	// Store rotation matrix as primitive doubles
+	// Only store 2 rows, since we don't need the rotated Z
+	private double m00, m01, m02;
+	private double m10, m11, m12;
+
 	public enum RotationAxis { X, Y, Z, NX, NY, NZ };
-	
+
 	public Project2D() {
 		this.a = 0.0;
 		this.b = 0.0;
 		this.c = 0.0;
 		recomputeRotMatrix(0, 0, 0);
 	}
-	
+
 	public double getMoveAngle() {
 		return moveAngle;
 	}
@@ -51,9 +52,9 @@ public class Project2D {
 	public void setMoveAngle(double moveAngle) {
 		this.moveAngle = moveAngle;
 	}
-	
+
 	/**
-	 *  Set viewing angle for 3d to 2d projection
+	 * Set viewing angle for 3d to 2d projection
 	 */
 	public void setView(double a, double b, double c) {
 		if (this.a != a || this.b != b || this.c != c) {
@@ -63,37 +64,45 @@ public class Project2D {
 		this.b = b;
 		this.c = c;
 	}
-	
-	private void recomputeRotMatrix(double a, double b, double c) {		
-		var rotZ = new Matrix(3, 3);
-		var rotY = new Matrix(3, 3);
-		var rotX = new Matrix(3, 3);
-		
-		double sC = Math.sin(c);
-		double cC = Math.cos(c); 
-		
-		/* Rotation about Z */
-		rotZ.set(cC, 0, 0);
-		rotZ.set(-sC, 0, 1);
-		rotZ.set(cC, 1, 1);
-		rotZ.set(sC, 1, 0);
-		rotZ.set(1, 2, 2);
-		
-		/* Rotation about Y */
-		rotY.set(Math.cos(b), 0, 0);
-		rotY.set(-Math.sin(b), 2, 0);
-		rotY.set(Math.cos(b), 2, 2);
-		rotY.set(Math.sin(b), 0, 2);
-		rotY.set(1, 1, 1);
-		
-		/* Rotation about X */
-		rotX.set(Math.cos(a), 1, 1);
-		rotX.set(-Math.sin(a), 1, 2);
-		rotX.set(Math.cos(a), 2, 2);
-		rotX.set(Math.sin(a), 2, 1);
-		rotX.set(1, 0, 0);
-		
-		this.rotMatrix = rotZ.multiply(rotY.multiply(rotX));
+
+	private void recomputeRotMatrix(double a, double b, double c) {
+		double sC = Math.sin(c), cC = Math.cos(c);
+		double sB = Math.sin(b), cB = Math.cos(b);
+		double sA = Math.sin(a), cA = Math.cos(a);
+
+		// rotZ
+		double rZ00 = cC,  rZ01 = -sC;
+		double rZ10 = sC,  rZ11 = cC;
+
+		// rotY
+		double rY00 = cB,  rY02 = sB;
+		double rY20 = -sB, rY22 = cB;
+
+		// rotX
+		double rX11 = cA,  rX12 = -sA;
+		double rX21 = sA,  rX22 = cA;
+
+		// Multiply rotY * rotX (only rows we need)
+		double t00 = rY00*1 + rY02*0; // simplifies to cB
+		double t01 = rY00*0 + rY02*rX21; // = rY02*sA
+		double t02 = rY00*0 + rY02*rX22; // = rY02*cA
+
+		double t10 = 0; 
+		double t11 = 1*rX11; // = cA
+		double t12 = 1*rX12; // = -sA
+
+		double t20 = rY20*1 + rY22*0; // = -sB
+		double t21 = rY20*0 + rY22*rX21; // = rY22*sA
+		double t22 = rY20*0 + rY22*rX22; // = rY22*cA
+
+		// Multiply rotZ * (rotY*rotX), only first two rows
+		m00 = rZ00*t00 + rZ01*t10;
+		m01 = rZ00*t01 + rZ01*t11;
+		m02 = rZ00*t02 + rZ01*t12;
+
+		m10 = rZ10*t00 + rZ11*t10;
+		m11 = rZ10*t01 + rZ11*t11;
+		m12 = rZ10*t02 + rZ11*t12;
 	}
 
 	public void moveView(RotationAxis axis) {
@@ -106,14 +115,11 @@ public class Project2D {
 		case NZ -> setView(a, b, c - getMoveAngle());
 		}
 	}
-	
+
 	public Point2D.Double project(double x, double y, double z) {
-		Matrix R, R2;
-		R = new Matrix(3, 1);
-		R.set(x, 0, 0);
-		R.set(y, 1, 0);
-		R.set(z, 2, 0);
-		R2 = this.rotMatrix.multiply(R);
-		return new Point2D.Double(R2.get(0, 0), R2.get(1, 0));
+		double px = m00*x + m01*y + m02*z;
+		double py = m10*x + m11*y + m12*z;
+		// z component ignored for 2D projection
+		return new Point2D.Double(px, py);
 	}
 }
