@@ -26,19 +26,14 @@ package com.babai.ssplot.math.plot;
 import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-
-import com.babai.ssplot.util.InfoLogger;
 
 public final class Plotter {
 	private final Project2D p;
-	private final InfoLogger logger;
 	private Canvas canv;
 	
 	public static final int DEFAULT_W = 450, DEFAULT_H = 450;
 	
-	public Plotter(InfoLogger logger) {
-		this.logger = logger;
+	public Plotter() {
 		p = new Project2D();
 		initPlot(DEFAULT_W, DEFAULT_H);
 	}
@@ -46,7 +41,7 @@ public final class Plotter {
 	public void initPlot(int W, int H) {
 		p.setView(0, 0, 0);
 		if (canv == null) {
-			canv = new Canvas(logger);
+			canv = new Canvas();
 		}
 		canv.initPlot(W, H);
 	}
@@ -71,9 +66,9 @@ public final class Plotter {
 			initPlot(DEFAULT_W, DEFAULT_H);
 		}
 		
-		var dataCols = new ArrayList<Integer>();
-		for (int i = 0; i < pdata.getColumnCount(); i++) {
-			dataCols.add(pdata.getDataCol(i));
+		int[] dataCols = new int[pdata.getColumnCount()];
+		for (int i = 0;  i < dataCols.length; i++) {
+			dataCols[i] = pdata.getDataCol(i);
 		}
 		
 		Point2D.Double p1 = null, p2 = null;
@@ -176,14 +171,14 @@ public final class Plotter {
 		}
 	}
 
-	private Point2D.Double getPoint3D(double[] row, ArrayList<Integer> dataCols, Project2D projector,
+	private Point2D.Double getPoint3D(double[] row, int[] dataCols, Project2D projector,
 			int i, int j, int k)
 	{
-		return canv.cartesianToJava(projector.project(row[dataCols.get(i)], row[dataCols.get(j)], row[dataCols.get(k)]));
+		return canv.cartesianToJava(projector.project(row[dataCols[i]], row[dataCols[j]], row[dataCols[k]]));
 	}
 
-	private Point2D.Double getPoint2D(double[] row, ArrayList<Integer> dataCols, int c1, int c2) {
-		return canv.cartesianToJava(new Point2D.Double(row[dataCols.get(c1)], row[dataCols.get(c2)]));
+	private Point2D.Double getPoint2D(double[] row, int[] dataCols, int c1, int c2) {
+		return canv.cartesianToJava(new Point2D.Double(row[dataCols[c1]], row[dataCols[c2]]));
 	}
 
 	public BufferedImage getImage() {

@@ -94,7 +94,7 @@ public class MainFrame extends JFrame {
 		logger = new StatLogger();
 		logger.log(Text.tag("h1", "Welcome to SSPlot!"));
 		
-		var plt = new Plotter(logger);
+		var plt = new Plotter();
 		if (isDark) {
 			plt.setFgColor(Color.WHITE);
 			plt.setBgColor(Color.decode("#474c5b"));

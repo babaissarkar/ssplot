@@ -40,13 +40,14 @@ public class SSPlotCLI {
 	Plotter plt;
 
 	public SSPlotCLI() {
-		CLILogger clilogger = new CLILogger();
-		clilogger.log("Welcome to SSPlot CLI!");
+//		CLILogger clilogger = new CLILogger();
+//		clilogger.log("Welcome to SSPlot CLI!");
 
-		plt = new Plotter(clilogger);
+		System.out.println("Welcome to SSPlot CLI!");
+		plt = new Plotter();
 	}
 
-	public static void main (String[] args) {
+	public static void main(String[] args) {
 		var cli = new SSPlotCLI();
 		ArgParse.nextArg("i", args).ifPresentOrElse(
 			inputFile -> {

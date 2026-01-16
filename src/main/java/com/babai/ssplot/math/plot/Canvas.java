@@ -32,10 +32,8 @@ import java.awt.RenderingHints;
 import java.awt.geom.*;
 import java.awt.image.BufferedImage;
 
-import com.babai.ssplot.util.InfoLogger;
-
 public class Canvas {
-	private final static Font titleFont = new Font("Serif", Font.BOLD, 22);
+	private final static Font titleFont = new Font("Inter", Font.BOLD, 22);
 	
 	private int W, H; /* Size of image */
 	private boolean axesVisible = true;
@@ -53,13 +51,10 @@ public class Canvas {
 	private String xlbl, ylbl;
 	private Project2D projector;
 	
-	private InfoLogger logger;
-	
 	/*
 	 * This only sets properties of the plot
 	 * but does not start drawing. */
-	public Canvas(InfoLogger logger) {
-		this.logger = logger;
+	public Canvas() {
 		this.projector = new Project2D();
 		scaleFactor = 1.0;
 		dx = 0; dy = 0;
@@ -342,9 +337,6 @@ public class Canvas {
 		g.setColor(titleColor);
 		drawText(title, titlePos);
 
-		Point2D.Double p2 = javaToCartesian(titlePos);
-		log(String.format("Added title \"%s\" at (%6.2f, %6.2f)", title, p2.x, p2.y));
-
 		g.setColor(prevColor);
 		g.setFont(prevFont);
 	}
@@ -379,7 +371,6 @@ public class Canvas {
 
 	public void setScaleFactor(double scaleFactor) {
 		this.scaleFactor = scaleFactor;
-		log("Zoom : " + getScaleFactor() + " x");
 	}
 
 	public boolean isAxesVisible() {
@@ -406,11 +397,6 @@ public class Canvas {
 
 	public void toggleAxes() {
 		setAxesVisible(!isAxesVisible());
-		if (isAxesVisible()) {
-			log("Axes visible.");
-		} else {
-			log("Axes hidden.");
-		}
 	}
 
 	public int getPlotWidth() {
@@ -449,12 +435,20 @@ public class Canvas {
 
 	/*********************************** Helper Methods **************************************************/
 
+	// NOTE: these mutate argument (passed point) to avoid allocating new Point2D.Double
+	
 	/* Transforms from Cartesian space to Java Graphics space. */
 	/* Takes care of scaling and translation */
 	public Point2D.Double cartesianToJava(Point2D.Double p) {
-		double x = scaleFactor*(p.x-zc.x) + zc.x;
-		double y = scaleFactor*(p.y-zc.y) + zc.y;
-		return cartesianToJavaUnscaled(x, y);
+		p.x = scaleFactor*(p.x-zc.x) + zc.x;
+		p.y = scaleFactor*(p.y-zc.y) + zc.y;
+		return cartesianToJavaUnscaled(p);
+	}
+
+	private Point2D.Double cartesianToJavaUnscaled(Point2D.Double p) {
+		p.x = p.x + dx + moveX;
+		p.y = H - (p.y + dy + moveY);
+		return p;
 	}
 
 	private Point2D.Double cartesianToJavaUnscaled(double x, double y) {
@@ -467,9 +461,9 @@ public class Canvas {
 	/* Takes care of scaling and translation */
 	// FIXME does not work with non Zero Zoom Center
 	public Point2D.Double javaToCartesian(Point2D.Double p1) {
-		double x = (p1.x - dx - moveX)/scaleFactor;
-		double y = ((H - p1.y) - dy - moveY)/scaleFactor;
-		return new Point2D.Double(x, y);
+		p1.x = (p1.x - dx - moveX)/scaleFactor;
+		p1.y = ((H - p1.y) - dy - moveY)/scaleFactor;
+		return p1;
 	}
 
 
@@ -479,14 +473,6 @@ public class Canvas {
 		double y = r * Math.sin(theta) - dy;
 		Point2D.Double p = cartesianToJava(new Point2D.Double(x, y));
 		return p;
-	}
-
-	
-	// Utility logging method
-	private void log(String string) {
-		if (logger != null) {
-			logger.log(string + "\n");
-		}
 	}
 
 	/************************************ 3D *********************************************/
