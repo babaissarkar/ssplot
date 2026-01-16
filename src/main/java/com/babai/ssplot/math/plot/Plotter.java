@@ -179,7 +179,7 @@ public final class Plotter {
 	private Point2D.Double getPoint3D(double[] row, ArrayList<Integer> dataCols, Project2D projector,
 			int i, int j, int k)
 	{
-		return projector.project(row[dataCols.get(i)], row[dataCols.get(j)], row[dataCols.get(k)]);
+		return canv.getTransformedPoint(projector.project(row[dataCols.get(i)], row[dataCols.get(j)], row[dataCols.get(k)]));
 	}
 
 	private Point2D.Double getPoint2D(double[] row, ArrayList<Integer> dataCols, int c1, int c2) {
