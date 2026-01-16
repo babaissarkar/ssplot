@@ -32,8 +32,17 @@ public class Project2D {
 	
 	private double a, b, c;
 	private double moveAngle = defaultMoveAngle;
+
+	private Matrix rotMatrix;
 	
 	public enum RotationAxis { X, Y, Z, NX, NY, NZ };
+	
+	public Project2D() {
+		this.a = 0.0;
+		this.b = 0.0;
+		this.c = 0.0;
+		recomputeRotMatrix(0, 0, 0);
+	}
 	
 	public double getMoveAngle() {
 		return moveAngle;
@@ -47,52 +56,27 @@ public class Project2D {
 	 *  Set viewing angle for 3d to 2d projection
 	 */
 	public void setView(double a, double b, double c) {
+		if (this.a != a || this.b != b || this.c != c) {
+			recomputeRotMatrix(a, b, c);
+		}
 		this.a = a;
 		this.b = b;
 		this.c = c;
 	}
 	
-	public void moveView(RotationAxis axis) {
-		switch (axis) {
-		case X -> setView(a + getMoveAngle(), b, c);
-		case Y -> setView(a, b + getMoveAngle(), c);
-		case Z -> setView(a, b, c + getMoveAngle());
-		case NX -> setView(a - getMoveAngle(), b, c);
-		case NY -> setView(a, b - getMoveAngle(), c);
-		case NZ -> setView(a, b, c - getMoveAngle());
-		}
-	}
-	
-	public Point2D.Double project(double x, double y, double z) {
-		return projectWithAngles(x, y, z, this.a, this.b, this.c);
-	}
-	
-	public Point2D.Double projectInverse(double x, double y, double z) {
-		return projectWithAngles(x, y, z, -this.a, -this.b, -this.c);
-	}
-	
-	// FIXME too many matrix allocation + multiplication slowling things down
-	// cache rot matrices and benchmark performance before + after
-	private Point2D.Double projectWithAngles(
-		double x, double y, double z,
-		double a, double b, double c)
-	{
-		Matrix rotX, rotY, rotZ, R, R2;
-		rotZ = new Matrix(3, 3);
-		rotY = new Matrix(3, 3);
-		rotX = new Matrix(3, 3);
+	private void recomputeRotMatrix(double a, double b, double c) {		
+		var rotZ = new Matrix(3, 3);
+		var rotY = new Matrix(3, 3);
+		var rotX = new Matrix(3, 3);
 		
-		R = new Matrix(3, 1);
-		
-		R.set(x, 0, 0);
-		R.set(y, 1, 0);
-		R.set(z, 2, 0);
+		double sC = Math.sin(c);
+		double cC = Math.cos(c); 
 		
 		/* Rotation about Z */
-		rotZ.set(Math.cos(c), 0, 0);
-		rotZ.set(-Math.sin(c), 0, 1);
-		rotZ.set(Math.cos(c), 1, 1);
-		rotZ.set(Math.sin(c), 1, 0);
+		rotZ.set(cC, 0, 0);
+		rotZ.set(-sC, 0, 1);
+		rotZ.set(cC, 1, 1);
+		rotZ.set(sC, 1, 0);
 		rotZ.set(1, 2, 2);
 		
 		/* Rotation about Y */
@@ -109,8 +93,27 @@ public class Project2D {
 		rotX.set(Math.sin(a), 2, 1);
 		rotX.set(1, 0, 0);
 		
-		R2 = rotZ.multiply(rotY.multiply(rotX.multiply(R)));
-		
+		this.rotMatrix = rotZ.multiply(rotY.multiply(rotX));
+	}
+
+	public void moveView(RotationAxis axis) {
+		switch (axis) {
+		case X -> setView(a + getMoveAngle(), b, c);
+		case Y -> setView(a, b + getMoveAngle(), c);
+		case Z -> setView(a, b, c + getMoveAngle());
+		case NX -> setView(a - getMoveAngle(), b, c);
+		case NY -> setView(a, b - getMoveAngle(), c);
+		case NZ -> setView(a, b, c - getMoveAngle());
+		}
+	}
+	
+	public Point2D.Double project(double x, double y, double z) {
+		Matrix R, R2;
+		R = new Matrix(3, 1);
+		R.set(x, 0, 0);
+		R.set(y, 1, 0);
+		R.set(z, 2, 0);
+		R2 = this.rotMatrix.multiply(R);
 		return new Point2D.Double(R2.get(0, 0), R2.get(1, 0));
 	}
 }
