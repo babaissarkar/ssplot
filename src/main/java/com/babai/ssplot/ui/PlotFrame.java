@@ -88,9 +88,9 @@ public class PlotFrame extends UIFrame {
 			axisSelector.setEnabled(enabled);
 			axisSelector.removeAllItems();
 			if (enabled) {
-				var ptype = pv.getCurPlotType();
-				if (ptype.isPresent()) {
-					for (var axis : ptype.get().axes()) {
+				var optPlot = pv.getCurPlot();
+				if (optPlot.isPresent()) {
+					for (var axis : optPlot.get().getAxes()) {
 						axisSelector.addItem(axis);
 					}
 				}
@@ -167,6 +167,6 @@ public class PlotFrame extends UIFrame {
 		pv.setCurPlotType(data.getPlotType());
 		pv.fit();
 		displayScale();
-		rotationEnabled.set(data.getPlotType().dim() == 3);
+		rotationEnabled.set(data.getColumnCount() == 3);
 	}
 }

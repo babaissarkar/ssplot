@@ -47,8 +47,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 
+import com.babai.ssplot.math.plot.Axis;
 import com.babai.ssplot.math.plot.PlotData;
-import com.babai.ssplot.math.plot.PlotData.PlotType;
 import com.babai.ssplot.ui.controls.DUI.Text;
 import com.babai.ssplot.ui.controls.UIFrame;
 import static com.babai.ssplot.ui.controls.DUI.*;
@@ -111,9 +111,8 @@ public class DataView extends UIFrame {
 		);
 
 		jcbColMapper = new Vector<JComboBox<Integer>>();
-		var axes = PlotType.LINES3.axes();
 		var pnlPrefs = hbox(label(Text.bold("Axes:")));
-		for (var axis : axes) {
+		for (var axis : Axis.Cartesian.values()) {
 			pnlPrefs.add(label(
 				Text.htmlAndBody(axis + " <span style='font-family:Sans'>→</span> Col")));
 			var cbox = new JComboBox<Integer>();
@@ -277,7 +276,7 @@ public class DataView extends UIFrame {
 		if (pdata == null) return;
 		
 		int i = 0;
-		for (var axis : pdata.getPlotType().axes()) {
+		for (var axis : pdata.getAxes()) {
 			var jcbData = jcbColMapper.get(i);
 			jcbData.removeAllItems();
 			jcbData.setEnabled(pdata != null);

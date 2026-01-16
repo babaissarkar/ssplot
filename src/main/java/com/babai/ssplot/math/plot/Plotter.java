@@ -72,7 +72,7 @@ public final class Plotter {
 		}
 		
 		var dataCols = new ArrayList<Integer>();
-		for (int i = 0; i < pdata.getPlotType().dim(); i++) {
+		for (int i = 0; i < pdata.getColumnCount(); i++) {
 			dataCols.add(pdata.getDataCol(i));
 		}
 		
@@ -84,7 +84,7 @@ public final class Plotter {
 		}
 		
 		canv.setFGColor(pdata.getFgColor());
-		canv.setAxes3d(pdata.getPlotType().dim() == 3);
+		canv.setAxes3d(pdata.getColumnCount() == 3);
 
 		for (int i = 0; i < lastIndex; i++) {
 			var row = dataset[i];

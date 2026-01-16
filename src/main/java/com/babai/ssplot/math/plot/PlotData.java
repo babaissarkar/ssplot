@@ -40,29 +40,19 @@ import com.babai.ssplot.math.system.core.EquationSystem;
  */
 public class PlotData implements Cloneable {	
 	public enum PlotType {
-		LINES("2D Lines", Axis.Cartesian.X, Axis.Cartesian.Y),
-		POINTS("2D Points", Axis.Cartesian.X, Axis.Cartesian.Y),
-		LINES_POINTS("2D Lines with Points", Axis.Cartesian.X, Axis.Cartesian.Y),
+		LINES("2D Lines"),
+		POINTS("2D Points"),
+		LINES_POINTS("2D Lines with Points"),
 		
-		POINTS3("3D Points", Axis.Cartesian.X, Axis.Cartesian.Y, Axis.Cartesian.Z), 
-		LINES3("3D Lines", Axis.Cartesian.X, Axis.Cartesian.Y, Axis.Cartesian.Z),
+		POINTS3("3D Points"), 
+		LINES3("3D Lines"),
 		
-		VFIELD("Vector field", Axis.Cartesian.X, Axis.Cartesian.Y);
+		VFIELD("Vector field");
 		
 		private final String type;
-		private final List<Axis> axes;
 
-		PlotType(String type, Axis... axes) {
+		PlotType(String type) {
 			this.type = type;
-			this.axes = List.of(axes);
-		}
-		
-		public List<Axis> axes() {
-			return axes;
-		}
-		
-		public int dim() {
-			return axes.size();
 		}
 		
 		@Override
@@ -78,6 +68,7 @@ public class PlotData implements Cloneable {
 	private double[][] data;
 	private Vector<Node> nodes;
 	private EquationSystem system;
+	private Axis[] axes = Axis.Cartesian.values();
 	
 	private PlotType plotType;
 	private PointType pointType;
@@ -91,19 +82,14 @@ public class PlotData implements Cloneable {
 	public int ptX, ptY;
 	
 	private List<String> axesLabels = new ArrayList<String>();
-	private HashMap<Axis, Integer> axesDataColumns = new HashMap<>();
+	private HashMap<Integer, Integer> dataColumnMapping = new HashMap<>();
 	
 	private Color fgColor, fgColor2;
 	private String title;
 
 	public PlotData(double[][] extData) {
 		data = extData;
-		nodes = new Vector<Node>();		
-		// Plot Type
-		plotType = PlotType.LINES;
-		
-		// Active axes
-		setDataCols(0, 1);
+		nodes = new Vector<Node>();
 		
 		// Cosmetic point properties
 		pointType = PointType.SQUARE;
@@ -136,43 +122,80 @@ public class PlotData implements Cloneable {
 	
 	public EquationSystem getSystem() { return system; }
 	public void setSystem(EquationSystem system) { this.system = system; }
+	
+	public Axis[] getAxes() { return axes; }
+	public void setAxes(Axis... axes) { this.axes = axes; }
 
 
 	// ------------- DATA METHODS -----------------
 	public double[][] getData() { return data; }
 	public void setData(double[][] data) { this.data = data; }
 	public int getRowCount() { return data.length; }
+	
+	// NOTE: Right now, number of columns of data == number of axes. If that changes
+	// we might need a dim() method again. Also note that there might be the case
+	// that each column may not correspond to coordinate data, for example see the
+	// Vector field case which has row format: x, y, dx, dy
 	public int getColumnCount() { return data.length > 0 ? data[0].length : 0; }
 	
 	/**
 	 * @return the index of the data column corresponding to axis with `axisName`.
 	 */
-	public int getDataCol(Axis axisName) {
-		return axesDataColumns.getOrDefault(axisName, plotType.axes().indexOf(axisName));
+	public int getDataCol(Axis axis) {
+		for (int i = 0; i < axes.length; i++) {
+			if (axes[i].equals(axis)) {
+				return dataColumnMapping.get(i);
+			}
+		}
+		throw new IllegalArgumentException("Invalid axis " + axis + " for current plot");
 	}
 	
 	/**
 	 * @param index
-	 * @return the `index`th data column.
+	 * @return the data column for `index`th axis.
 	 */
 	public int getDataCol(int index) {
-		return getDataCol(getPlotType().axes().get(index));
+		Integer mappedIndex = dataColumnMapping.get(index);
+		if (mappedIndex != null) {
+			return mappedIndex;
+		}
+		throw new IllegalArgumentException("Invalid/unmapped column number " + index + " for current plot");
 	}
 	
 	/**
-	 * Sets which data column is associated with which axis
-	 * 
-	 * @param dataCols    An array of column indices.
-	 * Column with index `dataCols[0]` will be associated with the 0-th axis, and so on.
+	 * Defines how input data columns are mapped for plotting.
+	 *
+	 * This method specifies which columns from the input dataset are used
+	 * when constructing the plot. The interpretation depends on the plot type:
+	 * <ul>
+	 *   <li>For simple 2D/3D plots, the first entries typically correspond
+	 *       to coordinate axes (e.g. x, y, z).</li>
+	 *   <li>For vector fields or other specialized plots, additional columns
+	 *       may represent quantities such as direction components (dx, dy),
+	 *       magnitudes, or other attributes.</li>
+	 * </ul>
+	 *
+	 * The array {@code dataCols} provides the sequence of column indices
+	 * to be consumed by the plot type. For example:
+	 * <pre>
+	 *   // Vector field: x, y, dx, dy
+	 *   setDataCols(0, 1, 2, 3);
+	 * </pre>
+	 *
+	 * Unlike a strict axis mapping, not every column corresponds directly
+	 * to an axis; instead, the meaning of each position in {@code dataCols}
+	 * is determined by the plot type, similar to gnuplot's 'using' command.
+	 *
+	 * @param dataCols an array of column indices, ordered according to the
+	 *                 requirements of the current plot type
 	 */
 	public void setDataCols(int... dataCols) {
-		var axes = plotType.axes();
 		for (int i = 0; i < dataCols.length; i++) {
-			axesDataColumns.put(axes.get(i), dataCols[i]);
+			dataColumnMapping.put(i, dataCols[i]);
 		}
 	}
 	
-	public HashMap<Axis, Integer> getDataColMapping() { return this.axesDataColumns; }
+	public HashMap<Integer, Integer> getDataColMapping() { return this.dataColumnMapping; }
 	
 	public double[] getColumn(int i) {
 		double[] colData = new double[getRowCount()];

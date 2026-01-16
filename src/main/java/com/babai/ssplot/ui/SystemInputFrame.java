@@ -82,8 +82,7 @@ public class SystemInputFrame extends UIFrame {
 	}
 
 	private void initInputDialog() {
-		// FIXME May or may not always be Cartesian!
-		final var axes = PlotData.PlotType.LINES3.axes();
+		final var axes = Axis.Cartesian.values();
 
 		this.title("System Parameters")
 			.closeOperation(JFrame.HIDE_ON_CLOSE)
@@ -161,7 +160,7 @@ public class SystemInputFrame extends UIFrame {
 	}
 
 	// Equation Entry Panel
-	private UIGrid createEqnInputUIPanel(final List<Axis> axes) {
+	private UIGrid createEqnInputUIPanel(final Axis[] axes) {
 		StateVar<Boolean> isODEorDFE = curMode.whenAny(List.of(SystemMode.DFE, SystemMode.ODE));
 		StateVar<Boolean> isFN = curMode.whenAny(List.of(SystemMode.FN1, SystemMode.FN2));
 
@@ -206,7 +205,7 @@ public class SystemInputFrame extends UIFrame {
 						checkBox().bindSelectionTo(isPolar)
 					).visible(isFN));
 
-		for (int i = 0; i < axes.size(); i++) {
+		for (int i = 0; i < axes.length; i++) {
 			final int idx = i;
 			pnlEquations.row()
 				.column(label()
@@ -234,7 +233,7 @@ public class SystemInputFrame extends UIFrame {
 				// Entry area for the point where the system is to be solved (X,Y,Z)
 				hbox(
 					forEach(axes, idx -> hbox(
-						label(axes.get(idx).toString()),
+						label(axes[idx].toString()),
 						input()
 							.chars(3)
 							.enabled(inputConditions.get(idx))
@@ -255,7 +254,7 @@ public class SystemInputFrame extends UIFrame {
 	}
 
 	// Range Entry Panel
-	private UIGrid createRangesUIPanel(final List<Axis> axes) {
+	private UIGrid createRangesUIPanel(final Axis[] axes) {
 		final String subMarkup = Text.htmlAndBody(Text.tag("font", "face='Inter'",
 				"%s" + Text.tag("sub", Text.tag("font", "size='-1'", "%s")) + "%s"));
 
@@ -281,14 +280,14 @@ public class SystemInputFrame extends UIFrame {
 				.spanx(9)
 				.column(label("Ranges").font(Text.headerFont));
 
-		for (int row = 0; row < axes.size(); row++) {
+		for (int row = 0; row < axes.length; row++) {
 			final int row_idx = row;
 			pnlRange.row();
 			for (int col = 0; col < tags.length; col++) {
 				final int col_idx = col;
 				pnlRange
 					.weightx(0)
-					.column(label(subMarkup.formatted(axes.get(row), tags[col], "")))
+					.column(label(subMarkup.formatted(axes[row], tags[col], "")))
 					.weightx(1)
 					.column(input()
 						.chars(5)
@@ -363,14 +362,14 @@ public class SystemInputFrame extends UIFrame {
 		return MainFrame.isDark() ? Color.decode("#474c5b") : Color.WHITE;
 	}
 
-	private String getInputLabel(final List<Axis> axes, int idx, SystemMode mode, boolean isParametric) {
+	private String getInputLabel(final Axis[] axes, int idx, SystemMode mode, boolean isParametric) {
 		final String subMarkup = Text.htmlAndBody(Text.tag("font", "face='Inter'",
 				"%s" + Text.tag("sub", Text.tag("font", "size='-1'", "%s")) + "%s"));
 		final String[] parametric2dLabels = { "x(t) =", "y(t) =", "" };
 
 		return switch(mode) {
-		case ODE -> "d%s/dt =".formatted(axes.get(idx).toString().toLowerCase());
-		case DFE -> subMarkup.formatted(axes.get(idx).toString().toLowerCase(), "n+1", " =");
+		case ODE -> "d%s/dt =".formatted(axes[idx].toString().toLowerCase());
+		case DFE -> subMarkup.formatted(axes[idx].toString().toLowerCase(), "n+1", " =");
 		case FN1 -> {
 			if (isParametric) {
 				yield parametric2dLabels[idx];
@@ -413,6 +412,9 @@ public class SystemInputFrame extends UIFrame {
 			case FN1 -> plotFunction2D();
 			default -> plotTrajectory(system.solnPoint()[0], system.solnPoint()[1]);
 		};
+		plotData.setPlotType(PlotData.PlotType.LINES);
+		plotData.setAxes(Axis.Cartesian.X, Axis.Cartesian.Y);
+		plotData.setDataCols(0, 1);
 		updater.accept(plotData);
 	}
 
@@ -422,74 +424,74 @@ public class SystemInputFrame extends UIFrame {
 			case FN2 -> plotFunction3D();
 			default -> plotODE3D(system.solnPoint());
 		};
+		plotData.setPlotType(PlotData.PlotType.LINES3);
+		plotData.setAxes(Axis.Cartesian.X, Axis.Cartesian.Y, Axis.Cartesian.Z);
+		plotData.setDataCols(0, 1, 2);
 		updater.accept(plotData);
 	}
 
 	private void plotDirectionField() {
 		var system = getSystem();
 		var solver = new Solver(ParserManager.getParser(), system);
-		var curData = new PlotData(solver.directionField());
-		curData.setPlotType(PlotData.PlotType.VFIELD);
-		curData.setSystem(system);
-		updater.accept(curData);
+		var plotData = new PlotData(solver.directionField());
+		plotData.setPlotType(PlotData.PlotType.VFIELD);
+		plotData.setDataCols(0, 1, 2, 3);
+		plotData.setSystem(system);
+		plotData.setAxes(Axis.Cartesian.X, Axis.Cartesian.Y);
+		updater.accept(plotData);
 	}
 
 	private void plotCobweb() {
 		var system = getSystem();
 		if (eqnCount.get() >= 1) {
 			var solver = new Solver(ParserManager.getParser(), system);
-			var curData = new PlotData(solver.cobweb(system.solnPoint()[0]));
-			curData.setPlotType(PlotData.PlotType.LINES);
-			curData.setSystem(system);
-			updater.accept(curData);
+			var plotData = new PlotData(solver.cobweb(system.solnPoint()[0]));
+			plotData.setPlotType(PlotData.PlotType.LINES);
+			plotData.setSystem(system);
+			plotData.setDataCols(0, 1, 2);
+			updater.accept(plotData);
 		}
 	}
 
 	private PlotData plotTrajectory(double x, double y) {
 		var system = getSystem();
 		var solver = new Solver(ParserManager.getParser(), system);
-		PlotData curData = switch (curMode.get()) {
+		PlotData plotData = switch (curMode.get()) {
 			case DFE -> new PlotData(solver.iterateMap(x, x));
 			default -> new PlotData(solver.rk4Iterate(x, y));
 		};
-		curData.setPlotType(PlotData.PlotType.LINES);
-		curData.setSystem(system);
-		return curData;
+		plotData.setSystem(system);
+		return plotData;
 	}
 
 	private PlotData plotODE3D(double[] solnPoint) {
 		var system = getSystem();
 		var solver = new Solver(ParserManager.getParser(), system);
-		var curData = new PlotData(solver.rk4Iterate3D(solnPoint[0], solnPoint[1], solnPoint[2]));
-		curData.setPlotType(PlotData.PlotType.LINES3);
-		curData.setDataCols(0, 1, 2);
-		curData.setSystem(system);
-		return curData;
+		var plotData = new PlotData(solver.rk4Iterate3D(solnPoint[0], solnPoint[1], solnPoint[2]));
+		plotData.setSystem(system);
+		return plotData;
 	}
 
 	private PlotData plotFunction2D() {
 		var system = getSystem();
 		var solver = new Solver(ParserManager.getParser(), system);
-		var curData = new PlotData(solver.functionData2D());
+		var plotData = new PlotData(solver.functionData2D());
 		if (system.isParametric()) {
-			curData.setTitle(String.format("y = %s, x = %s", system.eqn(0), system.eqn(1)));
+			plotData.setTitle(String.format("y = %s, x = %s", system.eqn(0), system.eqn(1)));
 		} else {
-			curData.setTitle(String.format("y = %s", system.eqn(0)));
+			plotData.setTitle(String.format("y = %s", system.eqn(0)));
 		}
-		curData.setPlotType(PlotData.PlotType.LINES);
-		curData.setSystem(system);
-		return curData;
+		plotData.setSystem(system);
+		return plotData;
 	}
 
 	private PlotData plotFunction3D() {
 		var system = getSystem();
 		var solver = new Solver(ParserManager.getParser(), system);
-		var curData = new PlotData(solver.functionData3D());
-		curData.setPlotType(PlotData.PlotType.LINES3);
-		curData.setDataCols(0, 1, 2);
-		curData.setTitle(String.format("z = %s", system.eqn(0)));
-		curData.setSystem(system);
-		return curData;
+		var plotData = new PlotData(solver.functionData3D());
+		plotData.setTitle(String.format("z = %s", system.eqn(0)));
+		plotData.setSystem(system);
+		return plotData;
 	}
 
 	public void setUpdateCallback(Consumer<PlotData> update) {
