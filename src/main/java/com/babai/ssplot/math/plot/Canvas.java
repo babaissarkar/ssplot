@@ -225,23 +225,23 @@ public class Canvas {
 		
 		setFGColor(xAxisColor);
 		Point2D.Double pp1 = projector.project(-225, 0, 0);
-		p1 = getTransformedPoint(pp1);
+		p1 = cartesianToJava(pp1);
 		Point2D.Double pp2 = projector.project(225, 0, 0);
-		p2 = getTransformedPoint(pp2);
+		p2 = cartesianToJava(pp2);
 		drawLine(p1, p2);
 		
 		setFGColor(yAxisColor);
 		pp1 = projector.project(0, 225, 0);
-		p1 = getTransformedPoint(pp1);
+		p1 = cartesianToJava(pp1);
 		pp2 = projector.project(0, -225, 0);
-		p2 = getTransformedPoint(pp2);
+		p2 = cartesianToJava(pp2);
 		drawLine(p1, p2);
 		
 		setFGColor(zAxisColor);
 		pp1 = projector.project(0, 0, 225);
-		p1 = getTransformedPoint(pp1);
+		p1 = cartesianToJava(pp1);
 		pp2 = projector.project(0, 0, -225);
-		p2 = getTransformedPoint(pp2);
+		p2 = cartesianToJava(pp2);
 		drawLine(p1, p2);
 		
 		setFGColor(oldFgColor);
@@ -267,20 +267,17 @@ public class Canvas {
 			String strLbl = getLabelFromDouble(lbl);
 			int strWidth = m.stringWidth(strLbl);
 
-			drawLine(
-					getTransformedPoint2(new Point2D.Double(x, 0)),
-					getTransformedPoint2(new Point2D.Double(x, -5))
-					);
+			drawLine(cartesianToJavaUnscaled(x, 0), cartesianToJavaUnscaled(x, -5));
 
 			if (i != 0) {
-				drawText(strLbl, getTransformedPoint2(new Point2D.Double(x - (strWidth/2 + 2), -(strHeight+2))));
+				drawText(strLbl, cartesianToJavaUnscaled(x - (strWidth/2 + 2), -(strHeight+2)));
 			}
 
 		}
 
 		// draw X Label
 		if (xlbl != null) {
-			drawText(xlbl, getTransformedPoint2(new Point2D.Double(50, 5)));
+			drawText(xlbl, cartesianToJavaUnscaled(50, 5));
 		}
 
 		for (int j = (-(noOfMajorTics/2 - 1) - offsetTicsY - (int) scaleFactor); j < (noOfMajorTics/2 - offsetTicsY + (int) scaleFactor); j++) {
@@ -290,13 +287,10 @@ public class Canvas {
 			String strLbl = getLabelFromDouble(lbl);
 			int strWidth = m.stringWidth(strLbl);
 
-			drawLine(
-					getTransformedPoint2(new Point2D.Double(0, y)),
-					getTransformedPoint2(new Point2D.Double(-5, y))
-					);
+			drawLine(cartesianToJavaUnscaled(0, y), cartesianToJavaUnscaled(-5, y));
 
 			if (j != 0) {
-				drawText(strLbl, getTransformedPoint2(new Point2D.Double(-(strWidth + 8), y - (strHeight / 2 - 2))));
+				drawText(strLbl, cartesianToJavaUnscaled(-(strWidth + 8), y - (strHeight / 2 - 2)));
 			} 
 		}
 
@@ -308,10 +302,9 @@ public class Canvas {
 			trans.rotate(Math.toRadians(-90));
 			Font f2 = f.deriveFont(trans);
 			g.setFont(f2);
-			drawText(ylbl, getTransformedPoint2(new Point2D.Double(15, 50)));
+			drawText(ylbl, cartesianToJavaUnscaled(15, 50));
 			g.setFont(f);
 		}
-		//g.rotate(-90);
 
 		g.setColor(curColor);
 	}
@@ -349,7 +342,7 @@ public class Canvas {
 		g.setColor(titleColor);
 		drawText(title, titlePos);
 
-		Point2D.Double p2 = getInvTransformedPoint(titlePos);
+		Point2D.Double p2 = javaToCartesian(titlePos);
 		log(String.format("Added title \"%s\" at (%6.2f, %6.2f)", title, p2.x, p2.y));
 
 		g.setColor(prevColor);
@@ -397,7 +390,6 @@ public class Canvas {
 		this.axesVisible = axesVisible;
 	}
 
-	// TODO : getter, setter, property
 	public boolean isBoundingBoxVisible() {
 		return true;
 	}
@@ -451,31 +443,21 @@ public class Canvas {
 	}
 
 	public void shift(int i, int j) {
-		//moveX += i*scaleFactor;
-		//moveY -= j*scaleFactor;
 		moveX += i;
 		moveY += j;
-		String out = String.format("dx = %d, dy = %d\n", moveX, -moveY);
-		log(out);
 	}
 
 	/*********************************** Helper Methods **************************************************/
 
 	/* Transforms from Cartesian space to Java Graphics space. */
 	/* Takes care of scaling and translation */
-	public Point2D.Double getTransformedPoint(Point2D.Double p) {
-		double x = p.x;
-		double y = p.y;
-		double x1 = scaleFactor*(x-zc.getX()) + dx + moveX + zc.getX();
-		double y1 = H - (scaleFactor*(y-zc.getY()) + dy + moveY + zc.getY());
-		//      double x1 = scaleFactor*x + dx + moveX;
-		//      double y1 = H - (scaleFactor*y + dy + moveY);
-		return new Point2D.Double(x1, y1);
+	public Point2D.Double cartesianToJava(Point2D.Double p) {
+		double x = scaleFactor*(p.x-zc.x) + zc.x;
+		double y = scaleFactor*(p.y-zc.y) + zc.y;
+		return cartesianToJavaUnscaled(x, y);
 	}
 
-	private Point2D.Double getTransformedPoint2(Point2D.Double p) {
-		double x = p.x;
-		double y = p.y;
+	private Point2D.Double cartesianToJavaUnscaled(double x, double y) {
 		double x1 = x + dx + moveX;
 		double y1 = H - (y + dy + moveY);
 		return new Point2D.Double(x1, y1);
@@ -484,20 +466,18 @@ public class Canvas {
 	/* Transforms from Java Graphics space to Cartesian space. */
 	/* Takes care of scaling and translation */
 	// FIXME does not work with non Zero Zoom Center
-	public Point2D.Double getInvTransformedPoint(Point2D.Double p1) {
-		double x1 = p1.x;
-		double y1 = p1.y;
-		double x = (x1 - dx - moveX)/scaleFactor;
-		double y = ((H - y1) - dy - moveY)/scaleFactor;
+	public Point2D.Double javaToCartesian(Point2D.Double p1) {
+		double x = (p1.x - dx - moveX)/scaleFactor;
+		double y = ((H - p1.y) - dy - moveY)/scaleFactor;
 		return new Point2D.Double(x, y);
 	}
 
 
 	/* Converts point in polar form to cartesian form.*/
-	public Point2D.Double getCartersianPoint(double r, double theta) {
+	public Point2D.Double polarToCartesian(double r, double theta) {
 		double x = r * Math.cos(theta) + dx;
 		double y = r * Math.sin(theta) - dy;
-		Point2D.Double p = getTransformedPoint(new Point2D.Double(x, y));
+		Point2D.Double p = cartesianToJava(new Point2D.Double(x, y));
 		return p;
 	}
 
@@ -520,7 +500,7 @@ public class Canvas {
 		Color fgc = getFGColor();
 		setFGColor(n.c());
 		drawPoint(n.p(), PlotData.PointType.CIRCLE, 3, 3);
-		Point2D.Double pText = new Point2D.Double(n.p().getX()+2, n.p().getY()+2);
+		Point2D.Double pText = new Point2D.Double(n.p().x + 2, n.p().y + 2);
 		drawText(n.str(), pText);
 		setFGColor(fgc);
 	}

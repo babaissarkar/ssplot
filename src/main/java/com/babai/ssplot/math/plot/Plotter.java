@@ -94,8 +94,8 @@ public final class Plotter {
 					// For now, it works for vector data in first four columns only
 					// TODO custom column mapping
 					if (row.length >= 4) {
-						p1 = canv.getTransformedPoint(new Point2D.Double(row[0], row[1]));
-						p2 = canv.getTransformedPoint(new Point2D.Double(row[2], row[3]));
+						p1 = canv.cartesianToJava(new Point2D.Double(row[0], row[1]));
+						p2 = canv.cartesianToJava(new Point2D.Double(row[2], row[3]));
 	
 						canv.drawVector(p1, p2, pdata.getFgColor2());
 					} else {
@@ -179,11 +179,11 @@ public final class Plotter {
 	private Point2D.Double getPoint3D(double[] row, ArrayList<Integer> dataCols, Project2D projector,
 			int i, int j, int k)
 	{
-		return canv.getTransformedPoint(projector.project(row[dataCols.get(i)], row[dataCols.get(j)], row[dataCols.get(k)]));
+		return canv.cartesianToJava(projector.project(row[dataCols.get(i)], row[dataCols.get(j)], row[dataCols.get(k)]));
 	}
 
 	private Point2D.Double getPoint2D(double[] row, ArrayList<Integer> dataCols, int c1, int c2) {
-		return canv.getTransformedPoint(new Point2D.Double(row[dataCols.get(c1)], row[dataCols.get(c2)]));
+		return canv.cartesianToJava(new Point2D.Double(row[dataCols.get(c1)], row[dataCols.get(c2)]));
 	}
 
 	public BufferedImage getImage() {
@@ -268,10 +268,5 @@ public final class Plotter {
 
 	public void shift(int dx, int dy) {
 		canv.shift(dx, dy);
-	}
-	
-	/** Converts from internal Java coordinates to Cartesian coordinates */
-	public Point2D.Double toCartesianPoint(Point2D.Double internalPoint) {
-		return canv.getInvTransformedPoint(internalPoint);
 	}
 }
