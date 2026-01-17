@@ -80,9 +80,17 @@ public final class Plotter {
 		
 		canv.setFGColor(pdata.getFgColor());
 		canv.setAxes3d(pdata.getColumnCount() == 3);
+		canv.setProjection(p);
+		canv.setStroke(pdata.ptX);
+		Color fgColor = canv.getFGColor();
+		Color fgColor2 = pdata.getFgColor2();
 
+		double[] row;
+		
+		// NOTE this is a huge loop, be careful of even small method calls,
+		// can stockpile easily.
 		for (int i = 0; i < lastIndex; i++) {
-			var row = dataset[i];
+			row = dataset[i];
 			
 			switch(pdata.getPlotType()) {
 				case VFIELD -> {
@@ -91,8 +99,7 @@ public final class Plotter {
 					if (row.length >= 4) {
 						p1 = canv.cartesianToJava(new Point2D.Double(row[0], row[1]));
 						p2 = canv.cartesianToJava(new Point2D.Double(row[2], row[3]));
-	
-						canv.drawVector(p1, p2, pdata.getFgColor2());
+						canv.drawVector(p1, p2, fgColor2);
 					} else {
 						System.err.println("Bad vector field data!");
 					}
@@ -100,8 +107,8 @@ public final class Plotter {
 					
 				case POINTS3 -> {
 					if (row.length >= 3) {
-						canv.setProjection(p);
-						canv.drawPoint(getPoint3D(row, dataCols, p, 0, 1, 2), PlotData.PointType.SQUARE, pdata.ptX, pdata.ptY);
+						p1 = canv.cartesianToJava(p.project(row[dataCols[0]], row[dataCols[1]], row[dataCols[2]]));
+						canv.drawPoint(p1, PlotData.PointType.SQUARE, pdata.ptX, pdata.ptY);
 					} else {
 						System.err.println("Data is not three dimensional!");
 					}
@@ -109,10 +116,8 @@ public final class Plotter {
 					
 				case LINES3 -> {
 					if (row.length >= 3) {
-						p2 = getPoint3D(row, dataCols, p, 0, 1, 2);
+						p2 = canv.cartesianToJava(p.project(row[dataCols[0]], row[dataCols[1]], row[dataCols[2]]));
 						if (p1 != null) {
-							canv.setProjection(p);
-							canv.setStroke(pdata.ptX);
 							canv.drawLine(p1, p2);
 						}
 						p1 = p2;
@@ -122,31 +127,26 @@ public final class Plotter {
 				}
 					
 				case POINTS, LINES, LINES_POINTS -> {
-					p2 = getPoint2D(row, dataCols, 0, 1);
+					p2 = canv.cartesianToJava(new Point2D.Double(row[dataCols[0]], row[dataCols[1]]));
 					
 					if (p1 != null) {
 						switch(pdata.getPlotType()) {
-							case LINES -> {
-								canv.setStroke(pdata.ptX);
-								canv.drawLine(p1, p2);
-							}
+							case LINES -> canv.drawLine(p1, p2);
 							
 							case POINTS -> canv.drawPoint(p1, PlotData.PointType.SQUARE, pdata.ptX, pdata.ptY);
 							
 							case LINES_POINTS -> {
-								Color c = canv.getFGColor();
 								Point2D.Double pback = new Point2D.Double(
 									p1.getX() - (pdata.ptX+4)/2,
 									p1.getY() - (pdata.ptY+4)/2);
 								// The line is drawn with plot FGcolor 1
 								// the points on the top is drawn with plot FGcolor 2
 								// FIXME generalization needed
-								canv.setStroke(pdata.ptX);
 								canv.drawLine(p1, p2);
 								
-								canv.setFGColor(pdata.getFgColor2());
+								canv.setFGColor(fgColor2);
 								canv.drawPoint(pback, PlotData.PointType.CIRCLE, pdata.ptX+4, pdata.ptY+4);
-								canv.setFGColor(c);
+								canv.setFGColor(fgColor);
 							}
 							
 							default -> {}
@@ -169,16 +169,6 @@ public final class Plotter {
 		for (Node node : pdata.getNodes()) {
 			canv.drawNode(node);
 		}
-	}
-
-	private Point2D.Double getPoint3D(double[] row, int[] dataCols, Project2D projector,
-			int i, int j, int k)
-	{
-		return canv.cartesianToJava(projector.project(row[dataCols[i]], row[dataCols[j]], row[dataCols[k]]));
-	}
-
-	private Point2D.Double getPoint2D(double[] row, int[] dataCols, int c1, int c2) {
-		return canv.cartesianToJava(new Point2D.Double(row[dataCols[c1]], row[dataCols[c2]]));
 	}
 
 	public BufferedImage getImage() {

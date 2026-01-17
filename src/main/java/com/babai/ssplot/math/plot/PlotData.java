@@ -38,7 +38,7 @@ import com.babai.ssplot.math.system.core.EquationSystem;
  * including the data, the plot properties and the system
  * of equations.
  */
-public class PlotData implements Cloneable {	
+public class PlotData implements Cloneable {
 	public enum PlotType {
 		LINES("2D Lines"),
 		POINTS("2D Points"),
@@ -86,6 +86,9 @@ public class PlotData implements Cloneable {
 	
 	private Color fgColor, fgColor2;
 	private String title;
+	
+	private boolean maxMinComputed = false;
+	private double[][] maxMin;
 
 	public PlotData(double[][] extData) {
 		data = extData;
@@ -129,7 +132,7 @@ public class PlotData implements Cloneable {
 
 	// ------------- DATA METHODS -----------------
 	public double[][] getData() { return data; }
-	public void setData(double[][] data) { this.data = data; }
+	public void setData(double[][] data) { maxMinComputed = false; this.data = data; }
 	public int getRowCount() { return data.length; }
 	
 	// NOTE: Right now, number of columns of data == number of axes. If that changes
@@ -197,12 +200,13 @@ public class PlotData implements Cloneable {
 	
 	public HashMap<Integer, Integer> getDataColMapping() { return this.dataColumnMapping; }
 	
+	// NOTE expensive method
 	public double[] getColumn(int i) {
 		double[] colData = new double[getRowCount()];
+		if (i >= getColumnCount()) return colData;
+		
 		for (int rowIdx = 0; rowIdx < colData.length; rowIdx++) {
-			if (i < getColumnCount()) {
-				colData[rowIdx] = this.data[rowIdx][i]; 
-			}
+			colData[rowIdx] = this.data[rowIdx][i]; 
 		}
 		return colData;
 	}
@@ -211,13 +215,25 @@ public class PlotData implements Cloneable {
 	 * @param dataCol     index of a column
 	 * @return            maximum value among all data in the given column
 	 */
-	public double getMax(int dataCol) { return Stats.max(getColumn(dataCol)); }
+	public double getMax(int dataCol) {
+		if (!maxMinComputed) {
+			this.maxMin = Stats.parallelMaxMin(data);
+			maxMinComputed = true;
+		}
+		return this.maxMin[0][dataCol];
+	}
 
 	/**
 	 * @param dataCol     index of a column
 	 * @return            min value among all data in the given column
 	 */
-	public double getMin(int dataCol) { return Stats.min(getColumn(dataCol)); }
+	public double getMin(int dataCol) {
+		if (!maxMinComputed) {
+			this.maxMin = Stats.parallelMaxMin(data);
+			maxMinComputed = true;
+		}
+		return this.maxMin[1][dataCol];
+	}
 	
 	
 	// ------------------ NODE METHODS -------------------
@@ -251,9 +267,9 @@ public class PlotData implements Cloneable {
 					Q1=%.4f, Median=%.4f, Q3=%.4f
 				""",
 				colName,
-				colData.length,
-				Stats.min(colData),
-				Stats.max(colData),
+				getRowCount(),
+				getMin(i),
+				getMax(i),
 				Stats.mean(colData),
 				Stats.variance(colData),
 				Stats.stdDev(colData),

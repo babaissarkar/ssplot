@@ -437,17 +437,14 @@ public class Canvas {
 
 	// NOTE: these mutate argument (passed point) to avoid allocating new Point2D.Double
 	
-	/* Transforms from Cartesian space to Java Graphics space. */
-	/* Takes care of scaling and translation */
+	/**
+	 * Transforms from Cartesian space to Java Graphics space.
+	 * Takes care of scaling and translation
+	 */
 	public Point2D.Double cartesianToJava(Point2D.Double p) {
-		p.x = scaleFactor*(p.x-zc.x) + zc.x;
-		p.y = scaleFactor*(p.y-zc.y) + zc.y;
-		return cartesianToJavaUnscaled(p);
-	}
-
-	private Point2D.Double cartesianToJavaUnscaled(Point2D.Double p) {
-		p.x = p.x + dx + moveX;
-		p.y = H - (p.y + dy + moveY);
+		double sF = 1 - scaleFactor;
+		p.x = scaleFactor*p.x + sF*zc.x + dx + moveX;
+		p.y = H - (scaleFactor*p.y + sF*zc.y + dy + moveY);
 		return p;
 	}
 

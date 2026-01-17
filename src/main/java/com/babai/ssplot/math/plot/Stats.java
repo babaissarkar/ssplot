@@ -69,4 +69,19 @@ public class Stats {
 		}
 		return min;
 	}
+	
+	/** Calculate max + mins for all columns at once to avoid multiple loops */
+	public static double[][] parallelMaxMin(double[][] data) {
+		int cols = data[0].length;
+		double[] max = Arrays.copyOf(data[0], cols);
+		double[] min = Arrays.copyOf(data[0], cols);
+		
+		for (int i = 1; i < data.length; i++) {
+			for (int j = 0; j < data[0].length; j++) {
+				max[j] = Math.max(data[i][j], max[j]);
+				min[j] = Math.min(data[i][j], min[j]);
+			}
+		}
+		return new double[][] { max, min };
+	}
 }
