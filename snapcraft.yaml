@@ -3,7 +3,7 @@ version: '2.3.3'
 adopt-info: ssplot
 
 base: core22
-grade: devel
+grade: stable
 confinement: strict
 
 apps:
