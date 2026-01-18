@@ -1,55 +1,76 @@
-#! /bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-# Created using ChatGPT-4o, 2025
+# Auto-update or add copyright headers for Java files
+# Created 2026
 
-# Get Git user name and email
-author_name=$(git config user.name)
-author_email=$(git config user.email)
+author_name="$(git config --get user.name || true)"
+author_email="$(git config --get user.email || true)"
+currentyear="$(date +%Y)"
 
-git ls-files '*.java' | while read file; do
-    if ! grep -q 'Copyright' "$file"; then
-        filename=$(basename "$file")
-        startyear=$(git log --diff-filter=A --follow --format='%ad' --date=format:'%Y' -- "$file" | tail -1)
+git ls-files '*.java' | while IFS= read -r file; do
+    if grep -qE 'Copyright[[:space:]]+[0-9]{4}' "$file"; then
+        # Extract first and last years mentioned
+        startyear="$(grep -oE 'Copyright[[:space:]]+[0-9]{4}' "$file" | head -1 | awk '{print $2}')"
+        endyear="$(grep -oE 'Copyright[[:space:]]+[0-9]{4}' "$file" | tail -1 | awk '{print $2}')"
 
-        [ -z "$startyear" ] && startyear=2025
+        # Safety check
+        if [[ -z "$startyear" || -z "$endyear" ]]; then
+            echo "Could not parse years in $file, skipping"
+            continue
+        fi
 
-        # Format copyright line
-        if [ "$startyear" -eq 2025 ]; then
-            copyright="Copyright 2025 $author_name <$author_email>"
+        if [[ "$endyear" == "$currentyear" ]]; then
+            echo "No update needed for $file (already $currentyear)"
         else
-            copyright="Copyright $startyear-2025 $author_name <$author_email>"
+            # Replace single-year or range safely
+            sed -i -E \
+                "s/Copyright[[:space:]]+$startyear(-[0-9]{4})?/Copyright $startyear-$currentyear/" \
+                "$file"
+            echo "Updated copyright year in $file ($startyear-$currentyear)"
+        fi
+    else
+        filename="$(basename "$file")"
+
+        # Get year file was first added to git
+        startyear="$(git log --diff-filter=A --follow --format='%ad' --date=format:%Y -- "$file" | tail -1)"
+        [[ -z "$startyear" ]] && startyear="$currentyear"
+
+        if [[ "$startyear" == "$currentyear" ]]; then
+            copyright="Copyright $currentyear $author_name <$author_email>"
+        else
+            copyright="Copyright $startyear-$currentyear $author_name <$author_email>"
         fi
 
         header="/*
  * $filename
- * 
+ *
  * $copyright
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation; either version 2.1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
- * 
- * 
  */"
 
-        # Insert header at top
-        tmpfile=$(mktemp)
-        echo "$header" > "$tmpfile"
-        echo "" >> "$tmpfile"
-        cat "$file" >> "$tmpfile"
-        mv "$tmpfile" "$file"
+        tmpfile="$(mktemp)"
+        {
+            echo "$header"
+            echo
+            cat "$file"
+        } > "$tmpfile"
 
+        mv "$tmpfile" "$file"
         echo "Header added to $file"
     fi
 done
