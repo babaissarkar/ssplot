@@ -110,12 +110,12 @@ public class SystemInputFrame extends UIFrame {
 		var plot2dCondition = StateVar.combine(curMode, eqnCount, solnPointCount, (mode, eqns, sp) ->
 			(mode == SystemMode.ODE && eqns == 2 && sp == 2)
 			|| (mode == SystemMode.DFE && eqns >= 1)
-			|| (mode == SystemMode.FN1 && (eqns == 1 || eqns == 2)) // test
+			|| (mode == SystemMode.FN2D && (eqns == 1 || eqns == 2)) // test
 		);
 
 		var plot3dCondition = StateVar.combine(curMode, eqnCount, solnPointCount, (mode, eqns, sp) ->
 			(mode == SystemMode.ODE && eqns == 3 && sp == 3)
-			|| (mode == SystemMode.FN2 && eqns == 1)
+			|| (mode == SystemMode.FN3D && eqns == 1)
 		);
 
 
@@ -162,8 +162,8 @@ public class SystemInputFrame extends UIFrame {
 	// Equation Entry Panel
 	private UIGrid createEqnInputUIPanel(final Axis[] axes) {
 		StateVar<Boolean> isODEorDFE = curMode.whenAny(List.of(SystemMode.DFE, SystemMode.ODE));
-		StateVar<Boolean> isFN = curMode.whenAny(List.of(SystemMode.FN1, SystemMode.FN2));
-		StateVar<Boolean> isFN1 = curMode.when(m -> m == SystemMode.FN1);
+		StateVar<Boolean> isFN = curMode.whenAny(List.of(SystemMode.FN2D, SystemMode.FN3D));
+		StateVar<Boolean> isFN1 = curMode.when(m -> m == SystemMode.FN2D);
 
 		// Equations entry enable conditions
 		var eqnCondition = List.of(
@@ -218,6 +218,7 @@ public class SystemInputFrame extends UIFrame {
 					).visible(isFN1)
 				)
 	
+// TODO Polar grid temporarily disabled because control logic not implemented yet
 			.row()
 				.column(label("Polar (r = r(θ)):")
 //					.visible(isFN))
@@ -259,22 +260,25 @@ public class SystemInputFrame extends UIFrame {
 
 	// Range Entry Panel
 	private UIGrid createRangesUIPanel(final Axis[] axes) {
-		final String subMarkup = Text.htmlAndBody(Text.tag("font", "face='Inter'",
-				"%s" + Text.tag("sub", Text.tag("font", "size='-1'", "%s")) + "%s"));
-
 		final String[] tags = {"min", "max", "step"};
 		final double[] rangeAsArray = EquationSystem.DEFAULT_RANGE.toArray();
 
 		// Ranges entry enable conditions
-		var rangeConditions = List.of(
+		var rangeEnableConditions = List.of(
 			eqnCount.when(c -> c > 0),
 			StateVar.combine(curMode, eqnCount, (mode, c) ->
-				(mode != SystemMode.FN1 && c >= 2)
-				|| mode == SystemMode.FN1 && c >= 1
-				|| mode == SystemMode.FN2 && c >= 1),
+				(mode != SystemMode.FN2D && c >= 2)
+				|| mode == SystemMode.FN2D && c >= 1
+				|| mode == SystemMode.FN3D && c >= 1),
 			StateVar.combine(curMode, eqnCount, (mode, c) ->
 				((mode == SystemMode.DFE || mode == SystemMode.ODE) && c == 3)
-				|| mode == SystemMode.FN2 && c >= 1)
+				|| mode == SystemMode.FN3D && c >= 1)
+		);
+		
+		var rangeVisibleConditions = List.of(
+			new StateVar<Boolean>(true),
+			curMode.when(m -> m != SystemMode.FN2D),
+			curMode.when(m -> (m != SystemMode.FN2D && m != SystemMode.FN3D))
 		);
 
 		var pnlRange = grid()
@@ -291,13 +295,18 @@ public class SystemInputFrame extends UIFrame {
 				final int col_idx = col;
 				pnlRange
 					.weightx(0)
-					.column(label(subMarkup.formatted(axes[row], tags[col], "")))
+					.column(
+						label()
+							.visible(rangeVisibleConditions.get(row_idx))
+							.bindTextFrom(StateVar.combine(curMode, isParametric,
+								(mode, isP) -> getRangeLabel(axes[row_idx], tags[col_idx], mode, isP))))
 					.weightx(1)
 					.column(input()
 						.chars(5)
 						.numeric(true)
 						.text("" + rangeAsArray[col])
-						.enabled(rangeConditions.get(row))
+						.visible(rangeVisibleConditions.get(row))
+						.enabled(rangeEnableConditions.get(row))
 						.onChange(text -> {
 							if (text.isEmpty()) return;
 							var range = builder.ranges()[row_idx];
@@ -374,7 +383,7 @@ public class SystemInputFrame extends UIFrame {
 		return switch(mode) {
 		case ODE -> "d%s/dt =".formatted(axes[idx].toString().toLowerCase());
 		case DFE -> subMarkup.formatted(axes[idx].toString().toLowerCase(), "n+1", " =");
-		case FN1 -> {
+		case FN2D -> {
 			if (isParametric) {
 				yield parametric2dLabels[idx];
 			} else if (idx == 0) {
@@ -383,9 +392,19 @@ public class SystemInputFrame extends UIFrame {
 				yield "";
 			}
 		}
-		case FN2 -> idx == 0 ? "z(x, y) =" : "";
+		case FN3D -> idx == 0 ? "z(x, y) =" : "";
 		default -> throw new IllegalArgumentException("Unexpected value: " + mode);
 		};
+	}
+	
+	private String getRangeLabel(Axis axis, String tag, SystemMode mode, boolean isParametric) {
+		final String subMarkup = Text.htmlAndBody(Text.tag("font", "face='Inter'",
+				"%s" + Text.tag("sub", Text.tag("font", "size='-1'", "%s"))));
+		if (mode == SystemMode.FN2D && isParametric) {
+			return subMarkup.formatted("T", tag);
+		} else {
+			return subMarkup.formatted(axis, tag);
+		}
 	}
 
 	//
@@ -413,7 +432,7 @@ public class SystemInputFrame extends UIFrame {
 	private void plot2D() {
 		var system = getSystem();
 		var plotData = switch (curMode.get()) {
-			case FN1 -> plotFunction2D();
+			case FN2D -> plotFunction2D();
 			default -> plotTrajectory(system.solnPoint()[0], system.solnPoint()[1]);
 		};
 		plotData.setPlotType(PlotData.PlotType.POINTS);
@@ -425,7 +444,7 @@ public class SystemInputFrame extends UIFrame {
 	private void plot3D() {
 		var system = getSystem();
 		var plotData = switch (curMode.get()) {
-			case FN2 -> plotFunction3D();
+			case FN3D -> plotFunction3D();
 			default -> plotODE3D(system.solnPoint());
 		};
 		plotData.setPlotType(PlotData.PlotType.POINTS3);
