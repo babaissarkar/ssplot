@@ -127,7 +127,9 @@ public class PlotView extends JLabel implements MouseListener, MouseMotionListen
 
 	/** Get current plot */
 	public Optional<PlotData> getCurPlot() {
-		return (plots.size() > 0) ? Optional.of(plots.getLast()) : Optional.empty();
+		return (plots.size() > 0)
+			? Optional.of(plots.get(plots.size() - 1))
+			: Optional.empty();
 	}
 
 	/** Sets current plot */
