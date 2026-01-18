@@ -66,7 +66,7 @@ public class PlotData implements Cloneable {
 	public enum PointType { SQUARE, CIRCLE };
 
 	private double[][] data;
-	private Vector<Node> nodes;
+	private List<Node> nodes;
 	private EquationSystem system;
 	private Axis[] axes = Axis.Cartesian.values();
 	
@@ -92,7 +92,7 @@ public class PlotData implements Cloneable {
 
 	public PlotData(double[][] extData) {
 		data = extData;
-		nodes = new Vector<Node>();
+		nodes = new ArrayList<Node>();
 		
 		// Cosmetic point properties
 		pointType = PointType.SQUARE;
@@ -238,8 +238,8 @@ public class PlotData implements Cloneable {
 	
 	// ------------------ NODE METHODS -------------------
 	public void addNode(Point2D.Double p, String str, Color c) { nodes.add(new Node(p, str, c)); }
-	public Vector<Node> getNodes() { return nodes; }
-	public void setNodes(Vector<Node> nodes) { this.nodes = nodes; }
+	public List<Node> getNodes() { return nodes; }
+	public void setNodes(List<Node> nodes) { this.nodes = nodes; }
 	
 
 	// ------------------- STRING REPRESENTATION --------------

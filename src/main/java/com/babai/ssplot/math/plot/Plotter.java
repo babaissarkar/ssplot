@@ -71,19 +71,22 @@ public final class Plotter {
 			dataCols[i] = pdata.getDataCol(i);
 		}
 		
-		Point2D.Double p1 = null, p2 = null;
+		Point2D.Double p1 = new Point2D.Double(), p2 = new Point2D.Double(), pback = new Point2D.Double();
 
 		var dataset = pdata.getData();
 		if (lastIndex > dataset.length) {
 			lastIndex = dataset.length;
 		}
 		
-		canv.setFGColor(pdata.getFgColor());
-		canv.setAxes3d(pdata.getColumnCount() == 3);
-		canv.setProjection(p);
-		canv.setStroke(pdata.ptX);
-		Color fgColor = canv.getFGColor();
+		Color fgColor = pdata.getFgColor();
 		Color fgColor2 = pdata.getFgColor2();
+		canv.setFGColor(fgColor);
+		if (pdata.getColumnCount() == 3) {
+			canv.setAxes3d(true);
+			canv.setProjection(p);
+		}
+		canv.setStroke(pdata.ptX);
+		var ptype = pdata.getPlotType();
 
 		double[] row;
 		
@@ -92,13 +95,15 @@ public final class Plotter {
 		for (int i = 0; i < lastIndex; i++) {
 			row = dataset[i];
 			
-			switch(pdata.getPlotType()) {
+			switch(ptype) {
 				case VFIELD -> {
 					// For now, it works for vector data in first four columns only
 					// TODO custom column mapping
 					if (row.length >= 4) {
-						p1 = canv.cartesianToJava(new Point2D.Double(row[0], row[1]));
-						p2 = canv.cartesianToJava(new Point2D.Double(row[2], row[3]));
+						p1.setLocation(row[0], row[1]);
+						p1 = canv.cartesianToJava(p1);
+						p2.setLocation(row[2], row[3]);
+						p2 = canv.cartesianToJava(p2);
 						canv.drawVector(p1, p2, fgColor2);
 					} else {
 						System.err.println("Bad vector field data!");
@@ -127,26 +132,23 @@ public final class Plotter {
 				}
 					
 				case POINTS, LINES, LINES_POINTS -> {
-					p2 = canv.cartesianToJava(new Point2D.Double(row[dataCols[0]], row[dataCols[1]]));
+					p2.setLocation(row[dataCols[0]], row[dataCols[1]]);
+					p2 = canv.cartesianToJava(p2);
 					
 					if (p1 != null) {
-						switch(pdata.getPlotType()) {
+						switch(ptype) {
 							case LINES -> canv.drawLine(p1, p2);
 							
 							case POINTS -> canv.drawPoint(p1, PlotData.PointType.SQUARE, pdata.ptX, pdata.ptY);
 							
+							// The line is drawn with plot FGcolor 1
+							// the points on the top is drawn with plot FGcolor 2
+							// FIXME generalization needed
 							case LINES_POINTS -> {
-								Point2D.Double pback = new Point2D.Double(
-									p1.getX() - (pdata.ptX+4)/2,
-									p1.getY() - (pdata.ptY+4)/2);
-								// The line is drawn with plot FGcolor 1
-								// the points on the top is drawn with plot FGcolor 2
-								// FIXME generalization needed
+								pback.setLocation(p1.x - (pdata.ptX+4)/2, p1.y - (pdata.ptY+4)/2);
 								canv.drawLine(p1, p2);
-								
 								canv.setFGColor(fgColor2);
 								canv.drawPoint(pback, PlotData.PointType.CIRCLE, pdata.ptX+4, pdata.ptY+4);
-								canv.setFGColor(fgColor);
 							}
 							
 							default -> {}
@@ -157,8 +159,6 @@ public final class Plotter {
 				}
 			}
 		}
-		
-		canv.setStroke(1);
 	}
 	
 	private void plotOthers(PlotData pdata) {

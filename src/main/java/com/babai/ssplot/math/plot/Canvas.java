@@ -39,6 +39,7 @@ public class Canvas {
 	private boolean axesVisible = true;
 	private boolean axes3d = false;
 	private int curNoTics = 10;
+	private int strokeWidth = 1;
 	private BufferedImage img; /* The image */
 	private Graphics2D g;
 	private Color fgColor, bgColor, axesColor, ticColor, titleColor;
@@ -110,16 +111,9 @@ public class Canvas {
 		return g2;
 	}
 
-	public Graphics2D getGraphics() {
-		return g;
-	}
-
 	public BufferedImage getImage() {
-		return img;
-	}
-
-	public void dispose() {
 		g.dispose();
+		return img;
 	}
 
 
@@ -138,7 +132,6 @@ public class Canvas {
 	/** Draws a line from point q1 to point q2 */
 	public void drawLine(Point2D.Double q10, Point2D.Double q20) {
 		g.draw(new Line2D.Double(q10, q20));
-
 	}
 
 	/** Draws an vector, by drawing a line with a marker.*/
@@ -345,12 +338,17 @@ public class Canvas {
 	/*********************************** Property Getters/Setters ************************************************/
 
 	public void setStroke(int width) {
-		g.setStroke(new BasicStroke(width));
+		if (strokeWidth != width) {
+			strokeWidth = width;
+			g.setStroke(new BasicStroke(width));
+		}
 	}
 
 	public void setFGColor(Color c) {
-		fgColor = c;
-		g.setColor(c);
+		if (!fgColor.equals(c)) {
+			fgColor = c;
+			g.setColor(c);
+		}
 	}
 
 	public Color getFGColor() {
