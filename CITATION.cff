@@ -1,11 +1,13 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
 title: "SSPlot"
-version: "v2.3"
+version: "v2.3.3"
 doi: "10.5281/zenodo.16777600"
 authors:
   - family-names: "Sarkar"
     given-names: "Subhraman"
     email: "suvrax@gmail.com"
 repository: "https://github.com/babaissarkar/ssplot"
-date-released: 2025-08-08
+date-released: 2025-01-18
+license: "LGPL-2.1"
+abstract: "SSPlot is a scientific plotting and visualization tool with support for 1D, 2D and 3D differential and difference equations and functions."
