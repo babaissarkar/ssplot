@@ -283,12 +283,13 @@ public class PlotData implements Cloneable {
 	public Vector<String> getHeaders() {
 		var headers = new Vector<String>();
 		var mappings = getDataColMapping();
+		var axes = getAxes();
 		for (int i = 0; i < getColumnCount(); i++) {
 			boolean isKnownColumn = false;
 			for (var entry : mappings.entrySet()) {
 				var lbl = getAxisLabel(i);
-				if (lbl.isPresent() || entry.getValue() == i) {
-					headers.add(lbl.orElse(entry.getKey().toString() + " Data"));
+				if (lbl.isPresent() || (entry.getValue() == i && i < axes.length)) {
+					headers.add(lbl.orElse(axes[i].toString() + " Data"));
 					isKnownColumn = true;
 					break;
 				}

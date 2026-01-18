@@ -84,6 +84,8 @@ public final class Plotter {
 		if (pdata.getColumnCount() == 3) {
 			canv.setAxes3d(true);
 			canv.setProjection(p);
+		} else {
+			canv.setAxes3d(false);
 		}
 		canv.setStroke(pdata.ptX);
 		var ptype = pdata.getPlotType();

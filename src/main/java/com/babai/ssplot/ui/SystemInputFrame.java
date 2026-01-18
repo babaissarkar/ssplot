@@ -163,6 +163,7 @@ public class SystemInputFrame extends UIFrame {
 	private UIGrid createEqnInputUIPanel(final Axis[] axes) {
 		StateVar<Boolean> isODEorDFE = curMode.whenAny(List.of(SystemMode.DFE, SystemMode.ODE));
 		StateVar<Boolean> isFN = curMode.whenAny(List.of(SystemMode.FN1, SystemMode.FN2));
+		StateVar<Boolean> isFN1 = curMode.when(m -> m == SystemMode.FN1);
 
 		// Equations entry enable conditions
 		var eqnCondition = List.of(
@@ -184,26 +185,7 @@ public class SystemInputFrame extends UIFrame {
 			.insets(3)
 			.row()
 				.spanx(4)
-				.column(label("Equations").font(Text.headerFont))
-
-			.row()
-				.column(label("Parametric (x = x(t), y = y(t)):").visible(isFN))
-				.weightx(1)
-				.fill(GridBagConstraints.HORIZONTAL)
-				.column(
-					hbox(
-						checkBox().bindSelectionTo(isParametric)
-					).visible(isFN)
-				)
-
-			.row()
-				.column(label("Polar (r = r(θ)):").visible(isFN))
-				.weightx(1)
-				.fill(GridBagConstraints.HORIZONTAL)
-				.column(
-					hbox(
-						checkBox().bindSelectionTo(isPolar)
-					).visible(isFN));
+				.column(label("Equations").font(Text.headerFont));
 
 		for (int i = 0; i < axes.length; i++) {
 			final int idx = i;
@@ -225,7 +207,29 @@ public class SystemInputFrame extends UIFrame {
 				);
 		}
 
-		pnlEquations.row()
+		pnlEquations
+			.row()
+				.column(label("Parametric (x = x(t), ...):").visible(isFN1))
+				.weightx(1)
+				.fill(GridBagConstraints.HORIZONTAL)
+				.column(
+					hbox(
+						checkBox().bindSelectionTo(isParametric)
+					).visible(isFN1)
+				)
+	
+			.row()
+				.column(label("Polar (r = r(θ)):")
+//					.visible(isFN))
+					.visible(false))
+				.weightx(1)
+				.fill(GridBagConstraints.HORIZONTAL)
+				.column(
+					hbox(
+						checkBox().bindSelectionTo(isPolar)
+		//			).visible(isFN));
+					).visible(false))
+			.row()
 			.column(label("Solve At:").visible(isODEorDFE))
 			.weightx(1)
 			.fill(GridBagConstraints.HORIZONTAL)
@@ -402,17 +406,17 @@ public class SystemInputFrame extends UIFrame {
 		curMode.set(system.mode());
 	}
 
-	// TODO these methods sort of violate MVC, perhaps there should be some sort
-	// of controller class?
+	//
 	// Plotting functions : Calculates PlotData from EquationSystem
-
+	//
+	
 	private void plot2D() {
 		var system = getSystem();
 		var plotData = switch (curMode.get()) {
 			case FN1 -> plotFunction2D();
 			default -> plotTrajectory(system.solnPoint()[0], system.solnPoint()[1]);
 		};
-		plotData.setPlotType(PlotData.PlotType.LINES);
+		plotData.setPlotType(PlotData.PlotType.POINTS);
 		plotData.setAxes(Axis.Cartesian.X, Axis.Cartesian.Y);
 		plotData.setDataCols(0, 1);
 		updater.accept(plotData);
@@ -424,7 +428,7 @@ public class SystemInputFrame extends UIFrame {
 			case FN2 -> plotFunction3D();
 			default -> plotODE3D(system.solnPoint());
 		};
-		plotData.setPlotType(PlotData.PlotType.LINES3);
+		plotData.setPlotType(PlotData.PlotType.POINTS3);
 		plotData.setAxes(Axis.Cartesian.X, Axis.Cartesian.Y, Axis.Cartesian.Z);
 		plotData.setDataCols(0, 1, 2);
 		updater.accept(plotData);

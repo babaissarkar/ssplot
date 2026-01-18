@@ -93,6 +93,7 @@ public class MainFrame extends JFrame {
 		// Initialize logger
 		logger = new StatLogger();
 		logger.log(Text.tag("h1", "Welcome to SSPlot!"));
+		logger.log(ABOUT_MSG);
 		
 		var plt = new Plotter();
 		if (isDark) {
@@ -140,8 +141,8 @@ public class MainFrame extends JFrame {
 		int dbvWidth = Math.min(dbv.getWidth(),
 			screenBounds.width - odeinput.getWidth() - ifrmPlot.getWidth());
 		if (dbvWidth > Plotter.DEFAULT_W/2) {
-			dbv.setSize(new Dimension(dbvWidth, odeinput.getHeight()));
-			dbv.setLocation(screenBounds.width - dbvWidth, 0);
+			dbv.setSize(new Dimension(dbvWidth + 10, odeinput.getHeight()));
+			dbv.setLocation(screenBounds.width - dbvWidth - 10, 0);
 			dbv.setVisible(true);
 		} else {
 			dbv.setVisible(false);
