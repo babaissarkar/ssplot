@@ -32,14 +32,14 @@ import javax.swing.JComboBox;
 import com.babai.ssplot.math.plot.Axis;
 import com.babai.ssplot.math.plot.PlotData;
 import com.babai.ssplot.math.plot.Plotter;
-import com.babai.ssplot.ui.controls.StateVar;
-import com.babai.ssplot.ui.controls.UIFrame;
-import com.babai.ssplot.ui.controls.UIInput;
+import com.babai.dui.controls.StateVar;
+import com.babai.dui.controls.UIFrame;
+import com.babai.dui.controls.UIInput;
 
-import static com.babai.ssplot.ui.controls.DUI.button;
-import static com.babai.ssplot.ui.controls.DUI.input;
-import static com.babai.ssplot.ui.controls.DUI.label;
-import static com.babai.ssplot.ui.controls.DUI.toolbar;
+import static com.babai.dui.controls.DUI.button;
+import static com.babai.dui.controls.DUI.input;
+import static com.babai.dui.controls.DUI.label;
+import static com.babai.dui.controls.DUI.toolbar;
 import static com.babai.ssplot.util.UIHelper.bindAction;
 
 /**

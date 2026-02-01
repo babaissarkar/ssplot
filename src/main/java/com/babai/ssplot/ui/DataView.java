@@ -49,9 +49,9 @@ import javax.swing.table.TableColumnModel;
 
 import com.babai.ssplot.math.plot.Axis;
 import com.babai.ssplot.math.plot.PlotData;
-import com.babai.ssplot.ui.controls.DUI.Text;
-import com.babai.ssplot.ui.controls.UIFrame;
-import static com.babai.ssplot.ui.controls.DUI.*;
+import com.babai.dui.controls.DUI.Text;
+import com.babai.dui.controls.UIFrame;
+import static com.babai.dui.controls.DUI.*;
 import com.babai.ssplot.util.InfoLogger;
 import com.babai.ssplot.util.UIHelper;
 

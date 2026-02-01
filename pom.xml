@@ -55,6 +55,11 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>com.babai.dui</groupId>
+			<artifactId>dui</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
 			<groupId>com.formdev</groupId>
 			<artifactId>flatlaf</artifactId>
 			<version>3.2</version>
@@ -119,6 +124,7 @@
 						<includes>
 							<include>com.formdev:flatlaf</include>
 							<include>com.formdev:flatlaf-intellij-themes</include>
+							<include>com.babai.dui:dui</include>
 						</includes>
 					</artifactSet>
 					<transformers>

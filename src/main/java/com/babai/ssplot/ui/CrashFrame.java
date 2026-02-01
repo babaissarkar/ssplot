@@ -23,7 +23,7 @@ package com.babai.ssplot.ui;
 
 import javax.swing.*;
 
-import com.babai.ssplot.ui.controls.DUI.Text;
+import com.babai.dui.controls.DUI.Text;
 import com.babai.ssplot.util.SystemInfo;
 
 import static com.babai.ssplot.util.UIHelper.openLink;

@@ -40,7 +40,7 @@ import com.babai.ssplot.math.plot.PlotData;
 import com.babai.ssplot.math.plot.Plotter;
 import com.babai.ssplot.math.plot.Project2D;
 
-import com.babai.ssplot.ui.controls.DUI.Text;
+import com.babai.dui.controls.DUI.Text;
 
 public class PlotView extends JLabel implements MouseListener, MouseMotionListener {
 
