@@ -49,7 +49,7 @@ public class NumParse {
 		
 		// Reading and parsing data.
 		for (int i = 0, row = 0; i < lines.size(); i++) {
-			String line = lines.get(i);
+			String line = lines.get(i).strip();
 			
 			// If any lines starts with "#", ignore
 			// except the first line, which may contain header data.
@@ -63,9 +63,9 @@ public class NumParse {
 			}
 			
 			String[] strEntries = null;
-			if (line.contains(sepCM)) {
+			if (line.indexOf(',') >= 0) {
 				strEntries = line.split(sepCM);
-			} else if (line.contains(sepWS)) {
+			} else if (line.indexOf(' ') >= 0 || line.indexOf('\t') >= 0) {
 				strEntries = line.split(sepWS);
 			}
 			
@@ -93,6 +93,7 @@ public class NumParse {
 				row++;
 			}
 		}
+
 		return arEntries;
 	}
 	

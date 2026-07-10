@@ -138,7 +138,12 @@ public class DataView extends UIFrame {
 		var btnLoad   = button()
 			.icon("/open.jpg")
 			.tooltip("Load Data from File")
-			.onClick(controller::openFile);
+			.onClick(() -> {
+				var pdata = controller.openFile();
+				if (pdata.isPresent()) {
+					this.setData(pdata.get());
+				}
+			});
 		var btnSave   = button()
 			.icon("/save.jpg")
 			.tooltip("Save Data")

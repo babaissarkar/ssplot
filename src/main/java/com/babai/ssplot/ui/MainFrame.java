@@ -259,8 +259,7 @@ public class MainFrame extends JFrame {
 							.onClick(() -> {
 								Optional<PlotData> pdata = openFile();
 								if (pdata.isPresent()) {
-									pv.setCurPlot(pdata.get());
-									pv.fit();
+									dbv.setData(pdata.get());
 								}
 							}),
 							
@@ -398,9 +397,11 @@ public class MainFrame extends JFrame {
 			}
 		}
 		
-		if (data == null) return Optional.empty();
-		
+		if (data == null || data.length == 0 || data[0] == null || data[0].length == 0) {
+			return Optional.empty();
+		}
 		var pdata = new PlotData(data);
+		
 		var headers = NumParse.getHeaders();
 		if (!headers.isEmpty()) {
 			pdata.setAxisLabels(headers);

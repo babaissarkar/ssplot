@@ -119,7 +119,19 @@ public class PlotData implements Cloneable {
 	public void setFgColor2(Color c) { this.fgColor2 = (c != null) ? c : Color.BLUE; }
 	public Color getFgColor2() { return fgColor2; }
 	public void setPlotType(PlotType pltype) { this.plotType = pltype; }
-	public PlotType getPlotType() { return plotType; }
+	public PlotType getPlotType() {
+		int cols = getColumnCount();
+		if (plotType == null && cols > 1) {
+			if (cols == 2) {
+				plotType = PlotType.POINTS;
+			} else if (cols == 3) {
+				plotType = PlotType.POINTS3;
+			} else if (cols >= 4) {
+				plotType = PlotType.VFIELD;
+			}
+		}
+		return plotType;
+	}
 	public PointType getPointType() { return pointType; }
 	public void setPointType(PointType pttype) { this.pointType = pttype; }
 	
@@ -147,7 +159,7 @@ public class PlotData implements Cloneable {
 	public int getDataCol(Axis axis) {
 		for (int i = 0; i < axes.length; i++) {
 			if (axes[i].equals(axis)) {
-				return dataColumnMapping.get(i);
+				return dataColumnMapping.getOrDefault(i, i);
 			}
 		}
 		throw new IllegalArgumentException("Invalid axis " + axis + " for current plot");
@@ -161,6 +173,9 @@ public class PlotData implements Cloneable {
 		Integer mappedIndex = dataColumnMapping.get(index);
 		if (mappedIndex != null) {
 			return mappedIndex;
+		}
+		if (index < getColumnCount()) {
+			return index;
 		}
 		throw new IllegalArgumentException("Invalid/unmapped column number " + index + " for current plot");
 	}
