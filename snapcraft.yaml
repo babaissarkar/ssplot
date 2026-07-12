@@ -1,5 +1,5 @@
 name: ssplot
-version: '2.3.3'
+version: '2.3.4'
 adopt-info: ssplot
 
 base: core22

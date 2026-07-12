@@ -1,7 +1,7 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
 title: "SSPlot"
-version: "v2.3.3"
+version: "v2.3.4"
 doi: "10.5281/zenodo.16777600"
 authors:
   - family-names: "Sarkar"
