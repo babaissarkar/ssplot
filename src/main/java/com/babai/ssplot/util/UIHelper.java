@@ -46,7 +46,7 @@ import javax.swing.UIManager.LookAndFeelInfo;
 
 import com.babai.ssplot.ui.CrashFrame;
 import com.babai.ssplot.ui.MainFrame;
-import com.babai.ssplot.ui.controls.DUI;
+import com.babai.dui.controls.DUI;
 import com.formdev.flatlaf.intellijthemes.FlatArcDarkOrangeIJTheme;
 import com.formdev.flatlaf.intellijthemes.FlatArcOrangeIJTheme;
 import com.formdev.flatlaf.util.SystemInfo;

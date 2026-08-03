@@ -37,13 +37,13 @@ import com.babai.ssplot.math.system.core.EquationSystem;
 import com.babai.ssplot.math.system.core.SystemMode;
 import com.babai.ssplot.math.system.parser.ParserManager;
 import com.babai.ssplot.math.system.solver.Solver;
-import com.babai.ssplot.ui.controls.DUI.Text;
-import com.babai.ssplot.ui.controls.StateVar;
-import com.babai.ssplot.ui.controls.UIFrame;
-import com.babai.ssplot.ui.controls.UIGrid;
-import com.babai.ssplot.ui.controls.UIInput;
+import com.babai.dui.controls.DUI.Text;
+import com.babai.dui.controls.StateVar;
+import com.babai.dui.controls.UIFrame;
+import com.babai.dui.controls.UIGrid;
+import com.babai.dui.controls.UIInput;
 
-import static com.babai.ssplot.ui.controls.DUI.*;
+import static com.babai.dui.controls.DUI.*;
 
 /**
  * This class takes the input from user, sends data to Solver backend,
@@ -415,6 +415,12 @@ public class SystemInputFrame extends UIFrame {
 		return this.builder.build();
 	}
 
+	// FIXME: This method imperatively mutates UI components and builder state,
+	// bypassing StateVar bindings and derived logic.
+	// Loading an EquationSystem should be a pure *state* operation:
+	//   system -> StateVar -> UI + builder (via bindings).
+	// Refactor by promoting equation text and mode into StateVars
+	// and drive both UI and builder exclusively from state.
 	public void setSystem(EquationSystem system) {
 		if (system == null) return;
 		String[] eqns = system.eqns();

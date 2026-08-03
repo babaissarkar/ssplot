@@ -28,7 +28,7 @@ import java.util.Properties;
 import com.babai.ssplot.ui.CrashFrame;
 import com.babai.ssplot.ui.MainFrame;
 
-import static com.babai.ssplot.ui.controls.DUI.Text.*;
+import static com.babai.dui.controls.DUI.Text.*;
 
 public class SystemInfo {
 

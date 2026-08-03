@@ -28,7 +28,7 @@ import java.awt.event.KeyEvent;
 
 import javax.swing.JTextField;
 
-import com.babai.ssplot.ui.controls.DUI.Text;
+import com.babai.dui.controls.DUI.Text;
 
 public class CenteredField extends JTextField {	
 	public CenteredField(int count) {

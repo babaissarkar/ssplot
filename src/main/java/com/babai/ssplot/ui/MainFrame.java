@@ -49,9 +49,9 @@ import com.babai.ssplot.cli.SSPlotCLI;
 import com.babai.ssplot.math.io.NumParse;
 import com.babai.ssplot.math.plot.*;
 import com.babai.ssplot.math.plot.PlotData.PlotType;
-import com.babai.ssplot.ui.controls.DUI.Text;
-import com.babai.ssplot.ui.controls.UIButton;
-import com.babai.ssplot.ui.controls.UIRadioItem;
+import com.babai.dui.controls.DUI.Text;
+import com.babai.dui.controls.UIButton;
+import com.babai.dui.controls.UIRadioItem;
 import com.babai.ssplot.ui.help.HelpFrame;
 import com.babai.ssplot.util.SwingFileChooser;
 import com.babai.ssplot.util.FocusTracker;
@@ -60,7 +60,7 @@ import com.babai.ssplot.util.SystemInfo;
 import static javax.swing.JOptionPane.*;
 
 import static com.babai.ssplot.cli.ArgParse.*;
-import static com.babai.ssplot.ui.controls.DUI.*;
+import static com.babai.dui.controls.DUI.*;
 import static com.babai.ssplot.util.UIHelper.*;
 
 public class MainFrame extends JFrame {

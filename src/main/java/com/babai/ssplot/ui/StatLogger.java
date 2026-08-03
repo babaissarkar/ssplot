@@ -29,7 +29,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.ScrollPaneConstants;
 
-import com.babai.ssplot.ui.controls.DUI.Text;
+import com.babai.dui.controls.DUI.Text;
 import com.babai.ssplot.util.InfoLogger;
 
 public class StatLogger implements InfoLogger {
